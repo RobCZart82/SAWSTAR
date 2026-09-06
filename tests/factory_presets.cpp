@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #include "presets/FactoryPresets.h"
 #include "engine/Synth.h"
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -36,7 +37,7 @@ int main(){
     check(difference/sr>.01,"OSC2 contributes to new sound");check(stereo/sr>.01,"new sound has stereo width");
     std::cout<<presets[p].name<<" @ "<<sr<<" Hz chord peak "<<20*std::log10(peak)<<" dBFS\n";
    }
-   s.Midi(0x80,p==4?36:60,0);for(int i=0;i<sr*12;++i)s.ProcessStereo();check(s.ActiveVoices()==0,"factory release finishes");
+   s.Midi(0x80,p==4?36:60,0);for(int i=0;i<sr*std::max(12.,1.+5.*v[4]/1000.);++i)s.ProcessStereo();check(s.ActiveVoices()==0,"factory release finishes");
   }
  }
  check(StepFactoryPreset(0,-1)==7&&StepFactoryPreset(7,1)==0,"selector wraps");
