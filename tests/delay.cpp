@@ -23,6 +23,7 @@ int main(){
   d.Init(sr);d.Set(true,100,250,0,16000,false,false,3,120);for(int i=0;i<sr*2;++i)d.Process({0,0});
   int first=-1;double right=0,echo=0;
   for(int i=0;i<sr*.4f;++i){auto a=d.Process(i==0?StereoSample{1,0}:StereoSample{});if(first<0&&a.left>.001)first=i;right+=std::abs(a.right);echo+=std::abs(a.left);}
+  std::cout<<"delay timing "<<sr<<" first="<<first<<" expected="<<sr*.25f<<" echo="<<echo<<" right="<<right<<std::endl;
   check(std::abs(first-sr*.25f)<4&&echo>.9&&right==0,"free time and stereo isolation");
   d.Set(true,20,350,30,6000,false,true,2,120);check(std::abs(d.TimeSeconds()-.375f)<1.e-5,"dotted eighth timing");
   d.Set(true,20,350,30,6000,false,true,3,60);check(std::abs(d.TimeSeconds()-1)<1.e-5,"tempo quarter follows BPM");
