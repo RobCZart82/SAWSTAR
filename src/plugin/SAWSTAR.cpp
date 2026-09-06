@@ -54,18 +54,18 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     g->AttachControl(new ITextControl(IRECT(28, 140, 996, 169),
       "Filter envelope: raise Filter Mix, lower Cutoff, then add Env Amount.", IText(16, light)), kNoTag, "main");
     const auto knobStyle=DEFAULT_STYLE.WithLabelText(IText(13, light))
-      .WithValueText(IText(11, IColor(255, 9, 26, 38)));
+      .WithValueText(IText(12, light).WithVAlign(EVAlign::Bottom));
     for(int i=0;i<6;++i)
       g->AttachControl(new IVKnobControl(IRECT(28.f+i*165, 172, 168.f+i*165, 250),
-        5+i, sawstar::kParameters[5+i].name.data(), knobStyle), kNoTag, "main");
+        5+i, sawstar::kParameters[5+i].name.data(), knobStyle, true), kNoTag, "main");
     for(int i=0;i<6;++i)
       g->AttachControl(new IVKnobControl(IRECT(28.f+i*165, 262, 168.f+i*165, 340),
-        11+i, sawstar::kParameters[11+i].name.data(), knobStyle), kNoTag, "main");
+        11+i, sawstar::kParameters[11+i].name.data(), knobStyle, true), kNoTag, "main");
     const int order[] = {1, 2, 3, 4, 0};
     for (int i = 0; i < 5; ++i) {
       const auto& spec = sawstar::kParameters[order[i]];
       g->AttachControl(new IVKnobControl(IRECT(40.f+i*195.f, 352, 204.f+i*195.f, 430),
-                        order[i], spec.name.data(), knobStyle), kNoTag, "main");
+                        order[i], spec.name.data(), knobStyle, true), kNoTag, "main");
     }
     g->AttachControl(new ITextControl(IRECT(35, 180, 989, 230),
       "PERFORMANCE  /  ARPEGGIATOR  /  MODULATION", IText(23, accent)), kNoTag, "advanced");
