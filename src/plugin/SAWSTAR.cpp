@@ -4,6 +4,7 @@
 #include "IControls.h"
 #include "IVKeyboardControl.h"
 #include "plugin/Parameters.h"
+#include "plugin/State.h"
 #include "gui/Controls/PageButton.h"
 #include <algorithm>
 
@@ -133,3 +134,22 @@ void SAWSTAR::OnIdle() {
   }
 }
 #endif
+
+bool SAWSTAR::SerializeState(IByteChunk& chunk) const {
+  sawstar::Snapshot values{};
+  for (size_t i=0;i<values.size();++i) values[i]=GetParam(static_cast<int>(i))->Value();
+  const auto bytes=sawstar::EncodeState(values);
+  return chunk.PutBytes(bytes.data(), static_cast<int>(bytes.size())) > 0;
+}
+int SAWSTAR::UnserializeState(const IByteChunk& chunk, int startPos) {
+  if(startPos<0 || startPos>chunk.Size()) return -1;
+  sawstar::Snapshot values{};
+  const auto consumed=sawstar::DecodeState(chunk.GetData()+startPos,
+    static_cast<size_t>(chunk.Size()-startPos),values);
+  if(!consumed) return -1;
+  // Validate the entire payload first, then use framework locking and reset hooks.
+  IByteChunk params;
+  for(double value:values) if(params.Put(&value)<0) return -1;
+  if(UnserializeParams(params,0)<0) return -1;
+  return startPos+static_cast<int>(consumed);
+}

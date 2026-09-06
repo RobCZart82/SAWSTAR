@@ -4,8 +4,8 @@ Playable 16-voice instrument with DaisySP polyBLEP saw and ADSR primitives.
 MAIN exposes the five existing parameters. ADVANCED remains a placeholder;
 PRESETS offers Load Init. All pages share a flat 64-pixel-high keyboard,
 MIDI 36–96, without an octave selector. Host MIDI can address notes 0–127.
-Framework parameter save/recall is retained; a custom versioned preset format
-is still planned. No plugin identity or parameter order change was made.
+Versioned SAWSTAR state reads legacy framework saves; old plugin binaries
+cannot read new saves. The full preset library is still planned. No plugin identity or parameter order change was made.
 
 Build requirements: CMake 3.21+, Python 3, Git, C++17, Xcode or Visual Studio 2022.
 

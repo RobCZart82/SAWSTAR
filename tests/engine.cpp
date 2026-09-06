@@ -19,6 +19,13 @@ int main() {
   check(s.ActiveVoices()==16, "bounded polyphony");
   s.Midi(0xB0,120,0); check(s.Process()==0 && s.ActiveVoices()==0,"all sound off");
   s.Midi(0x91,60,127); s.Midi(0x80,60,0); check(s.Held(60),"channel isolation");
+  // Host-style parameter changes while a note is held, at several block sizes.
+  for(int block : {1, 32, 512, 2048}) {
+    for(int step=0;step<20;++step) {
+      s.SetParameters(step%2 ? -60 : 0, 1+step*20, 10+step, step/20., 1+step*10);
+      for(int i=0;i<block;++i) check(std::isfinite(s.Process()), "automation produced non-finite sample");
+    }
+  }
   s.Reset(rate); check(s.Process()==0 && !s.Held(60),"reset clears voices");
  }
 }

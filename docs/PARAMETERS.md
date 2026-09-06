@@ -2,7 +2,7 @@
 
 The canonical implementation is `src/plugin/Parameters.h`.
 IDs below are the intended iPlug2 parameter indices and must remain stable
-when host integration is added. Append new parameters; never reorder, reuse
+in all future builds. Append new parameters; never reorder, reuse
 or remove an ID. Retired parameters retain their slot and compatibility code.
 The strings are stable preset keys. GUI control tags are a separate namespace.
 
@@ -15,7 +15,7 @@ The strings are stable preset keys. GUI control tags are a separate namespace.
 | 4 | amp.release_ms | Release | ms | 1 | 10000 | 250 | Log |
 
 All five are continuous and intended to be host-automatable. Sustain is stored
-as a ratio and displayed as a percentage in the GUI. Output gain becomes
+as a ratio and currently displayed as a ratio in the GUI. Output gain becomes
 `pow(10, dB/20)` in DSP; -60 dB is not a mute switch. Milliseconds become seconds
 at the engine boundary. Parameter conversion utilities clamp finite values
 and replace NaN/infinity with the default. Unknown IDs fail lookup.
@@ -25,22 +25,29 @@ Host normalized values use [0,1]. Log time mapping is
 mapping so host automation, GUI and presets agree. Parameter utilities and iPlug2 registration are implemented. Time parameters
 use iPlug2 ShapeExp, matching the logarithmic contract.
 
-## State schema (specified, not implemented)
+## State schema v1 (implemented)
 
-Use schema version 1 with a `SAWSTAR` magic marker, a bounded payload length
-and records keyed by stable parameter ID. Encode fixed-width fields and
-explicit endianness; never dump a C++ struct or enum memory layout. Store
-physical parameter values, not transient oscillator or envelope state.
+`State.h/.cpp` encodes `SAWSTAR\0` (8 bytes), a little-endian u32 version (1),
+a little-endian u32 payload length, then records of u32 parameter ID + IEEE-754
+little-endian float64 physical value. Up to 64 records are accepted. The current
+payload is 60 bytes; the total state is 76 bytes. iPlug2 VST3 appends its own
+4-byte bypass value, which is not part of the SAWSTAR payload.
 
-Restore into a temporary snapshot before publishing it to the audio thread.
-Reject bad magic, unsupported future versions, truncated payloads, duplicate
-known IDs and non-finite values without changing live state. Unknown records
-may be skipped only after their length is validated. Missing known parameters
-use defaults; finite out-of-range values clamp. Bound record count and payload
-size. Add a migration function when changing schema and keep fixture states.
+Decode into a temporary snapshot. Bad magic/version, truncated lengths,
+duplicate known IDs and non-finite known values fail without changing parameters.
+Missing known IDs use defaults, unknown IDs are skipped, finite values clamp.
+The plugin then applies the validated snapshot using the framework parameter
+lock and reset hooks. Live oscillator/envelope state is deliberately not saved.
 
-Host save/recall and the Init preset must share one canonical state path.
-Preset names and learning text are metadata, not audio parameters. Editor tab
-selection is optional editor state and must not affect the sound. The development shell currently uses iPlug2 native parameter state persistence
-(PLUG_DOES_STATE_CHUNKS=0). The custom codec described above is not implemented;
-its eventual introduction needs backward migration from framework parameter state.
+Legacy 0.1.0 projects (five little-endian physical doubles, 40 bytes plus optional
+VST3 bypass) migrate on read. New saves always use v1. Older plugin binaries
+cannot read new v1 saves; keep the newer plugin when sharing new projects.
+Host parameter IDs, mappings and automation lanes are unchanged. Load Init
+uses the same parameter defaults via host gestures; its audio values serialize
+through the same state codec when the host saves.
+
+Automated tests include legacy byte fixtures, roundtrip, each truncated v1
+length, bad version/magic/length, duplicate IDs, NaN, unknown IDs and bypass
+trailers. Automation DSP tests change all five parameters at block sizes
+1/32/512/2048 and sample rates 44.1/48/96 kHz. This does not claim sample-accurate
+parameter automation: parameters are sampled once per block; output is smoothed.

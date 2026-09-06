@@ -13,5 +13,10 @@ Earlier silent-shell REAPER test (965120b, macOS ARM64, REAPER 7.79) confirmed
 loading, tabs, Load Init and Attack=23.24 ms across project save/reopen. That
 result is not evidence of audio acceptance for this new engine build.
 
-The current development milestone still needs Windows manual host acceptance,
-automation recording/playback, custom preset schema/migration and final GUI work.
+User reported successful Windows manual testing on 2026-09-06 (all working).
+This is user-reported evidence; no independent Windows GUI session or host
+version was captured in this task.
+
+The current development milestone still needs
+automation recording/playback, full preset library and final GUI work. Versioned state and legacy migration
+are now implemented; see PARAMETERS.md.

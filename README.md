@@ -18,13 +18,13 @@ The iPlug2 VST3 now includes a custom 16-voice SAWSTAR engine using DaisySP's
 polyBLEP saw and Amp ADSR, velocity, sustain pedal and dual-mono stereo output.
 MAIN / ADVANCED / PRESETS share a slim, clickable 61-key keyboard (MIDI 36–96)
 with cyan note feedback. There is no octave selector; the DAW can send all 128 notes.
-The five parameter IDs and framework state format remain unchanged.
+The five parameter IDs remain unchanged. Versioned state reads older saves.
 
 [Build and test](docs/PLUGIN_SHELL.md). GitHub Actions builds macOS ARM64 and
 Windows x64 development archives and runs engine tests plus the VST3 validator.
 The concept above is the longer-term design, not a screenshot of this build.
-This is not a tagged release. Custom preset migration, full host automation
-acceptance and Windows manual host checks remain outstanding.
+This is not a tagged release. Full host automation acceptance and the preset library remain outstanding.
+The user reported successful Windows manual testing.
 
 ## First milestone: `v0.1 First Sound`
 

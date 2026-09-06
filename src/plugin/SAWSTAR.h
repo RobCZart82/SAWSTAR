@@ -7,6 +7,8 @@
 
 class SAWSTAR final : public iplug::Plugin {
 public:
+  bool SerializeState(iplug::IByteChunk& chunk) const override;
+  int UnserializeState(const iplug::IByteChunk& chunk, int startPos) override;
   explicit SAWSTAR(const iplug::InstanceInfo& info);
 #if IPLUG_DSP
   void OnReset() override;
