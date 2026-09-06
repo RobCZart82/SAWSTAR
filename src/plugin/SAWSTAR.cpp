@@ -7,6 +7,7 @@
 #include "plugin/State.h"
 #include "gui/Controls/PageButton.h"
 #include "gui/Controls/PerformanceWheel.h"
+#include "gui/Controls/PresetControls.h"
 #include <algorithm>
 
 using namespace iplug;
@@ -37,8 +38,25 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     // Use an installed system font; no external font asset is redistributed.
     g->LoadFont("Roboto-Regular", "Arial", ETextStyle::Normal);
     const IColor light(255, 210, 238, 246), accent(255, 61, 200, 239);
-    g->AttachControl(new ITextControl(IRECT(24, 15, 280, 65), "S A W S T A R", IText(27, light)));
-    g->AttachControl(new ITextControl(IRECT(24, 64, 360, 92), "SIMPLE SYNTH. REAL SOUNDS.", IText(13, accent)));
+    g->AttachControl(new ITextControl(IRECT(20, 22, 233, 65), "S A W S T A R", IText(24, light)));
+    g->AttachControl(new ITextControl(IRECT(246, 24, 370, 44), "Simple Synth", IText(13, light).WithAlign(EAlign::Near)));
+    g->AttachControl(new ITextControl(IRECT(246, 44, 370, 65), "Big Sound", IText(15, accent).WithAlign(EAlign::Near)));
+    auto loadFactory = [this,g](int index) {
+      if(index<0 || index>=static_cast<int>(sawstar::FactoryPresets().size()))return;
+      const auto& values=sawstar::FactoryPresets()[index].values;
+      for (const auto& spec : sawstar::kParameters) {
+        const int id=static_cast<int>(spec.id);
+        BeginInformHostOfParamChangeFromUI(id);
+        const double value=sawstar::Normalize(spec,values[id]);
+        SendParameterValueFromUI(id,value);
+        EndInformHostOfParamChangeFromUI(id);
+        SendParameterValueFromDelegate(id,value,true);
+      }
+      mFactoryIndex=index;g->SetAllControlsDirty();
+    };
+    sawstar::Snapshot current{};
+    for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
+    mFactoryIndex=sawstar::MatchFactoryPreset(current);
     static const char* titles[] = {"MAIN", "ADVANCED", "PRESETS"};
     static const char* groups[] = {"main", "advanced", "presets"};
     auto selectPage = [this, g](int page) {
@@ -48,8 +66,9 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       g->SetAllControlsDirty();
     };
     for (int i = 0; i < 3; ++i)
-      g->AttachControl(new sawstar::gui::PageButton(IRECT(550.f+i*148.f, 25, 690.f+i*148.f, 70),
+      g->AttachControl(new sawstar::gui::PageButton(IRECT(382.f+i*102.f, 25, 479.f+i*102.f, 70),
                          titles[i], i, mPage, [selectPage, i]() { selectPage(i); }));
+    g->AttachControl(new sawstar::gui::PresetSelector(IRECT(701,25,1004,70),mFactoryIndex,loadFactory));
     g->AttachControl(new ITextControl(IRECT(28, 105, 996, 139),
       "7-SAW  >  LOW-PASS  >  AMP ENVELOPE  >  OUTPUT", IText(22, accent)), kNoTag, "main");
     g->AttachControl(new ITextControl(IRECT(28, 140, 996, 169),
@@ -76,20 +95,13 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       "MOD opens the filter. Raise Filter Mix to hear it. PITCH returns to center.",IText(16,light)),kNoTag,"advanced");
     g->AttachControl(new ITextControl(IRECT(35,403,989,427),
       "Arpeggiator and flexible modulation routing are planned.",IText(13,light)),kNoTag,"advanced");
-    g->AttachControl(new ITextControl(IRECT(35, 170, 989, 220),
-      "LIBRARY + LEARNING", IText(23, accent)), kNoTag, "presets");
-    g->AttachControl(new ITextControl(IRECT(35, 240, 989, 290),
-      "Start from Init. An annotated sound library is planned for a later milestone.", IText(17, light)), kNoTag, "presets");
-    g->AttachControl(new IVButtonControl(IRECT(405, 325, 619, 380), [this, g](IControl*) {
-      for (const auto& spec : sawstar::kParameters) {
-        const int id = static_cast<int>(spec.id);
-        BeginInformHostOfParamChangeFromUI(id);
-        const double value = sawstar::Normalize(spec, spec.initial);
-        SendParameterValueFromUI(id, value);
-        EndInformHostOfParamChangeFromUI(id);
-        SendParameterValueFromDelegate(id, value, true);
-      }
-    }, "Load Init"), kNoTag, "presets");
+    g->AttachControl(new ITextControl(IRECT(35,100,989,133),
+      "FACTORY LIBRARY + LEARNING",IText(22,accent)),kNoTag,"presets");
+    for(int i=0;i<static_cast<int>(sawstar::FactoryPresets().size());++i)
+      g->AttachControl(new sawstar::gui::PresetRow(IRECT(24,145.f+i*44,1000,185.f+i*44),
+        i,mFactoryIndex,loadFactory),kNoTag,"presets");
+    g->AttachControl(new ITextControl(IRECT(24,412,1000,435),
+      "Click a sound to load it. Edits show as Custom; save your sound in the DAW project.",IText(13,light)),kNoTag,"presets");
     g->AttachControl(new ITextControl(IRECT(20, 523, 1004, 553),
       "0.1.0-dev  |  7-SAW  |  16 VOICES  |  WHEELS: MIDI CH 1", IText(14, light)));
     g->AttachControl(new sawstar::gui::PerformanceWheel(IRECT(20,450,54,497),true));
@@ -155,6 +167,12 @@ void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
   mEvents[pos] = msg;
 }
 void SAWSTAR::OnIdle() {
+#if IPLUG_EDITOR
+  sawstar::Snapshot current{};
+  for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
+  const int match=sawstar::MatchFactoryPreset(current);
+  if(match!=mFactoryIndex){mFactoryIndex=match;if(GetUI())GetUI()->SetAllControlsDirty();}
+#endif
   // A bounded snapshot also synchronizes wheels when the editor is reopened.
   IMidiMsg wheel;const int bend=mBend.load(std::memory_order_relaxed);
   wheel.mStatus=0xe0;wheel.mData1=bend&127;wheel.mData2=bend>>7;wheel.mOffset=0;
