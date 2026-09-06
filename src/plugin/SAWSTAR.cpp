@@ -8,6 +8,7 @@
 #include "gui/Controls/PageButton.h"
 #include "gui/Controls/PerformanceWheel.h"
 #include "gui/Controls/PresetControls.h"
+#include "gui/Controls/WaveformControl.h"
 #include <algorithm>
 
 using namespace iplug;
@@ -17,7 +18,19 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
 : Plugin(info, MakeConfig(static_cast<int>(sawstar::kParameters.size()), 1)) {
   for (const auto& spec : sawstar::kParameters) {
     auto* param = GetParam(static_cast<int>(spec.id));
-    if (spec.id == sawstar::ParameterId::FilterMode)
+    if(spec.id==sawstar::ParameterId::Osc1Wave||spec.id==sawstar::ParameterId::Osc2Wave)
+      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Oscillator","Saw","Square","Triangle","Sine");
+    else if(spec.id==sawstar::ParameterId::LfoShape)
+      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"LFO","Sine","Triangle","Ramp","Square");
+    else if(spec.id==sawstar::ParameterId::LfoTarget)
+      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"LFO","Filter Cutoff","Pitch","Amp Level","Pan");
+    else if(spec.id==sawstar::ParameterId::LfoSync)
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"LFO","Free Hz","Tempo Sync");
+    else if(spec.id==sawstar::ParameterId::LfoDivision)
+      param->InitEnum(spec.name.data(),2,6,"",IParam::kFlagsNone,"LFO","1/1","1/2","1/4","1/8","1/16","1/32");
+    else if(spec.id==sawstar::ParameterId::LfoRetrigger)
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"LFO","Free phase","Retrigger first key");
+    else if (spec.id == sawstar::ParameterId::FilterMode)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Filter","Low Pass 12","Low Pass 24","High Pass 12","Band Pass 12");
     else if (spec.id == sawstar::ParameterId::NoiseType)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Mixer","White Noise","Dark Noise");
@@ -75,14 +88,14 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       g->AttachControl(new sawstar::gui::PageButton(IRECT(382.f+i*102.f, 25, 479.f+i*102.f, 70),
                          titles[i], i, mPage, [selectPage, i]() { selectPage(i); }));
     g->AttachControl(new sawstar::gui::PresetSelector(IRECT(701,25,1004,70),mFactoryIndex,loadFactory));
-    g->AttachControl(new ITextControl(IRECT(28, 105, 996, 139),
-      "OSC1 + OSC2 + SUB + NOISE  >  FILTER  >  AMP  >  OUTPUT", IText(22, accent)), kNoTag, "main");
+    g->AttachControl(new sawstar::gui::WaveformControl(IRECT(20,86,245,166),33,"OSC1 - click to select"),kNoTag,"main");
+    g->AttachControl(new sawstar::gui::WaveformControl(IRECT(260,86,485,166),34,"OSC2 - click to select"),kNoTag,"main");
 
     const auto knobStyle=DEFAULT_STYLE.WithLabelText(IText(13, light))
       .WithValueText(IText(12, light).WithVAlign(EVAlign::Bottom));
-    g->AttachControl(new IVMenuButtonControl(IRECT(260,135,485,167),32,"",knobStyle),kNoTag,"main");
-    g->AttachControl(new IVSliderControl(IRECT(510,135,790,167),31,"Drive",knobStyle,true,EDirection::Horizontal),kNoTag,"main");
-    g->AttachControl(new ITextControl(IRECT(800,135,1004,167),"Raise Filter Mix to hear",IText(12,light)),kNoTag,"main");
+    g->AttachControl(new IVMenuButtonControl(IRECT(510,108,725,140),32,"",knobStyle),kNoTag,"main");
+    g->AttachControl(new IVSliderControl(IRECT(750,108,995,140),31,"Drive",knobStyle,true,EDirection::Horizontal),kNoTag,"main");
+    g->AttachControl(new ITextControl(IRECT(510,140,995,166),"Raise Filter Mix to hear",IText(12,light)),kNoTag,"main");
     g->AttachControl(new ITextControl(IRECT(20,170,248,192),"MIXER",IText(15,accent)),kNoTag,"main");
     for(int i=0;i<4;++i)
       g->AttachControl(new IVSliderControl(IRECT(20.f+i*58,197,74.f+i*58,344),20+i,
@@ -94,14 +107,14 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       const char* label=id==5?"OSC1 Detune":id==6?"OSC1 Unison":id==7?"OSC1 Width":sawstar::kParameters[id].name.data();
       g->AttachControl(new IVKnobControl(IRECT(x,y,x+118,y+64),id,label,knobStyle,true),kNoTag,"main");
     }
-    g->AttachControl(new ITextControl(IRECT(35, 180, 989, 230),
-      "PERFORMANCE  /  ARPEGGIATOR  /  MODULATION", IText(23, accent)), kNoTag, "advanced");
-    g->AttachControl(new IVKnobControl(IRECT(290,245,460,350),17,"Bend Range",knobStyle,true),kNoTag,"advanced");
-    g->AttachControl(new IVKnobControl(IRECT(560,245,730,350),18,"Mod > Cutoff",knobStyle,true),kNoTag,"advanced");
-    g->AttachControl(new ITextControl(IRECT(35,365,989,398),
-      "MOD opens the filter. Raise Filter Mix to hear it. PITCH returns to center.",IText(16,light)),kNoTag,"advanced");
-    g->AttachControl(new ITextControl(IRECT(35,403,989,427),
-      "Arpeggiator and flexible modulation routing are planned.",IText(13,light)),kNoTag,"advanced");
+    g->AttachControl(new ITextControl(IRECT(35,100,989,133),"LFO + PERFORMANCE",IText(22,accent)),kNoTag,"advanced");
+    const int menus[]={37,38,39,40};
+    for(int i=0;i<4;++i)g->AttachControl(new IVMenuButtonControl(IRECT(30.f+i*245,155,260.f+i*245,205),menus[i],sawstar::kParameters[menus[i]].name.data(),knobStyle),kNoTag,"advanced");
+    const int knobs[]={35,36,17,18};
+    for(int i=0;i<4;++i)g->AttachControl(new IVKnobControl(IRECT(50.f+i*240,230,240.f+i*240,335),knobs[i],sawstar::kParameters[knobs[i]].name.data(),knobStyle,true),kNoTag,"advanced");
+    g->AttachControl(new IVMenuButtonControl(IRECT(35,350,300,390),41,"LFO Phase",knobStyle),kNoTag,"advanced");
+    g->AttachControl(new ITextControl(IRECT(320,350,995,390),"Amount: cutoff +/-24 st | pitch +/-1 st | tremolo | auto-pan",IText(13,light)),kNoTag,"advanced");
+    g->AttachControl(new ITextControl(IRECT(35,405,989,435),"Tempo Sync uses the DAW BPM. Cutoff modulation needs Filter Mix above 0.",IText(14,light)),kNoTag,"advanced");
     g->AttachControl(new ITextControl(IRECT(35,100,989,133),
       "FACTORY LIBRARY + LEARNING",IText(22,accent)),kNoTag,"presets");
     for(int i=0;i<static_cast<int>(sawstar::FactoryPresets().size());++i)
@@ -138,6 +151,9 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetOutputBoost(static_cast<float>(GetParam(19)->Value()));
   mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),
                 static_cast<float>(GetParam(7)->Value()));
+  mSynth.SetWaveforms(GetParam(33)->Int(),GetParam(34)->Int());
+  mSynth.SetLfo(GetParam(35)->Value(),GetParam(36)->Value(),GetParam(37)->Int(),GetParam(38)->Int(),
+    GetParam(39)->Int()!=0,GetParam(40)->Int(),GetTempo(),GetParam(41)->Int()!=0);
   mSynth.SetFilterCharacter(static_cast<float>(GetParam(31)->Value()),GetParam(32)->Int());
   mSynth.SetFilter(static_cast<float>(GetParam(8)->Value()), static_cast<float>(GetParam(9)->Value()),
                    static_cast<float>(GetParam(10)->Value()));

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "dsp/SevenSaw.h"
+#include "dsp/Lfo.h"
 #include "dsp/LowPass.h"
 #include "dsp/FilterModulation.h"
 #include "Control/adsr.h"
@@ -12,6 +13,8 @@ class Synth {
 public:
   void Reset(double sampleRate);
   void SetParameters(double gainDb, double attackMs, double decayMs, double sustain, double releaseMs);
+  void SetWaveforms(int osc1,int osc2);
+  void SetLfo(float hz,float depth,int shape,int target,bool sync,int division,double bpm,bool retrigger);
   void SetOutputBoost(float dB);
   void SetMixer(float osc1, float osc2, float sub, float noise,
                 int osc2Octave, int subOctave, int noiseType, int osc1Octave);
@@ -43,6 +46,8 @@ private:
     uint64_t age = 0;
   };
   std::array<Voice, 16> voices_{};
+  Lfo lfo_;
+  bool alternateWave_=false;
   std::array<bool, 16> sustain_{};
   std::array<int,16> bend_{{8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192}}, mod_{};
   std::array<float,16> bendRatio_{{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}}, bendTarget_{{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
