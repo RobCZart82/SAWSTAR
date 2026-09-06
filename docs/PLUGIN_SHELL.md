@@ -1,11 +1,11 @@
-# SAWSTAR VST3 development shell
+# SAWSTAR First Sound development build
 
-This is a silent instrument shell, not the First Sound release. MIDI input is
-declared but ignored until the voice engine is connected. MAIN contains the
-five host parameters; ADVANCED and PRESETS are real navigation pages with
-honest placeholder text. Load Init restores the five defaults through host
-parameter gestures. The current framework provides parameter state persistence;
-the custom versioned preset format is still planned.
+Playable 16-voice instrument with DaisySP polyBLEP saw and ADSR primitives.
+MAIN exposes the five existing parameters. ADVANCED remains a placeholder;
+PRESETS offers Load Init. All pages share a flat 64-pixel-high keyboard,
+MIDI 36–96, without an octave selector. Host MIDI can address notes 0–127.
+Framework parameter save/recall is retained; a custom versioned preset format
+is still planned. No plugin identity or parameter order change was made.
 
 Build requirements: CMake 3.21+, Python 3, Git, C++17, Xcode or Visual Studio 2022.
 
@@ -33,7 +33,8 @@ Add the bundle's parent folder to REAPER's VST paths or install it to a standard
 user VST3 directory. Rescan, insert SAWSTAR on a new track, open and switch all
 three tabs, adjust the five parameters and load Init. Save/reopen a disposable
 project and compare parameter values; test two instances and repeated editor
-open/close. All output must remain silent and finite, even when MIDI is sent.
+open/close. Play individual notes and chords from both GUI and MIDI; check note-off, sustain,
+voice stealing and silence after release. Confirm finite bounded output.
 This checklist is not evidence of a completed REAPER test; see the task report.
 
 The macOS artifact is an unsigned development build, not a notarized installer.

@@ -12,26 +12,27 @@ with a custom 7-Saw/SuperSaw planned after the first playable instrument.
 
 *GUI concept — work in progress. The image shows the design vision, not an implemented plugin.*
 
-## Status: VST3 development shell / 0.1.0-dev
+## Status: First Sound development build / 0.1.0-dev
 
-The repository now includes an iPlug2 VST3 **silent development shell** with
-MAIN / ADVANCED / PRESETS navigation, five host parameters and Load Init.
-It is not yet a playable synthesizer: MIDI input is declared but the voice
-engine is not connected. The concept above represents the longer-term design.
+The iPlug2 VST3 now includes a custom 16-voice SAWSTAR engine using DaisySP's
+polyBLEP saw and Amp ADSR, velocity, sustain pedal and dual-mono stereo output.
+MAIN / ADVANCED / PRESETS share a slim, clickable 61-key keyboard (MIDI 36–96)
+with cyan note feedback. There is no octave selector; the DAW can send all 128 notes.
+The five parameter IDs and framework state format remain unchanged.
 
-[Build and test the shell](docs/PLUGIN_SHELL.md). GitHub Actions builds macOS
-ARM64 and Windows x64 VST3 development archives, with license notices included.
-The original offline foundation and optional DaisySP primitive checks remain
-available. No First Sound release, signing/notarization or host certification
-is claimed. See the task report for actual host test results.
+[Build and test](docs/PLUGIN_SHELL.md). GitHub Actions builds macOS ARM64 and
+Windows x64 development archives and runs engine tests plus the VST3 validator.
+The concept above is the longer-term design, not a screenshot of this build.
+This is not a tagged release. Custom preset migration, full host automation
+acceptance and Windows manual host checks remain outstanding.
 
 ## First milestone: `v0.1 First Sound`
 
 - [ ] VST3 loads and plays in REAPER on macOS and Windows.
-- [ ] Three-tab shell: MAIN, ADVANCED, PRESETS.
+- [x] Three-tab shell: MAIN, ADVANCED, PRESETS.
 - [ ] MIDI input, including sample offsets and note-on velocity zero.
-- [ ] Fixed-capacity polyphonic SAWSTAR voice manager.
-- [ ] One bandlimited saw oscillator per voice, velocity and Amp ADSR.
+- [x] Fixed-capacity polyphonic SAWSTAR voice manager.
+- [x] One bandlimited saw oscillator per voice, velocity and Amp ADSR.
 - [ ] Stereo output with conservative gain and parameter smoothing.
 - [ ] Versioned state save/recall and host automation.
 

@@ -56,7 +56,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     for (int i = 0; i < 5; ++i) {
       const auto& spec = sawstar::kParameters[order[i]];
       g->AttachControl(new IVKnobControl(IRECT(40.f+i*195.f, 245, 204.f+i*195.f, 410),
-                        order[i], spec.name.data(), DEFAULT_STYLE.WithLabelText(IText(17, light)).WithValueText(IText(14, light))), kNoTag, "main");
+                        order[i], spec.name.data(), DEFAULT_STYLE.WithLabelText(IText(17, light)).WithValueText(IText(14, IColor(255, 9, 26, 38)))), kNoTag, "main");
     }
     g->AttachControl(new ITextControl(IRECT(35, 180, 989, 230),
       "PERFORMANCE  /  ARPEGGIATOR  /  MODULATION", IText(23, accent)), kNoTag, "advanced");
