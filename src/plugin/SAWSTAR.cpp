@@ -119,7 +119,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     g->AttachControl(new ITextControl(IRECT(35,100,989,133),
       "FACTORY LIBRARY + LEARNING",IText(22,accent)),kNoTag,"presets");
     for(int i=0;i<static_cast<int>(sawstar::FactoryPresets().size());++i)
-      g->AttachControl(new sawstar::gui::PresetRow(IRECT(24,145.f+i*44,1000,185.f+i*44),
+      g->AttachControl(new sawstar::gui::PresetRow(IRECT(24,140.f+i*33,1000,170.f+i*33),
         i,mFactoryIndex,loadFactory),kNoTag,"presets");
     g->AttachControl(new ITextControl(IRECT(24,412,1000,435),
       "Click a sound to load it. Edits show as Custom; save your sound in the DAW project.",IText(13,light)),kNoTag,"presets");

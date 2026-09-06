@@ -1,7 +1,7 @@
 # Factory library and shared preset selector
 
-Six original parameter-only sounds ship with SAWSTAR: Init, Wide Saw Lead,
-Soft Pad, Saw Pluck, Deep Bass and Bright Keys. No samples or new dependencies.
+Eight original parameter-only sounds ship with SAWSTAR: Init, Wide Saw Lead,
+Soft Pad, Saw Pluck, Deep Bass, Bright Keys, SuperSaw One and Soft Pad One. No samples or new dependencies.
 Each sound includes a category and one practical sound-design explanation in
 PRESETS. Click a row to load it; changes replace current parameter values.
 
@@ -12,7 +12,7 @@ The bottom keyboard, wheels and status row remain shared across all views.
 
 The selected name is derived from all current parameter values, including after
 DAW project recall. An edited/unrecognized sound displays Custom. From Custom,
-next selects Init and previous selects Bright Keys. Returning all values to a
+next selects Init and previous selects Soft Pad One. Returning all values to a
 factory sound restores its name. Transient pitch/mod MIDI values do not affect
 this comparison. Factory identity is not a separate persisted parameter.
 
@@ -47,3 +47,20 @@ Code commit: `36d3bb57deff413cae704f21a96ffb8ca9b1cb52`.
   with zero clipped samples. A separate listening preview was normalized to
   -6 dBFS; this does not change factory output levels.
 - Manual Windows host testing of this preset-library build remains pending.
+
+## Dual-oscillator One presets
+
+The original six sounds keep their values and order. Two sounds are appended:
+
+- **SuperSaw One**: two seven-saw ensembles at the same octave, different detune
+  (21/31 cents), wide stereo placement and a quiet sine sub. A short amp attack,
+  gentle filter drive and slow, shallow cutoff LFO add body and motion. MOD opens
+  the filter further. Intended for leads and full chords.
+- **Soft Pad One**: a saw ensemble plus a softer triangle ensemble, quiet sine sub
+  and a trace of Dark Noise. A 1.6 s amp attack, 3.2 s release and slower filter
+  envelope produce a gradual bloom. A free-running 0.12 Hz cutoff LFO adds motion.
+
+Both use Output -9 dB and Level Boost 18 dB. They use the existing engine only;
+there is no chorus, reverb or delay baked in, and no samples or new dependencies.
+All eight library rows fit above the fixed keyboard; the header list also includes
+both new names. Host-state save/recall uses the unchanged parameter schema.
