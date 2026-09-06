@@ -17,7 +17,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     auto* param = GetParam(static_cast<int>(spec.id));
     if (spec.mapping == sawstar::Mapping::Logarithmic)
       param->InitDouble(spec.name.data(), spec.initial, spec.minimum, spec.maximum, 0.01,
-                        spec.unit.data(), IParam::kFlagsNone, spec.id == sawstar::ParameterId::FilterCutoff ? "Filter" : "Amp", IParam::ShapeExp());
+                        spec.unit.data(), IParam::kFlagsNone, static_cast<int>(spec.id) >= 8 ? "Filter" : "Amp", IParam::ShapeExp());
     else
       param->InitDouble(spec.name.data(), spec.initial, spec.minimum, spec.maximum, 0.001,
                         spec.unit.data());
@@ -52,17 +52,20 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     g->AttachControl(new ITextControl(IRECT(28, 105, 996, 139),
       "7-SAW  >  LOW-PASS  >  AMP ENVELOPE  >  OUTPUT", IText(22, accent)), kNoTag, "main");
     g->AttachControl(new ITextControl(IRECT(28, 140, 996, 169),
-      "Raise Mix for seven saws. Raise Filter Mix to shape the tone with Cutoff and Resonance.", IText(16, light)), kNoTag, "main");
-    const auto knobStyle=DEFAULT_STYLE.WithLabelText(IText(16, light))
-      .WithValueText(IText(13, IColor(255, 9, 26, 38)));
+      "Filter envelope: raise Filter Mix, lower Cutoff, then add Env Amount.", IText(16, light)), kNoTag, "main");
+    const auto knobStyle=DEFAULT_STYLE.WithLabelText(IText(13, light))
+      .WithValueText(IText(11, IColor(255, 9, 26, 38)));
     for(int i=0;i<6;++i)
-      g->AttachControl(new IVKnobControl(IRECT(28.f+i*165, 176, 168.f+i*165, 288),
+      g->AttachControl(new IVKnobControl(IRECT(28.f+i*165, 172, 168.f+i*165, 250),
         5+i, sawstar::kParameters[5+i].name.data(), knobStyle), kNoTag, "main");
+    for(int i=0;i<6;++i)
+      g->AttachControl(new IVKnobControl(IRECT(28.f+i*165, 262, 168.f+i*165, 340),
+        11+i, sawstar::kParameters[11+i].name.data(), knobStyle), kNoTag, "main");
     const int order[] = {1, 2, 3, 4, 0};
     for (int i = 0; i < 5; ++i) {
       const auto& spec = sawstar::kParameters[order[i]];
-      g->AttachControl(new IVKnobControl(IRECT(40.f+i*195.f, 305, 204.f+i*195.f, 416),
-                        order[i], spec.name.data(), DEFAULT_STYLE.WithLabelText(IText(17, light)).WithValueText(IText(14, IColor(255, 9, 26, 38)))), kNoTag, "main");
+      g->AttachControl(new IVKnobControl(IRECT(40.f+i*195.f, 352, 204.f+i*195.f, 430),
+                        order[i], spec.name.data(), knobStyle), kNoTag, "main");
     }
     g->AttachControl(new ITextControl(IRECT(35, 180, 989, 230),
       "PERFORMANCE  /  ARPEGGIATOR  /  MODULATION", IText(23, accent)), kNoTag, "advanced");
@@ -104,6 +107,9 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
                 static_cast<float>(GetParam(7)->Value()));
   mSynth.SetFilter(static_cast<float>(GetParam(8)->Value()), static_cast<float>(GetParam(9)->Value()),
                    static_cast<float>(GetParam(10)->Value()));
+  mSynth.SetFilterEnvelope(static_cast<float>(GetParam(11)->Value()), static_cast<float>(GetParam(12)->Value()),
+    static_cast<float>(GetParam(13)->Value()), static_cast<float>(GetParam(14)->Value()),
+    static_cast<float>(GetParam(15)->Value()), static_cast<float>(GetParam(16)->Value()));
   if (mOverflow) {
     for (int ch = 0; ch < 16; ++ch) mSynth.Midi(0xB0 | ch, 120, 0);
     mEventCount = 0; mOverflow = false;

@@ -9,7 +9,7 @@ void Synth::Reset(double rate) {
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
   for (auto& v : voices_) {
     v = Voice{};
-    v.osc.Init(sr); v.env.Init(sr); v.filter.Init(sr);
+    v.osc.Init(sr); v.env.Init(sr); v.filter.Init(sr); v.filterMod.Init(sr);
   }
 }
 void Synth::SetParameters(double gain, double attack, double decay, double sustain, double release) {
@@ -22,7 +22,13 @@ void Synth::SetParameters(double gain, double attack, double decay, double susta
   }
 }
 void Synth::SetFilter(float cutoff,float resonance,float mix) {
-  for(auto& v:voices_) v.filter.Set(cutoff,resonance,mix);
+  cutoff_=cutoff; resonance_=resonance; filterMix_=mix;
+  SetFilterEnvelope(amount_,tracking_,filterAttack_,filterDecay_,filterSustain_,filterRelease_);
+}
+void Synth::SetFilterEnvelope(float amount,float tracking,float attack,float decay,float sustain,float release) {
+  amount_=amount; tracking_=tracking; filterAttack_=attack; filterDecay_=decay;
+  filterSustain_=sustain; filterRelease_=release;
+  for(auto& v:voices_) v.filterMod.Set(cutoff_,amount,tracking,attack,decay,sustain,release);
 }
 void Synth::SetSaw(float detune,float mix,float width) {
   for(auto& v:voices_) v.osc.SetShape(detune,mix*.01f,width*.01f);
@@ -38,6 +44,7 @@ void Synth::Midi(int status, int note, int value) {
     if (!chosen) for (auto& v : voices_) if (!v.held && (!chosen || v.age < chosen->age)) chosen = &v;
     if (!chosen) chosen = &*std::min_element(voices_.begin(), voices_.end(), [](const Voice& a, const Voice& b) { return a.age < b.age; });
     auto& v = *chosen;
+    v.filterMod.Trigger(v.note<0);
     if(v.note<0) v.filter.Clear();
     v.note = note; v.channel = channel; v.held = v.gate = true;
     v.velocity = static_cast<float>(value) / 127.f; v.age = ++age_;
@@ -64,6 +71,7 @@ StereoSample Synth::ProcessStereo() {
   StereoSample sum;
   for (auto& v : voices_) if (v.note >= 0) {
     const float env = v.env.Process(v.gate);
+    v.filter.Set(v.filterMod.Process(v.note,v.gate),resonance_,filterMix_);
     const auto value=v.filter.Process(v.osc.Process());
     sum.left+=value.left*env*v.velocity;sum.right+=value.right*env*v.velocity;
     if (!v.gate && !v.env.IsRunning()) v.note = -1;

@@ -20,7 +20,14 @@ The strings are stable preset keys. GUI control tags are a separate namespace.
 | 9 | filter.resonance | Resonance | % | 0 | 100 | 0 | Linear |
 | 10 | filter.mix | Filter Mix | % | 0 | 100 | 0 | Linear |
 
-All eleven are continuous and intended to be host-automatable. Sustain is stored
+| 11 | filter.env_amount_st | Env Amount | st | -96 | 96 | 0 | Linear |
+| 12 | filter.key_track | Key Track | % | 0 | 100 | 0 | Linear |
+| 13 | filter.attack_ms | F Attack | ms | 1 | 10000 | 10 | Log |
+| 14 | filter.decay_ms | F Decay | ms | 1 | 10000 | 200 | Log |
+| 15 | filter.sustain | F Sustain | ratio | 0 | 1 | 0 | Linear |
+| 16 | filter.release_ms | F Release | ms | 1 | 10000 | 250 | Log |
+
+All seventeen are continuous and intended to be host-automatable. Sustain is stored
 as a ratio and currently displayed as a ratio in the GUI. Output gain becomes
 `pow(10, dB/20)` in DSP; -60 dB is not a mute switch. Milliseconds become seconds
 at the engine boundary. Parameter conversion utilities clamp finite values
@@ -36,9 +43,10 @@ use iPlug2 ShapeExp, matching the logarithmic contract.
 `State.h/.cpp` encodes `SAWSTAR\0` (8 bytes), a little-endian u32 version (1),
 a little-endian u32 payload length, then records of u32 parameter ID + IEEE-754
 little-endian float64 physical value. Up to 64 records are accepted. The current
-payload is 132 bytes; the total state is 148 bytes. Old eight-record v1
-states (112 bytes) remain supported and default IDs 8–10. Old five-record v1 states
-(76 bytes) remain supported and use defaults for IDs 5–7. iPlug2 VST3 appends its own
+payload is 204 bytes; the total state is 220 bytes. Old eleven-record v1
+states (148 bytes) default IDs 11–16. Old eight-record v1
+states (112 bytes) remain supported and default IDs 8–16. Old five-record v1 states
+(76 bytes) remain supported and use defaults for IDs 5–16. iPlug2 VST3 appends its own
 4-byte bypass value, which is not part of the SAWSTAR payload.
 
 Decode into a temporary snapshot. Bad magic/version, truncated lengths,

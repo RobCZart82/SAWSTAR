@@ -11,9 +11,9 @@ while rendering, and tangent is calculated only when the cutoff target changes.
 - Filter Mix: 0–100%, dry/wet blend. Init/old projects use 0% for unchanged sound.
 
 IDs 8/9/10 append to the eight existing IDs. Raw five-double, five-record v1 and
-eight-record v1 states remain supported. New saves contain eleven records.
+eight-record v1 states remain supported. The initial filter build saved eleven records; current saves contain seventeen.
 Filter integrator state is not serialized. Idle voice reuse clears integrators;
-live retriggers retain them. Filter envelopes and keyboard tracking are deferred.
+live retriggers retain them. Filter envelopes and keyboard tracking are described in FILTER_MODULATION.md.
 
 Tests cover bypass identity, high-frequency attenuation, unity DC response,
 channel isolation, extreme cutoff/resonance sweeps, reset/invalid-input recovery,

@@ -97,3 +97,6 @@ zlib-style license; the selected DaisySP core uses MIT. The optional LGPL
 extension is not part of this build. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 Artwork, fonts and external presets must have recorded redistribution rights
 before being added; the concept image is included as a design reference.
+
+The filter now includes an independent per-voice ADSR, bipolar envelope amount
+and keyboard tracking. See [filter modulation](docs/FILTER_MODULATION.md).

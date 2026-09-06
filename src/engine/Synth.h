@@ -2,6 +2,7 @@
 #pragma once
 #include "dsp/SevenSaw.h"
 #include "dsp/LowPass.h"
+#include "dsp/FilterModulation.h"
 #include "Control/adsr.h"
 #include <array>
 #include <cstdint>
@@ -13,6 +14,7 @@ public:
   void SetParameters(double gainDb, double attackMs, double decayMs, double sustain, double releaseMs);
   void Midi(int status, int data1, int data2);
   void SetFilter(float cutoffHz, float resonancePercent, float mixPercent);
+  void SetFilterEnvelope(float amount, float tracking, float attack, float decay, float sustain, float release);
   void SetSaw(float detuneCents, float mixPercent, float widthPercent);
   StereoSample ProcessStereo();
   float Process() { const auto s=ProcessStereo(); return (s.left+s.right)*0.5f; }
@@ -22,6 +24,7 @@ private:
   struct Voice {
     SevenSaw osc;
     LowPass filter;
+    FilterModulation filterMod;
     daisysp::Adsr env;
     int note = -1, channel = 0;
     bool held = false, gate = false;
@@ -31,6 +34,8 @@ private:
   std::array<Voice, 16> voices_{};
   std::array<bool, 16> sustain_{};
   uint64_t age_ = 0;
+  float cutoff_=12000, resonance_=0, filterMix_=0;
+  float amount_=0, tracking_=0, filterAttack_=10, filterDecay_=200, filterSustain_=0, filterRelease_=250;
   float gain_ = 0, targetGain_ = 0.25f, smoothing_ = 0.002f;
 };
 }
