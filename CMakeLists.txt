@@ -37,6 +37,10 @@ if(SAWSTAR_CHECK_DAISYSP)
     PRIVATE "${_daisy}/Source/Synthesis" "${_daisy}/Source/Control"
             "${_daisy}/Source/Utility")
   target_compile_features(sawstar_daisy_primitives PUBLIC cxx_std_17)
+  if(MSVC)
+    # DaisySP ADSR uses M_E; MSVC exposes it only with this opt-in.
+    target_compile_definitions(sawstar_daisy_primitives PRIVATE _USE_MATH_DEFINES)
+  endif()
   set_target_properties(sawstar_daisy_primitives PROPERTIES
     CXX_EXTENSIONS OFF POSITION_INDEPENDENT_CODE ON)
   if(BUILD_TESTING)
