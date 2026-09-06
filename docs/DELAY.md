@@ -35,3 +35,14 @@ Tone 6000 Hz. No existing preset is overwritten.
 Appended parameter IDs: 46 delay.enabled (Off), 47 delay.mix (20%),
 48 delay.time_ms (350 ms), 49 delay.feedback (30%), 50 delay.tone_hz (6000 Hz),
 51 delay.mode (Stereo), 52 delay.sync (Free ms), 53 delay.division (1/4).
+
+## Validation — 2026-09-06
+
+Tested code `6895f4e8c2c7114133cc3ff9aa3d858b7ba86519`:
+[macOS CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34061475564) and
+[Windows CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34061475527)
+passed all 15 tests in Debug/Release and all 47 VST3 validator checks.
+Impulse timing/ping-pong, stereo isolation, tone filtering, feedback/automation,
+bypass/history/reset and state migration are covered. Delay timing uses double
+precision to avoid smoothing rounding errors at high sample rates.
+Manual REAPER UI, listening and project-restart checks for this build are pending.
