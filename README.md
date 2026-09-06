@@ -1,6 +1,6 @@
 # SAWSTAR
 
-**Simple Synth. Real Sounds.**
+**Simple Synth – Big Sound**
 
 An open-source, saw-focused synthesizer for direct sound design and learning.
 Built toward **iPlug2 + a custom SAWSTAR voice/synth engine + DaisySP primitives**,

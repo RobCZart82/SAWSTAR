@@ -3,7 +3,10 @@
 ## Identity
 
 - Product and repository: **SAWSTAR**.
-- Tagline: **Simple Synth. Real Sounds.**
+- Tagline: **Simple Synth – Big Sound**.
+- GUI brand lockup: large, spaced uppercase **SAWSTAR**, with **Simple Synth**
+  and **Big Sound** in two smaller left-aligned lines immediately to its right.
+  The two lines together match the logo height; **Big Sound** has subtle emphasis.
 - Project owner: **RobCZart82**; an account name, not an invented legal vendor.
 - Development version: `0.1.0-dev`; CMake numeric version: `0.1.0`.
 - Initial platforms: macOS and Windows; initial format: VST3 instrument.
