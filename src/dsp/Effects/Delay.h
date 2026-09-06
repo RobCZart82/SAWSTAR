@@ -28,7 +28,7 @@ public:
   targetTone_=1-std::exp(-6.28318530718f*std::min(Clean(tone,200,16000,6000),sr_*.45f)/sr_);
  }
  bool IsDry()const{return mix_==0&&targetMix_==0;}
- float TimeSeconds()const{return targetTime_/sr_;}
+ float TimeSeconds()const{return static_cast<float>(targetTime_/sr_);}
  StereoSample Process(StereoSample in){
   if(buffer_[0].empty())return in;
   mix_+=smooth_*(targetMix_-mix_);if(targetMix_==0&&mix_<1.e-7f)mix_=0;
@@ -47,7 +47,7 @@ public:
 private:
  static float Clean(float v,float lo,float hi,float fallback){return std::isfinite(v)?std::clamp(v,lo,hi):fallback;}
  float Read(int channel)const{
-  const size_t whole=static_cast<size_t>(time_);const float fraction=time_-whole;
+  const size_t whole=static_cast<size_t>(time_);const float fraction=static_cast<float>(time_-whole);
   const auto n=buffer_[channel].size();
   const float a=whole<=valid_?buffer_[channel][(write_+n-whole)%n]:0;
   const float b=whole+1<=valid_?buffer_[channel][(write_+n-whole-1)%n]:0;
@@ -56,6 +56,7 @@ private:
  std::vector<float> buffer_[2];size_t write_=0,valid_=0;
  bool enabled_=false;float sr_=44100,smooth_=.001f,low_[2]{};
  float mix_=0,targetMix_=0,feedback_=.3f,targetFeedback_=.3f,mode_=0,targetMode_=0;
- float time_=15435,targetTime_=15435,tone_=.5f,targetTone_=.5f;
+ double time_=15435,targetTime_=15435;
+ float tone_=.5f,targetTone_=.5f;
 };
 }
