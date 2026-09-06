@@ -18,3 +18,17 @@ live retriggers retain them. Filter envelopes and keyboard tracking are deferred
 Tests cover bypass identity, high-frequency attenuation, unity DC response,
 channel isolation, extreme cutoff/resonance sweeps, reset/invalid-input recovery,
 full 16-voice 7-Saw bounds and panic silence at 8/44.1/48/96 kHz.
+
+## Validation — 2026-09-06
+
+Implementation commit: e0a70262f7369b86e162e50c6a565191b19736c9.
+macOS run 34039698926 and Windows run 34039698917: Debug/Release foundation
+checks passed; plugin builds passed all six test executables and all 47 VST3
+validator tests. Packages are unsigned development builds.
+
+REAPER 7.79 on macOS loaded the previous 7-Saw project with its existing eight
+parameters intact and Filter Mix at 0%. A new save contains all eleven records.
+A stereo 44.1 kHz/24-bit MIDI render with cutoff 1067.11 Hz, resonance 31.403%
+and Filter Mix 100% peaked at -23.65 dBFS with zero clipped samples.
+The separate listening preview is normalized to -6 dBFS; plugin gain is unchanged.
+Manual Windows host testing of this filter build remains pending.
