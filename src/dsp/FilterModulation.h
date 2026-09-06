@@ -18,10 +18,10 @@ public:
     env_.SetReleaseTime(Safe(release,1,10000)*.001f);
   }
   void Trigger(bool hard) { env_.Retrigger(hard); tick_=0; }
-  float Process(int note,bool gate) {
+  float Process(int note,bool gate,float wheelSemitones=0) {
     const float envelope=env_.Process(gate);
     if(tick_++==0) {
-      const float semitones=amount_*envelope+tracking_*(note-60);
+      const float semitones=amount_*envelope+tracking_*(note-60)+wheelSemitones;
       cutoff_=std::clamp(base_*(semitones==0?1.f:std::exp2(semitones/12.f)),20.f,limit_);
     }
     if(tick_==16) tick_=0;

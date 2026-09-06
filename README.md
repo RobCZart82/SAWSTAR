@@ -100,3 +100,6 @@ before being added; the concept image is included as a design reference.
 
 The filter now includes an independent per-voice ADSR, bipolar envelope amount
 and keyboard tracking. See [filter modulation](docs/FILTER_MODULATION.md).
+
+Pitch bend and CC1 now work per MIDI channel, with shared on-screen wheels
+and ADVANCED depth controls. See [performance controls](docs/PERFORMANCE.md).

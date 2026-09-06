@@ -6,6 +6,7 @@
 #include "plugin/Parameters.h"
 #include "plugin/State.h"
 #include "gui/Controls/PageButton.h"
+#include "gui/Controls/PerformanceWheel.h"
 #include <algorithm>
 
 using namespace iplug;
@@ -69,8 +70,12 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     }
     g->AttachControl(new ITextControl(IRECT(35, 180, 989, 230),
       "PERFORMANCE  /  ARPEGGIATOR  /  MODULATION", IText(23, accent)), kNoTag, "advanced");
-    g->AttachControl(new ITextControl(IRECT(35, 255, 989, 310),
-      "Performance, arpeggiator and modulation controls are planned.", IText(18, light)), kNoTag, "advanced");
+    g->AttachControl(new IVKnobControl(IRECT(290,245,460,350),17,"Bend Range",knobStyle,true),kNoTag,"advanced");
+    g->AttachControl(new IVKnobControl(IRECT(560,245,730,350),18,"Mod > Cutoff",knobStyle,true),kNoTag,"advanced");
+    g->AttachControl(new ITextControl(IRECT(35,365,989,398),
+      "MOD opens the filter. Raise Filter Mix to hear it. PITCH returns to center.",IText(16,light)),kNoTag,"advanced");
+    g->AttachControl(new ITextControl(IRECT(35,403,989,427),
+      "Arpeggiator and flexible modulation routing are planned.",IText(13,light)),kNoTag,"advanced");
     g->AttachControl(new ITextControl(IRECT(35, 170, 989, 220),
       "LIBRARY + LEARNING", IText(23, accent)), kNoTag, "presets");
     g->AttachControl(new ITextControl(IRECT(35, 240, 989, 290),
@@ -85,9 +90,13 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
         SendParameterValueFromDelegate(id, value, true);
       }
     }, "Load Init"), kNoTag, "presets");
-    g->AttachControl(new ITextControl(IRECT(20, 430, 1004, 462),
-      "0.1.0-dev  |  7-SAW  |  16 VOICES", IText(14, light)));
-    g->AttachControl(new IVKeyboardControl(IRECT(20, 478, 1004, 542), 36, 96, false,
+    g->AttachControl(new ITextControl(IRECT(20, 523, 1004, 553),
+      "0.1.0-dev  |  7-SAW  |  16 VOICES  |  WHEELS: MIDI CH 1", IText(14, light)));
+    g->AttachControl(new sawstar::gui::PerformanceWheel(IRECT(20,450,54,497),true));
+    g->AttachControl(new sawstar::gui::PerformanceWheel(IRECT(62,450,96,497),false));
+    g->AttachControl(new ITextControl(IRECT(17,497,57,514),"PITCH",IText(10,light)));
+    g->AttachControl(new ITextControl(IRECT(59,497,99,514),"MOD",IText(10,light)));
+    g->AttachControl(new IVKeyboardControl(IRECT(104, 450, 1004, 514), 36, 96, false,
       IColor(255, 117, 137, 147), IColor(255, 22, 40, 50), accent,
       IColor(255, 9, 26, 38), light));
     selectPage(mPage);
@@ -98,6 +107,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
 void SAWSTAR::OnReset() {
   mSynth.Reset(GetSampleRate());
   mEventCount = 0; mOverflow = false;
+  mBend.store(8192);mMod.store(0);
   for (auto& held : mHeld) held.store(false, std::memory_order_relaxed);
 }
 void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
@@ -110,9 +120,11 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetFilterEnvelope(static_cast<float>(GetParam(11)->Value()), static_cast<float>(GetParam(12)->Value()),
     static_cast<float>(GetParam(13)->Value()), static_cast<float>(GetParam(14)->Value()),
     static_cast<float>(GetParam(15)->Value()), static_cast<float>(GetParam(16)->Value()));
+  mSynth.SetPerformance(static_cast<float>(GetParam(17)->Value()),static_cast<float>(GetParam(18)->Value()));
   if (mOverflow) {
     for (int ch = 0; ch < 16; ++ch) mSynth.Midi(0xB0 | ch, 120, 0);
     mEventCount = 0; mOverflow = false;
+  mBend.store(8192);mMod.store(0);
   }
   int event = 0;
   for (int i = 0; i < frames; ++i) {
@@ -129,6 +141,8 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     mEvents[i - event] = mEvents[i]; mEvents[i - event].mOffset -= frames;
   }
   mEventCount -= event;
+  mBend.store(mSynth.PitchBend(0),std::memory_order_relaxed);
+  mMod.store(mSynth.ModWheel(0),std::memory_order_relaxed);
   for (int note = 0; note < 128; ++note)
     mHeld[note].store(mSynth.Held(note), std::memory_order_relaxed);
 }
@@ -141,6 +155,12 @@ void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
   mEvents[pos] = msg;
 }
 void SAWSTAR::OnIdle() {
+  // A bounded snapshot also synchronizes wheels when the editor is reopened.
+  IMidiMsg wheel;const int bend=mBend.load(std::memory_order_relaxed);
+  wheel.mStatus=0xe0;wheel.mData1=bend&127;wheel.mData2=bend>>7;wheel.mOffset=0;
+  SendMidiMsgFromDelegate(wheel);
+  wheel.mStatus=0xb0;wheel.mData1=1;wheel.mData2=mMod.load(std::memory_order_relaxed);
+  SendMidiMsgFromDelegate(wheel);
   for (int note = 0; note < 128; ++note) {
     const bool held = mHeld[note].load(std::memory_order_relaxed);
     if (held != mDisplayed[note]) {
