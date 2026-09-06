@@ -13,6 +13,9 @@ public:
   void Reset(double sampleRate);
   void SetParameters(double gainDb, double attackMs, double decayMs, double sustain, double releaseMs);
   void SetOutputBoost(float dB);
+  void SetMixer(float osc1, float osc2, float sub, float noise,
+                int osc2Octave, int subOctave, int noiseType, int osc1Octave);
+  void SetOsc2(float detune, float mix, float width);
   void Midi(int status, int data1, int data2);
   void SetFilter(float cutoffHz, float resonancePercent, float mixPercent);
   void SetFilterEnvelope(float amount, float tracking, float attack, float decay, float sustain, float release);
@@ -26,7 +29,10 @@ public:
   int ActiveVoices() const;
 private:
   struct Voice {
-    SevenSaw osc;
+    SevenSaw osc, osc2;
+    daisysp::Oscillator sub;
+    float fundamental=440, darkNoise=0;
+    uint32_t noiseState=1;
     LowPass filter;
     FilterModulation filterMod;
     daisysp::Adsr env;
@@ -44,6 +50,9 @@ private:
   uint64_t age_ = 0;
   float cutoff_=12000, resonance_=0, filterMix_=0;
   float amount_=0, tracking_=0, filterAttack_=10, filterDecay_=200, filterSustain_=0, filterRelease_=250;
+  std::array<float,4> levels_{{1,0,0,0}}, targetLevels_{{1,0,0,0}};
+  int osc1Octave_=0, osc2Octave_=0, subOctave_=-1, noiseType_=0;
+  float sampleRate_=44100, noisePole_=0;
   float boost_=1, targetBoost_=1, protection_=1, protectionRelease_=0;
   float gain_ = 0, targetGain_ = 0.25f, smoothing_ = 0.002f;
 };

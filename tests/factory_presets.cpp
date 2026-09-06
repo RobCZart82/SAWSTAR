@@ -18,7 +18,7 @@ int main(){
   auto edited=v;edited[0]+=.01;check(MatchFactoryPreset(edited)==-1,"edited sound is Custom");
   for(float sr:{44100.f,48000.f,96000.f}){
    Synth s;s.Reset(sr);s.SetParameters(v[0],v[1],v[2],v[3],v[4]);s.SetSaw(v[5],v[6],v[7]);
-   s.SetFilter(v[8],v[9],v[10]);s.SetFilterEnvelope(v[11],v[12],v[13],v[14],v[15],v[16]);s.SetPerformance(v[17],v[18]);s.SetOutputBoost(v[19]);
+   s.SetFilter(v[8],v[9],v[10]);s.SetFilterEnvelope(v[11],v[12],v[13],v[14],v[15],v[16]);s.SetPerformance(v[17],v[18]);s.SetOutputBoost(v[19]);s.SetMixer(v[20],v[21],v[22],v[23],v[24],v[25],v[26],v[30]);s.SetOsc2(v[27],v[28],v[29]);
    s.Midi(0x90,p==4?36:60,100);double energy=0;
    for(int i=0;i<sr*2;++i){auto x=s.ProcessStereo();check(std::isfinite(x.left)&&std::isfinite(x.right)&&std::abs(x.left)<=1&&std::abs(x.right)<=1,"factory audio bounds");energy+=x.left*x.left+x.right*x.right;}
    check(energy>.001,"factory preset produces audio");

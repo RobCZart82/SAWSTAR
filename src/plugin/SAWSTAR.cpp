@@ -17,7 +17,11 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
 : Plugin(info, MakeConfig(static_cast<int>(sawstar::kParameters.size()), 1)) {
   for (const auto& spec : sawstar::kParameters) {
     auto* param = GetParam(static_cast<int>(spec.id));
-    if (spec.mapping == sawstar::Mapping::Logarithmic)
+    if (spec.id == sawstar::ParameterId::NoiseType)
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Mixer","White Noise","Dark Noise");
+    else if (spec.id == sawstar::ParameterId::Osc1Octave || spec.id == sawstar::ParameterId::Osc2Octave || spec.id == sawstar::ParameterId::SubOctave)
+      param->InitInt(spec.name.data(),static_cast<int>(spec.initial),static_cast<int>(spec.minimum),static_cast<int>(spec.maximum),"oct");
+    else if (spec.mapping == sawstar::Mapping::Logarithmic)
       param->InitDouble(spec.name.data(), spec.initial, spec.minimum, spec.maximum, 0.01,
                         spec.unit.data(), IParam::kFlagsNone, static_cast<int>(spec.id) >= 8 ? "Filter" : "Amp", IParam::ShapeExp());
     else
@@ -70,22 +74,21 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
                          titles[i], i, mPage, [selectPage, i]() { selectPage(i); }));
     g->AttachControl(new sawstar::gui::PresetSelector(IRECT(701,25,1004,70),mFactoryIndex,loadFactory));
     g->AttachControl(new ITextControl(IRECT(28, 105, 996, 139),
-      "7-SAW  >  LOW-PASS  >  AMP ENVELOPE  >  OUTPUT", IText(22, accent)), kNoTag, "main");
+      "OSC1 + OSC2 + SUB + NOISE  >  FILTER  >  AMP  >  OUTPUT", IText(22, accent)), kNoTag, "main");
     g->AttachControl(new ITextControl(IRECT(28, 140, 996, 169),
-      "Filter envelope: raise Filter Mix, lower Cutoff, then add Env Amount.", IText(16, light)), kNoTag, "main");
+      "OSC1 / OSC2: Saw + 7-Saw. SUB: Sine. Mixer feeds the filter and amp envelopes.", IText(16, light)), kNoTag, "main");
     const auto knobStyle=DEFAULT_STYLE.WithLabelText(IText(13, light))
       .WithValueText(IText(12, light).WithVAlign(EVAlign::Bottom));
-    for(int i=0;i<6;++i)
-      g->AttachControl(new IVKnobControl(IRECT(28.f+i*165, 172, 168.f+i*165, 250),
-        5+i, sawstar::kParameters[5+i].name.data(), knobStyle, true), kNoTag, "main");
-    for(int i=0;i<6;++i)
-      g->AttachControl(new IVKnobControl(IRECT(28.f+i*165, 262, 168.f+i*165, 340),
-        11+i, sawstar::kParameters[11+i].name.data(), knobStyle, true), kNoTag, "main");
-    const int order[] = {1, 2, 3, 4, 19, 0};
-    for (int i = 0; i < 6; ++i) {
-      const auto& spec = sawstar::kParameters[order[i]];
-      g->AttachControl(new IVKnobControl(IRECT(28.f+i*165.f, 352, 168.f+i*165.f, 430),
-                        order[i], spec.name.data(), knobStyle, true), kNoTag, "main");
+    g->AttachControl(new ITextControl(IRECT(20,170,248,192),"MIXER",IText(15,accent)),kNoTag,"main");
+    for(int i=0;i<4;++i)
+      g->AttachControl(new IVSliderControl(IRECT(20.f+i*58,197,74.f+i*58,344),20+i,
+        sawstar::kParameters[20+i].name.data(),knobStyle,true),kNoTag,"main");
+    g->AttachControl(new IVMenuButtonControl(IRECT(25,365,240,415),26,"Noise Type",knobStyle),kNoTag,"main");
+    const int order[]={30,5,6,7,24,27,28,29,25,8,9,10,11,12,13,14,15,16,1,2,3,4,19,0};
+    for(int i=0;i<24;++i) {
+      const int id=order[i];const float x=260.f+(i%6)*124.f,y=170.f+(i/6)*66.f;
+      const char* label=id==5?"OSC1 Detune":id==6?"OSC1 Unison":id==7?"OSC1 Width":sawstar::kParameters[id].name.data();
+      g->AttachControl(new IVKnobControl(IRECT(x,y,x+118,y+64),id,label,knobStyle,true),kNoTag,"main");
     }
     g->AttachControl(new ITextControl(IRECT(35, 180, 989, 230),
       "PERFORMANCE  /  ARPEGGIATOR  /  MODULATION", IText(23, accent)), kNoTag, "advanced");
@@ -125,6 +128,9 @@ void SAWSTAR::OnReset() {
 void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetParameters(GetParam(0)->Value(), GetParam(1)->Value(), GetParam(2)->Value(),
                        GetParam(3)->Value(), GetParam(4)->Value());
+  mSynth.SetMixer(GetParam(20)->Value(),GetParam(21)->Value(),GetParam(22)->Value(),GetParam(23)->Value(),
+    GetParam(24)->Int(),GetParam(25)->Int(),GetParam(26)->Int(),GetParam(30)->Int());
+  mSynth.SetOsc2(GetParam(27)->Value(),GetParam(28)->Value(),GetParam(29)->Value());
   mSynth.SetOutputBoost(static_cast<float>(GetParam(19)->Value()));
   mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),
                 static_cast<float>(GetParam(7)->Value()));

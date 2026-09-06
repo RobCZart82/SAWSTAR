@@ -10,10 +10,24 @@ void Synth::Reset(double rate) {
   boost_=targetBoost_; protection_=1;
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
+  sampleRate_=sr; noisePole_=1.f-std::exp(-2.f*3.14159265358979323846f*1200.f/sr);
+  levels_=targetLevels_;
+  uint32_t seed=0x9e3779b9u;
   for (auto& v : voices_) {
-    v = Voice{};
+    v = Voice{}; v.noiseState=seed; seed+=0x9e3779b9u;
+    v.osc2.Init(sr); v.sub.Init(sr); v.sub.SetWaveform(daisysp::Oscillator::WAVE_SIN); v.sub.SetAmp(1);
     v.osc.Init(sr); v.env.Init(sr); v.filter.Init(sr); v.filterMod.Init(sr);
   }
+}
+void Synth::SetMixer(float osc1,float osc2,float sub,float noise,
+                     int osc2Octave,int subOctave,int noiseType,int osc1Octave) {
+  const float values[]={osc1,osc2,sub,noise};
+  for(size_t i=0;i<4;++i)targetLevels_[i]=std::isfinite(values[i])?std::clamp(values[i]*.01f,0.f,1.f):0;
+  osc1Octave_=std::clamp(osc1Octave,-2,2); osc2Octave_=std::clamp(osc2Octave,-2,2);
+  subOctave_=std::clamp(subOctave,-2,0); noiseType_=std::clamp(noiseType,0,1);
+}
+void Synth::SetOsc2(float detune,float mix,float width) {
+  for(auto& v:voices_)v.osc2.SetShape(detune,mix*.01f,width*.01f);
 }
 void Synth::SetOutputBoost(float dB) {
   dB=std::isfinite(dB)?std::clamp(dB,0.f,24.f):0.f;
@@ -65,7 +79,8 @@ void Synth::Midi(int status, int note, int value) {
     if(v.note<0) v.filter.Clear();
     v.note = note; v.channel = channel; v.held = v.gate = true;
     v.velocity = static_cast<float>(value) / 127.f; v.age = ++age_;
-    v.osc.SetFreq(static_cast<float>(440. * std::pow(2., (note - 69) / 12.)));
+    v.fundamental=static_cast<float>(440. * std::pow(2., (note - 69) / 12.));
+    v.osc.SetFreq(v.fundamental); v.osc2.SetFreq(v.fundamental);
     v.env.Retrigger(false);
   } else if (kind == 0x80 || (kind == 0x90 && value == 0)) {
     for (auto& v : voices_) if (v.note == note && v.channel == channel) {
@@ -88,12 +103,25 @@ void Synth::Midi(int status, int note, int value) {
 }
 StereoSample Synth::ProcessStereo() {
   StereoSample sum;
+  for(size_t i=0;i<4;++i)levels_[i]+=smoothing_*(targetLevels_[i]-levels_[i]);
   for(int ch=0;ch<16;++ch)bendRatio_[ch]+=smoothing_*(bendTarget_[ch]-bendRatio_[ch]);
   for (auto& v : voices_) if (v.note >= 0) {
     const float env = v.env.Process(v.gate);
     v.filter.Set(v.filterMod.Process(v.note,v.gate,mod_[v.channel]/127.f*modDepth_),resonance_,filterMix_);
-    v.osc.SetPitchMultiplier(bendRatio_[v.channel]);
-    const auto value=v.filter.Process(v.osc.Process());
+    v.osc.SetPitchMultiplier(bendRatio_[v.channel]*std::exp2(static_cast<float>(osc1Octave_)));
+    v.osc2.SetPitchMultiplier(bendRatio_[v.channel]*std::exp2(static_cast<float>(osc2Octave_)));
+    v.sub.SetFreq(std::min(v.fundamental*bendRatio_[v.channel]*std::exp2(static_cast<float>(subOctave_)),sampleRate_*.45f));
+    const auto one=v.osc.Process(),two=v.osc2.Process();
+    const float sub=v.sub.Process();
+    // Per-voice deterministic xorshift; no global RNG, allocation or shared lock.
+    auto& random=v.noiseState; random^=random<<13;random^=random>>17;random^=random<<5;
+    const float white=static_cast<float>(random>>8)*(2.f/16777216.f)-1.f;
+    v.darkNoise+=noisePole_*(white-v.darkNoise);
+    const float noise=noiseType_?v.darkNoise:white;
+    const float center=sub*levels_[2]+noise*levels_[3];
+    const StereoSample mixed{one.left*levels_[0]+two.left*levels_[1]+center,
+                             one.right*levels_[0]+two.right*levels_[1]+center};
+    const auto value=v.filter.Process(mixed);
     sum.left+=value.left*env*v.velocity;sum.right+=value.right*env*v.velocity;
     if (!v.gate && !v.env.IsRunning()) v.note = -1;
   }

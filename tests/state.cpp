@@ -7,25 +7,29 @@
 void check(bool ok,const char* name){if(!ok){std::cerr<<name<<"\n";std::exit(1);}}
 int main(){
  using namespace sawstar;
- Snapshot wanted{{-23.5,23.24,780,0.42,1234, 23, 64, 82, 1900, 35, 100, 36, 80, 25, 450, .35, 800, 12, 36, 18}}, out{};
+ Snapshot wanted=DefaultSnapshot();
+ const double fixture[]={-23.5,23.24,780,0.42,1234, 23, 64, 82, 1900, 35, 100, 36, 80, 25, 450, .35, 800, 12, 36, 18};
+ for(size_t i=0;i<20;++i)wanted[i]=fixture[i];
+ wanted[21]=42;wanted[26]=1;
+ Snapshot out{};
  const auto state=EncodeState(wanted);
  check(DecodeState(state.data(),state.size(),out)==state.size() && out==wanted,"roundtrip");
- check(state[8]==1 && state[12]==240 && state[16]==0,"wire fixture");
+ check(state[8]==1 && state[12]==116 && state[13]==1 && state[16]==0,"wire fixture");
  // Old v1 payload with only the original five records must keep new defaults.
- auto oldV1=std::vector<uint8_t>(state.begin(),state.begin()+76);oldV1[12]=60;
+ auto oldV1=std::vector<uint8_t>(state.begin(),state.begin()+76);oldV1[12]=60;oldV1[13]=0;
  check(DecodeState(oldV1.data(),oldV1.size(),out)==76 && out[1]==wanted[1] &&
        out[5]==20 && out[6]==0 && out[7]==75,"five-record v1 migration");
- auto eightV1=std::vector<uint8_t>(state.begin(),state.begin()+112);eightV1[12]=96;
+ auto eightV1=std::vector<uint8_t>(state.begin(),state.begin()+112);eightV1[12]=96;eightV1[13]=0;
  check(DecodeState(eightV1.data(),eightV1.size(),out)==112 && out[6]==wanted[6] &&
        out[8]==12000 && out[9]==0 && out[10]==0,"eight-record v1 migration");
- auto elevenV1=std::vector<uint8_t>(state.begin(),state.begin()+148);elevenV1[12]=132;
+ auto elevenV1=std::vector<uint8_t>(state.begin(),state.begin()+148);elevenV1[12]=132;elevenV1[13]=0;
  check(DecodeState(elevenV1.data(),elevenV1.size(),out)==148 && out[10]==100 &&
        out[11]==0 && out[12]==0 && out[13]==10 && out[14]==200 && out[15]==0 && out[16]==250,
        "eleven-record v1 migration");
- auto seventeenV1=std::vector<uint8_t>(state.begin(),state.begin()+220);seventeenV1[12]=204;
+ auto seventeenV1=std::vector<uint8_t>(state.begin(),state.begin()+220);seventeenV1[12]=204;seventeenV1[13]=0;
  check(DecodeState(seventeenV1.data(),seventeenV1.size(),out)==220 && out[16]==800 &&
        out[17]==2 && out[18]==24,"seventeen-record v1 migration");
- auto nineteenV1=std::vector<uint8_t>(state.begin(),state.begin()+244);nineteenV1[12]=228;
+ auto nineteenV1=std::vector<uint8_t>(state.begin(),state.begin()+244);nineteenV1[12]=228;nineteenV1[13]=0;
  check(DecodeState(nineteenV1.data(),nineteenV1.size(),out)==244 && out[19]==0,
        "old nineteen-record project keeps original loudness");
  // Fixture for old physical doubles: -12, 10, 100, .7, 250, little endian.
