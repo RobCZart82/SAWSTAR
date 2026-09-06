@@ -34,3 +34,22 @@ Tests cover single-saw compatibility, old state migration, exact mono at Width
 zero, stereo/mono-fold energy, extreme pitches, 44.1/48/96 kHz, 112-saw output
 bounds and panic silence. PolyBLEP reduces aliasing but is not a brick-wall
 bandlimited oscillator; no oversampling or full spectral certification is claimed.
+
+## Validation — 2026-09-06
+
+Code ae800e5e: macOS run 34037924008 and Windows run 34037923972 passed.
+Both plugin jobs ran five test executables and 47/47 Steinberg validator tests;
+Debug and Release foundation/engine checks also passed on both platforms.
+
+Manual macOS REAPER 7.79: an existing raw-state First Sound project loaded with
+original envelope values and new controls at 20 cents / 0% / 75%. Raised Mix to
+69.34888% on the GUI and saved the project: all eight ID/value records were
+present in v1 state. Rendered its MIDI notes and chord to stereo 24-bit WAV,
+44.1 kHz, 8.294 seconds including release tail. Peak -36.17 dBFS, no clipping,
+side/mid energy ratio 0.17796 and exact silence at the end. This is evidence of
+stereo output and mono-fold energy, not subjective listening or spectral QA.
+The separate listening preview is peak-normalized to -6 dBFS; the plugin output
+and original raw render retain their conservative gain.
+
+Windows automated validation passed; this new 7-Saw build has not yet received
+a manual Windows host test. Earlier Windows success was for the First Sound build.
