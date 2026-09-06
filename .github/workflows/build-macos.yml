@@ -1,0 +1,31 @@
+name: Build macos foundation
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  foundation:
+    name: macos-14 / ${{ matrix.config }}
+    runs-on: macos-14
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [Debug, Release]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Initialize only the MIT DaisySP core
+        run: git submodule update --init third_party/DaisySP
+      - name: Configure foundation and selected DSP checks
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON
+      - name: Build
+        run: cmake --build build --config ${{ matrix.config }} --parallel 2
+      - name: Test
+        run: ctest --test-dir build -C ${{ matrix.config }} --output-on-failure
