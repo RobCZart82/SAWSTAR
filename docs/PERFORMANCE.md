@@ -32,3 +32,21 @@ Tests measure oscillator frequency at center and both bend endpoints, live range
 changes, new-note bend, controller reset, channel isolation, filter opening,
 extreme controller sweeps and panic silence at 8/44.1/48/96 kHz. State tests
 include seventeen-record migration without changing any prior parameter IDs.
+
+## Validation — 2026-09-06
+
+Tested build cc99319ce239038dd90491e2465c66b06db4a8b0. macOS run
+34044678365 and Windows run 34044678368 passed Debug/Release checks,
+all eight test executables, and all 47 VST3 validator tests.
+
+REAPER 7.79 on macOS loaded the old seventeen-record project with defaults
+of 2 st bend range and 24 st mod depth. The new save contains nineteen records.
+Mouse tests confirmed pitch return, mod latch/reset, and shared strip position
+on MAIN, ADVANCED and PRESETS. The MIDI test item contains a pitch-bend ramp
+on its first note and a CC1 ramp on its second note, followed by controller reset.
+Its 44.1 kHz stereo 24-bit render peaked at -22.56 dBFS, with no clipped samples.
+The separate preview is normalized to -6 dBFS for listening.
+
+The packages are unsigned development builds. Manual Windows host testing
+and a physical external MIDI keyboard test remain pending; host MIDI was tested
+using recorded events in REAPER, not physical hardware.
