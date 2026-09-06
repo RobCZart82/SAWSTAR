@@ -10,7 +10,7 @@ SDK = ROOT / "third_party/iPlug2/Dependencies/IPlug/VST3_SDK"
 def git(*args, cwd=ROOT):
     return subprocess.check_output(["git", *args], cwd=cwd, text=True).strip()
 
-git("submodule", "update", "--init", "third_party/iPlug2")
+git("submodule", "update", "--init", "third_party/iPlug2", "third_party/DaisySP")
 if not (SDK / ".git").exists():
     # iPlug2 ships an instruction-only placeholder here. Replace only that
     # exact tracked file; refuse to overwrite a user-supplied SDK directory.

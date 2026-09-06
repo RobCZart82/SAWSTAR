@@ -2,6 +2,7 @@
 #include "SAWSTAR.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
+#include "IVKeyboardControl.h"
 #include "plugin/Parameters.h"
 #include "gui/Controls/PageButton.h"
 #include <algorithm>
@@ -50,17 +51,17 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     g->AttachControl(new ITextControl(IRECT(28, 128, 996, 168),
       "SAW  >  AMP ENVELOPE  >  OUTPUT", IText(22, accent)), kNoTag, "main");
     g->AttachControl(new ITextControl(IRECT(28, 177, 996, 213),
-      "Shape the starting patch. The sound engine is the next development step.", IText(16, light)), kNoTag, "main");
+      "Play the keyboard or send MIDI from your DAW. 16 voices / band-limited saw.", IText(16, light)), kNoTag, "main");
     const int order[] = {1, 2, 3, 4, 0};
     for (int i = 0; i < 5; ++i) {
       const auto& spec = sawstar::kParameters[order[i]];
       g->AttachControl(new IVKnobControl(IRECT(40.f+i*195.f, 245, 204.f+i*195.f, 410),
-                        order[i], spec.name.data()), kNoTag, "main");
+                        order[i], spec.name.data(), DEFAULT_STYLE.WithLabelText(IText(17, light)).WithValueText(IText(14, light))), kNoTag, "main");
     }
     g->AttachControl(new ITextControl(IRECT(35, 180, 989, 230),
       "PERFORMANCE  /  ARPEGGIATOR  /  MODULATION", IText(23, accent)), kNoTag, "advanced");
     g->AttachControl(new ITextControl(IRECT(35, 255, 989, 310),
-      "These controls will arrive after the first playable voice engine.", IText(18, light)), kNoTag, "advanced");
+      "Performance, arpeggiator and modulation controls are planned.", IText(18, light)), kNoTag, "advanced");
     g->AttachControl(new ITextControl(IRECT(35, 170, 989, 220),
       "LIBRARY + LEARNING", IText(23, accent)), kNoTag, "presets");
     g->AttachControl(new ITextControl(IRECT(35, 240, 989, 290),
@@ -75,18 +76,60 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
         SendParameterValueFromDelegate(id, value, true);
       }
     }, "Load Init"), kNoTag, "presets");
-    g->AttachControl(new ITextControl(IRECT(20, 495, 1004, 540),
-      "0.1.0-dev  |  SILENT DEVELOPMENT SHELL  |  AUDIO ENGINE NOT CONNECTED", IText(14, light)));
+    g->AttachControl(new ITextControl(IRECT(20, 430, 1004, 462),
+      "0.1.0-dev  |  FIRST SOUND  |  16 VOICES", IText(14, light)));
+    g->AttachControl(new IVKeyboardControl(IRECT(20, 478, 1004, 542), 36, 96, false,
+      IColor(255, 117, 137, 147), IColor(255, 22, 40, 50), accent,
+      IColor(255, 9, 26, 38), light));
     selectPage(mPage);
   };
 #endif
 }
 #if IPLUG_DSP
-void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
-  for (int channel = 0; channel < NOutChansConnected(); ++channel)
-    std::fill_n(outputs[channel], frames, sample(0));
+void SAWSTAR::OnReset() {
+  mSynth.Reset(GetSampleRate());
+  mEventCount = 0; mOverflow = false;
+  for (auto& held : mHeld) held.store(false, std::memory_order_relaxed);
 }
-void SAWSTAR::ProcessMidiMsg(const IMidiMsg&) {
-  // The host MIDI input is declared; event handling starts with the voice engine.
+void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
+  mSynth.SetParameters(GetParam(0)->Value(), GetParam(1)->Value(), GetParam(2)->Value(),
+                       GetParam(3)->Value(), GetParam(4)->Value());
+  if (mOverflow) {
+    for (int ch = 0; ch < 16; ++ch) mSynth.Midi(0xB0 | ch, 120, 0);
+    mEventCount = 0; mOverflow = false;
+  }
+  int event = 0;
+  for (int i = 0; i < frames; ++i) {
+    while (event < mEventCount && mEvents[event].mOffset <= i) {
+      const auto& msg = mEvents[event++];
+      mSynth.Midi(msg.mStatus, msg.mData1, msg.mData2);
+    }
+    const sample value = static_cast<sample>(mSynth.Process());
+    for (int ch = 0; ch < NOutChansConnected(); ++ch) outputs[ch][i] = value;
+  }
+  for (int i = event; i < mEventCount; ++i) {
+    mEvents[i - event] = mEvents[i]; mEvents[i - event].mOffset -= frames;
+  }
+  mEventCount -= event;
+  for (int note = 0; note < 128; ++note)
+    mHeld[note].store(mSynth.Held(note), std::memory_order_relaxed);
+}
+void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
+  if (mEventCount == static_cast<int>(mEvents.size())) { mOverflow = true; return; }
+  int pos = mEventCount++;
+  while (pos > 0 && mEvents[pos - 1].mOffset > msg.mOffset) {
+    mEvents[pos] = mEvents[pos - 1]; --pos;
+  }
+  mEvents[pos] = msg;
+}
+void SAWSTAR::OnIdle() {
+  for (int note = 0; note < 128; ++note) {
+    const bool held = mHeld[note].load(std::memory_order_relaxed);
+    if (held != mDisplayed[note]) {
+      IMidiMsg msg;
+      if (held) msg.MakeNoteOnMsg(note, 100, 0); else msg.MakeNoteOffMsg(note, 0);
+      SendMidiMsgFromDelegate(msg); mDisplayed[note] = held;
+    }
+  }
 }
 #endif

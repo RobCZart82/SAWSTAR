@@ -17,7 +17,7 @@ find_package(iPlug2 REQUIRED)
 iplug_add_plugin(SAWSTAR
   FORMATS VST3
   SOURCES SAWSTAR.cpp SAWSTAR.h config.h ../gui/Controls/PageButton.h
-  LINK SAWSTAR::Foundation)
+  LINK SAWSTAR::Foundation sawstar_engine)
 set_target_properties(SAWSTAR-vst3 PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/out"
   LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/out")
