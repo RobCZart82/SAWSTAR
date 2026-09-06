@@ -1,0 +1,36 @@
+# Build trees and generated project files
+/build*/
+/out/
+/dist/
+CMakeUserPresets.json
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+*.xcodeproj/
+*.xcworkspace/
+*.xcuserstate
+*.sln
+*.vcxproj*
+.vs/
+.vscode/
+# Binary output
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.dylib
+*.pdb
+*.ilk
+*.exe
+*.vst3/
+*.component/
+*.app/
+*.dSYM/
+# Local files
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+.env
+.env.*

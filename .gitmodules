@@ -1,0 +1,6 @@
+[submodule "third_party/iPlug2"]
+	path = third_party/iPlug2
+	url = https://github.com/iPlug2/iPlug2.git
+[submodule "third_party/DaisySP"]
+	path = third_party/DaisySP
+	url = https://github.com/electro-smith/DaisySP.git
