@@ -6,8 +6,9 @@ shape, not a live scope of the detuned, mixed and filtered audio. Saw remains
 the default; the existing unison mix, detune, width and octave controls work
 for all four shapes. SUB remains a separate sine oscillator.
 
-Saw/Square/Triangle use the pinned DaisySP polyBLEP implementations; Sine uses
-its sine oscillator. Triangle is DaisySP's leaky-integrated square approximation,
+Saw/Square use the pinned DaisySP polyBLEP implementations; Sine uses
+its sine oscillator. Triangle uses SAWSTAR-owned leaky integration of the
+polyBLEP square, following the same approximation,
 so its exact shape/level varies with frequency. Shapes have their native levels,
 not loudness normalization. Selection crossfades over a 10 ms one-pole response.
 Inactive shape banks stop processing after their crossfade weight decays;
@@ -30,8 +31,8 @@ returning to one resumes its saved phase. No allocation occurs during playback.
   can still be sounding when a new phrase resets the global LFO.
 
 Tempo Sync is BPM synchronization, not alignment to the DAW playhead/bar.
-The LFO advances whenever the host processes audio, including silence; host
-transport/engine reset resets phase. Missing/invalid BPM falls back to 120.
+The LFO advances whenever the host processes audio, including silence; an
+engine reset resets phase. Missing/invalid BPM falls back to 120.
 There is one shared LFO per plugin, not an independent phase per voice.
 
 Cutoff modulation combines with Filter ADSR, key tracking and CC1 before cutoff
@@ -50,3 +51,8 @@ framework's separate bypass field. Live phase is deliberately not serialized.
 Tests cover every source shape and selection transitions, LFO rate/tempo phase,
 retrigger behavior, modulation ranges, all four audible routes, OSC independence,
 zero-depth identity and prior-state migration at 44.1/48/96 kHz.
+
+The pinned DaisySP triangle Init/constructor do not initialize integrator
+history. SAWSTAR therefore owns and explicitly initializes that history, using
+the polyBLEP square primitive as input instead of the library triangle mode.
+This is covered by Windows Debug/Release waveform-switching tests.
