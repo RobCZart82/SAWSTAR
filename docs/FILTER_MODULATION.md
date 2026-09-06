@@ -32,3 +32,20 @@ filter during the attack; choose a higher base Cutoff to hear it clearly.
 
 Tests cover tracking pivot/octaves, bipolar attack and release, decay, clamps,
 zero-modulation audio identity, full-voice bounds, panic and old state migration.
+
+## Validation — 2026-09-06
+
+Tested build: 164bd5b7ebb5eb9cae7a6d134fbab562774522dc.
+macOS run 34041371376 and Windows run 34041371356 passed Debug/Release
+foundation checks, all seven test executables, and all 47 VST3 validator tests.
+
+REAPER 7.79 on macOS loaded the old eleven-record project with existing values
+intact and Amount/Key Track at zero. The final editor was checked after restarting
+REAPER to unload its cached plugin binary. Values appear below knobs and can be
+edited directly. The saved test project contains all seventeen records.
+
+The 44.1 kHz stereo 24-bit render used Cutoff 404.39 Hz, Resonance 31.403%,
+Filter Mix 100%, Amount +36 st, Key Track 100%, filter ADSR 10/200/0/250.
+Peak was -23.08 dBFS with zero clipped samples. The separate listening preview
+is normalized to -6 dBFS; plugin gain was not changed by normalization.
+Packages are unsigned development builds. Manual Windows host testing is pending.
