@@ -42,6 +42,9 @@ void Synth::SetParameters(double gain, double attack, double decay, double susta
     v.env.SetReleaseTime(static_cast<float>(release * .001));
   }
 }
+void Synth::SetFilterCharacter(float driveDb,int mode) {
+  for(auto& v:voices_)v.filter.SetCharacter(driveDb,mode);
+}
 void Synth::SetFilter(float cutoff,float resonance,float mix) {
   cutoff_=cutoff; resonance_=resonance; filterMix_=mix;
   SetFilterEnvelope(amount_,tracking_,filterAttack_,filterDecay_,filterSustain_,filterRelease_);

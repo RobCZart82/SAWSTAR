@@ -17,6 +17,7 @@ public:
                 int osc2Octave, int subOctave, int noiseType, int osc1Octave);
   void SetOsc2(float detune, float mix, float width);
   void Midi(int status, int data1, int data2);
+  void SetFilterCharacter(float driveDb,int mode);
   void SetFilter(float cutoffHz, float resonancePercent, float mixPercent);
   void SetFilterEnvelope(float amount, float tracking, float attack, float decay, float sustain, float release);
   void SetPerformance(float bendRange,float modDepth);

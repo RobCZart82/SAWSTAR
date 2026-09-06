@@ -10,11 +10,11 @@ int main(){
  Snapshot wanted=DefaultSnapshot();
  const double fixture[]={-23.5,23.24,780,0.42,1234, 23, 64, 82, 1900, 35, 100, 36, 80, 25, 450, .35, 800, 12, 36, 18};
  for(size_t i=0;i<20;++i)wanted[i]=fixture[i];
- wanted[21]=42;wanted[26]=1;
+ wanted[21]=42;wanted[26]=1;wanted[31]=12;wanted[32]=2;
  Snapshot out{};
  const auto state=EncodeState(wanted);
  check(DecodeState(state.data(),state.size(),out)==state.size() && out==wanted,"roundtrip");
- check(state[8]==1 && state[12]==116 && state[13]==1 && state[16]==0,"wire fixture");
+ check(state[8]==1 && state[12]==140 && state[13]==1 && state[16]==0,"wire fixture");
  // Old v1 payload with only the original five records must keep new defaults.
  auto oldV1=std::vector<uint8_t>(state.begin(),state.begin()+76);oldV1[12]=60;oldV1[13]=0;
  check(DecodeState(oldV1.data(),oldV1.size(),out)==76 && out[1]==wanted[1] &&
@@ -32,6 +32,9 @@ int main(){
  auto nineteenV1=std::vector<uint8_t>(state.begin(),state.begin()+244);nineteenV1[12]=228;nineteenV1[13]=0;
  check(DecodeState(nineteenV1.data(),nineteenV1.size(),out)==244 && out[19]==0,
        "old nineteen-record project keeps original loudness");
+ auto thirtyOne=std::vector<uint8_t>(state.begin(),state.begin()+388);thirtyOne[12]=116;
+ check(DecodeState(thirtyOne.data(),thirtyOne.size(),out)==388 && out[19]==18 && out[31]==0 && out[32]==0,
+       "old mixer project keeps LP12 without drive");
  // Fixture for old physical doubles: -12, 10, 100, .7, 250, little endian.
  const uint8_t old[]={0,0,0,0,0,0,40,192,0,0,0,0,0,0,36,64,0,0,0,0,0,0,89,64,
    102,102,102,102,102,102,230,63,0,0,0,0,0,64,111,64};

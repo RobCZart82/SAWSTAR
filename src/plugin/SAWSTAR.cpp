@@ -17,7 +17,9 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
 : Plugin(info, MakeConfig(static_cast<int>(sawstar::kParameters.size()), 1)) {
   for (const auto& spec : sawstar::kParameters) {
     auto* param = GetParam(static_cast<int>(spec.id));
-    if (spec.id == sawstar::ParameterId::NoiseType)
+    if (spec.id == sawstar::ParameterId::FilterMode)
+      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Filter","Low Pass 12","Low Pass 24","High Pass 12","Band Pass 12");
+    else if (spec.id == sawstar::ParameterId::NoiseType)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Mixer","White Noise","Dark Noise");
     else if (spec.id == sawstar::ParameterId::Osc1Octave || spec.id == sawstar::ParameterId::Osc2Octave || spec.id == sawstar::ParameterId::SubOctave)
       param->InitInt(spec.name.data(),static_cast<int>(spec.initial),static_cast<int>(spec.minimum),static_cast<int>(spec.maximum),"oct");
@@ -75,10 +77,12 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     g->AttachControl(new sawstar::gui::PresetSelector(IRECT(701,25,1004,70),mFactoryIndex,loadFactory));
     g->AttachControl(new ITextControl(IRECT(28, 105, 996, 139),
       "OSC1 + OSC2 + SUB + NOISE  >  FILTER  >  AMP  >  OUTPUT", IText(22, accent)), kNoTag, "main");
-    g->AttachControl(new ITextControl(IRECT(28, 140, 996, 169),
-      "OSC1 / OSC2: Saw + 7-Saw. SUB: Sine. Mixer feeds the filter and amp envelopes.", IText(16, light)), kNoTag, "main");
+
     const auto knobStyle=DEFAULT_STYLE.WithLabelText(IText(13, light))
       .WithValueText(IText(12, light).WithVAlign(EVAlign::Bottom));
+    g->AttachControl(new IVMenuButtonControl(IRECT(260,135,485,167),32,"",knobStyle),kNoTag,"main");
+    g->AttachControl(new IVSliderControl(IRECT(510,135,790,167),31,"Drive",knobStyle,true,EDirection::Horizontal),kNoTag,"main");
+    g->AttachControl(new ITextControl(IRECT(800,135,1004,167),"Raise Filter Mix to hear",IText(12,light)),kNoTag,"main");
     g->AttachControl(new ITextControl(IRECT(20,170,248,192),"MIXER",IText(15,accent)),kNoTag,"main");
     for(int i=0;i<4;++i)
       g->AttachControl(new IVSliderControl(IRECT(20.f+i*58,197,74.f+i*58,344),20+i,
@@ -134,6 +138,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetOutputBoost(static_cast<float>(GetParam(19)->Value()));
   mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),
                 static_cast<float>(GetParam(7)->Value()));
+  mSynth.SetFilterCharacter(static_cast<float>(GetParam(31)->Value()),GetParam(32)->Int());
   mSynth.SetFilter(static_cast<float>(GetParam(8)->Value()), static_cast<float>(GetParam(9)->Value()),
                    static_cast<float>(GetParam(10)->Value()));
   mSynth.SetFilterEnvelope(static_cast<float>(GetParam(11)->Value()), static_cast<float>(GetParam(12)->Value()),
