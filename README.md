@@ -12,14 +12,18 @@ with a custom 7-Saw/SuperSaw planned after the first playable instrument.
 
 *GUI concept — work in progress. The image shows the design vision, not an implemented plugin.*
 
-## Status: foundation / 0.1.0-dev
+## Status: VST3 development shell / 0.1.0-dev
 
-This repository is the project foundation, **not yet a loadable plugin**.
-It contains the product and architecture decisions, stable initial parameter
-contracts, three-page navigation metadata, pinned dependencies, a C++17 library,
-and macOS/Windows CI. An optional check compiles and exercises the selected
-DaisySP saw oscillator and ADSR. There is no VST3 binary, voice manager or rendered
-GUI yet. Passing CI does not imply REAPER compatibility.
+The repository now includes an iPlug2 VST3 **silent development shell** with
+MAIN / ADVANCED / PRESETS navigation, five host parameters and Load Init.
+It is not yet a playable synthesizer: MIDI input is declared but the voice
+engine is not connected. The concept above represents the longer-term design.
+
+[Build and test the shell](docs/PLUGIN_SHELL.md). GitHub Actions builds macOS
+ARM64 and Windows x64 VST3 development archives, with license notices included.
+The original offline foundation and optional DaisySP primitive checks remain
+available. No First Sound release, signing/notarization or host certification
+is claimed. See the task report for actual host test results.
 
 ## First milestone: `v0.1 First Sound`
 

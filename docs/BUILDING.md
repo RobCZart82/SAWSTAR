@@ -24,25 +24,16 @@ The test checks finite bounded audio, non-silence while gated, release to
 silence and approximate 440 Hz output at 44.1, 48 and 96 kHz. This is neither a
 voice-manager test nor a host-loading test.
 
-## Plugin shell: next implementation step
+## VST3 shell
 
-1. Initialize the pinned iPlug2 submodule (non-recursively).
-2. Select and pin the required VST3 SDK and graphics/font dependencies;
-   review their exact licenses and add their notices.
-3. Use the pinned iPlug2 `iplug_add_plugin(... FORMATS VST3 ...)` API in a
-   separate `src/plugin/CMakeLists.txt`; do not build all upstream examples.
-4. Finalize the identity candidates in ARCHITECTURE.md, provide `config.h`,
-   platform resources and a silent stereo instrument adapter.
-5. Implement three functioning navigation tabs using iPlug2 IGraphics and
-   connect the five parameter definitions. Match the final reference when it
-   is supplied. Include resource/font licenses before embedding them.
-6. Add explicit `SAWSTAR-vst3` builds and artifact packaging to CI, then verify
-   the bundle in REAPER. CI currently builds only the foundation and DSP check.
-7. Connect the custom engine, sample-accurate MIDI and state codec.
+The silent shell is implemented. See [PLUGIN_SHELL.md](PLUGIN_SHELL.md) for
+bootstrap, build, identity and REAPER instructions. `scripts/bootstrap-plugin.py`
+fetches only the pinned SDK components and recognizes iPlug2's instruction-only
+SDK placeholder. It refuses to overwrite an unmanaged SDK directory.
 
-Do not run upstream download scripts blindly: the exact SDK version and
-transitive dependency set must be reproducible. There is intentionally no
-pretend plugin build option or uncompiled plugin skeleton in this foundation.
+The bootstrap replaces the tracked instruction README inside the upstream
+SDK slot, so Git may report the iPlug2 submodule as locally modified after SDK
+installation. No iPlug2 library source is patched and the gitlink is unchanged.
 
 ## CI scope
 
@@ -50,3 +41,10 @@ pretend plugin build option or uncompiled plugin skeleton in this foundation.
 Both build Debug and Release, initialize only DaisySP, enable DSP checks and
 run CTest. They run for pushes, pull requests and manual dispatch, use read-only
 repository permissions, and never sign, release, install or publish plugins.
+
+Each platform also has a Release VST3 job: pinned SDK bootstrap, real bundle
+build, Steinberg validator and packaged development artifact with notices.
+Plugin validation additionally requires CMake 3.25+ for SDK 3.8.1. These tests
+exercise the factory, processing and framework state; they do not inspect the
+GUI or replace the manual REAPER check. Artifact architectures are macOS ARM64
+and Windows x64, matching the selected runners.

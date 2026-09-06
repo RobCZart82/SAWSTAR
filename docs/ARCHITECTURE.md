@@ -63,7 +63,6 @@ undocumented limiter. No shared mutable globals between plugin instances.
 Proposed manufacturer display name: `RobCZart82`; plugin four-character ID:
 `SwSt`; manufacturer ID: `RC82`; reverse-domain identity:
 `io.github.robczart82.sawstar`.
-These are design candidates, **not yet compiled identifiers**. Confirm them
-and inspect the resulting VST3 component/controller IDs before the first
-binary is distributed. Then freeze them; changing them can break host projects.
+These identifiers are now compiled into the development shell. Preserve them
+when connecting the engine; changing them can break host projects.
 Do not copy example plugin identifiers or invent vendor contact addresses.

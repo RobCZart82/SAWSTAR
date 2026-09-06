@@ -22,8 +22,8 @@ and replace NaN/infinity with the default. Unknown IDs fail lookup.
 
 Host normalized values use [0,1]. Log time mapping is
 `min * pow(max/min, normalized)`. The iPlug2 adapter must implement this exact
-mapping so host automation, GUI and presets agree. Parameter utilities are
-implemented now; iPlug2 registration is still to be implemented.
+mapping so host automation, GUI and presets agree. Parameter utilities and iPlug2 registration are implemented. Time parameters
+use iPlug2 ShapeExp, matching the logarithmic contract.
 
 ## State schema (specified, not implemented)
 
@@ -41,5 +41,6 @@ size. Add a migration function when changing schema and keep fixture states.
 
 Host save/recall and the Init preset must share one canonical state path.
 Preset names and learning text are metadata, not audio parameters. Editor tab
-selection is optional editor state and must not affect the sound. No state
-save/recall or host compatibility is claimed by this foundation.
+selection is optional editor state and must not affect the sound. The development shell currently uses iPlug2 native parameter state persistence
+(PLUG_DOES_STATE_CHUNKS=0). The custom codec described above is not implemented;
+its eventual introduction needs backward migration from framework parameter state.

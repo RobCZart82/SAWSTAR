@@ -46,6 +46,8 @@ jobs:
         run: cmake --build build-plugin --config Release --parallel 3
       - name: Test foundation
         run: ctest --test-dir build-plugin -C Release --output-on-failure
+      - name: Validate VST3 factory, processing and state
+        run: python scripts/validate-plugin.py
       - name: Package development bundle and notices
         run: python scripts/package-plugin.py build-plugin/out SAWSTAR-macos.zip
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

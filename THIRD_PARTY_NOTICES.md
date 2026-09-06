@@ -8,6 +8,11 @@ SAWSTAR original work is MIT licensed. External work retains its own terms.
   Plaits (Emilie Gillet) and Soundpipe (Paul Batchelor):
   [full notices](third_party/licenses/DaisySP-LICENSE.txt).
 
-The optional DaisySP-LGPL extension is excluded. No fonts or VST3 SDK are bundled. The user-supplied concept artwork has a
+The optional DaisySP-LGPL extension is excluded. No fonts are bundled. VST3 SDK sources are fetched at a pinned MIT revision for plugin builds. The user-supplied concept artwork has a
 SAWSTAR-branded AI edit; provenance is recorded in docs/reference/README.md. Before distributing a plugin, append notices for all
 actually linked SDK/graphics/resource dependencies. See docs/THIRD_PARTY.md.
+
+Plugin artifacts also contain the notices for Steinberg VST3 SDK and its base,
+pluginterfaces and public.sdk components, WDL, NanoVG, NanoSVG, MetalNanoVG,
+FontStash, STB, glad and Khronos headers. See third_party/licenses and
+docs/THIRD_PARTY.md for exact versions and scope.

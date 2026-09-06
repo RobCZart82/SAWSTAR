@@ -1,3 +1,5 @@
-# src/plugin
+# Plugin adapter
 
-Host adapter boundary. Parameters.h/.cpp define the initial stable contract; the iPlug2 adapter and VST3 target are the next step. Do not move voice synthesis into this layer.
+SAWSTAR.h/.cpp implement the silent iPlug2 VST3 shell. Parameters.h/.cpp hold
+the stable parameter contract. See docs/PLUGIN_SHELL.md for build and validation.
+The audio callback writes silence; the voice engine is not connected.
