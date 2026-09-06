@@ -7,10 +7,10 @@
 void check(bool ok,const char* name){if(!ok){std::cerr<<name<<"\n";std::exit(1);}}
 int main(){
  using namespace sawstar;
- Snapshot wanted{{-23.5,23.24,780,0.42,1234, 23, 64, 82, 1900, 35, 100, 36, 80, 25, 450, .35, 800, 12, 36}}, out{};
+ Snapshot wanted{{-23.5,23.24,780,0.42,1234, 23, 64, 82, 1900, 35, 100, 36, 80, 25, 450, .35, 800, 12, 36, 18}}, out{};
  const auto state=EncodeState(wanted);
  check(DecodeState(state.data(),state.size(),out)==state.size() && out==wanted,"roundtrip");
- check(state[8]==1 && state[12]==228 && state[16]==0,"wire fixture");
+ check(state[8]==1 && state[12]==240 && state[16]==0,"wire fixture");
  // Old v1 payload with only the original five records must keep new defaults.
  auto oldV1=std::vector<uint8_t>(state.begin(),state.begin()+76);oldV1[12]=60;
  check(DecodeState(oldV1.data(),oldV1.size(),out)==76 && out[1]==wanted[1] &&
@@ -25,10 +25,14 @@ int main(){
  auto seventeenV1=std::vector<uint8_t>(state.begin(),state.begin()+220);seventeenV1[12]=204;
  check(DecodeState(seventeenV1.data(),seventeenV1.size(),out)==220 && out[16]==800 &&
        out[17]==2 && out[18]==24,"seventeen-record v1 migration");
+ auto nineteenV1=std::vector<uint8_t>(state.begin(),state.begin()+244);nineteenV1[12]=228;
+ check(DecodeState(nineteenV1.data(),nineteenV1.size(),out)==244 && out[19]==0,
+       "old nineteen-record project keeps original loudness");
  // Fixture for old physical doubles: -12, 10, 100, .7, 250, little endian.
  const uint8_t old[]={0,0,0,0,0,0,40,192,0,0,0,0,0,0,36,64,0,0,0,0,0,0,89,64,
    102,102,102,102,102,102,230,63,0,0,0,0,0,64,111,64};
- check(DecodeState(old,sizeof(old),out)==40 && out==DefaultSnapshot(),"legacy fixture");
+ auto legacyDefault=DefaultSnapshot();legacyDefault[19]=0;
+ check(DecodeState(old,sizeof(old),out)==40 && out==legacyDefault,"legacy fixture");
  auto reject=[&](std::vector<uint8_t> b){out=wanted;check(!DecodeState(b.data(),b.size(),out)&&out==wanted,"invalid state mutated values");};
  for(size_t n=0;n<state.size();++n) reject({state.begin(),state.begin()+n});
  auto b=std::vector<uint8_t>(state.begin(),state.end()); b[8]=2;reject(b);

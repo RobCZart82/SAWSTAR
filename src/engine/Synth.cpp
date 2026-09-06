@@ -7,11 +7,17 @@ void Synth::Reset(double rate) {
   const float sr = static_cast<float>(std::isfinite(rate) && rate >= 8000 ? rate : 44100);
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
   sustain_.fill(false); age_ = 0; gain_ = 0;
+  boost_=targetBoost_; protection_=1;
+  protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
   for (auto& v : voices_) {
     v = Voice{};
     v.osc.Init(sr); v.env.Init(sr); v.filter.Init(sr); v.filterMod.Init(sr);
   }
+}
+void Synth::SetOutputBoost(float dB) {
+  dB=std::isfinite(dB)?std::clamp(dB,0.f,24.f):0.f;
+  targetBoost_=std::pow(10.f,dB/20.f);
 }
 void Synth::SetParameters(double gain, double attack, double decay, double sustain, double release) {
   targetGain_ = static_cast<float>(std::pow(10., gain / 20.));
@@ -92,9 +98,21 @@ StereoSample Synth::ProcessStereo() {
     if (!v.gate && !v.env.IsRunning()) v.note = -1;
   }
   gain_ += smoothing_ * (targetGain_ - gain_);
-  // Fixed 16-voice headroom; no level pumping when voices enter or leave.
-  return {std::clamp(sum.left * gain_ / 16.f, -1.f, 1.f),
-          std::clamp(sum.right * gain_ / 16.f, -1.f, 1.f)};
+  boost_ += smoothing_ * (targetBoost_ - boost_);
+  const float scale=gain_*boost_/16.f;
+  sum.left*=scale; sum.right*=scale;
+  // Stereo-linked peak guard: instant attack, 80 ms recovery, zero latency.
+  // At settled 0 dB boost use the historical path for old project recall.
+  if(targetBoost_==1.f && std::abs(boost_-1.f)<0.00001f) {
+    protection_=1;
+  } else {
+    const float peak=std::max(std::abs(sum.left),std::abs(sum.right));
+    const float required=peak>0.98f ? 0.98f/peak : 1.f;
+    protection_+=protectionRelease_*(1.f-protection_);
+    protection_=std::min(protection_,required);
+  }
+  return {std::clamp(sum.left*protection_, -1.f, 1.f),
+          std::clamp(sum.right*protection_, -1.f, 1.f)};
 }
 bool Synth::Held(int note) const {
   for (const auto& v : voices_) if (v.note == note && v.held) return true;

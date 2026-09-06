@@ -13,8 +13,8 @@ int main() {
   auto near = [](double a, double b) { return std::abs(a-b) <= 1.e-9 * (1. + std::abs(b)); };
   using namespace sawstar;
   // These IDs/keys are compatibility fixtures, independent of enum ordering.
-  const std::array<std::string_view, 19> keys{
-    "output.gain_db", "amp.attack_ms", "amp.decay_ms", "amp.sustain", "amp.release_ms", "saw.detune_cents", "saw.mix", "saw.width", "filter.cutoff_hz", "filter.resonance", "filter.mix", "filter.env_amount_st", "filter.key_track", "filter.attack_ms", "filter.decay_ms", "filter.sustain", "filter.release_ms", "performance.bend_range_st", "performance.mod_depth_st"};
+  const std::array<std::string_view, 20> keys{
+    "output.gain_db", "amp.attack_ms", "amp.decay_ms", "amp.sustain", "amp.release_ms", "saw.detune_cents", "saw.mix", "saw.width", "filter.cutoff_hz", "filter.resonance", "filter.mix", "filter.env_amount_st", "filter.key_track", "filter.attack_ms", "filter.decay_ms", "filter.sustain", "filter.release_ms", "performance.bend_range_st", "performance.mod_depth_st", "output.boost_db"};
   for (std::uint32_t id = 0; id < keys.size(); ++id) {
     const auto* spec = FindParameter(id);
     check(spec && spec->key == keys[id], "persisted parameter identity changed");

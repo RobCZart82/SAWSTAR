@@ -12,6 +12,7 @@ class Synth {
 public:
   void Reset(double sampleRate);
   void SetParameters(double gainDb, double attackMs, double decayMs, double sustain, double releaseMs);
+  void SetOutputBoost(float dB);
   void Midi(int status, int data1, int data2);
   void SetFilter(float cutoffHz, float resonancePercent, float mixPercent);
   void SetFilterEnvelope(float amount, float tracking, float attack, float decay, float sustain, float release);
@@ -43,6 +44,7 @@ private:
   uint64_t age_ = 0;
   float cutoff_=12000, resonance_=0, filterMix_=0;
   float amount_=0, tracking_=0, filterAttack_=10, filterDecay_=200, filterSustain_=0, filterRelease_=250;
+  float boost_=1, targetBoost_=1, protection_=1, protectionRelease_=0;
   float gain_ = 0, targetGain_ = 0.25f, smoothing_ = 0.002f;
 };
 }

@@ -34,6 +34,8 @@ StateBytes EncodeState(const Snapshot& values) {
 size_t DecodeState(const uint8_t* data, size_t size, Snapshot& output) {
   if (!data) return 0;
   Snapshot values=DefaultSnapshot(); size_t consumed=0;
+  // Missing boost identifies an older project: preserve its exact output level.
+  values[static_cast<size_t>(ParameterId::OutputBoost)]=0;
   if(size>=8 && std::equal(magic.begin(),magic.end(),data)) {
     if(size<16 || Read(data+8,4)!=1) return 0;
     const size_t payload=static_cast<size_t>(Read(data+12,4));

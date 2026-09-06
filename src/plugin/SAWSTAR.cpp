@@ -81,10 +81,10 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     for(int i=0;i<6;++i)
       g->AttachControl(new IVKnobControl(IRECT(28.f+i*165, 262, 168.f+i*165, 340),
         11+i, sawstar::kParameters[11+i].name.data(), knobStyle, true), kNoTag, "main");
-    const int order[] = {1, 2, 3, 4, 0};
-    for (int i = 0; i < 5; ++i) {
+    const int order[] = {1, 2, 3, 4, 19, 0};
+    for (int i = 0; i < 6; ++i) {
       const auto& spec = sawstar::kParameters[order[i]];
-      g->AttachControl(new IVKnobControl(IRECT(40.f+i*195.f, 352, 204.f+i*195.f, 430),
+      g->AttachControl(new IVKnobControl(IRECT(28.f+i*165.f, 352, 168.f+i*165.f, 430),
                         order[i], spec.name.data(), knobStyle, true), kNoTag, "main");
     }
     g->AttachControl(new ITextControl(IRECT(35, 180, 989, 230),
@@ -125,6 +125,7 @@ void SAWSTAR::OnReset() {
 void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetParameters(GetParam(0)->Value(), GetParam(1)->Value(), GetParam(2)->Value(),
                        GetParam(3)->Value(), GetParam(4)->Value());
+  mSynth.SetOutputBoost(static_cast<float>(GetParam(19)->Value()));
   mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),
                 static_cast<float>(GetParam(7)->Value()));
   mSynth.SetFilter(static_cast<float>(GetParam(8)->Value()), static_cast<float>(GetParam(9)->Value()),
