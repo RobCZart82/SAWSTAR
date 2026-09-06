@@ -130,3 +130,7 @@ See [LFO and waveforms](LFO_WAVEFORMS.md) for route depths and sync semantics.
 | 45 | chorus.depth | 0-100% | 35% |
 
 Old states restore chorus Off. See [CHORUS.md](CHORUS.md).
+
+## Delay: append-only IDs 46-53
+
+See [DELAY.md](DELAY.md) for keys, ranges, defaults and tempo behavior. Old states restore Delay Off.

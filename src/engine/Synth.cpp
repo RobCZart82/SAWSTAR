@@ -10,7 +10,7 @@ void Synth::Reset(double rate) {
   boost_=targetBoost_; protection_=1;
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
-  lfo_.Init(sr);chorus_.Init(sr);alternateWave_=false;
+  lfo_.Init(sr);chorus_.Init(sr);delay_.Init(sr);alternateWave_=false;
   sampleRate_=sr; noisePole_=1.f-std::exp(-2.f*3.14159265358979323846f*1200.f/sr);
   levels_=targetLevels_;
   uint32_t seed=0x9e3779b9u;
@@ -138,12 +138,12 @@ StereoSample Synth::ProcessStereo() {
   gain_ += smoothing_ * (targetGain_ - gain_);
   boost_ += smoothing_ * (targetBoost_ - boost_);
   sum.left*=lfo.amp*std::sqrt(1-lfo.pan);sum.right*=lfo.amp*std::sqrt(1+lfo.pan);
-  sum=chorus_.Process(sum);
+  sum=delay_.Process(chorus_.Process(sum));
   const float scale=gain_*boost_/16.f;
   sum.left*=scale; sum.right*=scale;
   // Stereo-linked peak guard: instant attack, 80 ms recovery, zero latency.
   // At settled 0 dB boost use the historical path for old project recall.
-  if(chorus_.IsDry() && !alternateWave_ && lfo.pan==0 && targetBoost_==1.f && std::abs(boost_-1.f)<0.00001f &&
+  if(delay_.IsDry() && chorus_.IsDry() && !alternateWave_ && lfo.pan==0 && targetBoost_==1.f && std::abs(boost_-1.f)<0.00001f &&
      levels_[1]<1.e-6f && levels_[2]<1.e-6f && levels_[3]<1.e-6f) {
     protection_=1;
   } else {

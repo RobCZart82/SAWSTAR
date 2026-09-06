@@ -121,3 +121,5 @@ independent Saw/Square/Triangle/Sine selection plus an ADVANCED LFO with
 free/tempo rate, first-key retrigger and Cutoff/Pitch/Amp/Pan destinations.
 
 Stereo chorus is available on ADVANCED (Off by default). See [chorus](docs/CHORUS.md).
+
+Stereo/ping-pong delay is available on ADVANCED (Off by default). See [delay](docs/DELAY.md).

@@ -3,6 +3,7 @@
 #include "dsp/SevenSaw.h"
 #include "dsp/Lfo.h"
 #include "dsp/Effects/Chorus.h"
+#include "dsp/Effects/Delay.h"
 #include "dsp/LowPass.h"
 #include "dsp/FilterModulation.h"
 #include "Control/adsr.h"
@@ -17,6 +18,7 @@ public:
   void SetWaveforms(int osc1,int osc2);
   void SetLfo(float hz,float depth,int shape,int target,bool sync,int division,double bpm,bool retrigger);
   void SetChorus(bool enabled,float mix,float hz,float depth){chorus_.Set(enabled,mix,hz,depth);}
+  void SetDelay(bool on,float mix,float ms,float feedback,float tone,bool pingPong,bool sync,int division,double bpm){delay_.Set(on,mix,ms,feedback,tone,pingPong,sync,division,bpm);}
   void SetOutputBoost(float dB);
   void SetMixer(float osc1, float osc2, float sub, float noise,
                 int osc2Octave, int subOctave, int noiseType, int osc1Octave);
@@ -50,6 +52,7 @@ private:
   std::array<Voice, 16> voices_{};
   Lfo lfo_;
   Chorus chorus_;
+  Delay delay_;
   bool alternateWave_=false;
   std::array<bool, 16> sustain_{};
   std::array<int,16> bend_{{8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192}}, mod_{};
