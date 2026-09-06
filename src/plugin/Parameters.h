@@ -7,7 +7,7 @@
 namespace sawstar {
 // Persisted IDs / future iPlug2 indices: append only, never reorder or reuse.
 enum class ParameterId : std::uint32_t {
-  OutputGain = 0, AmpAttack = 1, AmpDecay = 2, AmpSustain = 3, AmpRelease = 4, SawDetune = 5, SawMix = 6, SawWidth = 7, FilterCutoff = 8, FilterResonance = 9, FilterMix = 10, FilterEnvAmount = 11, FilterKeyTrack = 12, FilterAttack = 13, FilterDecay = 14, FilterSustain = 15, FilterRelease = 16, BendRange = 17, ModDepth = 18, OutputBoost = 19, Osc1Level = 20, Osc2Level = 21, SubLevel = 22, NoiseLevel = 23, Osc2Octave = 24, SubOctave = 25, NoiseType = 26, Osc2Detune = 27, Osc2Mix = 28, Osc2Width = 29, Osc1Octave = 30, FilterDrive = 31, FilterMode = 32, Osc1Wave = 33, Osc2Wave = 34, LfoRate = 35, LfoDepth = 36, LfoShape = 37, LfoTarget = 38, LfoSync = 39, LfoDivision = 40, LfoRetrigger = 41
+  OutputGain = 0, AmpAttack = 1, AmpDecay = 2, AmpSustain = 3, AmpRelease = 4, SawDetune = 5, SawMix = 6, SawWidth = 7, FilterCutoff = 8, FilterResonance = 9, FilterMix = 10, FilterEnvAmount = 11, FilterKeyTrack = 12, FilterAttack = 13, FilterDecay = 14, FilterSustain = 15, FilterRelease = 16, BendRange = 17, ModDepth = 18, OutputBoost = 19, Osc1Level = 20, Osc2Level = 21, SubLevel = 22, NoiseLevel = 23, Osc2Octave = 24, SubOctave = 25, NoiseType = 26, Osc2Detune = 27, Osc2Mix = 28, Osc2Width = 29, Osc1Octave = 30, FilterDrive = 31, FilterMode = 32, Osc1Wave = 33, Osc2Wave = 34, LfoRate = 35, LfoDepth = 36, LfoShape = 37, LfoTarget = 38, LfoSync = 39, LfoDivision = 40, LfoRetrigger = 41, ChorusEnabled = 42, ChorusMix = 43, ChorusRate = 44, ChorusDepth = 45
 };
 enum class Mapping { Linear, Logarithmic };
 struct ParameterSpec {
@@ -16,7 +16,7 @@ struct ParameterSpec {
   double minimum, maximum, initial;
   Mapping mapping;
 };
-inline constexpr std::array<ParameterSpec, 42> kParameters{{
+inline constexpr std::array<ParameterSpec, 46> kParameters{{
   {ParameterId::OutputGain, "output.gain_db", "Output", "dB", -60., 0., -12., Mapping::Linear},
   {ParameterId::AmpAttack, "amp.attack_ms", "Attack", "ms", 1., 10000., 10., Mapping::Logarithmic},
   {ParameterId::AmpDecay, "amp.decay_ms", "Decay", "ms", 1., 10000., 100., Mapping::Logarithmic},
@@ -58,7 +58,11 @@ inline constexpr std::array<ParameterSpec, 42> kParameters{{
   {ParameterId::LfoTarget, "lfo.target", "LFO Target", "", 0.0, 3.0, 0.0, Mapping::Linear},
   {ParameterId::LfoSync, "lfo.sync", "LFO Sync", "", 0.0, 1.0, 0.0, Mapping::Linear},
   {ParameterId::LfoDivision, "lfo.division", "LFO Division", "", 0.0, 5.0, 2.0, Mapping::Linear},
-  {ParameterId::LfoRetrigger, "lfo.retrigger", "LFO Retrigger", "", 0.0, 1.0, 0.0, Mapping::Linear}
+  {ParameterId::LfoRetrigger, "lfo.retrigger", "LFO Retrigger", "", 0.0, 1.0, 0.0, Mapping::Linear},
+  {ParameterId::ChorusEnabled, "chorus.enabled", "Chorus", "", 0., 1., 0., Mapping::Linear},
+  {ParameterId::ChorusMix, "chorus.mix", "Chorus Mix", "%", 0., 100., 25., Mapping::Linear},
+  {ParameterId::ChorusRate, "chorus.rate_hz", "Chorus Rate", "Hz", .05, 3., .3, Mapping::Logarithmic},
+  {ParameterId::ChorusDepth, "chorus.depth", "Chorus Depth", "%", 0., 100., 35., Mapping::Linear}
 }};
 
 const ParameterSpec* FindParameter(std::uint32_t id) noexcept;

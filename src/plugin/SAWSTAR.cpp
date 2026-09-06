@@ -20,6 +20,8 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     auto* param = GetParam(static_cast<int>(spec.id));
     if(spec.id==sawstar::ParameterId::Osc1Wave||spec.id==sawstar::ParameterId::Osc2Wave)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Oscillator","Saw","Square","Triangle","Sine");
+    else if(spec.id==sawstar::ParameterId::ChorusEnabled)
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Effects","Off","On");
     else if(spec.id==sawstar::ParameterId::LfoShape)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"LFO","Sine","Triangle","Ramp","Square");
     else if(spec.id==sawstar::ParameterId::LfoTarget)
@@ -112,10 +114,12 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     const int menus[]={37,38,39,40};
     for(int i=0;i<4;++i)g->AttachControl(new IVMenuButtonControl(IRECT(30.f+i*245,155,260.f+i*245,205),menus[i],sawstar::kParameters[menus[i]].name.data(),menuStyle),kNoTag,"advanced");
     const int knobs[]={35,36,17,18};
-    for(int i=0;i<4;++i)g->AttachControl(new IVKnobControl(IRECT(50.f+i*240,230,240.f+i*240,335),knobs[i],sawstar::kParameters[knobs[i]].name.data(),knobStyle,true),kNoTag,"advanced");
-    g->AttachControl(new IVMenuButtonControl(IRECT(35,350,300,390),41,"LFO Phase",menuStyle),kNoTag,"advanced");
-    g->AttachControl(new ITextControl(IRECT(320,350,995,390),"Amount: cutoff +/-24 st | pitch +/-1 st | tremolo | auto-pan",IText(13,light)),kNoTag,"advanced");
-    g->AttachControl(new ITextControl(IRECT(35,405,989,435),"Tempo Sync uses the DAW BPM. Cutoff modulation needs Filter Mix above 0.",IText(14,light)),kNoTag,"advanced");
+    for(int i=0;i<4;++i)g->AttachControl(new IVKnobControl(IRECT(50.f+i*240,210,240.f+i*240,290),knobs[i],sawstar::kParameters[knobs[i]].name.data(),knobStyle,true),kNoTag,"advanced");
+    g->AttachControl(new IVMenuButtonControl(IRECT(35,300,300,335),41,"LFO Phase",menuStyle),kNoTag,"advanced");
+    g->AttachControl(new ITextControl(IRECT(320,300,995,335),"Amount: cutoff +/-24 st | pitch +/-1 st | tremolo | auto-pan",IText(13,light)),kNoTag,"advanced");
+    g->AttachControl(new ITextControl(IRECT(35,342,989,365),"STEREO CHORUS",IText(16,accent)),kNoTag,"advanced");
+    g->AttachControl(new IVMenuButtonControl(IRECT(35,380,190,422),42,"",menuStyle),kNoTag,"advanced");
+    for(int i=0;i<3;++i)g->AttachControl(new IVSliderControl(IRECT(220.f+i*260,370,460.f+i*260,430),43+i,sawstar::kParameters[43+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"advanced");
     g->AttachControl(new ITextControl(IRECT(35,100,989,133),
       "FACTORY LIBRARY + LEARNING",IText(22,accent)),kNoTag,"presets");
     for(int i=0;i<static_cast<int>(sawstar::FactoryPresets().size());++i)
@@ -152,6 +156,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetOutputBoost(static_cast<float>(GetParam(19)->Value()));
   mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),
                 static_cast<float>(GetParam(7)->Value()));
+  mSynth.SetChorus(GetParam(42)->Int()!=0,GetParam(43)->Value(),GetParam(44)->Value(),GetParam(45)->Value());
   mSynth.SetWaveforms(GetParam(33)->Int(),GetParam(34)->Int());
   mSynth.SetLfo(GetParam(35)->Value(),GetParam(36)->Value(),GetParam(37)->Int(),GetParam(38)->Int(),
     GetParam(39)->Int()!=0,GetParam(40)->Int(),GetTempo(),GetParam(41)->Int()!=0);

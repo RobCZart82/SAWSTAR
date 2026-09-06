@@ -119,3 +119,5 @@ retain undriven LP12 until changed.
 [Oscillator waveform previews and LFO routing](docs/LFO_WAVEFORMS.md) add
 independent Saw/Square/Triangle/Sine selection plus an ADVANCED LFO with
 free/tempo rate, first-key retrigger and Cutoff/Pitch/Amp/Pan destinations.
+
+Stereo chorus is available on ADVANCED (Off by default). See [chorus](docs/CHORUS.md).

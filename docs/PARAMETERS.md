@@ -119,3 +119,14 @@ Older states default to Drive 0 / LP12. See [filter character](FILTER_CHARACTER.
 | 41 | lfo.retrigger | Free phase / Retrigger first key | Free phase |
 
 See [LFO and waveforms](LFO_WAVEFORMS.md) for route depths and sync semantics.
+
+## Stereo chorus (append-only IDs 42-45)
+
+| ID | Key | Range | Default |
+|---|---|---|---|
+| 42 | chorus.enabled | Off / On | Off |
+| 43 | chorus.mix | 0-100% | 25% |
+| 44 | chorus.rate_hz | 0.05-3 Hz | 0.3 Hz |
+| 45 | chorus.depth | 0-100% | 35% |
+
+Old states restore chorus Off. See [CHORUS.md](CHORUS.md).
