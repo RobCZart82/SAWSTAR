@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.21)
 project(SAWSTAR VERSION 0.1.0 LANGUAGES CXX)
 
+option(SAWSTAR_BUILD_PLUGIN "Build the iPlug2 VST3 development shell" OFF)
+if(SAWSTAR_BUILD_PLUGIN)
+  enable_language(C)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 include(CTest)
 option(SAWSTAR_CHECK_DAISYSP "Compile and test the selected DaisySP primitives" OFF)
 
@@ -48,4 +54,8 @@ if(SAWSTAR_CHECK_DAISYSP)
     target_link_libraries(sawstar_dsp_tests PRIVATE sawstar_daisy_primitives)
     add_test(NAME daisy_primitives COMMAND sawstar_dsp_tests)
   endif()
+endif()
+
+if(SAWSTAR_BUILD_PLUGIN)
+  add_subdirectory(src/plugin)
 endif()

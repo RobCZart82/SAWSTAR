@@ -29,3 +29,27 @@ jobs:
         run: cmake --build build --config ${{ matrix.config }} --parallel 2
       - name: Test
         run: ctest --test-dir build -C ${{ matrix.config }} --output-on-failure
+
+  vst3:
+    name: VST3 shell / Release
+    runs-on: macos-14
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Fetch pinned plugin dependencies
+        run: python scripts/bootstrap-plugin.py
+      - name: Configure VST3 shell
+        run: cmake -S . -B build-plugin -DCMAKE_BUILD_TYPE=Release -DSAWSTAR_BUILD_PLUGIN=ON -DBUILD_TESTING=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+      - name: Build VST3 and parameter checks
+        run: cmake --build build-plugin --config Release --parallel 3
+      - name: Test foundation
+        run: ctest --test-dir build-plugin -C Release --output-on-failure
+      - name: Package development bundle and notices
+        run: python scripts/package-plugin.py build-plugin/out SAWSTAR-macos.zip
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: SAWSTAR-macos-development
+          path: SAWSTAR-macos.zip
+          if-no-files-found: error

@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: MIT
+#pragma once
+#define PLUG_NAME "SAWSTAR"
+#define PLUG_MFR "RobCZart82"
+#define PLUG_VERSION_HEX 0x00010000
+#define PLUG_VERSION_STR "0.1.0"
+#define PLUG_UNIQUE_ID 'SwSt'
+#define PLUG_MFR_ID 'RC82'
+#define PLUG_URL_STR "https://github.com/RobCZart82/SAWSTAR"
+#define PLUG_EMAIL_STR ""
+#define PLUG_COPYRIGHT_STR "Copyright 2026 SAWSTAR contributors"
+#define PLUG_CLASS_NAME SAWSTAR
+#define BUNDLE_NAME "SAWSTAR"
+#define BUNDLE_MFR "robczart82"
+#define BUNDLE_DOMAIN "io.github"
+#define PLUG_CHANNEL_IO "0-2"
+#define PLUG_LATENCY 0
+#define PLUG_TYPE 1
+#define PLUG_DOES_MIDI_IN 1
+#define PLUG_DOES_MIDI_OUT 0
+#define PLUG_DOES_MPE 0
+#define PLUG_DOES_STATE_CHUNKS 0
+#define PLUG_HAS_UI 1
+#define PLUG_WIDTH 1024
+#define PLUG_HEIGHT 560
+#define PLUG_FPS 30
+#define PLUG_SHARED_RESOURCES 0
+#define PLUG_HOST_RESIZE 0
+#define SHARED_RESOURCES_SUBPATH "SAWSTAR"
+#define VST3_SUBCATEGORY "Instrument|Synth"
