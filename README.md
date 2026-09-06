@@ -111,3 +111,7 @@ and ADVANCED depth controls. See [performance controls](docs/PERFORMANCE.md).
 The [four-source mixer and output calibration](docs/SOURCE_MIXER.md) add an
 independent OSC2, sine SUB and White/Dark Noise. New sounds use +18 dB Level
 Boost with stereo peak protection; old project levels are preserved.
+
+[Filter Drive and four filter modes](docs/FILTER_CHARACTER.md) now provide
+LP12, LP24, HP12 and BP12. Raise Filter Mix to engage them; existing projects
+retain undriven LP12 until changed.

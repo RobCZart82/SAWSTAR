@@ -32,3 +32,6 @@ A stereo 44.1 kHz/24-bit MIDI render with cutoff 1067.11 Hz, resonance 31.403%
 and Filter Mix 100% peaked at -23.65 dBFS with zero clipped samples.
 The separate listening preview is normalized to -6 dBFS; plugin gain is unchanged.
 Manual Windows host testing of this filter build remains pending.
+
+The filter now also supports LP24, HP12, BP12 and pre-filter Drive.
+See [filter character](FILTER_CHARACTER.md); the original LP12 remains default.

@@ -44,7 +44,8 @@ noise attenuation, mixer mute, default source equivalence, coherent 16-voice
 peak stress, stereo unison/resonance stress, boost automation, old-state
 migration and current-state roundtrips at 44.1/48/96 kHz.
 
-Still planned: other oscillator waveforms, filter drive/modes, LFO/routing,
+Filter drive/modes are now implemented; see [FILTER_CHARACTER.md](FILTER_CHARACTER.md).
+Still planned: other oscillator waveforms, LFO/routing,
 mono/legato/glide, arpeggiator, chorus/delay/reverb and final GUI integration.
 
 ## Verified build — 2026-09-06

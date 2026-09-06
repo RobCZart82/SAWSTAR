@@ -46,7 +46,7 @@ use iPlug2 ShapeExp, matching the logarithmic contract.
 `State.h/.cpp` encodes `SAWSTAR\0` (8 bytes), a little-endian u32 version (1),
 a little-endian u32 payload length, then records of u32 parameter ID + IEEE-754
 little-endian float64 physical value. Up to 64 records are accepted. The current
-payload is 372 bytes; the total state is 388 bytes. Old seventeen-record v1
+payload is 396 bytes; the total state is 412 bytes. Old seventeen-record v1
 states (220 bytes) default IDs 17–18. Old eleven-record v1
 states (148 bytes) default IDs 11–18. Old eight-record v1
 states (112 bytes) remain supported and default IDs 8–18. Old five-record v1 states
@@ -94,3 +94,12 @@ IDs 19–30 are append-only. The authoritative ranges/defaults are in
 
 Absent Level Boost migrates to 0 dB for historical loudness; additional sources
 default to silent. Octave and noise selectors are discrete host parameters.
+
+## Filter character extension
+
+| ID | Key | Range | Default |
+| --- | --- | --- | --- |
+| 31 | filter.drive_db | 0–24 dB | 0 |
+| 32 | filter.mode | 0=LP12, 1=LP24, 2=HP12, 3=BP12 | 0 |
+
+Older states default to Drive 0 / LP12. See [filter character](FILTER_CHARACTER.md).
