@@ -115,3 +115,7 @@ Boost with stereo peak protection; old project levels are preserved.
 [Filter Drive and four filter modes](docs/FILTER_CHARACTER.md) now provide
 LP12, LP24, HP12 and BP12. Raise Filter Mix to engage them; existing projects
 retain undriven LP12 until changed.
+
+[Oscillator waveform previews and LFO routing](docs/LFO_WAVEFORMS.md) add
+independent Saw/Square/Triangle/Sine selection plus an ADVANCED LFO with
+free/tempo rate, first-key retrigger and Cutoff/Pitch/Amp/Pan destinations.

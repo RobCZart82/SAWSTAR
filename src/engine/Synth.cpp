@@ -10,7 +10,7 @@ void Synth::Reset(double rate) {
   boost_=targetBoost_; protection_=1;
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
-  lfo_.Init(sr);
+  lfo_.Init(sr);alternateWave_=false;
   sampleRate_=sr; noisePole_=1.f-std::exp(-2.f*3.14159265358979323846f*1200.f/sr);
   levels_=targetLevels_;
   uint32_t seed=0x9e3779b9u;

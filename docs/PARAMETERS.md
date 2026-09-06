@@ -46,7 +46,7 @@ use iPlug2 ShapeExp, matching the logarithmic contract.
 `State.h/.cpp` encodes `SAWSTAR\0` (8 bytes), a little-endian u32 version (1),
 a little-endian u32 payload length, then records of u32 parameter ID + IEEE-754
 little-endian float64 physical value. Up to 64 records are accepted. The current
-payload is 396 bytes; the total state is 412 bytes. Old seventeen-record v1
+payload is 504 bytes; the total state is 520 bytes. Old seventeen-record v1
 states (220 bytes) default IDs 17–18. Old eleven-record v1
 states (148 bytes) default IDs 11–18. Old eight-record v1
 states (112 bytes) remain supported and default IDs 8–18. Old five-record v1 states
@@ -103,3 +103,19 @@ default to silent. Octave and noise selectors are discrete host parameters.
 | 32 | filter.mode | 0=LP12, 1=LP24, 2=HP12, 3=BP12 | 0 |
 
 Older states default to Drive 0 / LP12. See [filter character](FILTER_CHARACTER.md).
+
+## LFO and waveform extension
+
+| ID | Key | Range / choices | Default |
+| --- | --- | --- | --- |
+| 33 | osc1.waveform | Saw / Square / Triangle / Sine | Saw |
+| 34 | osc2.waveform | Saw / Square / Triangle / Sine | Saw |
+| 35 | lfo.rate_hz | 0.05–20 Hz (log) | 1 |
+| 36 | lfo.depth | 0–100% | 0 |
+| 37 | lfo.shape | Sine / Triangle / Ramp / Square | Sine |
+| 38 | lfo.target | Cutoff / Pitch / Amp / Pan | Cutoff |
+| 39 | lfo.sync | Free Hz / Tempo Sync | Free Hz |
+| 40 | lfo.division | 1/1, 1/2, 1/4, 1/8, 1/16, 1/32 | 1/4 |
+| 41 | lfo.retrigger | Free phase / Retrigger first key | Free phase |
+
+See [LFO and waveforms](LFO_WAVEFORMS.md) for route depths and sync semantics.

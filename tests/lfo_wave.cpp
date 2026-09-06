@@ -11,6 +11,13 @@ int main(){for(float sr:{44100.f,48000.f,96000.f}){
   check(e>1,"each waveform audible");
   for(int i=0;i<4096;++i){if(i%256==0)osc.SetWaveform((i/256)%4);auto x=osc.Process();check(std::isfinite(x.left)&&std::abs(x.left)<2.1,"switching stable");}
  }
+ // Same pitch/phase conditions must produce four distinct source signals.
+ std::array<sawstar::SevenSaw,4> shapes;
+ for(int w=0;w<4;++w){shapes[w].Init(sr);shapes[w].SetFreq(440);shapes[w].SetWaveform(w);}
+ double differences[4][4]{};
+ for(int i=0;i<sr/2;++i){float x[4];for(int w=0;w<4;++w)x[w]=shapes[w].Process().left;
+  if(i>sr/4)for(int a=0;a<4;++a)for(int b=a+1;b<4;++b)differences[a][b]+=std::abs(x[a]-x[b]);}
+ for(int a=0;a<4;++a)for(int b=a+1;b<4;++b)check(differences[a][b]>100,"waveforms must have distinct audio");
  sawstar::Lfo l;l.Init(sr);l.Set(2,100,0,0,false,2,120,true);
  for(int i=0;i<sr;++i)l.Process();l.Trigger();for(int i=0;i<sr/8;++i)l.Process();
  check(std::abs(l.Phase()-.25)<.001,"free LFO 2 Hz phase");
