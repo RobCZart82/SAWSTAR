@@ -25,6 +25,10 @@ int main(){
   s.Midi(0xe0,127,127);s.Midi(0xb0,120,0);s.Midi(0x90,69,127);
   check(std::abs(frequency(s,sr)-880)<2,"new note uses current bend");
   s.Reset(sr);check(s.PitchBend(0)==8192&&s.ModWheel(0)==0,"reset clears performance");
+  if(sr==8000){
+   s.SetParameters(0,1,1,1,10);s.SetPerformance(24,24);s.Midi(0xe0,0,0);s.Midi(0x90,127,127);
+   check(std::abs(frequency(s,sr)-440*std::exp2((127.-69-24)/12))<2,"high note bends below Nyquist");
+  }
   sawstar::Synth a,b;prepare(a,sr,1);prepare(b,sr,1);
   a.Midi(0xe0,0,0);a.Midi(0xb0,1,127);
   for(int i=0;i<sr/4;++i){auto x=a.ProcessStereo(),y=b.ProcessStereo();check(x.left==y.left&&x.right==y.right,"channel isolation");}
