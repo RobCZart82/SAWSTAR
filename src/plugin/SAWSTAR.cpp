@@ -93,14 +93,15 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
 
     const auto knobStyle=DEFAULT_STYLE.WithLabelText(IText(13, light))
       .WithValueText(IText(12, light).WithVAlign(EVAlign::Bottom));
-    g->AttachControl(new IVMenuButtonControl(IRECT(510,108,725,140),32,"",knobStyle),kNoTag,"main");
+    const auto menuStyle=knobStyle.WithValueText(IText(13,IColor(255,9,26,38)));
+    g->AttachControl(new IVMenuButtonControl(IRECT(510,108,725,140),32,"",menuStyle),kNoTag,"main");
     g->AttachControl(new IVSliderControl(IRECT(750,108,995,140),31,"Drive",knobStyle,true,EDirection::Horizontal),kNoTag,"main");
     g->AttachControl(new ITextControl(IRECT(510,140,995,166),"Raise Filter Mix to hear",IText(12,light)),kNoTag,"main");
     g->AttachControl(new ITextControl(IRECT(20,170,248,192),"MIXER",IText(15,accent)),kNoTag,"main");
     for(int i=0;i<4;++i)
       g->AttachControl(new IVSliderControl(IRECT(20.f+i*58,197,74.f+i*58,344),20+i,
         sawstar::kParameters[20+i].name.data(),knobStyle,true),kNoTag,"main");
-    g->AttachControl(new IVMenuButtonControl(IRECT(25,365,240,415),26,"Noise Type",knobStyle),kNoTag,"main");
+    g->AttachControl(new IVMenuButtonControl(IRECT(25,365,240,415),26,"Noise Type",menuStyle),kNoTag,"main");
     const int order[]={30,5,6,7,24,27,28,29,25,8,9,10,11,12,13,14,15,16,1,2,3,4,19,0};
     for(int i=0;i<24;++i) {
       const int id=order[i];const float x=260.f+(i%6)*124.f,y=170.f+(i/6)*66.f;
@@ -109,10 +110,10 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     }
     g->AttachControl(new ITextControl(IRECT(35,100,989,133),"LFO + PERFORMANCE",IText(22,accent)),kNoTag,"advanced");
     const int menus[]={37,38,39,40};
-    for(int i=0;i<4;++i)g->AttachControl(new IVMenuButtonControl(IRECT(30.f+i*245,155,260.f+i*245,205),menus[i],sawstar::kParameters[menus[i]].name.data(),knobStyle),kNoTag,"advanced");
+    for(int i=0;i<4;++i)g->AttachControl(new IVMenuButtonControl(IRECT(30.f+i*245,155,260.f+i*245,205),menus[i],sawstar::kParameters[menus[i]].name.data(),menuStyle),kNoTag,"advanced");
     const int knobs[]={35,36,17,18};
     for(int i=0;i<4;++i)g->AttachControl(new IVKnobControl(IRECT(50.f+i*240,230,240.f+i*240,335),knobs[i],sawstar::kParameters[knobs[i]].name.data(),knobStyle,true),kNoTag,"advanced");
-    g->AttachControl(new IVMenuButtonControl(IRECT(35,350,300,390),41,"LFO Phase",knobStyle),kNoTag,"advanced");
+    g->AttachControl(new IVMenuButtonControl(IRECT(35,350,300,390),41,"LFO Phase",menuStyle),kNoTag,"advanced");
     g->AttachControl(new ITextControl(IRECT(320,350,995,390),"Amount: cutoff +/-24 st | pitch +/-1 st | tremolo | auto-pan",IText(13,light)),kNoTag,"advanced");
     g->AttachControl(new ITextControl(IRECT(35,405,989,435),"Tempo Sync uses the DAW BPM. Cutoff modulation needs Filter Mix above 0.",IText(14,light)),kNoTag,"advanced");
     g->AttachControl(new ITextControl(IRECT(35,100,989,133),
