@@ -56,3 +56,22 @@ The pinned DaisySP triangle Init/constructor do not initialize integrator
 history. SAWSTAR therefore owns and explicitly initializes that history, using
 the polyBLEP square primitive as input instead of the library triangle mode.
 This is covered by Windows Debug/Release waveform-switching tests.
+
+## Verified build — 2026-09-06
+
+Code `0a9a50857870c5ee2e10e9e6af3d8dcf248f1e18`:
+[macOS CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34054612682) and
+[Windows CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34054612676)
+passed all 13 test executables in Debug/Release and 47 VST3 validator checks.
+
+REAPER 7.79 on macOS loaded the older Soft Pad state with Saw/Saw and LFO off.
+Both waveform selectors updated independently and displayed the chosen shapes.
+The test project saved OSC1 Square, OSC2 Sine at 40% mixer level, LFO Sine to
+Cutoff at 60%, Tempo Sync 1/8 and Retrigger first key. Closing and fully restarting
+REAPER, then loading the project with the final artifact, restored the settings.
+The final UI also uses higher-contrast selection text.
+
+A 44.1 kHz stereo / 24-bit PCM render at 136 BPM peaked at -12.150 dBFS, with
+zero clipped samples and no post-render normalization. This is a functional
+host test, not exhaustive musical/CPU acceptance. Manual Windows host testing
+of the final build remains pending.
