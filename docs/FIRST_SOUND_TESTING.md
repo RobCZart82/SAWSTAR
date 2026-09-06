@@ -20,3 +20,23 @@ version was captured in this task.
 The current development milestone still needs
 automation recording/playback, full preset library and final GUI work. Versioned state and legacy migration
 are now implemented; see PARAMETERS.md.
+
+## State/automation follow-up (2026-09-06)
+
+Code build b8acc804: macOS CI run 34036993019, Windows 34036992996.
+Both ran four test executables successfully; both VST3 validators report
+47 tests passed, 0 failed. Debug and Release foundation/engine tests also passed.
+
+Manual macOS REAPER 7.79: migrated an actual legacy project (Attack 168.58 ms,
+Decay 100 ms, Sustain 0.200, Release 491.80 ms). Saved a project containing
+SAWSTAR v1 magic and ID/value records; reopened the saved state in a copied
+project with an Output automation lane. The four envelope parameters remained
+unchanged and Output followed the lane's -48 dB starting point.
+
+Output lane was created in REAPER, then populated in a disposable RPP copy with
+normalized 0.2 -> 0.8 -> 0.2 points. Offline rendering produced finite audio,
+peak -29.1 dBFS and no clipping. Measured early/late note RMS differed by 41.93 dB
+(note/envelope differences mean this is not a calibrated gain-linearity test).
+The final 100 ms peak was 5.13e-6: quiet release tail, not exact zero. This checks
+automation playback and save/recall, not real-time touch/latch recording of all
+five controls. Those broader host checks remain pending.
