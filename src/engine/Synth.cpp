@@ -9,8 +9,7 @@ void Synth::Reset(double rate) {
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
   for (auto& v : voices_) {
     v = Voice{};
-    v.osc.Init(sr); v.osc.SetWaveform(daisysp::Oscillator::WAVE_POLYBLEP_SAW);
-    v.osc.SetAmp(1.f); v.env.Init(sr);
+    v.osc.Init(sr); v.env.Init(sr);
   }
 }
 void Synth::SetParameters(double gain, double attack, double decay, double sustain, double release) {
@@ -21,6 +20,9 @@ void Synth::SetParameters(double gain, double attack, double decay, double susta
     v.env.SetSustainLevel(static_cast<float>(sustain));
     v.env.SetReleaseTime(static_cast<float>(release * .001));
   }
+}
+void Synth::SetSaw(float detune,float mix,float width) {
+  for(auto& v:voices_) v.osc.SetShape(detune,mix*.01f,width*.01f);
 }
 void Synth::Midi(int status, int note, int value) {
   const int channel = status & 15, kind = status & 240;
@@ -54,16 +56,18 @@ void Synth::Midi(int status, int note, int value) {
     }
   }
 }
-float Synth::Process() {
-  float sum = 0;
+StereoSample Synth::ProcessStereo() {
+  StereoSample sum;
   for (auto& v : voices_) if (v.note >= 0) {
     const float env = v.env.Process(v.gate);
-    sum += v.osc.Process() * env * v.velocity;
+    const auto value=v.osc.Process();
+    sum.left+=value.left*env*v.velocity;sum.right+=value.right*env*v.velocity;
     if (!v.gate && !v.env.IsRunning()) v.note = -1;
   }
   gain_ += smoothing_ * (targetGain_ - gain_);
   // Fixed 16-voice headroom; no level pumping when voices enter or leave.
-  return std::clamp(sum * gain_ / 16.f, -1.f, 1.f);
+  return {std::clamp(sum.left * gain_ / 16.f, -1.f, 1.f),
+          std::clamp(sum.right * gain_ / 16.f, -1.f, 1.f)};
 }
 bool Synth::Held(int note) const {
   for (const auto& v : voices_) if (v.note == note && v.held) return true;

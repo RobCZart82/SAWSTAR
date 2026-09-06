@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
-#include "Synthesis/oscillator.h"
+#include "dsp/SevenSaw.h"
 #include "Control/adsr.h"
 #include <array>
 #include <cstdint>
@@ -11,12 +11,14 @@ public:
   void Reset(double sampleRate);
   void SetParameters(double gainDb, double attackMs, double decayMs, double sustain, double releaseMs);
   void Midi(int status, int data1, int data2);
-  float Process();
+  void SetSaw(float detuneCents, float mixPercent, float widthPercent);
+  StereoSample ProcessStereo();
+  float Process() { const auto s=ProcessStereo(); return (s.left+s.right)*0.5f; }
   bool Held(int note) const;
   int ActiveVoices() const;
 private:
   struct Voice {
-    daisysp::Oscillator osc;
+    SevenSaw osc;
     daisysp::Adsr env;
     int note = -1, channel = 0;
     bool held = false, gate = false;

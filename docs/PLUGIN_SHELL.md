@@ -1,7 +1,8 @@
 # SAWSTAR First Sound development build
 
-Playable 16-voice instrument with DaisySP polyBLEP saw and ADSR primitives.
-MAIN exposes the five existing parameters. ADVANCED remains a placeholder;
+Playable 16-voice instrument with SAWSTAR 7-Saw and DaisySP ADSR primitives.
+See SEVEN_SAW.md for Detune, Mix and Width behavior.
+MAIN exposes the eight parameters. ADVANCED remains a placeholder;
 PRESETS offers Load Init. All pages share a flat 64-pixel-high keyboard,
 MIDI 36–96, without an octave selector. Host MIDI can address notes 0–127.
 Versioned SAWSTAR state reads legacy framework saves; old plugin binaries
@@ -31,7 +32,7 @@ not a published First Sound release. Freeze these identifiers before wider use.
 
 Add the bundle's parent folder to REAPER's VST paths or install it to a standard
 user VST3 directory. Rescan, insert SAWSTAR on a new track, open and switch all
-three tabs, adjust the five parameters and load Init. Save/reopen a disposable
+three tabs, adjust the eight parameters and load Init. Save/reopen a disposable
 project and compare parameter values; test two instances and repeated editor
 open/close. Play individual notes and chords from both GUI and MIDI; check note-off, sustain,
 voice stealing and silence after release. Confirm finite bounded output.

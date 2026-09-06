@@ -54,7 +54,7 @@ size_t DecodeState(const uint8_t* data, size_t size, Snapshot& output) {
     constexpr size_t legacySize=5*8;
     if(size!=legacySize && size!=legacySize+4) return 0;
     consumed=legacySize;
-    for(size_t i=0;i<values.size();++i) {
+    for(size_t i=0;i<5;++i) {
       const double value=ReadDouble(data+i*8);
       if(!std::isfinite(value)) return 0;
       values[i]=Sanitize(kParameters[i],value);

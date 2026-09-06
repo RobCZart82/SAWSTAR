@@ -4,7 +4,7 @@
 
 An open-source, saw-focused synthesizer for direct sound design and learning.
 Built toward **iPlug2 + a custom SAWSTAR voice/synth engine + DaisySP primitives**,
-with a custom 7-Saw/SuperSaw planned after the first playable instrument.
+with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
 ## Concept
 
@@ -15,10 +15,11 @@ with a custom 7-Saw/SuperSaw planned after the first playable instrument.
 ## Status: First Sound development build / 0.1.0-dev
 
 The iPlug2 VST3 now includes a custom 16-voice SAWSTAR engine using DaisySP's
-polyBLEP saw and Amp ADSR, velocity, sustain pedal and dual-mono stereo output.
+polyBLEP saw primitives and Amp ADSR, velocity, sustain pedal and stereo 7-Saw output.
 MAIN / ADVANCED / PRESETS share a slim, clickable 61-key keyboard (MIDI 36–96)
 with cyan note feedback. There is no octave selector; the DAW can send all 128 notes.
-The five parameter IDs remain unchanged. Versioned state reads older saves.
+The original five IDs remain unchanged; Detune, Mix and Width append three new IDs.
+Versioned state reads older saves. Raise Mix above 0% to hear 7-Saw.
 
 [Build and test](docs/PLUGIN_SHELL.md). GitHub Actions builds macOS ARM64 and
 Windows x64 development archives and runs engine tests plus the VST3 validator.

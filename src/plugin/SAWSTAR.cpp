@@ -49,14 +49,19 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     for (int i = 0; i < 3; ++i)
       g->AttachControl(new sawstar::gui::PageButton(IRECT(550.f+i*148.f, 25, 690.f+i*148.f, 70),
                          titles[i], i, mPage, [selectPage, i]() { selectPage(i); }));
-    g->AttachControl(new ITextControl(IRECT(28, 128, 996, 168),
-      "SAW  >  AMP ENVELOPE  >  OUTPUT", IText(22, accent)), kNoTag, "main");
-    g->AttachControl(new ITextControl(IRECT(28, 177, 996, 213),
-      "Play the keyboard or send MIDI from your DAW. 16 voices / band-limited saw.", IText(16, light)), kNoTag, "main");
+    g->AttachControl(new ITextControl(IRECT(28, 105, 996, 139),
+      "7-SAW  >  AMP ENVELOPE  >  OUTPUT", IText(22, accent)), kNoTag, "main");
+    g->AttachControl(new ITextControl(IRECT(28, 140, 996, 169),
+      "Mix 0% = single saw. Raise Mix for seven saws; Detune and Width shape the ensemble.", IText(16, light)), kNoTag, "main");
+    const auto knobStyle=DEFAULT_STYLE.WithLabelText(IText(16, light))
+      .WithValueText(IText(13, IColor(255, 9, 26, 38)));
+    for(int i=0;i<3;++i)
+      g->AttachControl(new IVKnobControl(IRECT(225.f+i*195, 176, 389.f+i*195, 288),
+        5+i, sawstar::kParameters[5+i].name.data(), knobStyle), kNoTag, "main");
     const int order[] = {1, 2, 3, 4, 0};
     for (int i = 0; i < 5; ++i) {
       const auto& spec = sawstar::kParameters[order[i]];
-      g->AttachControl(new IVKnobControl(IRECT(40.f+i*195.f, 245, 204.f+i*195.f, 410),
+      g->AttachControl(new IVKnobControl(IRECT(40.f+i*195.f, 305, 204.f+i*195.f, 416),
                         order[i], spec.name.data(), DEFAULT_STYLE.WithLabelText(IText(17, light)).WithValueText(IText(14, IColor(255, 9, 26, 38)))), kNoTag, "main");
     }
     g->AttachControl(new ITextControl(IRECT(35, 180, 989, 230),
@@ -78,7 +83,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       }
     }, "Load Init"), kNoTag, "presets");
     g->AttachControl(new ITextControl(IRECT(20, 430, 1004, 462),
-      "0.1.0-dev  |  FIRST SOUND  |  16 VOICES", IText(14, light)));
+      "0.1.0-dev  |  7-SAW  |  16 VOICES", IText(14, light)));
     g->AttachControl(new IVKeyboardControl(IRECT(20, 478, 1004, 542), 36, 96, false,
       IColor(255, 117, 137, 147), IColor(255, 22, 40, 50), accent,
       IColor(255, 9, 26, 38), light));
@@ -95,6 +100,8 @@ void SAWSTAR::OnReset() {
 void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetParameters(GetParam(0)->Value(), GetParam(1)->Value(), GetParam(2)->Value(),
                        GetParam(3)->Value(), GetParam(4)->Value());
+  mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),
+                static_cast<float>(GetParam(7)->Value()));
   if (mOverflow) {
     for (int ch = 0; ch < 16; ++ch) mSynth.Midi(0xB0 | ch, 120, 0);
     mEventCount = 0; mOverflow = false;
@@ -105,8 +112,10 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
       const auto& msg = mEvents[event++];
       mSynth.Midi(msg.mStatus, msg.mData1, msg.mData2);
     }
-    const sample value = static_cast<sample>(mSynth.Process());
-    for (int ch = 0; ch < NOutChansConnected(); ++ch) outputs[ch][i] = value;
+    const auto value=mSynth.ProcessStereo();
+    const int channels=NOutChansConnected();
+    if(channels==1) outputs[0][i]=static_cast<sample>((value.left+value.right)*0.5f);
+    else for(int ch=0;ch<channels;++ch) outputs[ch][i]=static_cast<sample>(ch%2?value.right:value.left);
   }
   for (int i = event; i < mEventCount; ++i) {
     mEvents[i - event] = mEvents[i]; mEvents[i - event].mOffset -= frames;
