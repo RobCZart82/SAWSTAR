@@ -20,6 +20,8 @@ MAIN / ADVANCED / PRESETS share a slim, clickable 61-key keyboard (MIDI 36–96)
 with cyan note feedback. There is no octave selector; the DAW can send all 128 notes.
 The original five IDs remain unchanged; Detune, Mix and Width append three new IDs.
 Versioned state reads older saves. Raise Mix above 0% to hear 7-Saw.
+A [resonant stereo low-pass](docs/FILTER.md) adds Cutoff, Resonance and Filter Mix.
+Raise Filter Mix above 0% to engage filtering.
 
 [Build and test](docs/PLUGIN_SHELL.md). GitHub Actions builds macOS ARM64 and
 Windows x64 development archives and runs engine tests plus the VST3 validator.

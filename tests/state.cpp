@@ -7,14 +7,17 @@
 void check(bool ok,const char* name){if(!ok){std::cerr<<name<<"\n";std::exit(1);}}
 int main(){
  using namespace sawstar;
- Snapshot wanted{{-23.5,23.24,780,0.42,1234, 23, 64, 82}}, out{};
+ Snapshot wanted{{-23.5,23.24,780,0.42,1234, 23, 64, 82, 1900, 35, 100}}, out{};
  const auto state=EncodeState(wanted);
  check(DecodeState(state.data(),state.size(),out)==state.size() && out==wanted,"roundtrip");
- check(state[8]==1 && state[12]==96 && state[16]==0,"wire fixture");
+ check(state[8]==1 && state[12]==132 && state[16]==0,"wire fixture");
  // Old v1 payload with only the original five records must keep new defaults.
  auto oldV1=std::vector<uint8_t>(state.begin(),state.begin()+76);oldV1[12]=60;
  check(DecodeState(oldV1.data(),oldV1.size(),out)==76 && out[1]==wanted[1] &&
        out[5]==20 && out[6]==0 && out[7]==75,"five-record v1 migration");
+ auto eightV1=std::vector<uint8_t>(state.begin(),state.begin()+112);eightV1[12]=96;
+ check(DecodeState(eightV1.data(),eightV1.size(),out)==112 && out[6]==wanted[6] &&
+       out[8]==12000 && out[9]==0 && out[10]==0,"eight-record v1 migration");
  // Fixture for old physical doubles: -12, 10, 100, .7, 250, little endian.
  const uint8_t old[]={0,0,0,0,0,0,40,192,0,0,0,0,0,0,36,64,0,0,0,0,0,0,89,64,
    102,102,102,102,102,102,230,63,0,0,0,0,0,64,111,64};

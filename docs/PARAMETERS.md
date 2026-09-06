@@ -16,8 +16,11 @@ The strings are stable preset keys. GUI control tags are a separate namespace.
 | 5 | saw.detune_cents | Detune | cents | 0 | 50 | 20 | Linear |
 | 6 | saw.mix | Mix | % | 0 | 100 | 0 | Linear |
 | 7 | saw.width | Width | % | 0 | 100 | 75 | Linear |
+| 8 | filter.cutoff_hz | Cutoff | Hz | 20 | 20000 | 12000 | Log |
+| 9 | filter.resonance | Resonance | % | 0 | 100 | 0 | Linear |
+| 10 | filter.mix | Filter Mix | % | 0 | 100 | 0 | Linear |
 
-All eight are continuous and intended to be host-automatable. Sustain is stored
+All eleven are continuous and intended to be host-automatable. Sustain is stored
 as a ratio and currently displayed as a ratio in the GUI. Output gain becomes
 `pow(10, dB/20)` in DSP; -60 dB is not a mute switch. Milliseconds become seconds
 at the engine boundary. Parameter conversion utilities clamp finite values
@@ -33,7 +36,8 @@ use iPlug2 ShapeExp, matching the logarithmic contract.
 `State.h/.cpp` encodes `SAWSTAR\0` (8 bytes), a little-endian u32 version (1),
 a little-endian u32 payload length, then records of u32 parameter ID + IEEE-754
 little-endian float64 physical value. Up to 64 records are accepted. The current
-payload is 96 bytes; the total state is 112 bytes. Old five-record v1 states
+payload is 132 bytes; the total state is 148 bytes. Old eight-record v1
+states (112 bytes) remain supported and default IDs 8–10. Old five-record v1 states
 (76 bytes) remain supported and use defaults for IDs 5–7. iPlug2 VST3 appends its own
 4-byte bypass value, which is not part of the SAWSTAR payload.
 

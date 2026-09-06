@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "dsp/SevenSaw.h"
+#include "dsp/LowPass.h"
 #include "Control/adsr.h"
 #include <array>
 #include <cstdint>
@@ -11,6 +12,7 @@ public:
   void Reset(double sampleRate);
   void SetParameters(double gainDb, double attackMs, double decayMs, double sustain, double releaseMs);
   void Midi(int status, int data1, int data2);
+  void SetFilter(float cutoffHz, float resonancePercent, float mixPercent);
   void SetSaw(float detuneCents, float mixPercent, float widthPercent);
   StereoSample ProcessStereo();
   float Process() { const auto s=ProcessStereo(); return (s.left+s.right)*0.5f; }
@@ -19,6 +21,7 @@ public:
 private:
   struct Voice {
     SevenSaw osc;
+    LowPass filter;
     daisysp::Adsr env;
     int note = -1, channel = 0;
     bool held = false, gate = false;

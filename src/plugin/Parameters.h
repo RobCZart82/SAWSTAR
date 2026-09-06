@@ -7,7 +7,7 @@
 namespace sawstar {
 // Persisted IDs / future iPlug2 indices: append only, never reorder or reuse.
 enum class ParameterId : std::uint32_t {
-  OutputGain = 0, AmpAttack = 1, AmpDecay = 2, AmpSustain = 3, AmpRelease = 4, SawDetune = 5, SawMix = 6, SawWidth = 7
+  OutputGain = 0, AmpAttack = 1, AmpDecay = 2, AmpSustain = 3, AmpRelease = 4, SawDetune = 5, SawMix = 6, SawWidth = 7, FilterCutoff = 8, FilterResonance = 9, FilterMix = 10
 };
 enum class Mapping { Linear, Logarithmic };
 struct ParameterSpec {
@@ -16,7 +16,7 @@ struct ParameterSpec {
   double minimum, maximum, initial;
   Mapping mapping;
 };
-inline constexpr std::array<ParameterSpec, 8> kParameters{{
+inline constexpr std::array<ParameterSpec, 11> kParameters{{
   {ParameterId::OutputGain, "output.gain_db", "Output", "dB", -60., 0., -12., Mapping::Linear},
   {ParameterId::AmpAttack, "amp.attack_ms", "Attack", "ms", 1., 10000., 10., Mapping::Logarithmic},
   {ParameterId::AmpDecay, "amp.decay_ms", "Decay", "ms", 1., 10000., 100., Mapping::Logarithmic},
@@ -24,7 +24,10 @@ inline constexpr std::array<ParameterSpec, 8> kParameters{{
   {ParameterId::AmpRelease, "amp.release_ms", "Release", "ms", 1., 10000., 250., Mapping::Logarithmic},
   {ParameterId::SawDetune, "saw.detune_cents", "Detune", "cents", 0., 50., 20., Mapping::Linear},
   {ParameterId::SawMix, "saw.mix", "Mix", "%", 0., 100., 0., Mapping::Linear},
-  {ParameterId::SawWidth, "saw.width", "Width", "%", 0., 100., 75., Mapping::Linear}
+  {ParameterId::SawWidth, "saw.width", "Width", "%", 0., 100., 75., Mapping::Linear},
+  {ParameterId::FilterCutoff, "filter.cutoff_hz", "Cutoff", "Hz", 20., 20000., 12000., Mapping::Logarithmic},
+  {ParameterId::FilterResonance, "filter.resonance", "Resonance", "%", 0., 100., 0., Mapping::Linear},
+  {ParameterId::FilterMix, "filter.mix", "Filter Mix", "%", 0., 100., 0., Mapping::Linear}
 }};
 
 const ParameterSpec* FindParameter(std::uint32_t id) noexcept;

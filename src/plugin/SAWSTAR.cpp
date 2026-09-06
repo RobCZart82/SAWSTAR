@@ -17,7 +17,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     auto* param = GetParam(static_cast<int>(spec.id));
     if (spec.mapping == sawstar::Mapping::Logarithmic)
       param->InitDouble(spec.name.data(), spec.initial, spec.minimum, spec.maximum, 0.01,
-                        spec.unit.data(), IParam::kFlagsNone, "Amp", IParam::ShapeExp());
+                        spec.unit.data(), IParam::kFlagsNone, spec.id == sawstar::ParameterId::FilterCutoff ? "Filter" : "Amp", IParam::ShapeExp());
     else
       param->InitDouble(spec.name.data(), spec.initial, spec.minimum, spec.maximum, 0.001,
                         spec.unit.data());
@@ -50,13 +50,13 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       g->AttachControl(new sawstar::gui::PageButton(IRECT(550.f+i*148.f, 25, 690.f+i*148.f, 70),
                          titles[i], i, mPage, [selectPage, i]() { selectPage(i); }));
     g->AttachControl(new ITextControl(IRECT(28, 105, 996, 139),
-      "7-SAW  >  AMP ENVELOPE  >  OUTPUT", IText(22, accent)), kNoTag, "main");
+      "7-SAW  >  LOW-PASS  >  AMP ENVELOPE  >  OUTPUT", IText(22, accent)), kNoTag, "main");
     g->AttachControl(new ITextControl(IRECT(28, 140, 996, 169),
-      "Mix 0% = single saw. Raise Mix for seven saws; Detune and Width shape the ensemble.", IText(16, light)), kNoTag, "main");
+      "Raise Mix for seven saws. Raise Filter Mix to shape the tone with Cutoff and Resonance.", IText(16, light)), kNoTag, "main");
     const auto knobStyle=DEFAULT_STYLE.WithLabelText(IText(16, light))
       .WithValueText(IText(13, IColor(255, 9, 26, 38)));
-    for(int i=0;i<3;++i)
-      g->AttachControl(new IVKnobControl(IRECT(225.f+i*195, 176, 389.f+i*195, 288),
+    for(int i=0;i<6;++i)
+      g->AttachControl(new IVKnobControl(IRECT(28.f+i*165, 176, 168.f+i*165, 288),
         5+i, sawstar::kParameters[5+i].name.data(), knobStyle), kNoTag, "main");
     const int order[] = {1, 2, 3, 4, 0};
     for (int i = 0; i < 5; ++i) {
@@ -102,6 +102,8 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
                        GetParam(3)->Value(), GetParam(4)->Value());
   mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),
                 static_cast<float>(GetParam(7)->Value()));
+  mSynth.SetFilter(static_cast<float>(GetParam(8)->Value()), static_cast<float>(GetParam(9)->Value()),
+                   static_cast<float>(GetParam(10)->Value()));
   if (mOverflow) {
     for (int ch = 0; ch < 16; ++ch) mSynth.Midi(0xB0 | ch, 120, 0);
     mEventCount = 0; mOverflow = false;
