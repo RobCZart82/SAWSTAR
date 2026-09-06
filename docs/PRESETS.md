@@ -10,14 +10,14 @@ slogan, then MAIN / ADVANCED / PRESETS, followed by the preset selector.
 Its arrows wrap through the library; clicking the name opens the factory list.
 The bottom keyboard, wheels and status row remain shared across all views.
 
-The selected name is derived from all nineteen parameter values, including after
+The selected name is derived from all current parameter values, including after
 DAW project recall. An edited/unrecognized sound displays Custom. From Custom,
 next selects Init and previous selects Bright Keys. Returning all values to a
 factory sound restores its name. Transient pitch/mod MIDI values do not affect
 this comparison. Factory identity is not a separate persisted parameter.
 
-Loading uses host parameter gestures and the existing state codec; no IDs or
-state schema change. Existing custom projects remain loadable. Live notes and
+Loading uses host parameter gestures and the existing state codec; existing IDs and the
+state schema remain stable. Existing custom projects remain loadable. Live notes and
 MIDI controller positions are retained while the sound parameters change.
 Switch presets in a DAW automation read mode with care: host automation can
 subsequently override any loaded parameter.

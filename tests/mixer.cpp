@@ -23,6 +23,8 @@ int main(){for(float sr:{44100.f,48000.f,96000.f}){
  s.SetMixer(100,100,100,100,1,-1,0,-1);s.SetOsc2(30,100,100);s.SetSaw(25,100,100);
  for(int n=48;n<64;++n)s.Midi(0x90,n,127);
  for(int i=0;i<sr;++i){auto x=s.ProcessStereo();check(std::isfinite(x.left)&&std::isfinite(x.right)&&std::abs(x.left)<=.98001f&&std::abs(x.right)<=.98001f,"full mixer chord protected");}
+ s.SetOutputBoost(0);
+ for(int i=0;i<sr;++i){auto x=s.ProcessStereo();check(std::abs(x.left)<=.98001f&&std::abs(x.right)<=.98001f,"new sources protected even at zero boost");}
  s.SetMixer(0,0,0,0,0,-1,0,0);for(int i=0;i<sr;++i)s.Process();
  check(std::abs(s.Process())<1.e-6,"all mixer faders down mute output");
  // Default mixer must leave the original oscillator unchanged.

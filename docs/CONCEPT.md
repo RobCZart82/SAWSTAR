@@ -43,3 +43,9 @@ ADSR are enough. A custom seven-saw algorithm, filters, effects, arpeggiator,
 modulation matrix and preset lessons belong after that path is dependable.
 DaisySP supplies selected primitives, not the synth architecture. iPlug2
 supplies host integration and UI plumbing, not SAWSTAR's voice allocation.
+
+## Mixer layout refinement
+
+Shorten the OSC1/OSC2/SUB/NOISE faders to make room for the noise-type dropdown
+below them, inside MIXER. The NOISE fader controls level; the dropdown selects
+type. The shared keyboard and footer remain below the modules on every page.

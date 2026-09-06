@@ -12,8 +12,9 @@ then the oldest released voice, then the oldest held voice. Stealing uses a soft
 envelope retrigger but changes frequency immediately; a dedicated steal crossfade
 is deferred. CC64 sustain, CC120 all sound off, CC123 all notes off and CC121
 sustain reset are handled independently per channel. Pitch bend and modulation
-are not implemented in this build. Output uses fixed 1/16 voice headroom and is
-stereo when 7-Saw Mix and Width are raised; single notes are intentionally quiet.
+work per MIDI channel. The voice sum retains 1/16 scaling, with a calibrated
+Level Boost and stereo peak guard. See docs/SOURCE_MIXER.md for source routing
+and old-project gain compatibility.
 See docs/SEVEN_SAW.md for unison behavior.
 
 GUI note feedback is a 30 FPS snapshot of held voices, not an event history;

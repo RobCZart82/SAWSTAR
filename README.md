@@ -107,3 +107,7 @@ and keyboard tracking. See [filter modulation](docs/FILTER_MODULATION.md).
 
 Pitch bend and CC1 now work per MIDI channel, with shared on-screen wheels
 and ADVANCED depth controls. See [performance controls](docs/PERFORMANCE.md).
+
+The [four-source mixer and output calibration](docs/SOURCE_MIXER.md) add an
+independent OSC2, sine SUB and White/Dark Noise. New sounds use +18 dB Level
+Boost with stereo peak protection; old project levels are preserved.

@@ -46,7 +46,7 @@ use iPlug2 ShapeExp, matching the logarithmic contract.
 `State.h/.cpp` encodes `SAWSTAR\0` (8 bytes), a little-endian u32 version (1),
 a little-endian u32 payload length, then records of u32 parameter ID + IEEE-754
 little-endian float64 physical value. Up to 64 records are accepted. The current
-payload is 228 bytes; the total state is 244 bytes. Old seventeen-record v1
+payload is 372 bytes; the total state is 388 bytes. Old seventeen-record v1
 states (220 bytes) default IDs 17–18. Old eleven-record v1
 states (148 bytes) default IDs 11–18. Old eight-record v1
 states (112 bytes) remain supported and default IDs 8–18. Old five-record v1 states
@@ -71,3 +71,26 @@ length, bad version/magic/length, duplicate IDs, NaN, unknown IDs and bypass
 trailers. Automation DSP tests change all five parameters at block sizes
 1/32/512/2048 and sample rates 44.1/48/96 kHz. This does not claim sample-accurate
 parameter automation: parameters are sampled once per block; output is smoothed.
+
+## Source mixer extension
+
+IDs 19–30 are append-only. The authoritative ranges/defaults are in
+`src/plugin/Parameters.h`; see [source mixer](SOURCE_MIXER.md) for behavior.
+
+| ID | Key | Range | Default |
+| --- | --- | --- | --- |
+| 19 | output.boost_db | 0.…24. | 18. |
+| 20 | mixer.osc1 | 0.…100. | 100. |
+| 21 | mixer.osc2 | 0.…100. | 0. |
+| 22 | mixer.sub | 0.…100. | 0. |
+| 23 | mixer.noise | 0.…100. | 0. |
+| 24 | osc2.octave | -2.…2. | 0. |
+| 25 | sub.octave | -2.…0. | -1. |
+| 26 | noise.type | 0.…1. | 0. |
+| 27 | osc2.detune_cents | 0.…50. | 20. |
+| 28 | osc2.mix | 0.…100. | 0. |
+| 29 | osc2.width | 0.…100. | 75. |
+| 30 | osc1.octave | -2.…2. | 0. |
+
+Absent Level Boost migrates to 0 dB for historical loudness; additional sources
+default to silent. Octave and noise selectors are discrete host parameters.

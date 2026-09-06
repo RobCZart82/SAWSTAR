@@ -131,7 +131,8 @@ StereoSample Synth::ProcessStereo() {
   sum.left*=scale; sum.right*=scale;
   // Stereo-linked peak guard: instant attack, 80 ms recovery, zero latency.
   // At settled 0 dB boost use the historical path for old project recall.
-  if(targetBoost_==1.f && std::abs(boost_-1.f)<0.00001f) {
+  if(targetBoost_==1.f && std::abs(boost_-1.f)<0.00001f &&
+     levels_[1]<1.e-6f && levels_[2]<1.e-6f && levels_[3]<1.e-6f) {
     protection_=1;
   } else {
     const float peak=std::max(std::abs(sum.left),std::abs(sum.right));
