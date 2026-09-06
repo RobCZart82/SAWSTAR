@@ -11,12 +11,17 @@ def git(*args, cwd=ROOT):
     return subprocess.check_output(["git", *args], cwd=cwd, text=True).strip()
 
 git("submodule", "update", "--init", "third_party/iPlug2")
-if not SDK.exists():
-    SDK.mkdir(parents=True)
+if not (SDK / ".git").exists():
+    # iPlug2 ships an instruction-only placeholder here. Replace only that
+    # exact tracked file; refuse to overwrite a user-supplied SDK directory.
+    if SDK.exists() and list(SDK.iterdir()):
+        expected = git("show", "HEAD:Dependencies/IPlug/VST3_SDK/README.md", cwd=ROOT / "third_party/iPlug2")
+        if sorted(p.name for p in SDK.iterdir()) != ["README.md"] or (SDK / "README.md").read_text().strip() != expected:
+            raise SystemExit(f"Refusing to modify an unmanaged SDK directory: {SDK}")
+        (SDK / "README.md").unlink()
+    SDK.mkdir(parents=True, exist_ok=True)
     git("init", cwd=SDK)
     git("remote", "add", "origin", "https://github.com/steinbergmedia/vst3sdk.git", cwd=SDK)
-if not (SDK / ".git").exists():
-    raise SystemExit(f"Refusing to modify an unmanaged SDK directory: {SDK}")
 if git("status", "--porcelain", cwd=SDK):
     raise SystemExit("SDK has local changes; preserve them before updating.")
 git("fetch", "--depth", "1", "origin", SDK_COMMIT, cwd=SDK)
