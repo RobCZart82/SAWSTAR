@@ -46,3 +46,23 @@ migration and current-state roundtrips at 44.1/48/96 kHz.
 
 Still planned: other oscillator waveforms, filter drive/modes, LFO/routing,
 mono/legato/glide, arpeggiator, chorus/delay/reverb and final GUI integration.
+
+## Verified build — 2026-09-06
+
+Code commit `d0adf92efd505ec86e71907fdc8d4d111dd52dc0`:
+[macOS run](https://github.com/RobCZart82/SAWSTAR/actions/runs/34050146840) and
+[Windows run](https://github.com/RobCZart82/SAWSTAR/actions/runs/34050146814).
+Both platforms passed all 11 test executables in Debug/Release and all 47
+VST3 validator checks. Manual Windows host testing of this build is pending.
+
+REAPER 7.79 on macOS loaded the previous nineteen-parameter Saw Pluck project
+with Level Boost 0, extra sources 0 and its original parameter values.
+Setting Boost to 18 restored recognition as the newly calibrated Saw Pluck.
+The four mixer faders and White/Dark Noise dropdown were exercised.
+A saved project was closed and reopened: OSC1 100%, OSC2 35%, SUB 25%, NOISE 8%,
+Dark Noise and Level Boost 18 dB were all restored correctly.
+
+An 8.294-second stereo 44.1 kHz/24-bit PCM MIDI render of this mixed patch peaked
+at -13.688 dBFS, with zero clipped samples and no post-render normalization.
+This is a functional host check, not a full listening/CPU/automation acceptance
+matrix or a finished sound-design preset collection.

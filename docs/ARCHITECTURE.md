@@ -66,3 +66,7 @@ Proposed manufacturer display name: `RobCZart82`; plugin four-character ID:
 These identifiers are now compiled into the development shell. Preserve them
 when connecting the engine; changing them can break host projects.
 Do not copy example plugin identifiers or invent vendor contact addresses.
+
+The source mixer now feeds two independent SevenSaw layers, a sine sub and
+per-voice noise into the filter. Output calibration and the documented stereo
+peak guard are described in [SOURCE_MIXER.md](SOURCE_MIXER.md).

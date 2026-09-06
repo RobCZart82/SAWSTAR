@@ -55,7 +55,7 @@ states (112 bytes) remain supported and default IDs 8–18. Old five-record v1 s
 
 Decode into a temporary snapshot. Bad magic/version, truncated lengths,
 duplicate known IDs and non-finite known values fail without changing parameters.
-Missing known IDs use defaults, unknown IDs are skipped, finite values clamp.
+Missing known IDs use defaults (except historical Level Boost = 0 dB), unknown IDs are skipped, finite values clamp.
 The plugin then applies the validated snapshot using the framework parameter
 lock and reset hooks. Live oscillator/envelope state is deliberately not saved.
 
