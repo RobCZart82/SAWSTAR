@@ -26,8 +26,12 @@ Raise Filter Mix above 0% to engage filtering.
 [Build and test](docs/PLUGIN_SHELL.md). GitHub Actions builds macOS ARM64 and
 Windows x64 development archives and runs engine tests plus the VST3 validator.
 The concept above is the longer-term design, not a screenshot of this build.
-This is not a tagged release. Full host automation acceptance and the preset library remain outstanding.
-The user reported successful Windows manual testing.
+The fixed header now offers a six-sound [factory preset library](docs/PRESETS.md),
+previous/next arrows and a dropdown, with short learning notes on the PRESETS page.
+Edited sounds show as Custom and are saved with the DAW project.
+This is not a tagged release. User preset files and full host automation acceptance
+remain outstanding. The user reported successful Windows manual testing of an
+earlier build; each subsequent build also receives automated Windows validation.
 
 ## First milestone: `v0.1 First Sound`
 

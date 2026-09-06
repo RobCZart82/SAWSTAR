@@ -30,3 +30,20 @@ unsaved edits, as with the existing Load Init action.
 Tests cover unique keys/names, bounds, Init defaults, recognition/Custom behavior,
 arrow wrapping, codec roundtrips, audible bounded output and release completion
 for every preset at 44.1/48/96 kHz.
+
+## Validation — 2026-09-06
+
+Code commit: `36d3bb57deff413cae704f21a96ffb8ca9b1cb52`.
+
+- [macOS CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34047265276)
+  and [Windows CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34047265261)
+  passed all nine test executables in Debug and Release. VST3 validation passed
+  47 checks on each platform.
+- REAPER 7.79 on macOS loaded the artifact and an existing custom project.
+  Header arrows (including wrap), the dropdown, library rows and Custom after
+  editing were checked. Saving, closing and reopening the project restored
+  Saw Pluck parameters and the derived preset name.
+- A stereo Saw Pluck MIDI render at 44.1 kHz / 24-bit PCM peaked at -36.62 dBFS
+  with zero clipped samples. A separate listening preview was normalized to
+  -6 dBFS; this does not change factory output levels.
+- Manual Windows host testing of this preset-library build remains pending.
