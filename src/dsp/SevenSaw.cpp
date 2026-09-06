@@ -17,10 +17,12 @@ void SevenSaw::Init(float rate) {
   ratios_.fill(1);targets_.fill(1);detune_=-1;
   mix_=width_=targetMix_=targetWidth_=0;hz_=100;
   for(size_t i=0;i<saws_.size();++i) {
+    // DaisySP Init leaves the triangle integrator history untouched. Zero it explicitly.
+    saws_[i]=daisysp::Oscillator{};
     saws_[i].Init(rate_);saws_[i].SetWaveform(daisysp::Oscillator::WAVE_POLYBLEP_SAW);
     saws_[i].SetAmp(1);saws_[i].Reset(phases[i]);
     const int kinds[]={daisysp::Oscillator::WAVE_POLYBLEP_SQUARE,daisysp::Oscillator::WAVE_POLYBLEP_TRI,daisysp::Oscillator::WAVE_SIN};
-    for(int w=0;w<3;++w){auto& o=alternatives_[w][i];o.Init(rate_);o.SetWaveform(kinds[w]);o.SetAmp(1);o.Reset(phases[i]);}
+    for(int w=0;w<3;++w){auto& o=alternatives_[w][i];o=daisysp::Oscillator{};o.Init(rate_);o.SetWaveform(kinds[w]);o.SetAmp(1);o.Reset(phases[i]);}
   }
 }
 void SevenSaw::SetFreq(float hz) {
