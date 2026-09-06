@@ -1,0 +1,47 @@
+cmake_minimum_required(VERSION 3.21)
+project(SAWSTAR VERSION 0.1.0 LANGUAGES CXX)
+
+include(CTest)
+option(SAWSTAR_CHECK_DAISYSP "Compile and test the selected DaisySP primitives" OFF)
+
+add_library(sawstar_foundation STATIC src/plugin/Parameters.cpp)
+add_library(SAWSTAR::Foundation ALIAS sawstar_foundation)
+target_include_directories(sawstar_foundation PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_compile_features(sawstar_foundation PUBLIC cxx_std_17)
+set_target_properties(sawstar_foundation PROPERTIES
+  CXX_EXTENSIONS OFF POSITION_INDEPENDENT_CODE ON)
+if(MSVC)
+  target_compile_options(sawstar_foundation PRIVATE /W4 /permissive-)
+else()
+  target_compile_options(sawstar_foundation PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+if(BUILD_TESTING)
+  add_executable(sawstar_parameter_tests tests/parameters.cpp)
+  target_link_libraries(sawstar_parameter_tests PRIVATE SAWSTAR::Foundation)
+  add_test(NAME parameter_contract COMMAND sawstar_parameter_tests)
+endif()
+
+if(SAWSTAR_CHECK_DAISYSP)
+  set(_daisy "${CMAKE_CURRENT_SOURCE_DIR}/third_party/DaisySP")
+  if(NOT EXISTS "${_daisy}/Source/Synthesis/oscillator.cpp")
+    message(FATAL_ERROR
+      "DaisySP is missing. Run: git submodule update --init third_party/DaisySP")
+  endif()
+  # Deliberately avoid the omnibus header and optional DaisySP-LGPL sources.
+  add_library(sawstar_daisy_primitives STATIC
+    "${_daisy}/Source/Synthesis/oscillator.cpp"
+    "${_daisy}/Source/Control/adsr.cpp")
+  target_include_directories(sawstar_daisy_primitives SYSTEM PUBLIC
+    "${_daisy}/Source"
+    PRIVATE "${_daisy}/Source/Synthesis" "${_daisy}/Source/Control"
+            "${_daisy}/Source/Utility")
+  target_compile_features(sawstar_daisy_primitives PUBLIC cxx_std_17)
+  set_target_properties(sawstar_daisy_primitives PROPERTIES
+    CXX_EXTENSIONS OFF POSITION_INDEPENDENT_CODE ON)
+  if(BUILD_TESTING)
+    add_executable(sawstar_dsp_tests tests/daisy_primitives.cpp)
+    target_link_libraries(sawstar_dsp_tests PRIVATE sawstar_daisy_primitives)
+    add_test(NAME daisy_primitives COMMAND sawstar_dsp_tests)
+  endif()
+endif()
