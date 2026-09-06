@@ -29,3 +29,11 @@ rates. Stereo/mono-sum tone may change through the normal dry/delayed interferen
 Tests cover exact bypass/zero Mix, stereo motion, bounds, automation extremes,
 reset/tail and invalid settings at 44.1/48/96/192 kHz; Soft Pad One with chorus
 and bypass identity at 44.1/48/96 kHz; state migration and current state roundtrip.
+
+## Validation — 2026-09-06
+
+Tested code: `e7da224c76ee2db718b283fbef99e01fbda5ecea`.
+[macOS CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34060427133)
+and [Windows CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34060427242)
+passed all 14 test executables in Debug/Release and 47 VST3 validator checks.
+Manual REAPER UI/listening/restart checks for this chorus build remain pending.
