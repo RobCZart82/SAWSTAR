@@ -33,7 +33,7 @@ jobs:
 
       - name: Report source level and high-register measurements
         if: matrix.config == 'Release'
-        run: ctest --test-dir build -C Release -R '^source_quality$' --verbose
+        run: ctest --test-dir build -C Release -R '^(source_quality|engine_audit)$' --verbose
       - name: Compare audio CPU and level measurements
         if: matrix.config == 'Release'
         run: python scripts/benchmark-audio.py
