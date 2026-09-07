@@ -29,6 +29,17 @@ int main(){
   std::cout<<"16 coherent voices peak "<<20*std::log10(chordPeak)<<" dBFS\n";
   for(int ch=0;ch<16;++ch)chord.Midi(0xB0|ch,120,0);
   check(chord.Process()==0,"panic remains silent");
+  // Matrix-only pan/amp can exceed unity even with dry FX and zero boost.
+  for(int target:{2,3}) {
+    sawstar::Synth routed;routed.Reset(sr);routed.SetParameters(0,1,1,1,20);
+    routed.SetModulation(0,4,target,100);
+    for(int ch=0;ch<16;++ch)routed.Midi(0x90|ch,60,127);
+    float maximum=0;
+    for(int i=0;i<sr/4;++i){auto x=routed.ProcessStereo();
+      maximum=std::max(maximum,std::max(std::abs(x.left),std::abs(x.right)));
+      check(std::isfinite(x.left)&&std::isfinite(x.right)&&maximum<=.98001f,"matrix-only routing uses peak guard");}
+    check(maximum>.9f,"matrix guard test reaches protection threshold");
+  }
   // Stereo unison + resonant filtering + gain automation must stay finite/bounded.
   chord.SetSaw(50,100,100);chord.SetFilter(800,100,100);
   for(int n=48;n<64;++n)chord.Midi(0x90,n,127);

@@ -26,14 +26,15 @@ StereoSample LowPass::Process(StereoSample input){
   drive_+=slew_*(targetDrive_-drive_);
   if(targetDrive_==0 && drive_<1e-9)drive_=0;
   for(size_t i=0;i<weights_.size();++i)weights_[i]+=slew_*((static_cast<int>(i)==mode_?1.:0.)-weights_[i]);
-  const double driveGain=std::pow(10.,drive_/20.);
+  const double driveGain=drive_==0?1.:std::pow(10.,drive_/20.);
+  const double driveDenominator=drive_==0?1.:std::tanh(driveGain);
   const double driveBlend=std::min(1.,drive_/6.);
   const double a=1/(1+g_*(g_+k_)),cascadeA=1/(1+g_*(g_+2.));
   std::array<float,2> samples{{input.left,input.right}};
   for(size_t ch=0;ch<2;++ch){
     if(!std::isfinite(samples[ch])){ic1_[ch]=ic2_[ch]=cascade1_[ch]=cascade2_[ch]=0;samples[ch]=0;continue;}
     const double dry=samples[ch];
-    const double driven=drive_==0?dry:dry+driveBlend*(std::tanh(dry*driveGain)/std::tanh(driveGain)-dry);
+    const double driven=drive_==0?dry:dry+driveBlend*(std::tanh(dry*driveGain)/driveDenominator-dry);
     const double v1=a*(ic1_[ch]+g_*(driven-ic2_[ch]));
     const double v2=ic2_[ch]+g_*v1;
     ic1_[ch]=2*v1-ic1_[ch];ic2_[ch]=2*v2-ic2_[ch];

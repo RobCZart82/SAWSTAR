@@ -21,6 +21,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Initialize only the MIT DaisySP core
         run: git submodule update --init third_party/DaisySP
       - name: Configure foundation and selected DSP checks
@@ -29,6 +30,10 @@ jobs:
         run: cmake --build build --config ${{ matrix.config }} --parallel 2
       - name: Test
         run: ctest --test-dir build -C ${{ matrix.config }} --output-on-failure
+
+      - name: Compare audio CPU and level measurements
+        if: matrix.config == 'Release'
+        run: python scripts/benchmark-audio.py
 
   vst3:
     name: VST3 shell / Release

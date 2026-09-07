@@ -189,6 +189,9 @@ StereoSample Synth::ProcessStereo() {
   for(int ch=0;ch<16;++ch)bendRatio_[ch]+=smoothing_*(bendTarget_[ch]-bendRatio_[ch]);
   if(voiceMode_!=0&&glideRemaining_){monoPitch_+=monoStep_;if(--glideRemaining_==0)monoPitch_=monoTarget_;}
   const float monoRatio=voiceMode_!=0?static_cast<float>(std::exp2((monoPitch_-69)/12.)):1;
+  const float octave1=std::exp2(static_cast<float>(osc1Octave_));
+  const float octave2=std::exp2(static_cast<float>(osc2Octave_));
+  const float subOctave=std::exp2(static_cast<float>(subOctave_));
   for (auto& v : voices_) if (v.note >= 0) {
     const auto route=matrix_.Evaluate({lfo_.Value(),lfo2_.Value(),smoothWheel_[v.channel],v.velocity,smoothPressure_[v.channel]});
     const float routedPitch=route[1]==0?1.f:std::exp2(route[1]/12.f);
@@ -201,9 +204,9 @@ StereoSample Synth::ProcessStereo() {
     }
     const float env = v.env.Process(v.gate);
     v.filter.Set(v.filterMod.Process(v.note,v.gate,mod_[v.channel]/127.f*modDepth_+lfo.cutoff+route[0]),resonance_,filterMix_);
-    v.osc.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*routedPitch*glide*std::exp2(static_cast<float>(osc1Octave_)));
-    v.osc2.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*routedPitch*glide*std::exp2(static_cast<float>(osc2Octave_)));
-    v.sub.SetFreq(std::min(v.fundamental*bendRatio_[v.channel]*vibrato*routedPitch*glide*std::exp2(static_cast<float>(subOctave_)),sampleRate_*.45f));
+    v.osc.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*routedPitch*glide*octave1);
+    v.osc2.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*routedPitch*glide*octave2);
+    v.sub.SetFreq(std::min(v.fundamental*bendRatio_[v.channel]*vibrato*routedPitch*glide*subOctave,sampleRate_*.45f));
     const auto one=v.osc.Process(),two=v.osc2.Process();
     const float sub=v.sub.Process();
     // Per-voice deterministic xorshift; no global RNG, allocation or shared lock.
@@ -233,16 +236,12 @@ StereoSample Synth::ProcessStereo() {
   const float scale=gain_*boost_/16.f;
   sum.left*=scale; sum.right*=scale;
   // Stereo-linked peak guard: instant attack, 80 ms recovery, zero latency.
-  // At settled 0 dB boost use the historical path for old project recall.
-  if(reverb_.IsDry() && delay_.IsDry() && chorus_.IsDry() && !alternateWave_ && lfo.pan==0 && targetBoost_==1.f && std::abs(boost_-1.f)<0.00001f &&
-     levels_[1]<1.e-6f && levels_[2]<1.e-6f && levels_[3]<1.e-6f) {
-    protection_=1;
-  } else {
-    const float peak=std::max(std::abs(sum.left),std::abs(sum.right));
-    const float required=peak>0.98f ? 0.98f/peak : 1.f;
-    protection_+=protectionRelease_*(1.f-protection_);
-    protection_=std::min(protection_,required);
-  }
+  // Apply to every routing combination, including matrix-only pan/amp boosts.
+  // Never fall back to hard clipping just because the dry/default path is active.
+  const float peak=std::max(std::abs(sum.left),std::abs(sum.right));
+  const float required=peak>0.98f ? 0.98f/peak : 1.f;
+  protection_+=protectionRelease_*(1.f-protection_);
+  protection_=std::min(protection_,required);
   return {std::clamp(sum.left*protection_, -1.f, 1.f),
           std::clamp(sum.right*protection_, -1.f, 1.f)};
 }
