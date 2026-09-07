@@ -44,6 +44,7 @@ void Synth::SelectMono(bool retrigger,bool allowGlide) {
     if(selected<0||(k.held&&!monoKeys_[selected].held)||(k.held==monoKeys_[selected].held&&k.order>monoKeys_[selected].order))selected=i;
   }
   auto& v=voices_[0];
+  v.splicePending=false;v.spliceRemaining=0;
   if(selected<0){monoKey_=-1;v.held=v.gate=false;return;}
   const bool same=selected==monoKey_;if(same&&!retrigger){v.held=monoKeys_[selected].held;return;}
   retrigger=retrigger||voiceMode_==1;
@@ -152,6 +153,8 @@ void Synth::Midi(int status, int note, int value) {
     if (!chosen) for (auto& v : voices_) if (!v.held && (!chosen || v.age < chosen->age)) chosen = &v;
     if (!chosen) chosen = &*std::min_element(voices_.begin(), voices_.end(), [](const Voice& a, const Voice& b) { return a.age < b.age; });
     auto& v = *chosen;
+    v.splicePending=v.note>=0;
+    if(!v.splicePending){v.lastSample={};v.correction={};v.spliceRemaining=0;}
     v.filterMod.Trigger(v.note<0);
     if(v.note<0) v.filter.Clear();
     v.note = note; v.channel = channel; v.held = v.gate = true;
@@ -234,8 +237,16 @@ StereoSample Synth::ProcessStereo() {
     float velocity=v.velocity;
     if(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_){monoVelocity_+=smoothing_*(v.velocity-monoVelocity_);velocity=monoVelocity_;}
     const float routedAmp=1+route[2];
-    sum.left+=value.left*env*velocity*routedAmp*std::sqrt(1-route[3]);sum.right+=value.right*env*velocity*routedAmp*std::sqrt(1+route[3]);
-    if (!v.gate && !v.env.IsRunning()) v.note = -1;
+    StereoSample rendered{value.left*env*velocity*routedAmp*std::sqrt(1-route[3]),
+                          value.right*env*velocity*routedAmp*std::sqrt(1+route[3])};
+    // A short correction ramp joins a reused voice to its previous output.
+    // Retargeting uses the already-corrected sample, including dense MIDI bursts.
+    const int spliceLength=std::max(1,static_cast<int>(sampleRate_*.003f));
+    if(v.splicePending){v.correction={v.lastSample.left-rendered.left,v.lastSample.right-rendered.right};v.spliceRemaining=spliceLength;v.splicePending=false;}
+    if(v.spliceRemaining){const float weight=static_cast<float>(v.spliceRemaining--)/spliceLength;
+      rendered.left+=v.correction.left*weight;rendered.right+=v.correction.right*weight;}
+    v.lastSample=rendered;sum.left+=rendered.left;sum.right+=rendered.right;
+    if (!v.gate && !v.env.IsRunning() && v.spliceRemaining==0) v.note = -1;
   }
   gain_ += smoothing_ * (targetGain_ - gain_);
   boost_ += smoothing_ * (targetBoost_ - boost_);

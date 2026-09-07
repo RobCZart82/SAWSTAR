@@ -58,6 +58,9 @@ private:
     int note = -1, channel = 0;
     bool held = false, gate = false, gatePending = false;
     float velocity = 0;
+    StereoSample lastSample{}, correction{};
+    bool splicePending=false;
+    int spliceRemaining=0;
     uint64_t age = 0;
   };
   std::array<Voice, 16> voices_{};
