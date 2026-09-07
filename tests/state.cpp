@@ -10,11 +10,11 @@ int main(){
  Snapshot wanted=DefaultSnapshot();
  const double fixture[]={-23.5,23.24,780,0.42,1234, 23, 64, 82, 1900, 35, 100, 36, 80, 25, 450, .35, 800, 12, 36, 18};
  for(size_t i=0;i<20;++i)wanted[i]=fixture[i];
- wanted[21]=42;wanted[26]=1;wanted[31]=12;wanted[32]=2;wanted[33]=3;wanted[34]=1;wanted[36]=65;wanted[39]=1;wanted[42]=1;wanted[43]=31;wanted[44]=.7;wanted[45]=45;wanted[46]=1;wanted[47]=40;wanted[48]=250;wanted[49]=55;wanted[50]=3500;wanted[51]=1;wanted[52]=1;wanted[53]=2;
+ wanted[21]=42;wanted[26]=1;wanted[31]=12;wanted[32]=2;wanted[33]=3;wanted[34]=1;wanted[36]=65;wanted[39]=1;wanted[42]=1;wanted[43]=31;wanted[44]=.7;wanted[45]=45;wanted[46]=1;wanted[47]=40;wanted[48]=250;wanted[49]=55;wanted[50]=3500;wanted[51]=1;wanted[52]=1;wanted[53]=2;wanted[54]=1;wanted[55]=30;wanted[56]=70;wanted[57]=4.2;wanted[58]=2500;
  Snapshot out{};
  const auto state=EncodeState(wanted);
  check(DecodeState(state.data(),state.size(),out)==state.size() && out==wanted,"roundtrip");
- check(state[8]==1 && state[12]==136 && state[13]==2 && state[16]==0,"wire fixture");
+ check(state[8]==1 && state[12]==196 && state[13]==2 && state[16]==0,"wire fixture");
  // Old v1 payload with only the original five records must keep new defaults.
  auto oldV1=std::vector<uint8_t>(state.begin(),state.begin()+76);oldV1[12]=60;oldV1[13]=0;
  check(DecodeState(oldV1.data(),oldV1.size(),out)==76 && out[1]==wanted[1] &&
@@ -41,6 +41,8 @@ int main(){
  check(DecodeState(fortyTwo.data(),fortyTwo.size(),out)==520 && out[42]==0 && out[43]==25 && out[44]==.3 && out[45]==35,"old LFO and One presets keep chorus off");
  auto fortySix=std::vector<uint8_t>(state.begin(),state.begin()+568);fortySix[12]=40;fortySix[13]=2;
  check(DecodeState(fortySix.data(),fortySix.size(),out)==568 && out[42]==1 && out[46]==0 && out[47]==20 && out[48]==350,"old chorus state keeps delay off");
+ auto fiftyFour=std::vector<uint8_t>(state.begin(),state.begin()+664);fiftyFour[12]=136;fiftyFour[13]=2;
+ check(DecodeState(fiftyFour.data(),fiftyFour.size(),out)==664 && out[46]==1 && out[54]==0 && out[55]==20 && out[57]==2.5,"old delay state keeps reverb off");
  // Fixture for old physical doubles: -12, 10, 100, .7, 250, little endian.
  const uint8_t old[]={0,0,0,0,0,0,40,192,0,0,0,0,0,0,36,64,0,0,0,0,0,0,89,64,
    102,102,102,102,102,102,230,63,0,0,0,0,0,64,111,64};

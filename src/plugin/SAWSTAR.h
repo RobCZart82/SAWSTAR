@@ -27,5 +27,6 @@ private:
 #endif
   std::atomic<int> mBend{8192},mMod{0};
   int mFactoryIndex = -1; // GUI-only, derived from the parameter snapshot.
+  int mFxPage = 0; // Editor-only effect panel selection.
   int mPage = 0; // Editor-only state; never read by the audio callback.
 };

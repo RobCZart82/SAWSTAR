@@ -20,6 +20,8 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     auto* param = GetParam(static_cast<int>(spec.id));
     if(spec.id==sawstar::ParameterId::Osc1Wave||spec.id==sawstar::ParameterId::Osc2Wave)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Oscillator","Saw","Square","Triangle","Sine");
+    else if(spec.id==sawstar::ParameterId::ReverbEnabled)
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Reverb","Off","On");
     else if(spec.id==sawstar::ParameterId::DelayEnabled)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Delay","Off","On");
     else if(spec.id==sawstar::ParameterId::DelayMode)
@@ -88,10 +90,12 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
     static const char* titles[] = {"MAIN", "ADVANCED", "PRESETS"};
     static const char* groups[] = {"main", "advanced", "presets"};
+    static const char* fxGroups[] = {"fx-chorus", "fx-delay", "fx-reverb"};
     auto selectPage = [this, g](int page) {
       mPage = page;
       for (int i = 0; i < 3; ++i)
         g->ForControlInGroup(groups[i], [i, page](IControl* c) { c->Hide(i != page); });
+      for(int i=0;i<3;++i)g->ForControlInGroup(fxGroups[i],[this,i,page](IControl* c){c->Hide(page!=1||mFxPage!=i);});
       g->SetAllControlsDirty();
     };
     for (int i = 0; i < 3; ++i)
@@ -127,15 +131,21 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       g->AttachControl(new IVKnobControl(IRECT(x,y,x+220,y+66),knobs[i],sawstar::kParameters[knobs[i]].name.data(),knobStyle,true),kNoTag,"advanced");}
     g->AttachControl(new IVMenuButtonControl(IRECT(25,392,245,432),41,"LFO Phase",menuStyle),kNoTag,"advanced");
     g->AttachControl(new ITextControl(IRECT(250,392,490,432),"Cutoff needs Filter Mix > 0",IText(12,light)),kNoTag,"advanced");
-    g->AttachControl(new ITextControl(IRECT(520,92,995,120),"STEREO CHORUS",IText(20,accent)),kNoTag,"advanced");
-    g->AttachControl(new IVMenuButtonControl(IRECT(520,132,665,177),42,"",menuStyle),kNoTag,"advanced");
-    g->AttachControl(new IVSliderControl(IRECT(685,128,995,181),43,"Chorus Mix",knobStyle,true,EDirection::Horizontal),kNoTag,"advanced");
-    for(int i=0;i<2;++i)g->AttachControl(new IVSliderControl(IRECT(520.f+i*245,187,750.f+i*245,238),44+i,sawstar::kParameters[44+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"advanced");
-    g->AttachControl(new ITextControl(IRECT(520,242,995,267),"DELAY  |  Sync replaces Time (max 2 s)",IText(15,accent)),kNoTag,"advanced");
+    const char* fxTitles[]={"CHORUS","DELAY","REVERB"};
+    for(int i=0;i<3;++i)g->AttachControl(new sawstar::gui::PageButton(IRECT(520.f+i*160,92,675.f+i*160,127),fxTitles[i],i,mFxPage,[this,selectPage,i](){mFxPage=i;selectPage(mPage);}),kNoTag,"advanced");
+    g->AttachControl(new IVMenuButtonControl(IRECT(520,150,665,195),42,"",menuStyle),kNoTag,"fx-chorus");
+    g->AttachControl(new IVSliderControl(IRECT(685,145,995,205),43,"Chorus Mix",knobStyle,true,EDirection::Horizontal),kNoTag,"fx-chorus");
+    for(int i=0;i<2;++i)g->AttachControl(new IVSliderControl(IRECT(520.f+i*245,225,750.f+i*245,285),44+i,sawstar::kParameters[44+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"fx-chorus");
+    g->AttachControl(new ITextControl(IRECT(520,310,995,345),"Gentle movement: Mix 25%, Rate 0.3 Hz, Depth 35%",IText(13,light)),kNoTag,"fx-chorus");
     const int delayMenus[]={46,51,52,53};
-    for(int i=0;i<4;++i)g->AttachControl(new IVMenuButtonControl(IRECT(520.f+i*121,275,634.f+i*121,320),delayMenus[i],"",menuStyle),kNoTag,"advanced");
-    for(int i=0;i<4;++i){float x=520.f+(i%2)*245,y=330.f+(i/2)*55;
-      g->AttachControl(new IVSliderControl(IRECT(x,y,x+230,y+50),47+i,sawstar::kParameters[47+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"advanced");}
+    for(int i=0;i<4;++i)g->AttachControl(new IVMenuButtonControl(IRECT(520.f+i*121,150,634.f+i*121,195),delayMenus[i],"",menuStyle),kNoTag,"fx-delay");
+    for(int i=0;i<4;++i){float x=520.f+(i%2)*245,y=215.f+(i/2)*80;
+      g->AttachControl(new IVSliderControl(IRECT(x,y,x+230,y+60),47+i,sawstar::kParameters[47+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"fx-delay");}
+    g->AttachControl(new ITextControl(IRECT(520,380,995,420),"Tempo Sync replaces Time (maximum 2 seconds).",IText(13,light)),kNoTag,"fx-delay");
+    g->AttachControl(new IVMenuButtonControl(IRECT(520,150,665,195),54,"",menuStyle),kNoTag,"fx-reverb");
+    for(int i=0;i<4;++i){float x=520.f+(i%2)*245,y=215.f+(i/2)*80;
+      g->AttachControl(new IVSliderControl(IRECT(x,y,x+230,y+60),55+i,sawstar::kParameters[55+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"fx-reverb");}
+    g->AttachControl(new ITextControl(IRECT(520,380,995,420),"Lower Damping Hz makes the reverb darker.",IText(13,light)),kNoTag,"fx-reverb");
     g->AttachControl(new ITextControl(IRECT(35,100,989,133),
       "FACTORY LIBRARY + LEARNING",IText(22,accent)),kNoTag,"presets");
     for(int i=0;i<static_cast<int>(sawstar::FactoryPresets().size());++i)
@@ -172,6 +182,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetOutputBoost(static_cast<float>(GetParam(19)->Value()));
   mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),
                 static_cast<float>(GetParam(7)->Value()));
+  mSynth.SetReverb(GetParam(54)->Int()!=0,GetParam(55)->Value(),GetParam(56)->Value(),GetParam(57)->Value(),GetParam(58)->Value());
   mSynth.SetDelay(GetParam(46)->Int()!=0,GetParam(47)->Value(),GetParam(48)->Value(),GetParam(49)->Value(),GetParam(50)->Value(),GetParam(51)->Int()!=0,GetParam(52)->Int()!=0,GetParam(53)->Int(),GetTempo());
   mSynth.SetChorus(GetParam(42)->Int()!=0,GetParam(43)->Value(),GetParam(44)->Value(),GetParam(45)->Value());
   mSynth.SetWaveforms(GetParam(33)->Int(),GetParam(34)->Int());

@@ -134,3 +134,7 @@ Old states restore chorus Off. See [CHORUS.md](CHORUS.md).
 ## Delay: append-only IDs 46-53
 
 See [DELAY.md](DELAY.md) for keys, ranges, defaults and tempo behavior. Old states restore Delay Off.
+
+## Reverb: append-only IDs 54-58
+
+See [REVERB.md](REVERB.md) for keys, ranges and defaults. Old states restore Reverb Off.

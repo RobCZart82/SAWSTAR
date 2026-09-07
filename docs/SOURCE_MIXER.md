@@ -47,7 +47,7 @@ migration and current-state roundtrips at 44.1/48/96 kHz.
 Filter drive/modes are now implemented; see [FILTER_CHARACTER.md](FILTER_CHARACTER.md).
 Waveform selection and one LFO route are now implemented; see [LFO_WAVEFORMS.md](LFO_WAVEFORMS.md).
 Still planned: additional modulation routes,
-mono/legato/glide, arpeggiator, reverb and final GUI integration.
+mono/legato/glide, arpeggiator and final GUI integration.
 
 ## Verified build — 2026-09-06
 
@@ -72,3 +72,5 @@ matrix or a finished sound-design preset collection.
 Stereo chorus is implemented after the voice sum; see [CHORUS.md](CHORUS.md).
 
 Stereo/ping-pong delay follows chorus; see [DELAY.md](DELAY.md).
+
+Stereo reverb follows delay; see [REVERB.md](REVERB.md).

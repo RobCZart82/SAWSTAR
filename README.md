@@ -123,3 +123,5 @@ free/tempo rate, first-key retrigger and Cutoff/Pitch/Amp/Pan destinations.
 Stereo chorus is available on ADVANCED (Off by default). See [chorus](docs/CHORUS.md).
 
 Stereo/ping-pong delay is available on ADVANCED (Off by default). See [delay](docs/DELAY.md).
+
+Stereo reverb is available in ADVANCED → REVERB (Off by default). See [reverb](docs/REVERB.md).
