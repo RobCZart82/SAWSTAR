@@ -27,7 +27,7 @@ void Synth::SetVoiceMode(int mode,float glideMs,bool overlapOnly) {
   if(mode!=voiceMode_){
     if(voiceMode_!=0&&monoPitchValid_&&voices_[0].note>=0){auto& v=voices_[0];v.fundamental=static_cast<float>(440*std::exp2((monoPitch_-69)/12.));v.osc.SetFreq(v.fundamental);v.osc2.SetFreq(v.fundamental);}
     // A mode change starts a new key phrase; release current sources safely.
-    for(auto& v:voices_){v.held=v.gate=false;}
+    for(auto& v:voices_){if(v.note>=0&&v.gate){v.env.Process(true);v.filterMod.Process(v.note,true);}v.held=v.gate=false;}
     monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;monoGatePending_=false;glideRemaining_=0;
     voiceMode_=mode;
   }

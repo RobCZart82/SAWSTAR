@@ -25,6 +25,7 @@ int main(){
   s.SetVoiceMode(2,1000,false);s.Midi(0x80,81,0);wait(s,sr);s.Midi(0x90,69,127);wait(s,sr*.45f);mid=frequency(s,sr);check(mid>590&&mid<660,"always glide separated note");
   s.SetVoiceMode(2,0,false);wait(s,sr*.02f);check(std::abs(frequency(s,sr)-440)<12,"zero glide completes immediately");
   s.Midi(0xe0,127,127);wait(s,sr*.1f);check(std::abs(frequency(s,sr)-440*std::exp2(2./12))<12,"bend combines with mono");
+  setup(s,sr,0);s.Midi(0x90,60,100);s.SetVoiceMode(2,0,true);wait(s,sr);check(s.ActiveVoices()==0,"mode switch before first sample releases");
   // Mode transitions release their old phrase and never revive discarded keys.
   s.SetVoiceMode(0,0,true);wait(s,sr);check(!s.Held(69),"mode transition clears held state");s.Midi(0x90,60,100);s.Midi(0x90,64,100);check(s.ActiveVoices()==2,"poly restored");s.SetVoiceMode(1,100,true);s.Midi(0x90,67,100);check(s.ActiveVoices()==1&&!s.Held(60),"poly to mono single source");s.Midi(0x80,67,0);wait(s,sr);check(s.ActiveVoices()==0,"transition release");
  }
