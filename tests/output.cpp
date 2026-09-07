@@ -40,6 +40,13 @@ int main(){
       check(std::isfinite(x.left)&&std::isfinite(x.right)&&maximum<=.98001f,"matrix-only routing uses peak guard");}
     check(maximum>.9f,"matrix guard test reaches protection threshold");
   }
+  // Saturation must not leave a sustained DC offset consuming headroom.
+  sawstar::Synth driven;driven.Reset(sr);driven.SetParameters(0,1,1,1,20);
+  driven.SetFilter(1800,30,100);driven.SetFilterCharacter(12,1);driven.SetOutputBoost(18);
+  driven.Midi(0x90,69,127);double dc=0,power=0;
+  for(int i=0;i<static_cast<int>(sr)*2;++i){const auto x=driven.ProcessStereo();if(i>=sr){dc+=x.left;power+=x.left*x.left;}}
+  check(std::abs(dc/sr)<.001,"drive DC rejection");
+  check(power/sr>.001,"DC test retains audible signal");
   // Stereo unison + resonant filtering + gain automation must stay finite/bounded.
   chord.SetSaw(50,100,100);chord.SetFilter(800,100,100);
   for(int n=48;n<64;++n)chord.Midi(0x90,n,127);

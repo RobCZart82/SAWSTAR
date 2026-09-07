@@ -12,6 +12,8 @@ public:
   void SetCharacter(float driveDb, int mode);
   StereoSample Process(StereoSample input);
 private:
+  std::array<double,2> dcInput_{},dcOutput_{};
+  double dcPole_=0;
   std::array<double,2> ic1_{},ic2_{},cascade1_{},cascade2_{};
   std::array<double,4> weights_{{1,0,0,0}};
   int mode_=0;
