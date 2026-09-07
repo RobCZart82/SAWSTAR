@@ -127,3 +127,7 @@ Stereo/ping-pong delay is available on ADVANCED (Off by default). See [delay](do
 Stereo reverb is available in ADVANCED → REVERB (Off by default). See [reverb](docs/REVERB.md).
 
 Mono/Legato and Glide are available on ADVANCED. See [performance modes](docs/MONO_GLIDE.md).
+
+Noise: White, Dark and Pink sources are available in MAIN's mixer, with an
+independent bipolar NOISE COLOR control (0 = original source). Existing presets
+retain their White/Dark source and neutral color.

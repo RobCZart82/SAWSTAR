@@ -26,7 +26,6 @@ this remains concept artwork, not a pixel-exact UI specification.
 - NOISE, filter-mode and WIDE controls share a consistent bottom inset.
 
 This raster remains an approximate visual reference; the rules above define the
-precise layout. White Noise/Pink Noise choices and AMOUNT WIDE describe the design
-intent, not newly implemented DSP. The current engine has White/Dark Noise and
-per-oscillator Width; this artwork update does not add Pink Noise or a separate
-output-wide processor. Plugin controls and sound are unchanged by this update.
+precise layout. The engine now implements White, Dark and Pink Noise, plus an
+independent NOISE COLOR control. AMOUNT WIDE still describes design intent;
+there is no separate output-wide processor beyond the per-oscillator Width.

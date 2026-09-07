@@ -70,3 +70,12 @@ Do not copy example plugin identifiers or invent vendor contact addresses.
 The source mixer now feeds two independent SevenSaw layers, a sine sub and
 per-voice noise into the filter. Output calibration and the documented stereo
 peak guard are described in [SOURCE_MIXER.md](SOURCE_MIXER.md).
+
+### Noise extension
+
+White retains the original per-voice xorshift stream. Dark retains its original
+1.2 kHz one-pole filter. Pink uses an independent seeded generator with 16
+staggered octave-rate random rows and a full-rate component. All are centered
+mono voice sources, routed through the existing voice filter and Amp ADSR.
+The independent color filter is sample-rate aware, with exact neutral bypass.
+No new dependency or external source code is introduced (SAWSTAR MIT code).

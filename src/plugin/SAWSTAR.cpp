@@ -9,6 +9,7 @@
 #include "gui/Controls/PerformanceWheel.h"
 #include "gui/Controls/PresetControls.h"
 #include "gui/Controls/WaveformControl.h"
+#include "gui/Controls/NoiseSelector.h"
 #include <algorithm>
 
 using namespace iplug;
@@ -48,6 +49,8 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"LFO","Free phase","Retrigger first key");
     else if (spec.id == sawstar::ParameterId::FilterMode)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Filter","Low Pass 12","Low Pass 24","High Pass 12","Band Pass 12");
+    else if (spec.id == sawstar::ParameterId::NoiseSource)
+      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Mixer","Legacy White/Dark","White Noise","Dark Noise","Pink Noise");
     else if (spec.id == sawstar::ParameterId::NoiseType)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Mixer","White Noise","Dark Noise");
     else if (spec.id == sawstar::ParameterId::Osc1Octave || spec.id == sawstar::ParameterId::Osc2Octave || spec.id == sawstar::ParameterId::SubOctave)
@@ -119,7 +122,8 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     for(int i=0;i<4;++i)
       g->AttachControl(new IVSliderControl(IRECT(20.f+i*58,197,74.f+i*58,344),20+i,
         sawstar::kParameters[20+i].name.data(),knobStyle,true),kNoTag,"main");
-    g->AttachControl(new IVMenuButtonControl(IRECT(25,365,240,415),26,"Noise Type",menuStyle),kNoTag,"main");
+    g->AttachControl(new IVSliderControl(IRECT(25,347,240,390),63,"NOISE COLOR",knobStyle, true, EDirection::Horizontal),kNoTag,"main");
+    g->AttachControl(new sawstar::gui::NoiseSelector(IRECT(25,395,240,432)),kNoTag,"main");
     const int order[]={30,5,6,7,24,27,28,29,25,8,9,10,11,12,13,14,15,16,1,2,3,4,19,0};
     for(int i=0;i<24;++i) {
       const int id=order[i];const float x=260.f+(i%6)*124.f,y=170.f+(i/6)*66.f;
@@ -184,7 +188,8 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetParameters(GetParam(0)->Value(), GetParam(1)->Value(), GetParam(2)->Value(),
                        GetParam(3)->Value(), GetParam(4)->Value());
   mSynth.SetMixer(GetParam(20)->Value(),GetParam(21)->Value(),GetParam(22)->Value(),GetParam(23)->Value(),
-    GetParam(24)->Int(),GetParam(25)->Int(),GetParam(26)->Int(),GetParam(30)->Int());
+    GetParam(24)->Int(),GetParam(25)->Int(),GetParam(62)->Int()==0?GetParam(26)->Int():GetParam(62)->Int()-1,GetParam(30)->Int());
+  mSynth.SetNoiseColor(GetParam(63)->Value());
   mSynth.SetOsc2(GetParam(27)->Value(),GetParam(28)->Value(),GetParam(29)->Value());
   mSynth.SetOutputBoost(static_cast<float>(GetParam(19)->Value()));
   mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),

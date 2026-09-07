@@ -142,3 +142,16 @@ See [REVERB.md](REVERB.md) for keys, ranges and defaults. Old states restore Rev
 ## Voice modes: append-only IDs 59-61
 
 See [MONO_GLIDE.md](MONO_GLIDE.md). Default Poly / Glide 0 / Overlap only.
+
+### Noise sources and color
+
+IDs 0–61 remain unchanged, including `26 noise.type` (0 White, 1 Dark).
+New `62 noise.source` is 0 Follow legacy (default), 1 White, 2 Dark, 3 Pink.
+The MAIN selector presents White / Dark / Pink and writes the explicit source.
+Old host automation of ID 26 remains effective while source is Follow legacy;
+that mode is also available in the host parameter list.
+`63 noise.color` ranges from -100 to +100%, default 0 (exact bypass).
+Negative values blend toward a 1 kHz low-pass; positive values toward its
+high-pass complement. It affects only noise, before the mixer and voice filter.
+NOISE remains the independent level fader. Color changes are smoothed.
+Older project/preset records load Follow legacy and neutral color.

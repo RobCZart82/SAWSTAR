@@ -12,11 +12,13 @@ void Synth::Reset(double rate) {
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
   lfo_.Init(sr);chorus_.Init(sr);delay_.Init(sr);reverb_.Init(sr);alternateWave_=false;
+  noiseColor_=targetNoiseColor_=0;
+  colorPole_=1.f-std::exp(-2.f*3.14159265358979323846f*1000.f/sr);
   sampleRate_=sr; noisePole_=1.f-std::exp(-2.f*3.14159265358979323846f*1200.f/sr);
   levels_=targetLevels_;
   uint32_t seed=0x9e3779b9u;
   for (auto& v : voices_) {
-    v = Voice{}; v.noiseState=seed; seed+=0x9e3779b9u;
+    v = Voice{}; v.noiseState=seed; v.pink.Reset(seed^0xa341316cu); seed+=0x9e3779b9u;
     v.osc2.Init(sr); v.sub.Init(sr); v.sub.SetWaveform(daisysp::Oscillator::WAVE_SIN); v.sub.SetAmp(1);
     v.osc.Init(sr); v.env.Init(sr); v.filter.Init(sr); v.filterMod.Init(sr);
   }
@@ -90,7 +92,7 @@ void Synth::SetMixer(float osc1,float osc2,float sub,float noise,
   const float values[]={osc1,osc2,sub,noise};
   for(size_t i=0;i<4;++i)targetLevels_[i]=std::isfinite(values[i])?std::clamp(values[i]*.01f,0.f,1.f):0;
   osc1Octave_=std::clamp(osc1Octave,-2,2); osc2Octave_=std::clamp(osc2Octave,-2,2);
-  subOctave_=std::clamp(subOctave,-2,0); noiseType_=std::clamp(noiseType,0,1);
+  subOctave_=std::clamp(subOctave,-2,0); noiseType_=std::clamp(noiseType,0,2);
 }
 void Synth::SetOsc2(float detune,float mix,float width) {
   for(auto& v:voices_)v.osc2.SetShape(detune,mix*.01f,width*.01f);
@@ -174,6 +176,7 @@ void Synth::Midi(int status, int note, int value) {
   }
 }
 StereoSample Synth::ProcessStereo() {
+  noiseColor_+=smoothing_*(targetNoiseColor_-noiseColor_);
   StereoSample sum;
   const auto lfo=lfo_.Process();
   const float vibrato=lfo.pitch==0?1.f:std::exp2(lfo.pitch/12.f);
@@ -200,7 +203,11 @@ StereoSample Synth::ProcessStereo() {
     auto& random=v.noiseState; random^=random<<13;random^=random>>17;random^=random<<5;
     const float white=static_cast<float>(random>>8)*(2.f/16777216.f)-1.f;
     v.darkNoise+=noisePole_*(white-v.darkNoise);
-    const float noise=noiseType_?v.darkNoise:white;
+    const float pink=v.pink.Process();
+    const float source=noiseType_==2?pink:(noiseType_==1?v.darkNoise:white);
+    v.noiseLow+=colorPole_*(source-v.noiseLow);
+    const float colored=noiseColor_<0?v.noiseLow:source-v.noiseLow;
+    const float noise=source+std::abs(noiseColor_)*(colored-source);
     const float center=sub*levels_[2]+noise*levels_[3];
     const StereoSample mixed{one.left*levels_[0]+two.left*levels_[1]+center,
                              one.right*levels_[0]+two.right*levels_[1]+center};
