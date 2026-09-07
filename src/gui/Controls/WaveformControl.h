@@ -11,8 +11,8 @@ public:
  void Draw(iplug::igraphics::IGraphics& g)override{
   using namespace iplug::igraphics;
   const int w=std::clamp(static_cast<int>(std::lround(GetValue()*3)),0,3);
-  const IColor cyan(255,61,200,239),light(255,210,237,245);
-  g.FillRoundRect(IColor(255,15,38,52),mRECT,4);g.DrawRoundRect(IColor(255,55,95,110),mRECT,4);
+  const IColor cyan(255,54,170,226),light(255,210,237,245);
+  g.FillRoundRect(IColor(255,20,26,29),mRECT,4);g.DrawRoundRect(IColor(255,55,95,110),mRECT,4);
   g.DrawText(IText(12,light),title_,IRECT(mRECT.L,mRECT.T,mRECT.R,mRECT.T+18));
   g.DrawText(IText(12,cyan),names_[w],IRECT(mRECT.L,mRECT.B-20,mRECT.R,mRECT.B));
   const auto curve=IRECT(mRECT.L+12,mRECT.T+23,mRECT.R-12,mRECT.B-25);

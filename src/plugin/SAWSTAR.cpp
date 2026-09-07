@@ -10,6 +10,7 @@
 #include "gui/Controls/PresetControls.h"
 #include "gui/Controls/WaveformControl.h"
 #include "gui/Controls/NoiseSelector.h"
+#include "gui/Layout.h"
 #include <algorithm>
 
 using namespace iplug;
@@ -82,16 +83,6 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
                         GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
   mLayoutFunc = [this](IGraphics* g) {
-    g->AttachPanelBackground(IColor(255, 9, 26, 38));
-    g->EnableMouseOver(true);
-    g->AttachPopupMenuControl();
-    g->AttachTextEntryControl();
-    // Use an installed system font; no external font asset is redistributed.
-    g->LoadFont("Roboto-Regular", "Arial", ETextStyle::Normal);
-    const IColor light(255, 210, 238, 246), accent(255, 61, 200, 239);
-    g->AttachControl(new ITextControl(IRECT(20, 22, 233, 65), "S A W S T A R", IText(24, light)));
-    g->AttachControl(new ITextControl(IRECT(246, 24, 370, 44), "Simple Synth", IText(13, light).WithAlign(EAlign::Near)));
-    g->AttachControl(new ITextControl(IRECT(246, 44, 370, 65), "Big Sound", IText(15, accent).WithAlign(EAlign::Near)));
     auto loadFactory = [this,g](int index) {
       if(index<0 || index>=static_cast<int>(sawstar::FactoryPresets().size()))return;
       const auto& values=sawstar::FactoryPresets()[index].values;
@@ -109,104 +100,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     sawstar::Snapshot current{};
     for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
-    static const char* titles[] = {"MAIN", "ADVANCED", "PRESETS"};
-    static const char* groups[] = {"main", "advanced", "presets"};
-    static const char* fxGroups[] = {"fx-chorus", "fx-delay", "fx-reverb", "modulation", "arp"};
-    auto selectPage = [this, g](int page) {
-      mPage = page;
-      for (int i = 0; i < 3; ++i)
-        g->ForControlInGroup(groups[i], [i, page](IControl* c) { c->Hide(i != page); });
-      for(int i=0;i<5;++i)g->ForControlInGroup(fxGroups[i],[this,i,page](IControl* c){c->Hide(page!=1||mFxPage!=i);});
-      g->ForControlInGroup("lfo1",[this,page](IControl* c){c->Hide(page!=1||mLfoPage!=0);});
-      g->ForControlInGroup("lfo2",[this,page](IControl* c){c->Hide(page!=1||mLfoPage!=1);});
-      g->SetAllControlsDirty();
-    };
-    for (int i = 0; i < 3; ++i)
-      g->AttachControl(new sawstar::gui::PageButton(IRECT(382.f+i*102.f, 25, 479.f+i*102.f, 70),
-                         titles[i], i, mPage, [selectPage, i]() { selectPage(i); }));
-    g->AttachControl(new sawstar::gui::PresetSelector(IRECT(701,25,1004,70),mFactoryIndex,loadFactory));
-    g->AttachControl(new sawstar::gui::WaveformControl(IRECT(20,86,245,166),33,"OSC1 - click to select"),kNoTag,"main");
-    g->AttachControl(new sawstar::gui::WaveformControl(IRECT(260,86,485,166),34,"OSC2 - click to select"),kNoTag,"main");
-
-    const auto knobStyle=DEFAULT_STYLE.WithLabelText(IText(13, light))
-      .WithValueText(IText(12, light).WithVAlign(EVAlign::Bottom));
-    const auto menuStyle=knobStyle.WithValueText(IText(13,IColor(255,9,26,38)));
-    g->AttachControl(new IVMenuButtonControl(IRECT(510,108,725,140),32,"",menuStyle),kNoTag,"main");
-    g->AttachControl(new IVSliderControl(IRECT(750,108,995,140),31,"Drive",knobStyle,true,EDirection::Horizontal),kNoTag,"main");
-    g->AttachControl(new ITextControl(IRECT(510,140,995,166),"Raise Filter Mix to hear",IText(12,light)),kNoTag,"main");
-    g->AttachControl(new ITextControl(IRECT(20,170,248,192),"MIXER",IText(15,accent)),kNoTag,"main");
-    for(int i=0;i<4;++i)
-      g->AttachControl(new IVSliderControl(IRECT(20.f+i*58,197,74.f+i*58,344),20+i,
-        sawstar::kParameters[20+i].name.data(),knobStyle,true),kNoTag,"main");
-    g->AttachControl(new IVSliderControl(IRECT(25,347,240,390),63,"NOISE COLOR",knobStyle, true, EDirection::Horizontal),kNoTag,"main");
-    g->AttachControl(new sawstar::gui::NoiseSelector(IRECT(25,395,240,432)),kNoTag,"main");
-    const int order[]={30,5,6,7,24,27,28,29,25,8,9,10,11,12,13,14,15,16,1,2,3,4,19,0};
-    for(int i=0;i<24;++i) {
-      const int id=order[i];const float x=260.f+(i%6)*124.f,y=170.f+(i/6)*66.f;
-      const char* label=id==5?"OSC1 Detune":id==6?"OSC1 Unison":id==7?"OSC1 Width":sawstar::kParameters[id].name.data();
-      g->AttachControl(new IVKnobControl(IRECT(x,y,x+118,y+64),id,label,knobStyle,true),kNoTag,"main");
-    }
-    for(int bank=0;bank<2;++bank){
-      g->AttachControl(new sawstar::gui::PageButton(IRECT(25.f+bank*235,92,245.f+bank*235,121),bank?"LFO 2":"LFO 1",bank,mLfoPage,[this,selectPage,bank](){mLfoPage=bank;selectPage(mPage);}),kNoTag,"advanced");
-      const char* group=bank?"lfo2":"lfo1";
-      const int base=bank?64:35;
-      const int menus[]={base+2,base+3,base+4,base+5};
-      for(int i=0;i<4;++i){float x=25.f+(i%2)*235,y=125.f+(i/2)*48;
-        g->AttachControl(new IVMenuButtonControl(IRECT(x,y,x+220,y+44),menus[i],sawstar::kParameters[menus[i]].name.data(),menuStyle),kNoTag,group);}
-      for(int i=0;i<2;++i){float x=25.f+i*235;
-        g->AttachControl(new IVKnobControl(IRECT(x,223,x+220,279),base+i,i?"Amount":"Rate",knobStyle,true),kNoTag,group);}
-      g->AttachControl(new IVMenuButtonControl(IRECT(25,345,245,381),base+6,"LFO Phase",menuStyle),kNoTag,group);
-    }
-    for(int i=0;i<2;++i){float x=25.f+i*235;
-      g->AttachControl(new IVKnobControl(IRECT(x,282,x+220,338),17+i,sawstar::kParameters[17+i].name.data(),knobStyle,true),kNoTag,"advanced");}
-    g->AttachControl(new IVMenuButtonControl(IRECT(260,345,480,381),59,"",menuStyle),kNoTag,"advanced");
-    g->AttachControl(new IVSliderControl(IRECT(25,385,245,437),60,"Glide (Mono/Legato)",knobStyle,true,EDirection::Horizontal),kNoTag,"advanced");
-    g->AttachControl(new IVMenuButtonControl(IRECT(260,395,480,435),61,"",menuStyle),kNoTag,"advanced");
-    const char* fxTitles[]={"CHORUS","DELAY","REVERB","MODULATION","ARP"};
-    for(int i=0;i<5;++i)g->AttachControl(new sawstar::gui::PageButton(IRECT(520.f+i*96,92,612.f+i*96,127),fxTitles[i],i,mFxPage,[this,selectPage,i](){mFxPage=i;selectPage(mPage);}),kNoTag,"advanced");
-    g->AttachControl(new IVMenuButtonControl(IRECT(520,150,665,195),42,"",menuStyle),kNoTag,"fx-chorus");
-    g->AttachControl(new IVSliderControl(IRECT(685,145,995,205),43,"Chorus Mix",knobStyle,true,EDirection::Horizontal),kNoTag,"fx-chorus");
-    for(int i=0;i<2;++i)g->AttachControl(new IVSliderControl(IRECT(520.f+i*245,225,750.f+i*245,285),44+i,sawstar::kParameters[44+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"fx-chorus");
-    g->AttachControl(new ITextControl(IRECT(520,310,995,345),"Gentle movement: Mix 25%, Rate 0.3 Hz, Depth 35%",IText(13,light)),kNoTag,"fx-chorus");
-    const int delayMenus[]={46,51,52,53};
-    for(int i=0;i<4;++i)g->AttachControl(new IVMenuButtonControl(IRECT(520.f+i*121,150,634.f+i*121,195),delayMenus[i],"",menuStyle),kNoTag,"fx-delay");
-    for(int i=0;i<4;++i){float x=520.f+(i%2)*245,y=215.f+(i/2)*80;
-      g->AttachControl(new IVSliderControl(IRECT(x,y,x+230,y+60),47+i,sawstar::kParameters[47+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"fx-delay");}
-    g->AttachControl(new ITextControl(IRECT(520,380,995,420),"Tempo Sync replaces Time (maximum 2 seconds).",IText(13,light)),kNoTag,"fx-delay");
-    g->AttachControl(new IVMenuButtonControl(IRECT(520,150,665,195),54,"",menuStyle),kNoTag,"fx-reverb");
-    for(int i=0;i<4;++i){float x=520.f+(i%2)*245,y=215.f+(i/2)*80;
-      g->AttachControl(new IVSliderControl(IRECT(x,y,x+230,y+60),55+i,sawstar::kParameters[55+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"fx-reverb");}
-    g->AttachControl(new ITextControl(IRECT(520,380,995,420),"Lower Damping Hz makes the reverb darker.",IText(13,light)),kNoTag,"fx-reverb");
-    g->AttachControl(new ITextControl(IRECT(520,135,995,158),"SOURCE                 DESTINATION                 AMOUNT",IText(12,light)),kNoTag,"modulation");
-    for(int row=0;row<4;++row){const int id=71+row*3;const float y=165.f+row*62;
-      g->AttachControl(new IVMenuButtonControl(IRECT(520,y,670,y+52),id,"",menuStyle),kNoTag,"modulation");
-      g->AttachControl(new IVMenuButtonControl(IRECT(679,y,864,y+52),id+1,"",menuStyle),kNoTag,"modulation");
-      g->AttachControl(new IVKnobControl(IRECT(880,y,995,y+56),id+2,"",knobStyle,true),kNoTag,"modulation");}
-    g->AttachControl(new ITextControl(IRECT(520,415,995,438),"Off disables a row. Negative amounts invert its effect.",IText(12,light)),kNoTag,"modulation");
-    const int arpMenus[]={83,84,85,89};
-    for(int i=0;i<4;++i){float x=520.f+(i%2)*245,y=145.f+(i/2)*62;
-      g->AttachControl(new IVMenuButtonControl(IRECT(x,y,x+230,y+54),arpMenus[i],sawstar::kParameters[arpMenus[i]].name.data(),menuStyle),kNoTag,"arp");}
-    const int arpKnobs[]={86,87,88};
-    for(int i=0;i<3;++i){float x=520.f+i*160;
-      g->AttachControl(new IVKnobControl(IRECT(x,280,x+150,365),arpKnobs[i],sawstar::kParameters[arpKnobs[i]].name.data(),knobStyle,true),kNoTag,"arp");}
-    g->AttachControl(new ITextControl(IRECT(520,370,995,432),"Tempo follows the DAW. First key starts the pattern.\nHold: release all keys, then play a new chord to replace it.",IText(12,light)),kNoTag,"arp");
-    g->AttachControl(new ITextControl(IRECT(35,100,989,133),
-      "FACTORY LIBRARY + LEARNING",IText(22,accent)),kNoTag,"presets");
-    for(int i=0;i<static_cast<int>(sawstar::FactoryPresets().size());++i)
-      g->AttachControl(new sawstar::gui::PresetRow(IRECT(24,140.f+i*33,1000,170.f+i*33),
-        i,mFactoryIndex,loadFactory),kNoTag,"presets");
-    g->AttachControl(new ITextControl(IRECT(24,412,1000,435),
-      "Click a sound to load it. Edits show as Custom; save your sound in the DAW project.",IText(13,light)),kNoTag,"presets");
-    g->AttachControl(new ITextControl(IRECT(20, 523, 1004, 553),
-      "0.1.0-dev  |  7-SAW  |  16 VOICES  |  WHEELS: MIDI CH 1", IText(14, light)));
-    g->AttachControl(new sawstar::gui::PerformanceWheel(IRECT(20,450,54,497),true));
-    g->AttachControl(new sawstar::gui::PerformanceWheel(IRECT(62,450,96,497),false));
-    g->AttachControl(new ITextControl(IRECT(17,497,57,514),"PITCH",IText(10,light)));
-    g->AttachControl(new ITextControl(IRECT(59,497,99,514),"MOD",IText(10,light)));
-    g->AttachControl(new sawstar::gui::Keyboard(IRECT(104, 450, 1004, 514), 36, 96, false,
-      IColor(255, 117, 137, 147), IColor(255, 22, 40, 50), accent,
-      IColor(255, 9, 26, 38), light));
-    selectPage(mPage);
+    sawstar::gui::BuildLayout(g,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory);
   };
 #endif
 }

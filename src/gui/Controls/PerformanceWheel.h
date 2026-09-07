@@ -16,7 +16,7 @@ public:
     g.DrawRect(IColor(255,117,137,147),r);
     for(int i=1;i<8;++i)g.DrawLine(IColor(255,55,75,85),r.L+2,r.T+r.H()*i/8,r.R-2,r.T+r.H()*i/8);
     float y=r.B-3-static_cast<float>(GetValue())*(r.H()-6);
-    g.FillRect(IColor(255,61,200,239),IRECT(r.L+2,y-1,r.R-2,y+1));
+    g.FillRect(IColor(255,54,170,226),IRECT(r.L+2,y-1,r.R-2,y+1));
   }
   void OnMouseDown(float x,float y,const iplug::igraphics::IMouseMod&) override { Move(y); }
   void OnMouseDrag(float x,float y,float dx,float dy,const iplug::igraphics::IMouseMod&) override { Move(y); }

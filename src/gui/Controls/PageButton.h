@@ -13,8 +13,8 @@ public:
   void Draw(iplug::igraphics::IGraphics& g) override {
     using namespace iplug::igraphics;
     const bool active = mSelected == mPage;
-    g.FillRoundRect(active ? IColor(255, 45, 182, 235) : IColor(255, 15, 38, 52), mRECT, 5.f);
-    g.DrawText(IText(16.f, active ? IColor(255, 5, 24, 33) : IColor(255, 210, 237, 245)), mLabel, mRECT);
+    g.FillRoundRect(active ? IColor(255, 43, 121, 180) : IColor(255, 20, 26, 29), mRECT, 5.f);
+    g.DrawText(IText(13.f, active ? IColor(255, 5, 24, 33) : IColor(255, 210, 237, 245)), mLabel, mRECT);
   }
   void OnMouseDown(float, float, const iplug::igraphics::IMouseMod&) override { mAction(); }
 private:

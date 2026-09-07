@@ -12,7 +12,7 @@ public:
  }
  void Draw(iplug::igraphics::IGraphics& g)override{
   using namespace iplug::igraphics;IColor light(255,210,237,245);
-  g.FillRoundRect(IColor(255,15,38,52),mRECT,5);g.DrawRoundRect(IColor(255,55,95,110),mRECT,5);
+  g.FillRoundRect(IColor(255,20,26,29),mRECT,5);g.DrawRoundRect(IColor(255,55,95,110),mRECT,5);
   g.DrawText(IText(18,light),"<",mRECT.GetFromLeft(28));g.DrawText(IText(18,light),">",mRECT.GetFromRight(28));
   g.DrawText(IText(14,light),selected_<0?"Custom":FactoryPresets()[selected_].name,mRECT.GetHPadded(-30));
  }
@@ -33,10 +33,10 @@ public:
  :IControl(r),index_(index),selected_(selected),action_(std::move(action)){}
  void Draw(iplug::igraphics::IGraphics& g)override{
   using namespace iplug::igraphics;const auto& p=FactoryPresets()[index_];
-  g.FillRoundRect(index_==selected_?IColor(255,22,77,100):IColor(255,15,38,52),mRECT,4);
+  g.FillRoundRect(index_==selected_?IColor(255,22,77,100):IColor(255,20,26,29),mRECT,4);
   auto text=IText(14,IColor(255,210,237,245)).WithAlign(EAlign::Near);
   g.DrawText(text,p.name,IRECT(mRECT.L+12,mRECT.T,mRECT.L+177,mRECT.B));
-  g.DrawText(text.WithFGColor(IColor(255,61,200,239)),p.category,IRECT(mRECT.L+185,mRECT.T,mRECT.L+255,mRECT.B));
+  g.DrawText(text.WithFGColor(IColor(255,54,170,226)),p.category,IRECT(mRECT.L+185,mRECT.T,mRECT.L+255,mRECT.B));
   g.DrawText(text.WithSize(13),p.lesson,IRECT(mRECT.L+265,mRECT.T,mRECT.R-10,mRECT.B));
  }
  void OnMouseDown(float,float,const iplug::igraphics::IMouseMod&)override{action_(index_);}
