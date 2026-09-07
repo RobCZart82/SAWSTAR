@@ -63,3 +63,7 @@ Tested source commit: `655d89a310bf0399a6cec1f4a884630cf2fe3ba3`.
 
 Windows measurements: [source-quality-windows.csv](source-quality-windows.csv).
 Both Release VST3 builds passed 22 foundation tests and all 47 validator checks.
+
+The user subsequently reported that the source-quality build worked correctly
+in their trial. This is user-reported host feedback, not additional spectral
+measurement or exhaustive automation testing.
