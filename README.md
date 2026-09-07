@@ -135,3 +135,7 @@ retain their White/Dark source and neutral color.
 ADVANCED now includes two independent LFOs with a shared LFO 1 / LFO 2 editor,
 and four source/destination/amount modulation rows. New routes are disabled by
 default. See [Modulation](docs/MODULATION.md) for controls and compatibility.
+
+ADVANCED → ARP now includes five patterns, tempo-synced rate, gate, octaves,
+swing and Hold. It is disabled in existing presets. See
+[Arpeggiator](docs/ARPEGGIATOR.md) for playing and transport behavior.

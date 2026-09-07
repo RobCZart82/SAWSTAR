@@ -165,3 +165,14 @@ Source: 0 Off, 1 LFO1, 2 LFO2, 3 Mod Wheel, 4 Velocity, 5 Channel Aftertouch.
 Target: 0 Cutoff, 1 Pitch, 2 Amp, 3 Pan, 4 Noise Color.
 Amount: -100..100%, default 0. Source and target default 0.
 See MODULATION.md for routing scales, smoothing and interaction with direct LFOs.
+
+### Arpeggiator (IDs 83–89)
+
+83 `arp.enabled`: Off/On, default Off.
+84 `arp.mode`: Up/Down/Up-Down/Random/Played (0..4), default Up.
+85 `arp.rate`: quarter/eighth/sixteenth/32nd/eighth-triplet/sixteenth-triplet/
+eighth-dotted/sixteenth-dotted (0..7), default 2 (1/16).
+86 `arp.gate`: 5..100%, default 80.
+87 `arp.octaves`: integer 1..4, default 1.
+88 `arp.swing`: 0..75%, default 0.
+89 `arp.hold`: Off/On, default Off.
