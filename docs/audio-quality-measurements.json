@@ -1,0 +1,938 @@
+[
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.251125,
+      -16.6804619,
+      -26.1568029,
+      2.53697397e-05
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      9.6912084,
+      -5.5472517,
+      -17.7826685,
+      9.60088235e-06
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      17.9414083,
+      -2.81361723,
+      -14.4192722,
+      0.000102881445
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      1.7196208,
+      -20.945816,
+      -26.9127222,
+      0.00280962263
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      12.9072208,
+      -6.98642445,
+      -17.9924075,
+      0.0179733481
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      26.8230084,
+      -3.93979812,
+      -14.5109525,
+      0.0303484703
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.4190125,
+      -16.6804619,
+      -26.1568029,
+      2.53697397e-05
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      11.6189166,
+      -5.5472517,
+      -17.7826685,
+      9.60088235e-06
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      14.4116917,
+      -2.81361723,
+      -14.4192722,
+      0.000102881445
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      1.58045,
+      -20.9688683,
+      -26.9377999,
+      -2.17038774e-05
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      11.0601708,
+      -6.98408651,
+      -18.0892662,
+      -0.000356386594
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      22.7467875,
+      -4.45815945,
+      -14.6301802,
+      -0.000657422007
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.412075,
+      -16.6804619,
+      -26.1568029,
+      2.53697397e-05
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      9.3073166,
+      -5.5472517,
+      -17.7826685,
+      9.60088235e-06
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      15.9801042,
+      -2.81361723,
+      -14.4192722,
+      0.000102881445
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      2.7010584,
+      -20.945816,
+      -26.9127222,
+      0.00280962263
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      13.11375,
+      -6.98642445,
+      -17.9924075,
+      0.0179733481
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      23.2647084,
+      -3.93979812,
+      -14.5109525,
+      0.0303484703
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.674975,
+      -16.6804619,
+      -26.1568029,
+      2.53697397e-05
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      8.9747584,
+      -5.5472517,
+      -17.7826685,
+      9.60088235e-06
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      15.3435833,
+      -2.81361723,
+      -14.4192722,
+      0.000102881445
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      2.0774958,
+      -20.9688683,
+      -26.9377999,
+      -2.17038774e-05
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      10.1113708,
+      -6.98408651,
+      -18.0892662,
+      -0.000356386594
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      25.4844292,
+      -4.45815945,
+      -14.6301802,
+      -0.000657422007
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      0.9433542,
+      -16.6804619,
+      -26.1568029,
+      2.53697397e-05
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      8.1734542,
+      -5.5472517,
+      -17.7826685,
+      9.60088235e-06
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      14.5156291,
+      -2.81361723,
+      -14.4192722,
+      0.000102881445
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      1.3787834,
+      -20.945816,
+      -26.9127222,
+      0.00280962263
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      9.3278833,
+      -6.98642445,
+      -17.9924075,
+      0.0179733481
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      19.7139083,
+      -3.93979812,
+      -14.5109525,
+      0.0303484703
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.0490083,
+      -16.6804619,
+      -26.1568029,
+      2.53697397e-05
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      8.5411333,
+      -5.5472517,
+      -17.7826685,
+      9.60088235e-06
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      18.9709166,
+      -2.81361723,
+      -14.4192722,
+      0.000102881445
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      1.6600375,
+      -20.9688683,
+      -26.9377999,
+      -2.17038774e-05
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      10.882925,
+      -6.98408651,
+      -18.0892662,
+      -0.000356386594
+    ]
+  },
+  {
+    "platform": "macOS",
+    "version": "current",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      20.4619833,
+      -4.45815945,
+      -14.6301802,
+      -0.000657422007
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.52193,
+      -16.6803913,
+      -26.1567759,
+      2.53606032e-05
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      10.81737,
+      -5.54726028,
+      -17.7826557,
+      9.59339861e-06
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      23.62714,
+      -2.81364536,
+      -14.4192555,
+      0.000102841859
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      2.53522,
+      -20.9458904,
+      -26.9127238,
+      0.00280953055
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      14.83322,
+      -6.98642349,
+      -17.9924012,
+      0.0179732988
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      31.19059,
+      -3.93979502,
+      -14.5109363,
+      0.0303491017
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.53606,
+      -16.6803913,
+      -26.1567759,
+      2.53606032e-05
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      10.108,
+      -5.54726028,
+      -17.7826557,
+      9.59339861e-06
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 1,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      24.30022,
+      -2.81364536,
+      -14.4192555,
+      0.000102841859
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      2.47612,
+      -20.9689331,
+      -26.9378004,
+      -2.17297065e-05
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      13.62325,
+      -6.98408651,
+      -18.0892594,
+      -0.000356404446
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 1,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      28.56449,
+      -4.45813274,
+      -14.6301689,
+      -0.000657379362
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.53047,
+      -16.6803913,
+      -26.1567759,
+      2.53606032e-05
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      10.8519,
+      -5.54726028,
+      -17.7826557,
+      9.59339861e-06
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      23.743,
+      -2.81364536,
+      -14.4192555,
+      0.000102841859
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      2.51946,
+      -20.9458904,
+      -26.9127238,
+      0.00280953055
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      14.81894,
+      -6.98642349,
+      -17.9924012,
+      0.0179732988
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      31.12822,
+      -3.93979502,
+      -14.5109363,
+      0.0303491017
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.56201,
+      -16.6803913,
+      -26.1567759,
+      2.53606032e-05
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      10.1128,
+      -5.54726028,
+      -17.7826557,
+      9.59339861e-06
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 2,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      22.01069,
+      -2.81364536,
+      -14.4192555,
+      0.000102841859
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      2.47018,
+      -20.9689331,
+      -26.9378004,
+      -2.17297065e-05
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      13.6438,
+      -6.98408651,
+      -18.0892594,
+      -0.000356404446
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 2,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      28.9884,
+      -4.45813274,
+      -14.6301689,
+      -0.000657379362
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.5299,
+      -16.6803913,
+      -26.1567759,
+      2.53606032e-05
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      11.39838,
+      -5.54726028,
+      -17.7826557,
+      9.59339861e-06
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      23.70769,
+      -2.81364536,
+      -14.4192555,
+      0.000102841859
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      2.52231,
+      -20.9458904,
+      -26.9127238,
+      0.00280953055
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      14.90651,
+      -6.98642349,
+      -17.9924012,
+      0.0179732988
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "baseline",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      31.61453,
+      -3.93979502,
+      -14.5109363,
+      0.0303491017
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 1,
+    "values": [
+      1.53628,
+      -16.6803913,
+      -26.1567759,
+      2.53606032e-05
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 8,
+    "values": [
+      10.15116,
+      -5.54726028,
+      -17.7826557,
+      9.59339861e-06
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 3,
+    "scene": "dry_fx",
+    "voices": 16,
+    "values": [
+      22.02819,
+      -2.81364536,
+      -14.4192555,
+      0.000102841859
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 1,
+    "values": [
+      2.47732,
+      -20.9689331,
+      -26.9378004,
+      -2.17297065e-05
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 8,
+    "values": [
+      13.85421,
+      -6.98408651,
+      -18.0892594,
+      -0.000356404446
+    ]
+  },
+  {
+    "platform": "Windows",
+    "version": "current",
+    "repeat": 3,
+    "scene": "full_fx",
+    "voices": 16,
+    "values": [
+      28.47938,
+      -4.45813274,
+      -14.6301689,
+      -0.000657379362
+    ]
+  }
+]

@@ -59,3 +59,7 @@ swing, hold, sustain, stop/reset, block-size independence and synth voice modes.
 
 - [macOS run](https://github.com/RobCZart82/SAWSTAR/actions/runs/34155445278)
 - [Windows run](https://github.com/RobCZart82/SAWSTAR/actions/runs/34155445269)
+
+User host validation: the user subsequently reported that every arpeggiator
+function worked in their REAPER trial. This is user-reported validation; it does
+not claim exhaustive automated host coverage.
