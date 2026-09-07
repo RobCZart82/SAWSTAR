@@ -20,10 +20,18 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
   for (const auto& spec : sawstar::kParameters) {
     auto* param = GetParam(static_cast<int>(spec.id));
     const int id=static_cast<int>(spec.id);
-    if(id>=71 && (id-71)%3==0)
+    if(id>=71 && id<=82 && (id-71)%3==0)
       param->InitEnum(spec.name.data(),0,6,"",IParam::kFlagsNone,"Modulation","Off","LFO 1","LFO 2","Mod Wheel","Velocity","Aftertouch");
-    else if(id>=71 && (id-71)%3==1)
+    else if(id>=71 && id<=82 && (id-71)%3==1)
       param->InitEnum(spec.name.data(),0,5,"",IParam::kFlagsNone,"Modulation","Filter Cutoff","Pitch","Amp Level","Pan","Noise Color");
+    else if(id==83||id==89)
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Arpeggiator","Off","On");
+    else if(id==84)
+      param->InitEnum(spec.name.data(),0,5,"",IParam::kFlagsNone,"Arpeggiator","Up","Down","Up/Down","Random","Played");
+    else if(id==85)
+      param->InitEnum(spec.name.data(),2,8,"",IParam::kFlagsNone,"Arpeggiator","1/4","1/8","1/16","1/32","1/8 Triplet","1/16 Triplet","1/8 Dotted","1/16 Dotted");
+    else if(id==87)
+      param->InitInt(spec.name.data(),1,1,4,"oct");
     else if(spec.id==sawstar::ParameterId::Osc1Wave||spec.id==sawstar::ParameterId::Osc2Wave)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Oscillator","Saw","Square","Triangle","Sine");
     else if(spec.id==sawstar::ParameterId::VoiceMode)
@@ -95,6 +103,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
         EndInformHostOfParamChangeFromUI(id);
         SendParameterValueFromDelegate(id,value,true);
       }
+      mArpReset.store(true);
       mFactoryIndex=index;g->SetAllControlsDirty();
     };
     sawstar::Snapshot current{};
@@ -102,12 +111,12 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
     static const char* titles[] = {"MAIN", "ADVANCED", "PRESETS"};
     static const char* groups[] = {"main", "advanced", "presets"};
-    static const char* fxGroups[] = {"fx-chorus", "fx-delay", "fx-reverb", "modulation"};
+    static const char* fxGroups[] = {"fx-chorus", "fx-delay", "fx-reverb", "modulation", "arp"};
     auto selectPage = [this, g](int page) {
       mPage = page;
       for (int i = 0; i < 3; ++i)
         g->ForControlInGroup(groups[i], [i, page](IControl* c) { c->Hide(i != page); });
-      for(int i=0;i<4;++i)g->ForControlInGroup(fxGroups[i],[this,i,page](IControl* c){c->Hide(page!=1||mFxPage!=i);});
+      for(int i=0;i<5;++i)g->ForControlInGroup(fxGroups[i],[this,i,page](IControl* c){c->Hide(page!=1||mFxPage!=i);});
       g->ForControlInGroup("lfo1",[this,page](IControl* c){c->Hide(page!=1||mLfoPage!=0);});
       g->ForControlInGroup("lfo2",[this,page](IControl* c){c->Hide(page!=1||mLfoPage!=1);});
       g->SetAllControlsDirty();
@@ -153,8 +162,8 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     g->AttachControl(new IVMenuButtonControl(IRECT(260,345,480,381),59,"",menuStyle),kNoTag,"advanced");
     g->AttachControl(new IVSliderControl(IRECT(25,385,245,437),60,"Glide (Mono/Legato)",knobStyle,true,EDirection::Horizontal),kNoTag,"advanced");
     g->AttachControl(new IVMenuButtonControl(IRECT(260,395,480,435),61,"",menuStyle),kNoTag,"advanced");
-    const char* fxTitles[]={"CHORUS","DELAY","REVERB","MODULATION"};
-    for(int i=0;i<4;++i)g->AttachControl(new sawstar::gui::PageButton(IRECT(520.f+i*120,92,636.f+i*120,127),fxTitles[i],i,mFxPage,[this,selectPage,i](){mFxPage=i;selectPage(mPage);}),kNoTag,"advanced");
+    const char* fxTitles[]={"CHORUS","DELAY","REVERB","MODULATION","ARP"};
+    for(int i=0;i<5;++i)g->AttachControl(new sawstar::gui::PageButton(IRECT(520.f+i*96,92,612.f+i*96,127),fxTitles[i],i,mFxPage,[this,selectPage,i](){mFxPage=i;selectPage(mPage);}),kNoTag,"advanced");
     g->AttachControl(new IVMenuButtonControl(IRECT(520,150,665,195),42,"",menuStyle),kNoTag,"fx-chorus");
     g->AttachControl(new IVSliderControl(IRECT(685,145,995,205),43,"Chorus Mix",knobStyle,true,EDirection::Horizontal),kNoTag,"fx-chorus");
     for(int i=0;i<2;++i)g->AttachControl(new IVSliderControl(IRECT(520.f+i*245,225,750.f+i*245,285),44+i,sawstar::kParameters[44+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"fx-chorus");
@@ -174,6 +183,13 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       g->AttachControl(new IVMenuButtonControl(IRECT(679,y,864,y+52),id+1,"",menuStyle),kNoTag,"modulation");
       g->AttachControl(new IVKnobControl(IRECT(880,y,995,y+56),id+2,"",knobStyle,true),kNoTag,"modulation");}
     g->AttachControl(new ITextControl(IRECT(520,415,995,438),"Off disables a row. Negative amounts invert its effect.",IText(12,light)),kNoTag,"modulation");
+    const int arpMenus[]={83,84,85,89};
+    for(int i=0;i<4;++i){float x=520.f+(i%2)*245,y=145.f+(i/2)*62;
+      g->AttachControl(new IVMenuButtonControl(IRECT(x,y,x+230,y+54),arpMenus[i],sawstar::kParameters[arpMenus[i]].name.data(),menuStyle),kNoTag,"arp");}
+    const int arpKnobs[]={86,87,88};
+    for(int i=0;i<3;++i){float x=520.f+i*160;
+      g->AttachControl(new IVKnobControl(IRECT(x,280,x+150,365),arpKnobs[i],sawstar::kParameters[arpKnobs[i]].name.data(),knobStyle,true),kNoTag,"arp");}
+    g->AttachControl(new ITextControl(IRECT(520,370,995,432),"Tempo follows the DAW. First key starts the pattern.\nHold: release all keys, then play a new chord to replace it.",IText(12,light)),kNoTag,"arp");
     g->AttachControl(new ITextControl(IRECT(35,100,989,133),
       "FACTORY LIBRARY + LEARNING",IText(22,accent)),kNoTag,"presets");
     for(int i=0;i<static_cast<int>(sawstar::FactoryPresets().size());++i)
@@ -196,12 +212,15 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
 }
 #if IPLUG_DSP
 void SAWSTAR::OnReset() {
-  mSynth.Reset(GetSampleRate());
+  mSynth.Reset(GetSampleRate());mArp.Init(GetSampleRate());mArpReset.store(false);
   mEventCount = 0; mOverflow = false;
   mBend.store(8192);mMod.store(0);
   for (auto& held : mHeld) held.store(false, std::memory_order_relaxed);
 }
 void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
+  auto send=[this](int status,int note,int value){mSynth.Midi(status,note,value);};
+  if(mArpReset.exchange(false))mArp.Clear(send);
+  mArp.Set(GetParam(83)->Int()!=0,GetParam(84)->Int(),GetParam(85)->Int(),GetParam(86)->Value(),GetParam(87)->Int(),GetParam(88)->Value(),GetParam(89)->Int()!=0,GetTempo(),GetTransportIsRunning(),send);
   mSynth.SetLfo2(GetParam(64)->Value(),GetParam(65)->Value(),GetParam(66)->Int(),GetParam(67)->Int(),GetParam(68)->Int()!=0,GetParam(69)->Int(),GetTempo(),GetParam(70)->Int()!=0);
   for(int row=0;row<4;++row){const int id=71+row*3;mSynth.SetModulation(row,GetParam(id)->Int(),GetParam(id+1)->Int(),GetParam(id+2)->Value());}
   mSynth.SetVoiceMode(GetParam(59)->Int(),GetParam(60)->Value(),GetParam(61)->Int()!=0);
@@ -228,6 +247,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     static_cast<float>(GetParam(15)->Value()), static_cast<float>(GetParam(16)->Value()));
   mSynth.SetPerformance(static_cast<float>(GetParam(17)->Value()),static_cast<float>(GetParam(18)->Value()));
   if (mOverflow) {
+    mArp.Clear(send);
     for (int ch = 0; ch < 16; ++ch) mSynth.Midi(0xB0 | ch, 120, 0);
     mEventCount = 0; mOverflow = false;
   mBend.store(8192);mMod.store(0);
@@ -236,8 +256,9 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   for (int i = 0; i < frames; ++i) {
     while (event < mEventCount && mEvents[event].mOffset <= i) {
       const auto& msg = mEvents[event++];
-      mSynth.Midi(msg.mStatus, msg.mData1, msg.mData2);
+      mArp.Midi(msg.mStatus, msg.mData1, msg.mData2,send);
     }
+    mArp.Process(send);
     const auto value=mSynth.ProcessStereo();
     const int channels=NOutChansConnected();
     if(channels==1) outputs[0][i]=static_cast<sample>((value.left+value.right)*0.5f);
@@ -300,5 +321,6 @@ int SAWSTAR::UnserializeState(const IByteChunk& chunk, int startPos) {
   IByteChunk params;
   for(double value:values) if(params.Put(&value)<0) return -1;
   if(UnserializeParams(params,0)<0) return -1;
+  mArpReset.store(true);
   return startPos+static_cast<int>(consumed);
 }

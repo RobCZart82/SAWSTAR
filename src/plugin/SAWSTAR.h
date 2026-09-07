@@ -2,6 +2,7 @@
 #pragma once
 #include "IPlug_include_in_plug_hdr.h"
 #include "engine/Synth.h"
+#include "midi/Arpeggiator.h"
 #include <atomic>
 #include <array>
 
@@ -19,12 +20,14 @@ public:
 private:
 #if IPLUG_DSP
   sawstar::Synth mSynth;
+  sawstar::Arpeggiator mArp;
   std::array<iplug::IMidiMsg, 1024> mEvents{};
   int mEventCount = 0;
   bool mOverflow = false;
   std::array<std::atomic<bool>, 128> mHeld{};
   std::array<bool, 128> mDisplayed{};
 #endif
+  std::atomic<bool> mArpReset{false};
   std::atomic<int> mBend{8192},mMod{0};
   int mFactoryIndex = -1; // GUI-only, derived from the parameter snapshot.
   int mLfoPage = 0; // Editor selection only; both LFOs keep running.
