@@ -28,6 +28,12 @@ int main(){for(float sr:{44100.f,48000.f,96000.f}){
   for(int i=0;i<8192;++i){auto x=plain.ProcessStereo(),y=mod.ProcessStereo();difference+=std::abs(x.left-y.left)+std::abs(x.right-y.right);check(std::isfinite(y.left)&&std::abs(y.left)<=.981,"modulated output bounded");}
   check(difference>.001,"each route affects audio");
  }
+ // LFO2's direct Amount must work independently of matrix rows and LFO1.
+ for(int target=0;target<4;++target){sawstar::Synth plain,mod;setup(plain,sr);setup(mod,sr);
+  mod.SetLfo2(3,60,0,target,false,2,120,true);plain.Midi(0x90,60,100);mod.Midi(0x90,60,100);double difference=0;
+  for(int i=0;i<8192;++i){auto x=plain.ProcessStereo(),y=mod.ProcessStereo();difference+=std::abs(x.left-y.left)+std::abs(x.right-y.right);}
+  check(difference>.001,"each direct LFO2 destination affects audio");
+ }
  // Channel pressure is isolated by MIDI channel, and reset-controllers clears it.
  sawstar::Synth plain,pressure;setup(plain,sr);setup(pressure,sr);pressure.SetModulation(0,5,1,50);
  plain.Midi(0x90,60,100);pressure.Midi(0x90,60,100);pressure.Midi(0xd1,127,0);

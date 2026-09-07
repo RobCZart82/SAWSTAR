@@ -17,7 +17,7 @@ public:
  }
  void Process(){if(!dirty_)return;dirty_=false;active_=false;combined_={};for(int r=0;r<4;++r)for(int s=0;s<5;++s)for(int t=0;t<5;++t){
   auto& w=weights_[r][s][t];const float goal=sources_[r]==s+1&&targets_[r]==t?amounts_[r]:0;
-  if(std::abs(goal-w)>1.e-5f){w+=slew_*(goal-w);dirty_=true;}else w=goal;
+  if(std::abs(goal-w)>1.e-4f){w+=slew_*(goal-w);dirty_=true;}else w=goal;
   active_|=w!=0;combined_[s][t]+=w;
  }}
  Values Evaluate(const Values& sources)const {
