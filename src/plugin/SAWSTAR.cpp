@@ -12,6 +12,7 @@
 #include "gui/Controls/NoiseSelector.h"
 #include "gui/Layout.h"
 #include <algorithm>
+#include <chrono>
 
 using namespace iplug;
 using namespace igraphics;
@@ -100,18 +101,20 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     sawstar::Snapshot current{};
     for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
-    sawstar::gui::BuildLayout(g,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory);
+    sawstar::gui::BuildLayout(g,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mPeakL,mPeakR,mCpu,mRate,mVoiceCount);
   };
 #endif
 }
 #if IPLUG_DSP
 void SAWSTAR::OnReset() {
+  mRate.store(static_cast<int>(GetSampleRate()));mPeakL.store(0);mPeakR.store(0);mCpu.store(0);mVoiceCount.store(0);
   mSynth.Reset(GetSampleRate());mArp.Init(GetSampleRate());mArpReset.store(false);
   mEventCount = 0; mOverflow = false;
   mBend.store(8192);mMod.store(0);
   for (auto& held : mHeld) held.store(false, std::memory_order_relaxed);
 }
 void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
+  const auto started=std::chrono::steady_clock::now();float peakL=0,peakR=0;
   auto send=[this](int status,int note,int value){mSynth.Midi(status,note,value);};
   if(mArpReset.exchange(false))mArp.Clear(send);
   mArp.Set(GetParam(83)->Int()!=0,GetParam(84)->Int(),GetParam(85)->Int(),GetParam(86)->Value(),GetParam(87)->Int(),GetParam(88)->Value(),GetParam(89)->Int()!=0,GetTempo(),GetTransportIsRunning(),send);
@@ -154,10 +157,13 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     }
     mArp.Process(send);
     const auto value=mSynth.ProcessStereo();
+    peakL=std::max(peakL,std::abs(value.left));peakR=std::max(peakR,std::abs(value.right));
     const int channels=NOutChansConnected();
     if(channels==1) outputs[0][i]=static_cast<sample>((value.left+value.right)*0.5f);
     else for(int ch=0;ch<channels;++ch) outputs[ch][i]=static_cast<sample>(ch%2?value.right:value.left);
   }
+  mPeakL.store(peakL);mPeakR.store(peakR);mVoiceCount.store(mSynth.ActiveVoices());
+  if(frames>0){float used=100.f*std::chrono::duration<float>(std::chrono::steady_clock::now()-started).count()*GetSampleRate()/frames;mCpu.store(mCpu.load()*.9f+used*.1f);}
   for (int i = event; i < mEventCount; ++i) {
     mEvents[i - event] = mEvents[i]; mEvents[i - event].mOffset -= frames;
   }
@@ -177,6 +183,7 @@ void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
 }
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
+  if(GetUI()){for(int tag:{9100,9101})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
   sawstar::Snapshot current{};
   for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
   const int match=sawstar::MatchFactoryPreset(current);

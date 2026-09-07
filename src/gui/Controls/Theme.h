@@ -2,6 +2,8 @@
 #pragma once
 #include "IControls.h"
 #include <cmath>
+#include <atomic>
+#include <cstdio>
 namespace sawstar::gui {
 using namespace iplug::igraphics;
 inline const IColor Text(255,225,234,238),Blue(255,54,170,226),PanelColor(255,20,26,29),Border(255,48,61,67);
@@ -39,4 +41,21 @@ public:Curve(IRECT r,std::initializer_list<int> ids,bool envelope):IControl(r,id
  else{float cutoff=GetValue(0);int mode=std::lround(GetValue(1)*3);for(int i=0;i<=80;++i){float x=i/80.f;float low=1/(1+std::exp((x-cutoff)*14));float y=mode<2?low:mode==2?1-low:4*low*(1-low);float sy=r.B-y*r.H()*.8f;if(i)g.DrawLine(Blue,px,py,r.L+x*r.W(),sy,nullptr,1.5f);px=r.L+x*r.W();py=sy;}}
  }
 };
+class Toggle final:public IControl{
+ const char* label_;
+public:Toggle(IRECT r,int id,const char* label):IControl(r,id),label_(label){}
+ void Draw(IGraphics& g)override{const bool on=GetValue()>.5;g.FillRoundRect(on?IColor(255,22,58,80):IColor(255,13,19,22),mRECT,3);g.DrawRoundRect(on?Blue:Border,mRECT,3,nullptr,on?1.5f:1.f);char text[80];std::snprintf(text,sizeof(text),"%s%s%s",label_,*label_?"  ":"",on?"ON":"OFF");g.DrawText(IText(11,on?Text:IColor(255,130,150,158)),text,mRECT);}
+ void OnMouseDown(float,float,const IMouseMod&)override{SetValue(GetValue()>.5?0:1);SetDirty(true);}
+};
+class Meter final:public IControl{
+ const std::atomic<float>& left_;const std::atomic<float>& right_;
+public:Meter(IRECT r,const std::atomic<float>& l,const std::atomic<float>& rt):IControl(r),left_(l),right_(rt){SetIgnoreMouse(true);}
+ void Draw(IGraphics& g)override{for(int i=0;i<2;++i){float value=i?right_.load():left_.load();float fill=std::clamp((20*std::log10(std::max(value,1.e-6f))+60)/60,0.f,1.f);IRECT r(mRECT.L+i*10,mRECT.T,mRECT.L+i*10+6,mRECT.B);g.FillRect(IColor(255,7,11,13),r);g.FillRect(Blue,r.GetFromBottom(r.H()*fill));g.DrawRect(Border,r);}}
+};
+class Status final:public IControl{
+ const std::atomic<float>& cpu_;const std::atomic<int>& rate_;const std::atomic<int>& voices_;
+public:Status(IRECT r,const std::atomic<float>& c,const std::atomic<int>& sr,const std::atomic<int>& v):IControl(r),cpu_(c),rate_(sr),voices_(v){SetIgnoreMouse(true);}
+ void Draw(IGraphics& g)override{char text[160];std::snprintf(text,sizeof(text),"CPU %.1f%%   |   %.1f kHz   |   %d / 16 VOICES   |   KEYBOARD / WHEELS: MIDI CH 1",cpu_.load(),rate_.load()/1000.,voices_.load());g.DrawText(IText(11,Text).WithAlign(EAlign::Near),text,mRECT);}
+};
+
 }

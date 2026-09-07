@@ -27,6 +27,8 @@ private:
   std::array<std::atomic<bool>, 128> mHeld{};
   std::array<bool, 128> mDisplayed{};
 #endif
+  std::atomic<float> mPeakL{0},mPeakR{0},mCpu{0};
+  std::atomic<int> mRate{44100},mVoiceCount{0};
   std::atomic<bool> mArpReset{false};
   std::atomic<int> mBend{8192},mMod{0};
   int mFactoryIndex = -1; // GUI-only, derived from the parameter snapshot.
