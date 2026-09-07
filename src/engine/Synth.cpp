@@ -7,6 +7,7 @@ void Synth::Reset(double rate) {
   const float sr = static_cast<float>(std::isfinite(rate) && rate >= 8000 ? rate : 44100);
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
   sustain_.fill(false); age_ = 0; gain_ = 0;
+  ampSustain_=targetAmpSustain_;
   monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;glideRemaining_=monoOrder_=0;voiceMode_=0;
   boost_=targetBoost_; protection_=1;
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
@@ -105,11 +106,14 @@ void Synth::SetOutputBoost(float dB) {
   targetBoost_=std::pow(10.f,dB/20.f);
 }
 void Synth::SetParameters(double gain, double attack, double decay, double sustain, double release) {
+  targetAmpSustain_=std::isfinite(sustain)?std::clamp(static_cast<float>(sustain),0.f,1.f):.7f;
+  // Idle setup must retain the original envelope behavior on the first note.
+  if(ActiveVoices()==0)ampSustain_=targetAmpSustain_;
   targetGain_ = static_cast<float>(std::pow(10., gain / 20.));
   for (auto& v : voices_) {
     v.env.SetAttackTime(static_cast<float>(attack * .001));
     v.env.SetDecayTime(static_cast<float>(decay * .001));
-    v.env.SetSustainLevel(static_cast<float>(sustain));
+    v.env.SetSustainLevel(ampSustain_);
     v.env.SetReleaseTime(static_cast<float>(release * .001));
   }
 }
@@ -190,6 +194,8 @@ StereoSample Synth::ProcessStereo() {
     if(std::abs(target-noiseWeights_[type])<1.e-6f)noiseWeights_[type]=target;
   }
   noiseColor_+=smoothing_*(targetNoiseColor_-noiseColor_);
+  ampSustain_+=smoothing_*(targetAmpSustain_-ampSustain_);
+  if(std::abs(targetAmpSustain_-ampSustain_)<1.e-6f)ampSustain_=targetAmpSustain_;
   StereoSample sum;
   auto lfo=lfo_.Process();const auto second=lfo2_.Process();
   lfo.cutoff+=second.cutoff;lfo.pitch+=second.pitch;lfo.amp*=second.amp;lfo.pan=std::clamp(lfo.pan+second.pan,-1.f,1.f);
@@ -213,6 +219,7 @@ StereoSample Synth::ProcessStereo() {
       if(!v.gate){v.env.Process(true);v.filterMod.Process(v.note,true);}
       v.gatePending=false;
     }
+    v.env.SetSustainLevel(ampSustain_);
     const float env = v.env.Process(v.gate);
     v.filter.Set(v.filterMod.Process(v.note,v.gate,mod_[v.channel]/127.f*modDepth_+lfo.cutoff+route[0]),resonance_,filterMix_);
     v.osc.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*routedPitch*glide*octave1);

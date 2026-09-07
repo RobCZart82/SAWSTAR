@@ -93,6 +93,7 @@ private:
   int osc1Octave_=0, osc2Octave_=0, subOctave_=-1, noiseType_=0;
   float sampleRate_=44100, noisePole_=0, colorPole_=0, noiseColor_=0, targetNoiseColor_=0;
   float boost_=1, targetBoost_=1, protection_=1, protectionRelease_=0;
+  float ampSustain_=.7f, targetAmpSustain_=.7f;
   float gain_ = 0, targetGain_ = 0.25f, smoothing_ = 0.002f;
 };
 }
