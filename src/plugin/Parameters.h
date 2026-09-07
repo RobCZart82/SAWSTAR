@@ -7,7 +7,7 @@
 namespace sawstar {
 // Persisted IDs / future iPlug2 indices: append only, never reorder or reuse.
 enum class ParameterId : std::uint32_t {
-  OutputGain = 0, AmpAttack = 1, AmpDecay = 2, AmpSustain = 3, AmpRelease = 4, SawDetune = 5, SawMix = 6, SawWidth = 7, FilterCutoff = 8, FilterResonance = 9, FilterMix = 10, FilterEnvAmount = 11, FilterKeyTrack = 12, FilterAttack = 13, FilterDecay = 14, FilterSustain = 15, FilterRelease = 16, BendRange = 17, ModDepth = 18, OutputBoost = 19, Osc1Level = 20, Osc2Level = 21, SubLevel = 22, NoiseLevel = 23, Osc2Octave = 24, SubOctave = 25, NoiseType = 26, Osc2Detune = 27, Osc2Mix = 28, Osc2Width = 29, Osc1Octave = 30, FilterDrive = 31, FilterMode = 32, Osc1Wave = 33, Osc2Wave = 34, LfoRate = 35, LfoDepth = 36, LfoShape = 37, LfoTarget = 38, LfoSync = 39, LfoDivision = 40, LfoRetrigger = 41, ChorusEnabled = 42, ChorusMix = 43, ChorusRate = 44, ChorusDepth = 45, DelayEnabled = 46, DelayMix = 47, DelayTime = 48, DelayFeedback = 49, DelayTone = 50, DelayMode = 51, DelaySync = 52, DelayDivision = 53, ReverbEnabled = 54, ReverbMix = 55, ReverbSize = 56, ReverbDecay = 57, ReverbDamping = 58, VoiceMode = 59, GlideTime = 60, GlideMode = 61, NoiseSource = 62, NoiseColor = 63
+  OutputGain = 0, AmpAttack = 1, AmpDecay = 2, AmpSustain = 3, AmpRelease = 4, SawDetune = 5, SawMix = 6, SawWidth = 7, FilterCutoff = 8, FilterResonance = 9, FilterMix = 10, FilterEnvAmount = 11, FilterKeyTrack = 12, FilterAttack = 13, FilterDecay = 14, FilterSustain = 15, FilterRelease = 16, BendRange = 17, ModDepth = 18, OutputBoost = 19, Osc1Level = 20, Osc2Level = 21, SubLevel = 22, NoiseLevel = 23, Osc2Octave = 24, SubOctave = 25, NoiseType = 26, Osc2Detune = 27, Osc2Mix = 28, Osc2Width = 29, Osc1Octave = 30, FilterDrive = 31, FilterMode = 32, Osc1Wave = 33, Osc2Wave = 34, LfoRate = 35, LfoDepth = 36, LfoShape = 37, LfoTarget = 38, LfoSync = 39, LfoDivision = 40, LfoRetrigger = 41, ChorusEnabled = 42, ChorusMix = 43, ChorusRate = 44, ChorusDepth = 45, DelayEnabled = 46, DelayMix = 47, DelayTime = 48, DelayFeedback = 49, DelayTone = 50, DelayMode = 51, DelaySync = 52, DelayDivision = 53, ReverbEnabled = 54, ReverbMix = 55, ReverbSize = 56, ReverbDecay = 57, ReverbDamping = 58, VoiceMode = 59, GlideTime = 60, GlideMode = 61, NoiseSource = 62, NoiseColor = 63, Lfo2Rate = 64, Lfo2Depth = 65, Lfo2Shape = 66, Lfo2Target = 67, Lfo2Sync = 68, Lfo2Division = 69, Lfo2Retrigger = 70, Mod1Source = 71, Mod1Target = 72, Mod1Amount = 73, Mod2Source = 74, Mod2Target = 75, Mod2Amount = 76, Mod3Source = 77, Mod3Target = 78, Mod3Amount = 79, Mod4Source = 80, Mod4Target = 81, Mod4Amount = 82
 };
 enum class Mapping { Linear, Logarithmic };
 struct ParameterSpec {
@@ -16,7 +16,7 @@ struct ParameterSpec {
   double minimum, maximum, initial;
   Mapping mapping;
 };
-inline constexpr std::array<ParameterSpec, 64> kParameters{{
+inline constexpr std::array<ParameterSpec, 83> kParameters{{
   {ParameterId::OutputGain, "output.gain_db", "Output", "dB", -60., 0., -12., Mapping::Linear},
   {ParameterId::AmpAttack, "amp.attack_ms", "Attack", "ms", 1., 10000., 10., Mapping::Logarithmic},
   {ParameterId::AmpDecay, "amp.decay_ms", "Decay", "ms", 1., 10000., 100., Mapping::Logarithmic},
@@ -80,7 +80,26 @@ inline constexpr std::array<ParameterSpec, 64> kParameters{{
   {ParameterId::GlideTime, "voice.glide_ms", "Glide", "ms", 0., 2000., 0., Mapping::Linear},
   {ParameterId::GlideMode, "voice.glide_mode", "Glide Mode", "", 0., 1., 1., Mapping::Linear},
   {ParameterId::NoiseSource, "noise.source", "Noise Source", "", 0., 3., 0., Mapping::Linear},
-  {ParameterId::NoiseColor, "noise.color", "NOISE COLOR", "%", -100., 100., 0., Mapping::Linear}
+  {ParameterId::NoiseColor, "noise.color", "NOISE COLOR", "%", -100., 100., 0., Mapping::Linear},
+  {ParameterId::Lfo2Rate, "lfo2.rate_hz", "LFO2 Rate", "Hz", 0.05, 20., 1., Mapping::Logarithmic},
+  {ParameterId::Lfo2Depth, "lfo2.depth", "LFO2 Amount", "%", 0., 100., 0., Mapping::Linear},
+  {ParameterId::Lfo2Shape, "lfo2.shape", "LFO2 Shape", "", 0., 3., 0., Mapping::Linear},
+  {ParameterId::Lfo2Target, "lfo2.target", "LFO2 Target", "", 0., 3., 0., Mapping::Linear},
+  {ParameterId::Lfo2Sync, "lfo2.sync", "LFO2 Sync", "", 0., 1., 0., Mapping::Linear},
+  {ParameterId::Lfo2Division, "lfo2.division", "LFO2 Division", "", 0., 5., 2., Mapping::Linear},
+  {ParameterId::Lfo2Retrigger, "lfo2.retrigger", "LFO2 Phase", "", 0., 1., 0., Mapping::Linear},
+  {ParameterId::Mod1Source, "mod1.source", "Mod 1 Source", "", 0., 5., 0., Mapping::Linear},
+  {ParameterId::Mod1Target, "mod1.target", "Mod 1 Target", "", 0., 4., 0., Mapping::Linear},
+  {ParameterId::Mod1Amount, "mod1.amount", "Mod 1 Amount", "%", -100., 100., 0., Mapping::Linear},
+  {ParameterId::Mod2Source, "mod2.source", "Mod 2 Source", "", 0., 5., 0., Mapping::Linear},
+  {ParameterId::Mod2Target, "mod2.target", "Mod 2 Target", "", 0., 4., 0., Mapping::Linear},
+  {ParameterId::Mod2Amount, "mod2.amount", "Mod 2 Amount", "%", -100., 100., 0., Mapping::Linear},
+  {ParameterId::Mod3Source, "mod3.source", "Mod 3 Source", "", 0., 5., 0., Mapping::Linear},
+  {ParameterId::Mod3Target, "mod3.target", "Mod 3 Target", "", 0., 4., 0., Mapping::Linear},
+  {ParameterId::Mod3Amount, "mod3.amount", "Mod 3 Amount", "%", -100., 100., 0., Mapping::Linear},
+  {ParameterId::Mod4Source, "mod4.source", "Mod 4 Source", "", 0., 5., 0., Mapping::Linear},
+  {ParameterId::Mod4Target, "mod4.target", "Mod 4 Target", "", 0., 4., 0., Mapping::Linear},
+  {ParameterId::Mod4Amount, "mod4.amount", "Mod 4 Amount", "%", -100., 100., 0., Mapping::Linear}
 }};
 
 const ParameterSpec* FindParameter(std::uint32_t id) noexcept;

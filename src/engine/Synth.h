@@ -2,6 +2,7 @@
 #pragma once
 #include "dsp/SevenSaw.h"
 #include "dsp/Lfo.h"
+#include "dsp/Modulation.h"
 #include "dsp/PinkNoise.h"
 #include "dsp/Effects/Chorus.h"
 #include "dsp/Effects/Delay.h"
@@ -20,6 +21,8 @@ public:
   void SetParameters(double gainDb, double attackMs, double decayMs, double sustain, double releaseMs);
   void SetWaveforms(int osc1,int osc2);
   void SetLfo(float hz,float depth,int shape,int target,bool sync,int division,double bpm,bool retrigger);
+  void SetLfo2(float hz,float depth,int shape,int target,bool sync,int division,double bpm,bool retrigger){lfo2_.Set(hz,depth,shape,target,sync,division,bpm,retrigger);}
+  void SetModulation(int row,int source,int target,float amount){matrix_.Set(row,source,target,amount);}
   void SetChorus(bool enabled,float mix,float hz,float depth){chorus_.Set(enabled,mix,hz,depth);}
   void SetDelay(bool on,float mix,float ms,float feedback,float tone,bool pingPong,bool sync,int division,double bpm){delay_.Set(on,mix,ms,feedback,tone,pingPong,sync,division,bpm);}
   void SetReverb(bool on,float mix,float size,float decay,float damping){reverb_.Set(on,mix,size,decay,damping);}
@@ -67,7 +70,9 @@ private:
   uint64_t glideRemaining_=0,monoOrder_=0;
   void MonoMidi(int status,int note,int value);
   void SelectMono(bool retrigger,bool allowGlide);
-  Lfo lfo_;
+  Lfo lfo_,lfo2_;
+  Modulation matrix_;
+  std::array<float,16> pressure_{},smoothPressure_{},smoothWheel_{};
   Chorus chorus_;
   Delay delay_;
   Reverb reverb_;

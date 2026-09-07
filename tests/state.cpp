@@ -10,11 +10,11 @@ int main(){
  Snapshot wanted=DefaultSnapshot();
  const double fixture[]={-23.5,23.24,780,0.42,1234, 23, 64, 82, 1900, 35, 100, 36, 80, 25, 450, .35, 800, 12, 36, 18};
  for(size_t i=0;i<20;++i)wanted[i]=fixture[i];
- wanted[21]=42;wanted[26]=1;wanted[31]=12;wanted[32]=2;wanted[33]=3;wanted[34]=1;wanted[36]=65;wanted[39]=1;wanted[42]=1;wanted[43]=31;wanted[44]=.7;wanted[45]=45;wanted[46]=1;wanted[47]=40;wanted[48]=250;wanted[49]=55;wanted[50]=3500;wanted[51]=1;wanted[52]=1;wanted[53]=2;wanted[54]=1;wanted[55]=30;wanted[56]=70;wanted[57]=4.2;wanted[58]=2500;wanted[59]=2;wanted[60]=230;wanted[61]=0;wanted[62]=3;wanted[63]=-35;
+ wanted[21]=42;wanted[26]=1;wanted[31]=12;wanted[32]=2;wanted[33]=3;wanted[34]=1;wanted[36]=65;wanted[39]=1;wanted[42]=1;wanted[43]=31;wanted[44]=.7;wanted[45]=45;wanted[46]=1;wanted[47]=40;wanted[48]=250;wanted[49]=55;wanted[50]=3500;wanted[51]=1;wanted[52]=1;wanted[53]=2;wanted[54]=1;wanted[55]=30;wanted[56]=70;wanted[57]=4.2;wanted[58]=2500;wanted[59]=2;wanted[60]=230;wanted[61]=0;wanted[62]=3;wanted[63]=-35;wanted[64]=3.5;wanted[65]=42;wanted[71]=2;wanted[72]=4;wanted[73]=-36;wanted[80]=5;wanted[81]=1;wanted[82]=29;
  Snapshot out{};
  const auto state=EncodeState(wanted);
  check(DecodeState(state.data(),state.size(),out)==state.size() && out==wanted,"roundtrip");
- check(state[8]==1 && state[12]==0 && state[13]==3 && state[16]==0,"wire fixture");
+ check(state[8]==1 && state[12]==228 && state[13]==3 && state[16]==0,"wire fixture");
  // Old v1 payload with only the original five records must keep new defaults.
  auto oldV1=std::vector<uint8_t>(state.begin(),state.begin()+76);oldV1[12]=60;oldV1[13]=0;
  check(DecodeState(oldV1.data(),oldV1.size(),out)==76 && out[1]==wanted[1] &&
@@ -47,6 +47,8 @@ int main(){
  check(DecodeState(fiftyNine.data(),fiftyNine.size(),out)==724 && out[54]==1 && out[59]==0 && out[60]==0 && out[61]==1,"old reverb state keeps poly without glide");
  auto sixtyTwo=std::vector<uint8_t>(state.begin(),state.begin()+760);sixtyTwo[12]=232;sixtyTwo[13]=2;
  check(DecodeState(sixtyTwo.data(),sixtyTwo.size(),out)==760 && out[26]==1 && out[62]==0 && out[63]==0,"old noise stays Dark with neutral color");
+ auto sixtyFour=std::vector<uint8_t>(state.begin(),state.begin()+784);sixtyFour[12]=0;sixtyFour[13]=3;
+ check(DecodeState(sixtyFour.data(),sixtyFour.size(),out)==784 && out[63]==-35 && out[65]==0 && out[71]==0 && out[82]==0,"old noise preset disables new modulation");
  // Fixture for old physical doubles: -12, 10, 100, .7, 250, little endian.
  const uint8_t old[]={0,0,0,0,0,0,40,192,0,0,0,0,0,0,36,64,0,0,0,0,0,0,89,64,
    102,102,102,102,102,102,230,63,0,0,0,0,0,64,111,64};

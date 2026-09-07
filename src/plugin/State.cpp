@@ -39,7 +39,7 @@ size_t DecodeState(const uint8_t* data, size_t size, Snapshot& output) {
   if(size>=8 && std::equal(magic.begin(),magic.end(),data)) {
     if(size<16 || Read(data+8,4)!=1) return 0;
     const size_t payload=static_cast<size_t>(Read(data+12,4));
-    if(payload>64*12 || payload%12 || payload>size-16) return 0;
+    if(payload>256*12 || payload%12 || payload>size-16) return 0;
     consumed=16+payload;
     if(size!=consumed && size!=consumed+4) return 0;
     std::array<bool,kParameters.size()> seen{};

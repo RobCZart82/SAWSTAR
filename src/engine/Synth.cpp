@@ -11,6 +11,7 @@ void Synth::Reset(double rate) {
   boost_=targetBoost_; protection_=1;
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
+  matrix_.Init(sr);pressure_.fill(0);smoothPressure_.fill(0);smoothWheel_.fill(0);lfo2_.Init(sr);
   lfo_.Init(sr);chorus_.Init(sr);delay_.Init(sr);reverb_.Init(sr);alternateWave_=false;
   noiseColor_=targetNoiseColor_=0;
   colorPole_=1.f-std::exp(-2.f*3.14159265358979323846f*1000.f/sr);
@@ -63,7 +64,7 @@ void Synth::MonoMidi(int status,int note,int value) {
   const int channel=status&15,kind=status&240,index=channel*128+note;
   if(kind==0x90&&value>0){
     bool overlap=false;for(const auto& k:monoKeys_)overlap|=k.held;
-    if(!overlap)lfo_.Trigger();
+    if(!overlap){lfo_.Trigger();lfo2_.Trigger();}
     auto& key=monoKeys_[index];key.held=true;key.latched=false;key.velocity=value;key.order=++monoOrder_;
     // Any release-only poly voices from a mode change stop before the mono note starts.
     for(size_t i=1;i<voices_.size();++i){voices_[i].note=-1;voices_[i].held=voices_[i].gate=false;}
@@ -72,7 +73,7 @@ void Synth::MonoMidi(int status,int note,int value) {
     auto& key=monoKeys_[index];if(!key.held)return;key.held=false;key.latched=sustain_[channel];
     SelectMono(false,true);
   }else if(kind==0xb0){
-    if(note==121){bend_[channel]=8192;mod_[channel]=0;UpdateBend(channel);}
+    if(note==121){pressure_[channel]=0;bend_[channel]=8192;mod_[channel]=0;UpdateBend(channel);}
     if(note==64||note==121){sustain_[channel]=note==64&&value>=64;
       if(!sustain_[channel])for(int i=channel*128;i<(channel+1)*128;++i)monoKeys_[i].latched=false;
       SelectMono(false,true);
@@ -137,11 +138,12 @@ void Synth::SetSaw(float detune,float mix,float width) {
 void Synth::Midi(int status, int note, int value) {
   const int channel = status & 15, kind = status & 240;
   if (note < 0 || note > 127 || value < 0 || value > 127) return;
+  if(kind==0xd0){pressure_[channel]=note/127.f;return;}
   if(voiceMode_!=0&&(kind==0x90||kind==0x80||(kind==0xb0&&(note==64||note==120||note==121||note==123)))){MonoMidi(status,note,value);return;}
   if(kind==0xe0){bend_[channel]=note+(value<<7);UpdateBend(channel);return;}
   if (kind == 0x90 && value > 0) {
     bool held=false;for(const auto& v:voices_)held|=v.held;
-    if(!held)lfo_.Trigger();
+    if(!held){lfo_.Trigger();lfo2_.Trigger();}
     // Repeated note retriggers one voice; idle, then oldest released, then oldest held.
     Voice* chosen = nullptr;
     for (auto& v : voices_) if (v.note == note && v.channel == channel) { chosen = &v; break; }
@@ -162,7 +164,7 @@ void Synth::Midi(int status, int note, int value) {
     }
   } else if (kind == 0xB0) {
     if(note==1){mod_[channel]=value;return;}
-    if(note==121){bend_[channel]=8192;mod_[channel]=0;UpdateBend(channel);}
+    if(note==121){pressure_[channel]=0;bend_[channel]=8192;mod_[channel]=0;UpdateBend(channel);}
     if (note == 64 || note == 121) {
       sustain_[channel] = note == 64 && value >= 64;
       if (!sustain_[channel]) for (auto& v : voices_) if (v.channel == channel && !v.held) v.gate = false;
@@ -178,13 +180,18 @@ void Synth::Midi(int status, int note, int value) {
 StereoSample Synth::ProcessStereo() {
   noiseColor_+=smoothing_*(targetNoiseColor_-noiseColor_);
   StereoSample sum;
-  const auto lfo=lfo_.Process();
+  auto lfo=lfo_.Process();const auto second=lfo2_.Process();
+  lfo.cutoff+=second.cutoff;lfo.pitch+=second.pitch;lfo.amp*=second.amp;lfo.pan=std::clamp(lfo.pan+second.pan,-1.f,1.f);
+  matrix_.Process();
+  for(int ch=0;ch<16;++ch){smoothWheel_[ch]+=smoothing_*(mod_[ch]/127.f-smoothWheel_[ch]);smoothPressure_[ch]+=smoothing_*(pressure_[ch]-smoothPressure_[ch]);}
   const float vibrato=lfo.pitch==0?1.f:std::exp2(lfo.pitch/12.f);
   for(size_t i=0;i<4;++i)levels_[i]+=smoothing_*(targetLevels_[i]-levels_[i]);
   for(int ch=0;ch<16;++ch)bendRatio_[ch]+=smoothing_*(bendTarget_[ch]-bendRatio_[ch]);
   if(voiceMode_!=0&&glideRemaining_){monoPitch_+=monoStep_;if(--glideRemaining_==0)monoPitch_=monoTarget_;}
   const float monoRatio=voiceMode_!=0?static_cast<float>(std::exp2((monoPitch_-69)/12.)):1;
   for (auto& v : voices_) if (v.note >= 0) {
+    const auto route=matrix_.Evaluate({lfo_.Value(),lfo2_.Value(),smoothWheel_[v.channel],v.velocity,smoothPressure_[v.channel]});
+    const float routedPitch=route[1]==0?1.f:std::exp2(route[1]/12.f);
     const float glide=(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_)?monoRatio:1.f;
     // DaisySP detects release from a gate edge. Preserve a zero-length MIDI
     // note's edge when note-on and note-off arrive before its first sample.
@@ -193,10 +200,10 @@ StereoSample Synth::ProcessStereo() {
       v.gatePending=false;
     }
     const float env = v.env.Process(v.gate);
-    v.filter.Set(v.filterMod.Process(v.note,v.gate,mod_[v.channel]/127.f*modDepth_+lfo.cutoff),resonance_,filterMix_);
-    v.osc.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*glide*std::exp2(static_cast<float>(osc1Octave_)));
-    v.osc2.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*glide*std::exp2(static_cast<float>(osc2Octave_)));
-    v.sub.SetFreq(std::min(v.fundamental*bendRatio_[v.channel]*vibrato*glide*std::exp2(static_cast<float>(subOctave_)),sampleRate_*.45f));
+    v.filter.Set(v.filterMod.Process(v.note,v.gate,mod_[v.channel]/127.f*modDepth_+lfo.cutoff+route[0]),resonance_,filterMix_);
+    v.osc.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*routedPitch*glide*std::exp2(static_cast<float>(osc1Octave_)));
+    v.osc2.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*routedPitch*glide*std::exp2(static_cast<float>(osc2Octave_)));
+    v.sub.SetFreq(std::min(v.fundamental*bendRatio_[v.channel]*vibrato*routedPitch*glide*std::exp2(static_cast<float>(subOctave_)),sampleRate_*.45f));
     const auto one=v.osc.Process(),two=v.osc2.Process();
     const float sub=v.sub.Process();
     // Per-voice deterministic xorshift; no global RNG, allocation or shared lock.
@@ -206,15 +213,17 @@ StereoSample Synth::ProcessStereo() {
     const float pink=v.pink.Process();
     const float source=noiseType_==2?pink:(noiseType_==1?v.darkNoise:white);
     v.noiseLow+=colorPole_*(source-v.noiseLow);
-    const float colored=noiseColor_<0?v.noiseLow:source-v.noiseLow;
-    const float noise=source+std::abs(noiseColor_)*(colored-source);
+    const float color=std::clamp(noiseColor_+route[4],-1.f,1.f);
+    const float colored=color<0?v.noiseLow:source-v.noiseLow;
+    const float noise=source+std::abs(color)*(colored-source);
     const float center=sub*levels_[2]+noise*levels_[3];
     const StereoSample mixed{one.left*levels_[0]+two.left*levels_[1]+center,
                              one.right*levels_[0]+two.right*levels_[1]+center};
     const auto value=v.filter.Process(mixed);
     float velocity=v.velocity;
     if(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_){monoVelocity_+=smoothing_*(v.velocity-monoVelocity_);velocity=monoVelocity_;}
-    sum.left+=value.left*env*velocity;sum.right+=value.right*env*velocity;
+    const float routedAmp=1+route[2];
+    sum.left+=value.left*env*velocity*routedAmp*std::sqrt(1-route[3]);sum.right+=value.right*env*velocity*routedAmp*std::sqrt(1+route[3]);
     if (!v.gate && !v.env.IsRunning()) v.note = -1;
   }
   gain_ += smoothing_ * (targetGain_ - gain_);

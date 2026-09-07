@@ -25,6 +25,7 @@ public:
   for(int i=0;i<4;++i)depths_[i]+=slew_*((i==target_?depth_:0)-depths_[i]);
   return {value_*depths_[0]*24, value_*depths_[1],1-depths_[2]*(value_+1)*.5f,value_*depths_[3]};
  }
+ float Value()const{return value_;}
  double Phase()const{return phase_;}
 private:
  static float Safe(float x,float lo,float hi){return std::isfinite(x)?std::clamp(x,lo,hi):lo;}

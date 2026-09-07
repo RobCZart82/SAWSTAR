@@ -19,7 +19,12 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
 : Plugin(info, MakeConfig(static_cast<int>(sawstar::kParameters.size()), 1)) {
   for (const auto& spec : sawstar::kParameters) {
     auto* param = GetParam(static_cast<int>(spec.id));
-    if(spec.id==sawstar::ParameterId::Osc1Wave||spec.id==sawstar::ParameterId::Osc2Wave)
+    const int id=static_cast<int>(spec.id);
+    if(id>=71 && (id-71)%3==0)
+      param->InitEnum(spec.name.data(),0,6,"",IParam::kFlagsNone,"Modulation","Off","LFO 1","LFO 2","Mod Wheel","Velocity","Aftertouch");
+    else if(id>=71 && (id-71)%3==1)
+      param->InitEnum(spec.name.data(),0,5,"",IParam::kFlagsNone,"Modulation","Filter Cutoff","Pitch","Amp Level","Pan","Noise Color");
+    else if(spec.id==sawstar::ParameterId::Osc1Wave||spec.id==sawstar::ParameterId::Osc2Wave)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Oscillator","Saw","Square","Triangle","Sine");
     else if(spec.id==sawstar::ParameterId::VoiceMode)
       param->InitEnum(spec.name.data(),0,3,"",IParam::kFlagsNone,"Performance","Poly","Mono","Legato");
@@ -37,15 +42,15 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       param->InitEnum(spec.name.data(),3,7,"",IParam::kFlagsNone,"Delay","1/16","1/8","1/8 dotted","1/4","1/4 dotted","1/2","1/1");
     else if(spec.id==sawstar::ParameterId::ChorusEnabled)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Effects","Off","On");
-    else if(spec.id==sawstar::ParameterId::LfoShape)
+    else if(spec.id==sawstar::ParameterId::LfoShape||spec.id==sawstar::ParameterId::Lfo2Shape)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"LFO","Sine","Triangle","Ramp","Square");
-    else if(spec.id==sawstar::ParameterId::LfoTarget)
+    else if(spec.id==sawstar::ParameterId::LfoTarget||spec.id==sawstar::ParameterId::Lfo2Target)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"LFO","Filter Cutoff","Pitch","Amp Level","Pan");
-    else if(spec.id==sawstar::ParameterId::LfoSync)
+    else if(spec.id==sawstar::ParameterId::LfoSync||spec.id==sawstar::ParameterId::Lfo2Sync)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"LFO","Free Hz","Tempo Sync");
-    else if(spec.id==sawstar::ParameterId::LfoDivision)
+    else if(spec.id==sawstar::ParameterId::LfoDivision||spec.id==sawstar::ParameterId::Lfo2Division)
       param->InitEnum(spec.name.data(),2,6,"",IParam::kFlagsNone,"LFO","1/1","1/2","1/4","1/8","1/16","1/32");
-    else if(spec.id==sawstar::ParameterId::LfoRetrigger)
+    else if(spec.id==sawstar::ParameterId::LfoRetrigger||spec.id==sawstar::ParameterId::Lfo2Retrigger)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"LFO","Free phase","Retrigger first key");
     else if (spec.id == sawstar::ParameterId::FilterMode)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Filter","Low Pass 12","Low Pass 24","High Pass 12","Band Pass 12");
@@ -97,12 +102,14 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
     static const char* titles[] = {"MAIN", "ADVANCED", "PRESETS"};
     static const char* groups[] = {"main", "advanced", "presets"};
-    static const char* fxGroups[] = {"fx-chorus", "fx-delay", "fx-reverb"};
+    static const char* fxGroups[] = {"fx-chorus", "fx-delay", "fx-reverb", "modulation"};
     auto selectPage = [this, g](int page) {
       mPage = page;
       for (int i = 0; i < 3; ++i)
         g->ForControlInGroup(groups[i], [i, page](IControl* c) { c->Hide(i != page); });
-      for(int i=0;i<3;++i)g->ForControlInGroup(fxGroups[i],[this,i,page](IControl* c){c->Hide(page!=1||mFxPage!=i);});
+      for(int i=0;i<4;++i)g->ForControlInGroup(fxGroups[i],[this,i,page](IControl* c){c->Hide(page!=1||mFxPage!=i);});
+      g->ForControlInGroup("lfo1",[this,page](IControl* c){c->Hide(page!=1||mLfoPage!=0);});
+      g->ForControlInGroup("lfo2",[this,page](IControl* c){c->Hide(page!=1||mLfoPage!=1);});
       g->SetAllControlsDirty();
     };
     for (int i = 0; i < 3; ++i)
@@ -130,19 +137,24 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       const char* label=id==5?"OSC1 Detune":id==6?"OSC1 Unison":id==7?"OSC1 Width":sawstar::kParameters[id].name.data();
       g->AttachControl(new IVKnobControl(IRECT(x,y,x+118,y+64),id,label,knobStyle,true),kNoTag,"main");
     }
-    g->AttachControl(new ITextControl(IRECT(25,92,490,120),"LFO + PERFORMANCE",IText(20,accent)),kNoTag,"advanced");
-    const int menus[]={37,38,39,40};
-    for(int i=0;i<4;++i){float x=25.f+(i%2)*235,y=125.f+(i/2)*48;
-      g->AttachControl(new IVMenuButtonControl(IRECT(x,y,x+220,y+44),menus[i],sawstar::kParameters[menus[i]].name.data(),menuStyle),kNoTag,"advanced");}
-    const int knobs[]={35,36,17,18};
-    for(int i=0;i<4;++i){float x=25.f+(i%2)*235,y=223.f+(i/2)*59;
-      g->AttachControl(new IVKnobControl(IRECT(x,y,x+220,y+56),knobs[i],sawstar::kParameters[knobs[i]].name.data(),knobStyle,true),kNoTag,"advanced");}
-    g->AttachControl(new IVMenuButtonControl(IRECT(25,345,245,381),41,"LFO Phase",menuStyle),kNoTag,"advanced");
+    for(int bank=0;bank<2;++bank){
+      g->AttachControl(new sawstar::gui::PageButton(IRECT(25.f+bank*235,92,245.f+bank*235,121),bank?"LFO 2":"LFO 1",bank,mLfoPage,[this,selectPage,bank](){mLfoPage=bank;selectPage(mPage);}),kNoTag,"advanced");
+      const char* group=bank?"lfo2":"lfo1";
+      const int base=bank?64:35;
+      const int menus[]={base+2,base+3,base+4,base+5};
+      for(int i=0;i<4;++i){float x=25.f+(i%2)*235,y=125.f+(i/2)*48;
+        g->AttachControl(new IVMenuButtonControl(IRECT(x,y,x+220,y+44),menus[i],sawstar::kParameters[menus[i]].name.data(),menuStyle),kNoTag,group);}
+      for(int i=0;i<2;++i){float x=25.f+i*235;
+        g->AttachControl(new IVKnobControl(IRECT(x,223,x+220,279),base+i,i?"Amount":"Rate",knobStyle,true),kNoTag,group);}
+      g->AttachControl(new IVMenuButtonControl(IRECT(25,345,245,381),base+6,"LFO Phase",menuStyle),kNoTag,group);
+    }
+    for(int i=0;i<2;++i){float x=25.f+i*235;
+      g->AttachControl(new IVKnobControl(IRECT(x,282,x+220,338),17+i,sawstar::kParameters[17+i].name.data(),knobStyle,true),kNoTag,"advanced");}
     g->AttachControl(new IVMenuButtonControl(IRECT(260,345,480,381),59,"",menuStyle),kNoTag,"advanced");
     g->AttachControl(new IVSliderControl(IRECT(25,385,245,437),60,"Glide (Mono/Legato)",knobStyle,true,EDirection::Horizontal),kNoTag,"advanced");
     g->AttachControl(new IVMenuButtonControl(IRECT(260,395,480,435),61,"",menuStyle),kNoTag,"advanced");
-    const char* fxTitles[]={"CHORUS","DELAY","REVERB"};
-    for(int i=0;i<3;++i)g->AttachControl(new sawstar::gui::PageButton(IRECT(520.f+i*160,92,675.f+i*160,127),fxTitles[i],i,mFxPage,[this,selectPage,i](){mFxPage=i;selectPage(mPage);}),kNoTag,"advanced");
+    const char* fxTitles[]={"CHORUS","DELAY","REVERB","MODULATION"};
+    for(int i=0;i<4;++i)g->AttachControl(new sawstar::gui::PageButton(IRECT(520.f+i*120,92,636.f+i*120,127),fxTitles[i],i,mFxPage,[this,selectPage,i](){mFxPage=i;selectPage(mPage);}),kNoTag,"advanced");
     g->AttachControl(new IVMenuButtonControl(IRECT(520,150,665,195),42,"",menuStyle),kNoTag,"fx-chorus");
     g->AttachControl(new IVSliderControl(IRECT(685,145,995,205),43,"Chorus Mix",knobStyle,true,EDirection::Horizontal),kNoTag,"fx-chorus");
     for(int i=0;i<2;++i)g->AttachControl(new IVSliderControl(IRECT(520.f+i*245,225,750.f+i*245,285),44+i,sawstar::kParameters[44+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"fx-chorus");
@@ -156,6 +168,12 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     for(int i=0;i<4;++i){float x=520.f+(i%2)*245,y=215.f+(i/2)*80;
       g->AttachControl(new IVSliderControl(IRECT(x,y,x+230,y+60),55+i,sawstar::kParameters[55+i].name.data(),knobStyle,true,EDirection::Horizontal),kNoTag,"fx-reverb");}
     g->AttachControl(new ITextControl(IRECT(520,380,995,420),"Lower Damping Hz makes the reverb darker.",IText(13,light)),kNoTag,"fx-reverb");
+    g->AttachControl(new ITextControl(IRECT(520,135,995,158),"SOURCE                 DESTINATION                 AMOUNT",IText(12,light)),kNoTag,"modulation");
+    for(int row=0;row<4;++row){const int id=71+row*3;const float y=165.f+row*62;
+      g->AttachControl(new IVMenuButtonControl(IRECT(520,y,670,y+52),id,"",menuStyle),kNoTag,"modulation");
+      g->AttachControl(new IVMenuButtonControl(IRECT(679,y,864,y+52),id+1,"",menuStyle),kNoTag,"modulation");
+      g->AttachControl(new IVKnobControl(IRECT(880,y,995,y+56),id+2,"",knobStyle,true),kNoTag,"modulation");}
+    g->AttachControl(new ITextControl(IRECT(520,415,995,438),"Off disables a row. Negative amounts invert its effect.",IText(12,light)),kNoTag,"modulation");
     g->AttachControl(new ITextControl(IRECT(35,100,989,133),
       "FACTORY LIBRARY + LEARNING",IText(22,accent)),kNoTag,"presets");
     for(int i=0;i<static_cast<int>(sawstar::FactoryPresets().size());++i)
@@ -184,6 +202,8 @@ void SAWSTAR::OnReset() {
   for (auto& held : mHeld) held.store(false, std::memory_order_relaxed);
 }
 void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
+  mSynth.SetLfo2(GetParam(64)->Value(),GetParam(65)->Value(),GetParam(66)->Int(),GetParam(67)->Int(),GetParam(68)->Int()!=0,GetParam(69)->Int(),GetTempo(),GetParam(70)->Int()!=0);
+  for(int row=0;row<4;++row){const int id=71+row*3;mSynth.SetModulation(row,GetParam(id)->Int(),GetParam(id+1)->Int(),GetParam(id+2)->Value());}
   mSynth.SetVoiceMode(GetParam(59)->Int(),GetParam(60)->Value(),GetParam(61)->Int()!=0);
   mSynth.SetParameters(GetParam(0)->Value(), GetParam(1)->Value(), GetParam(2)->Value(),
                        GetParam(3)->Value(), GetParam(4)->Value());
