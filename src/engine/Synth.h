@@ -56,7 +56,7 @@ private:
   struct MonoKey { bool held=false,latched=false; int velocity=0; uint64_t order=0; };
   std::array<MonoKey,2048> monoKeys_{};
   int voiceMode_=0,monoKey_=-1;
-  bool overlapOnly_=true,monoPitchValid_=false;
+  bool overlapOnly_=true,monoPitchValid_=false,monoGatePending_=false;
   float glideMs_=0,monoVelocity_=0;
   double monoPitch_=69,monoTarget_=69,monoStep_=0;
   uint64_t glideRemaining_=0,monoOrder_=0;

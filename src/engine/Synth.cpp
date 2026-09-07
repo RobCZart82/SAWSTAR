@@ -7,7 +7,7 @@ void Synth::Reset(double rate) {
   const float sr = static_cast<float>(std::isfinite(rate) && rate >= 8000 ? rate : 44100);
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
   sustain_.fill(false); age_ = 0; gain_ = 0;
-  monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;glideRemaining_=monoOrder_=0;voiceMode_=0;
+  monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;monoGatePending_=false;glideRemaining_=monoOrder_=0;voiceMode_=0;
   boost_=targetBoost_; protection_=1;
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
@@ -28,7 +28,7 @@ void Synth::SetVoiceMode(int mode,float glideMs,bool overlapOnly) {
     if(voiceMode_!=0&&monoPitchValid_&&voices_[0].note>=0){auto& v=voices_[0];v.fundamental=static_cast<float>(440*std::exp2((monoPitch_-69)/12.));v.osc.SetFreq(v.fundamental);v.osc2.SetFreq(v.fundamental);}
     // A mode change starts a new key phrase; release current sources safely.
     for(auto& v:voices_){v.held=v.gate=false;}
-    monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;glideRemaining_=0;
+    monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;monoGatePending_=false;glideRemaining_=0;
     voiceMode_=mode;
   }
   if(glideMs_==0){monoPitch_=monoTarget_;glideRemaining_=0;}
@@ -55,7 +55,7 @@ void Synth::SelectMono(bool retrigger,bool allowGlide) {
   if(!wasRunning){v.filter.Clear();monoVelocity_=monoKeys_[selected].velocity/127.f;}
   v.note=note;v.channel=ch;v.held=monoKeys_[selected].held;v.gate=true;
   v.velocity=monoKeys_[selected].velocity/127.f;v.fundamental=440;v.osc.SetFreq(440);v.osc2.SetFreq(440);
-  if(retrigger||!wasRunning){v.env.Retrigger(false);v.filterMod.Trigger(!wasRunning);}
+  if(retrigger||!wasRunning){v.env.Retrigger(false);v.filterMod.Trigger(!wasRunning);monoGatePending_=true;}
 }
 void Synth::MonoMidi(int status,int note,int value) {
   const int channel=status&15,kind=status&240,index=channel*128+note;
@@ -183,6 +183,12 @@ StereoSample Synth::ProcessStereo() {
   const float monoRatio=voiceMode_!=0?static_cast<float>(std::exp2((monoPitch_-69)/12.)):1;
   for (auto& v : voices_) if (v.note >= 0) {
     const float glide=(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_)?monoRatio:1.f;
+    // DaisySP detects release from a gate edge. Preserve a zero-length MIDI
+    // note's edge when note-on and note-off arrive before its first sample.
+    if(voiceMode_!=0 && &v==&voices_[0] && monoGatePending_){
+      if(!v.gate){v.env.Process(true);v.filterMod.Process(v.note,true);}
+      monoGatePending_=false;
+    }
     const float env = v.env.Process(v.gate);
     v.filter.Set(v.filterMod.Process(v.note,v.gate,mod_[v.channel]/127.f*modDepth_+lfo.cutoff),resonance_,filterMix_);
     v.osc.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*glide*std::exp2(static_cast<float>(osc1Octave_)));
