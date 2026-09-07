@@ -2,7 +2,7 @@
 #include "SAWSTAR.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
-#include "IVKeyboardControl.h"
+#include "gui/Controls/Keyboard.h"
 #include "plugin/Parameters.h"
 #include "plugin/State.h"
 #include "gui/Controls/PageButton.h"
@@ -169,7 +169,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     g->AttachControl(new sawstar::gui::PerformanceWheel(IRECT(62,450,96,497),false));
     g->AttachControl(new ITextControl(IRECT(17,497,57,514),"PITCH",IText(10,light)));
     g->AttachControl(new ITextControl(IRECT(59,497,99,514),"MOD",IText(10,light)));
-    g->AttachControl(new IVKeyboardControl(IRECT(104, 450, 1004, 514), 36, 96, false,
+    g->AttachControl(new sawstar::gui::Keyboard(IRECT(104, 450, 1004, 514), 36, 96, false,
       IColor(255, 117, 137, 147), IColor(255, 22, 40, 50), accent,
       IColor(255, 9, 26, 38), light));
     selectPage(mPage);

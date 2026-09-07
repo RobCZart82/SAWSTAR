@@ -6,11 +6,11 @@
 void check(bool ok,const char* why){if(!ok){std::cerr<<why<<'\n';std::exit(1);}}
 int main(){
  for(float sr:{44100.f,48000.f,96000.f})for(int mode=0;mode<3;++mode){
-  for(int ending:{0,1,2,3}){
+  for(int samples:{0,1})for(int ending:{0,1,2,3}){
    sawstar::Synth s;s.Reset(sr);s.SetVoiceMode(mode,0,true);s.SetParameters(0,1,1,.8,10);
    s.SetFilterEnvelope(36,0,1,1,.7,10);
    // Entire mouse glissando arrives between audio samples; also exceeds polyphony.
-   for(int note=36;note<97;++note){s.Midi(0x90,note,100);
+   for(int note=36;note<97;++note){s.Midi(0x90,note,100);for(int i=0;i<samples;++i)s.Process();
     if(ending==0)s.Midi(0x80,note,0);
     if(ending==1)s.Midi(0x90,note,0);
    }
