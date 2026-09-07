@@ -38,3 +38,12 @@ Tests: impulse response, stereo energy, decay/size/damping response, automation,
 bypass/zero Mix, cleared history, reset, invalid inputs and old-state migration;
 Soft Pad One dry identity and audible bounded reverb. DSP tests cover
 44.1/48/96/192 kHz. Manual listening/UI/REAPER restart validation remains pending.
+
+## Validation — 2026-09-07
+
+Tested code `e6fed9af5cf196b182b74a97dd79324c1e2259c5`:
+[macOS CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34136379721) and
+[Windows CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34136379850)
+passed all 16 test executables in Debug/Release and all 47 VST3 validator checks.
+Both development archives include the existing distribution license notices.
+Manual REAPER UI/listening/project-restart testing of this build remains pending.
