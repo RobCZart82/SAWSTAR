@@ -7,7 +7,7 @@
 namespace sawstar::gui {
 using namespace iplug::igraphics;
 inline const IColor Text(255,225,234,238),Blue(255,54,170,226),PanelColor(255,20,26,29),Border(255,48,61,67);
-inline IVStyle Style(){return DEFAULT_STYLE.WithColor(kBG,PanelColor).WithColor(kFG,IColor(255,36,45,50)).WithColor(kFR,Border).WithColor(kHL,Blue).WithColor(kX1,Blue).WithColor(kX2,Text).WithColor(kX3,Blue).WithDrawShadows(false).WithRoundness(.12f).WithLabelText(IText(11,Text)).WithValueText(IText(11,Text));}
+inline IVStyle Style(){return DEFAULT_STYLE.WithColor(kBG,PanelColor).WithColor(kFG,IColor(255,36,45,50)).WithColor(kFR,Border).WithColor(kHL,Blue).WithColor(kX1,Blue).WithColor(kX2,Text).WithColor(kX3,Blue).WithDrawShadows(false).WithRoundness(.12f).WithLabelText(IText(11,Text)).WithValueText(IText(10,Text).WithVAlign(EVAlign::Bottom));}
 class Section final:public IControl{
  const char* title_;IColor color_;bool tint_;
 public: Section(IRECT r,const char* title,IColor color=Blue,bool tint=false):IControl(r),title_(title),color_(color),tint_(tint){SetIgnoreMouse(true);}
@@ -17,6 +17,7 @@ public: Section(IRECT r,const char* title,IColor color=Blue,bool tint=false):ICo
 };
 class Knob final:public IVKnobControl{
 public:Knob(IRECT r,int id,const char* title):IVKnobControl(r,id,title,Style(),true){}
+ void DrawValue(IGraphics& g,bool)override{char value[32];const double v=GetParam()->Value();std::snprintf(value,sizeof(value),std::abs(v)>=100?"%.0f":"%.1f",v);g.DrawText(mStyle.valueText,value,mValueBounds);}
  void DrawWidget(IGraphics& g)override{const float radius=std::min(18.f,GetRadius()),cx=mWidgetBounds.MW(),cy=mWidgetBounds.MH();
  const float a=-135.f+270.f*GetValue();
  g.FillCircle(IColor(255,10,14,17),cx,cy,radius);g.DrawCircle(Border,cx,cy,radius,nullptr,2);
@@ -26,6 +27,7 @@ public:Knob(IRECT r,int id,const char* title):IVKnobControl(r,id,title,Style(),t
 };
 class Fader final:public IVSliderControl{
 public:Fader(IRECT r,int id,const char* title,EDirection dir=EDirection::Vertical):IVSliderControl(r,id,title,Style(),true,dir,DEFAULT_GEARING,8,3,true){}
+ void DrawValue(IGraphics& g,bool)override{char value[32];const double v=GetParam()->Value();std::snprintf(value,sizeof(value),"%.1f",v);g.DrawText(mStyle.valueText,value,mValueBounds);}
  void DrawHandle(IGraphics& g,const IRECT& r)override{auto b=r.GetCentredInside(mDirection==EDirection::Vertical?17:10,mDirection==EDirection::Vertical?10:17);g.FillRoundRect(Blue,b,2);g.DrawRoundRect(IColor(255,110,205,242),b,2);}
  void DrawTrack(IGraphics& g,const IRECT& filled)override{const auto r=GetTrackBounds();
  for(int i=0;i<=8;++i){if(mDirection==EDirection::Vertical){float y=r.T+r.H()*i/8;g.DrawLine(Border,r.MW()-7,y,r.MW()+7,y);}else{float x=r.L+r.W()*i/8;g.DrawLine(Border,x,r.MH()-6,x,r.MH()+6);}}
