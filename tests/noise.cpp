@@ -35,6 +35,22 @@ int main(){
   for(int type=0;type<3;++type){auto neutral=render(sr,type,0),dark=render(sr,type,-100),bright=render(sr,type,100);
    check(dark.difference/dark.total<neutral.difference/neutral.total*.7,"negative color darkens spectrum");
    check(bright.difference/bright.total>neutral.difference/neutral.total*1.03,"positive color brightens spectrum");}
+  // A/B renders share the same random sequences. Compare switched output to
+  // an unchanged reference: switching itself must add only a small first step.
+  for(int from=0;from<3;++from)for(int to=0;to<3;++to)if(from!=to){
+    sawstar::Synth moving,steady,destination;
+    for(auto* s:{&moving,&steady,&destination}){s->Reset(sr);s->SetParameters(0,1,1,1,20);s->SetOutputBoost(18);s->SetMixer(0,0,0,100,0,-1,from,0);s->Midi(0x90,60,127);}
+    destination.SetMixer(0,0,0,100,0,-1,to,0);
+    for(int i=0;i<int(sr)/2;++i){moving.Process();steady.Process();destination.Process();}
+    moving.SetMixer(0,0,0,100,0,-1,to,0);
+    double changed=0;
+    for(int i=0;i<int(sr)/5;++i){float x=moving.Process(),y=steady.Process(),z=destination.Process();
+      if(i==0)check(std::abs(x-y)<.01f,"noise selection has a smooth first sample");
+      if(i>sr*.15f)check(std::abs(x-z)<1.e-5f,"noise selection settles to destination");
+      changed+=std::abs(x-y);
+    }
+    check(changed>1,"noise type still changes the sound");
+  }
   sawstar::Synth a,b;a.Reset(sr);b.Reset(sr);b.SetNoiseColor(100);a.Midi(0x90,60,127);b.Midi(0x90,60,127);
   for(int i=0;i<8192;++i)check(a.Process()==b.Process(),"noise color leaves oscillators unchanged");
  }

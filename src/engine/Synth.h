@@ -86,6 +86,7 @@ private:
   float cutoff_=12000, resonance_=0, filterMix_=0;
   float amount_=0, tracking_=0, filterAttack_=10, filterDecay_=200, filterSustain_=0, filterRelease_=250;
   std::array<float,4> levels_{{1,0,0,0}}, targetLevels_{{1,0,0,0}};
+  std::array<float,3> noiseWeights_{{1,0,0}};
   int osc1Octave_=0, osc2Octave_=0, subOctave_=-1, noiseType_=0;
   float sampleRate_=44100, noisePole_=0, colorPole_=0, noiseColor_=0, targetNoiseColor_=0;
   float boost_=1, targetBoost_=1, protection_=1, protectionRelease_=0;

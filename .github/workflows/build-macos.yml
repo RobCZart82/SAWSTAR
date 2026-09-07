@@ -31,6 +31,9 @@ jobs:
       - name: Test
         run: ctest --test-dir build -C ${{ matrix.config }} --output-on-failure
 
+      - name: Report source level and high-register measurements
+        if: matrix.config == 'Release'
+        run: ctest --test-dir build -C Release -R '^source_quality$' --verbose
       - name: Compare audio CPU and level measurements
         if: matrix.config == 'Release'
         run: python scripts/benchmark-audio.py

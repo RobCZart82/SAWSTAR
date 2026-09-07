@@ -17,6 +17,7 @@ void Synth::Reset(double rate) {
   colorPole_=1.f-std::exp(-2.f*3.14159265358979323846f*1000.f/sr);
   sampleRate_=sr; noisePole_=1.f-std::exp(-2.f*3.14159265358979323846f*1200.f/sr);
   levels_=targetLevels_;
+  noiseWeights_.fill(0);noiseWeights_[noiseType_]=1;
   uint32_t seed=0x9e3779b9u;
   for (auto& v : voices_) {
     v = Voice{}; v.noiseState=seed; v.pink.Reset(seed^0xa341316cu); seed+=0x9e3779b9u;
@@ -178,6 +179,13 @@ void Synth::Midi(int status, int note, int value) {
   }
 }
 StereoSample Synth::ProcessStereo() {
+  // Crossfade types with the same 5 ms time constant as the mixer controls.
+  // Keep all source histories running so a new selection needs no cold start.
+  for(int type=0;type<3;++type){
+    const float target=type==noiseType_?1.f:0.f;
+    noiseWeights_[type]+=smoothing_*(target-noiseWeights_[type]);
+    if(std::abs(target-noiseWeights_[type])<1.e-6f)noiseWeights_[type]=target;
+  }
   noiseColor_+=smoothing_*(targetNoiseColor_-noiseColor_);
   StereoSample sum;
   auto lfo=lfo_.Process();const auto second=lfo2_.Process();
@@ -214,7 +222,7 @@ StereoSample Synth::ProcessStereo() {
     const float white=static_cast<float>(random>>8)*(2.f/16777216.f)-1.f;
     v.darkNoise+=noisePole_*(white-v.darkNoise);
     const float pink=v.pink.Process();
-    const float source=noiseType_==2?pink:(noiseType_==1?v.darkNoise:white);
+    const float source=white*noiseWeights_[0]+v.darkNoise*noiseWeights_[1]+pink*noiseWeights_[2];
     v.noiseLow+=colorPole_*(source-v.noiseLow);
     const float color=std::clamp(noiseColor_+route[4],-1.f,1.f);
     const float colored=color<0?v.noiseLow:source-v.noiseLow;
