@@ -33,3 +33,15 @@ The preset remains unchanged until the user saves an edited sound.
 
 IDs/defaults: 59 voice.mode = Poly; 60 voice.glide_ms = 0;
 61 voice.glide_mode = Overlap only.
+
+## Validation — 2026-09-07
+
+Tested code `154bb141b680c914124911b63c354f20b204df38`:
+[macOS CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34137756744) and
+[Windows CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34137756808)
+passed all 17 tests in Debug/Release and all 47 VST3 validator checks.
+Regression coverage includes note-on/off and mode changes before the first
+sample, repeated notes, channel isolation, sustain/controller reset/panic,
+measured glide pitch, mono/legato envelope behavior and Poly audio identity.
+Pitch/playing tests run at 44.1/48/96 kHz. Manual REAPER playing, UI and
+project-restart checks for this build remain pending.
