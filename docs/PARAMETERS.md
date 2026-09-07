@@ -155,3 +155,13 @@ Negative values blend toward a 1 kHz low-pass; positive values toward its
 high-pass complement. It affects only noise, before the mixer and voice filter.
 NOISE remains the independent level fader. Color changes are smoothed.
 Older project/preset records load Follow legacy and neutral color.
+
+### LFO2 and modulation (appended IDs)
+
+64–70: `lfo2.rate_hz`, `lfo2.depth`, `lfo2.shape`, `lfo2.target`, `lfo2.sync`,
+`lfo2.division`, `lfo2.retrigger`; same ranges/defaults as LFO1 (35–41).
+71–82: four triples `modN.source`, `modN.target`, `modN.amount` (N=1..4).
+Source: 0 Off, 1 LFO1, 2 LFO2, 3 Mod Wheel, 4 Velocity, 5 Channel Aftertouch.
+Target: 0 Cutoff, 1 Pitch, 2 Amp, 3 Pan, 4 Noise Color.
+Amount: -100..100%, default 0. Source and target default 0.
+See MODULATION.md for routing scales, smoothing and interaction with direct LFOs.

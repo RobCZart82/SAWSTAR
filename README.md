@@ -131,3 +131,7 @@ Mono/Legato and Glide are available on ADVANCED. See [performance modes](docs/MO
 Noise: White, Dark and Pink sources are available in MAIN's mixer, with an
 independent bipolar NOISE COLOR control (0 = original source). Existing presets
 retain their White/Dark source and neutral color.
+
+ADVANCED now includes two independent LFOs with a shared LFO 1 / LFO 2 editor,
+and four source/destination/amount modulation rows. New routes are disabled by
+default. See [Modulation](docs/MODULATION.md) for controls and compatibility.

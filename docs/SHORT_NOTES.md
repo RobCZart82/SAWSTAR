@@ -33,3 +33,7 @@ The VST3 validator passed 47 tests on each platform, with no failures.
 
 - [macOS](https://github.com/RobCZart82/SAWSTAR/actions/runs/34145920890)
 - [Windows](https://github.com/RobCZart82/SAWSTAR/actions/runs/34145920886)
+
+The user subsequently confirmed in REAPER that the short-note sticking issue
+was resolved in the short-note fix build. Newer modulation builds still require
+their own manual host check.
