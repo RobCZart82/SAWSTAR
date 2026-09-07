@@ -21,6 +21,7 @@ public:
   void SetChorus(bool enabled,float mix,float hz,float depth){chorus_.Set(enabled,mix,hz,depth);}
   void SetDelay(bool on,float mix,float ms,float feedback,float tone,bool pingPong,bool sync,int division,double bpm){delay_.Set(on,mix,ms,feedback,tone,pingPong,sync,division,bpm);}
   void SetReverb(bool on,float mix,float size,float decay,float damping){reverb_.Set(on,mix,size,decay,damping);}
+  void SetVoiceMode(int mode,float glideMs,bool overlapOnly);
   void SetOutputBoost(float dB);
   void SetMixer(float osc1, float osc2, float sub, float noise,
                 int osc2Octave, int subOctave, int noiseType, int osc1Octave);
@@ -52,6 +53,15 @@ private:
     uint64_t age = 0;
   };
   std::array<Voice, 16> voices_{};
+  struct MonoKey { bool held=false,latched=false; int velocity=0; uint64_t order=0; };
+  std::array<MonoKey,2048> monoKeys_{};
+  int voiceMode_=0,monoKey_=-1;
+  bool overlapOnly_=true,monoPitchValid_=false;
+  float glideMs_=0,monoVelocity_=0;
+  double monoPitch_=69,monoTarget_=69,monoStep_=0;
+  uint64_t glideRemaining_=0,monoOrder_=0;
+  void MonoMidi(int status,int note,int value);
+  void SelectMono(bool retrigger,bool allowGlide);
   Lfo lfo_;
   Chorus chorus_;
   Delay delay_;

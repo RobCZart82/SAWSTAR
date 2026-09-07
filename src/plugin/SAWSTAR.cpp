@@ -20,6 +20,10 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     auto* param = GetParam(static_cast<int>(spec.id));
     if(spec.id==sawstar::ParameterId::Osc1Wave||spec.id==sawstar::ParameterId::Osc2Wave)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Oscillator","Saw","Square","Triangle","Sine");
+    else if(spec.id==sawstar::ParameterId::VoiceMode)
+      param->InitEnum(spec.name.data(),0,3,"",IParam::kFlagsNone,"Performance","Poly","Mono","Legato");
+    else if(spec.id==sawstar::ParameterId::GlideMode)
+      param->InitEnum(spec.name.data(),1,2,"",IParam::kFlagsNone,"Performance","Always","Overlap only");
     else if(spec.id==sawstar::ParameterId::ReverbEnabled)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Reverb","Off","On");
     else if(spec.id==sawstar::ParameterId::DelayEnabled)
@@ -124,13 +128,15 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     }
     g->AttachControl(new ITextControl(IRECT(25,92,490,120),"LFO + PERFORMANCE",IText(20,accent)),kNoTag,"advanced");
     const int menus[]={37,38,39,40};
-    for(int i=0;i<4;++i){float x=25.f+(i%2)*235,y=130.f+(i/2)*58;
-      g->AttachControl(new IVMenuButtonControl(IRECT(x,y,x+220,y+50),menus[i],sawstar::kParameters[menus[i]].name.data(),menuStyle),kNoTag,"advanced");}
+    for(int i=0;i<4;++i){float x=25.f+(i%2)*235,y=125.f+(i/2)*48;
+      g->AttachControl(new IVMenuButtonControl(IRECT(x,y,x+220,y+44),menus[i],sawstar::kParameters[menus[i]].name.data(),menuStyle),kNoTag,"advanced");}
     const int knobs[]={35,36,17,18};
-    for(int i=0;i<4;++i){float x=25.f+(i%2)*235,y=250.f+(i/2)*70;
-      g->AttachControl(new IVKnobControl(IRECT(x,y,x+220,y+66),knobs[i],sawstar::kParameters[knobs[i]].name.data(),knobStyle,true),kNoTag,"advanced");}
-    g->AttachControl(new IVMenuButtonControl(IRECT(25,392,245,432),41,"LFO Phase",menuStyle),kNoTag,"advanced");
-    g->AttachControl(new ITextControl(IRECT(250,392,490,432),"Cutoff needs Filter Mix > 0",IText(12,light)),kNoTag,"advanced");
+    for(int i=0;i<4;++i){float x=25.f+(i%2)*235,y=223.f+(i/2)*59;
+      g->AttachControl(new IVKnobControl(IRECT(x,y,x+220,y+56),knobs[i],sawstar::kParameters[knobs[i]].name.data(),knobStyle,true),kNoTag,"advanced");}
+    g->AttachControl(new IVMenuButtonControl(IRECT(25,345,245,381),41,"LFO Phase",menuStyle),kNoTag,"advanced");
+    g->AttachControl(new IVMenuButtonControl(IRECT(260,345,480,381),59,"",menuStyle),kNoTag,"advanced");
+    g->AttachControl(new IVSliderControl(IRECT(25,385,245,437),60,"Glide (Mono/Legato)",knobStyle,true,EDirection::Horizontal),kNoTag,"advanced");
+    g->AttachControl(new IVMenuButtonControl(IRECT(260,395,480,435),61,"",menuStyle),kNoTag,"advanced");
     const char* fxTitles[]={"CHORUS","DELAY","REVERB"};
     for(int i=0;i<3;++i)g->AttachControl(new sawstar::gui::PageButton(IRECT(520.f+i*160,92,675.f+i*160,127),fxTitles[i],i,mFxPage,[this,selectPage,i](){mFxPage=i;selectPage(mPage);}),kNoTag,"advanced");
     g->AttachControl(new IVMenuButtonControl(IRECT(520,150,665,195),42,"",menuStyle),kNoTag,"fx-chorus");
@@ -174,6 +180,7 @@ void SAWSTAR::OnReset() {
   for (auto& held : mHeld) held.store(false, std::memory_order_relaxed);
 }
 void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
+  mSynth.SetVoiceMode(GetParam(59)->Int(),GetParam(60)->Value(),GetParam(61)->Int()!=0);
   mSynth.SetParameters(GetParam(0)->Value(), GetParam(1)->Value(), GetParam(2)->Value(),
                        GetParam(3)->Value(), GetParam(4)->Value());
   mSynth.SetMixer(GetParam(20)->Value(),GetParam(21)->Value(),GetParam(22)->Value(),GetParam(23)->Value(),

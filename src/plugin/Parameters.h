@@ -7,7 +7,7 @@
 namespace sawstar {
 // Persisted IDs / future iPlug2 indices: append only, never reorder or reuse.
 enum class ParameterId : std::uint32_t {
-  OutputGain = 0, AmpAttack = 1, AmpDecay = 2, AmpSustain = 3, AmpRelease = 4, SawDetune = 5, SawMix = 6, SawWidth = 7, FilterCutoff = 8, FilterResonance = 9, FilterMix = 10, FilterEnvAmount = 11, FilterKeyTrack = 12, FilterAttack = 13, FilterDecay = 14, FilterSustain = 15, FilterRelease = 16, BendRange = 17, ModDepth = 18, OutputBoost = 19, Osc1Level = 20, Osc2Level = 21, SubLevel = 22, NoiseLevel = 23, Osc2Octave = 24, SubOctave = 25, NoiseType = 26, Osc2Detune = 27, Osc2Mix = 28, Osc2Width = 29, Osc1Octave = 30, FilterDrive = 31, FilterMode = 32, Osc1Wave = 33, Osc2Wave = 34, LfoRate = 35, LfoDepth = 36, LfoShape = 37, LfoTarget = 38, LfoSync = 39, LfoDivision = 40, LfoRetrigger = 41, ChorusEnabled = 42, ChorusMix = 43, ChorusRate = 44, ChorusDepth = 45, DelayEnabled = 46, DelayMix = 47, DelayTime = 48, DelayFeedback = 49, DelayTone = 50, DelayMode = 51, DelaySync = 52, DelayDivision = 53, ReverbEnabled = 54, ReverbMix = 55, ReverbSize = 56, ReverbDecay = 57, ReverbDamping = 58
+  OutputGain = 0, AmpAttack = 1, AmpDecay = 2, AmpSustain = 3, AmpRelease = 4, SawDetune = 5, SawMix = 6, SawWidth = 7, FilterCutoff = 8, FilterResonance = 9, FilterMix = 10, FilterEnvAmount = 11, FilterKeyTrack = 12, FilterAttack = 13, FilterDecay = 14, FilterSustain = 15, FilterRelease = 16, BendRange = 17, ModDepth = 18, OutputBoost = 19, Osc1Level = 20, Osc2Level = 21, SubLevel = 22, NoiseLevel = 23, Osc2Octave = 24, SubOctave = 25, NoiseType = 26, Osc2Detune = 27, Osc2Mix = 28, Osc2Width = 29, Osc1Octave = 30, FilterDrive = 31, FilterMode = 32, Osc1Wave = 33, Osc2Wave = 34, LfoRate = 35, LfoDepth = 36, LfoShape = 37, LfoTarget = 38, LfoSync = 39, LfoDivision = 40, LfoRetrigger = 41, ChorusEnabled = 42, ChorusMix = 43, ChorusRate = 44, ChorusDepth = 45, DelayEnabled = 46, DelayMix = 47, DelayTime = 48, DelayFeedback = 49, DelayTone = 50, DelayMode = 51, DelaySync = 52, DelayDivision = 53, ReverbEnabled = 54, ReverbMix = 55, ReverbSize = 56, ReverbDecay = 57, ReverbDamping = 58, VoiceMode = 59, GlideTime = 60, GlideMode = 61
 };
 enum class Mapping { Linear, Logarithmic };
 struct ParameterSpec {
@@ -16,7 +16,7 @@ struct ParameterSpec {
   double minimum, maximum, initial;
   Mapping mapping;
 };
-inline constexpr std::array<ParameterSpec, 59> kParameters{{
+inline constexpr std::array<ParameterSpec, 62> kParameters{{
   {ParameterId::OutputGain, "output.gain_db", "Output", "dB", -60., 0., -12., Mapping::Linear},
   {ParameterId::AmpAttack, "amp.attack_ms", "Attack", "ms", 1., 10000., 10., Mapping::Logarithmic},
   {ParameterId::AmpDecay, "amp.decay_ms", "Decay", "ms", 1., 10000., 100., Mapping::Logarithmic},
@@ -75,7 +75,10 @@ inline constexpr std::array<ParameterSpec, 59> kParameters{{
   {ParameterId::ReverbMix, "reverb.mix", "Reverb Mix", "%", 0., 100., 20., Mapping::Linear},
   {ParameterId::ReverbSize, "reverb.size", "Size", "%", 0., 100., 50., Mapping::Linear},
   {ParameterId::ReverbDecay, "reverb.decay_s", "Decay", "s", .2, 10., 2.5, Mapping::Logarithmic},
-  {ParameterId::ReverbDamping, "reverb.damping_hz", "Damping", "Hz", 500., 16000., 6000., Mapping::Logarithmic}
+  {ParameterId::ReverbDamping, "reverb.damping_hz", "Damping", "Hz", 500., 16000., 6000., Mapping::Logarithmic},
+  {ParameterId::VoiceMode, "voice.mode", "Voice Mode", "", 0., 2., 0., Mapping::Linear},
+  {ParameterId::GlideTime, "voice.glide_ms", "Glide", "ms", 0., 2000., 0., Mapping::Linear},
+  {ParameterId::GlideMode, "voice.glide_mode", "Glide Mode", "", 0., 1., 1., Mapping::Linear}
 }};
 
 const ParameterSpec* FindParameter(std::uint32_t id) noexcept;

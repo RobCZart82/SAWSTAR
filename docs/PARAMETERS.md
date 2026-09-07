@@ -138,3 +138,7 @@ See [DELAY.md](DELAY.md) for keys, ranges, defaults and tempo behavior. Old stat
 ## Reverb: append-only IDs 54-58
 
 See [REVERB.md](REVERB.md) for keys, ranges and defaults. Old states restore Reverb Off.
+
+## Voice modes: append-only IDs 59-61
+
+See [MONO_GLIDE.md](MONO_GLIDE.md). Default Poly / Glide 0 / Overlap only.

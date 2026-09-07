@@ -7,6 +7,7 @@ void Synth::Reset(double rate) {
   const float sr = static_cast<float>(std::isfinite(rate) && rate >= 8000 ? rate : 44100);
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
   sustain_.fill(false); age_ = 0; gain_ = 0;
+  monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;glideRemaining_=monoOrder_=0;voiceMode_=0;
   boost_=targetBoost_; protection_=1;
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
@@ -18,6 +19,68 @@ void Synth::Reset(double rate) {
     v = Voice{}; v.noiseState=seed; seed+=0x9e3779b9u;
     v.osc2.Init(sr); v.sub.Init(sr); v.sub.SetWaveform(daisysp::Oscillator::WAVE_SIN); v.sub.SetAmp(1);
     v.osc.Init(sr); v.env.Init(sr); v.filter.Init(sr); v.filterMod.Init(sr);
+  }
+}
+void Synth::SetVoiceMode(int mode,float glideMs,bool overlapOnly) {
+  mode=std::clamp(mode,0,2);glideMs_=std::isfinite(glideMs)?std::clamp(glideMs,0.f,2000.f):0;
+  overlapOnly_=overlapOnly;
+  if(mode!=voiceMode_){
+    if(voiceMode_!=0&&monoPitchValid_&&voices_[0].note>=0){auto& v=voices_[0];v.fundamental=static_cast<float>(440*std::exp2((monoPitch_-69)/12.));v.osc.SetFreq(v.fundamental);v.osc2.SetFreq(v.fundamental);}
+    // A mode change starts a new key phrase; release current sources safely.
+    for(auto& v:voices_){v.held=v.gate=false;}
+    monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;glideRemaining_=0;
+    voiceMode_=mode;
+  }
+  if(glideMs_==0){monoPitch_=monoTarget_;glideRemaining_=0;}
+}
+void Synth::SelectMono(bool retrigger,bool allowGlide) {
+  int selected=-1;
+  // Physically held keys take priority over pedal-latched keys, then last-note priority.
+  for(int i=0;i<2048;++i){const auto& k=monoKeys_[i];if(!k.held&&!k.latched)continue;
+    if(selected<0||(k.held&&!monoKeys_[selected].held)||(k.held==monoKeys_[selected].held&&k.order>monoKeys_[selected].order))selected=i;
+  }
+  auto& v=voices_[0];
+  if(selected<0){monoKey_=-1;v.held=v.gate=false;return;}
+  const bool same=selected==monoKey_;if(same&&!retrigger){v.held=monoKeys_[selected].held;return;}
+  retrigger=retrigger||voiceMode_==1;
+  const int note=selected%128,ch=selected/128;
+  const bool wasRunning=v.note>=0;
+  const bool slide=monoPitchValid_&&allowGlide&&glideMs_>0;
+  monoTarget_=note;
+  if(slide){glideRemaining_=std::max<uint64_t>(1,static_cast<uint64_t>(sampleRate_*glideMs_*.001));monoStep_=(monoTarget_-monoPitch_)/glideRemaining_;}
+  else{monoPitch_=monoTarget_;glideRemaining_=0;}
+  if(!monoPitchValid_)monoVelocity_=monoKeys_[selected].velocity/127.f;
+  monoPitchValid_=true;monoKey_=selected;
+  // Mono uses a fixed tuning reference; the sample-accurate pitch ratio carries glide.
+  if(!wasRunning){v.filter.Clear();monoVelocity_=monoKeys_[selected].velocity/127.f;}
+  v.note=note;v.channel=ch;v.held=monoKeys_[selected].held;v.gate=true;
+  v.velocity=monoKeys_[selected].velocity/127.f;v.fundamental=440;v.osc.SetFreq(440);v.osc2.SetFreq(440);
+  if(retrigger||!wasRunning){v.env.Retrigger(false);v.filterMod.Trigger(!wasRunning);}
+}
+void Synth::MonoMidi(int status,int note,int value) {
+  const int channel=status&15,kind=status&240,index=channel*128+note;
+  if(kind==0x90&&value>0){
+    bool overlap=false;for(const auto& k:monoKeys_)overlap|=k.held;
+    if(!overlap)lfo_.Trigger();
+    auto& key=monoKeys_[index];key.held=true;key.latched=false;key.velocity=value;key.order=++monoOrder_;
+    // Any release-only poly voices from a mode change stop before the mono note starts.
+    for(size_t i=1;i<voices_.size();++i){voices_[i].note=-1;voices_[i].held=voices_[i].gate=false;}
+    SelectMono(voiceMode_==1||!overlap,!overlapOnly_||overlap);
+  }else if(kind==0x80||(kind==0x90&&value==0)){
+    auto& key=monoKeys_[index];if(!key.held)return;key.held=false;key.latched=sustain_[channel];
+    SelectMono(false,true);
+  }else if(kind==0xb0){
+    if(note==121){bend_[channel]=8192;mod_[channel]=0;UpdateBend(channel);}
+    if(note==64||note==121){sustain_[channel]=note==64&&value>=64;
+      if(!sustain_[channel])for(int i=channel*128;i<(channel+1)*128;++i)monoKeys_[i].latched=false;
+      SelectMono(false,true);
+    }else if(note==120||note==123){
+      for(int i=channel*128;i<(channel+1)*128;++i)monoKeys_[i]=MonoKey{};
+      sustain_[channel]=false;
+      if(note==120)for(size_t i=1;i<voices_.size();++i)if(voices_[i].channel==channel){voices_[i].note=-1;voices_[i].gate=voices_[i].held=false;}
+      if(note==120&&voices_[0].channel==channel){voices_[0].note=-1;voices_[0].gate=voices_[0].held=false;voices_[0].env.Retrigger(true);monoKey_=-1;}
+      SelectMono(false,true);
+    }
   }
 }
 void Synth::SetWaveforms(int osc1,int osc2){alternateWave_=osc1!=0;for(auto& v:voices_){v.osc.SetWaveform(osc1);v.osc2.SetWaveform(osc2);}}
@@ -72,6 +135,7 @@ void Synth::SetSaw(float detune,float mix,float width) {
 void Synth::Midi(int status, int note, int value) {
   const int channel = status & 15, kind = status & 240;
   if (note < 0 || note > 127 || value < 0 || value > 127) return;
+  if(voiceMode_!=0&&(kind==0x90||kind==0x80||(kind==0xb0&&(note==64||note==120||note==121||note==123)))){MonoMidi(status,note,value);return;}
   if(kind==0xe0){bend_[channel]=note+(value<<7);UpdateBend(channel);return;}
   if (kind == 0x90 && value > 0) {
     bool held=false;for(const auto& v:voices_)held|=v.held;
@@ -115,12 +179,15 @@ StereoSample Synth::ProcessStereo() {
   const float vibrato=lfo.pitch==0?1.f:std::exp2(lfo.pitch/12.f);
   for(size_t i=0;i<4;++i)levels_[i]+=smoothing_*(targetLevels_[i]-levels_[i]);
   for(int ch=0;ch<16;++ch)bendRatio_[ch]+=smoothing_*(bendTarget_[ch]-bendRatio_[ch]);
+  if(voiceMode_!=0&&glideRemaining_){monoPitch_+=monoStep_;if(--glideRemaining_==0)monoPitch_=monoTarget_;}
+  const float monoRatio=voiceMode_!=0?static_cast<float>(std::exp2((monoPitch_-69)/12.)):1;
   for (auto& v : voices_) if (v.note >= 0) {
+    const float glide=(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_)?monoRatio:1.f;
     const float env = v.env.Process(v.gate);
     v.filter.Set(v.filterMod.Process(v.note,v.gate,mod_[v.channel]/127.f*modDepth_+lfo.cutoff),resonance_,filterMix_);
-    v.osc.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*std::exp2(static_cast<float>(osc1Octave_)));
-    v.osc2.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*std::exp2(static_cast<float>(osc2Octave_)));
-    v.sub.SetFreq(std::min(v.fundamental*bendRatio_[v.channel]*vibrato*std::exp2(static_cast<float>(subOctave_)),sampleRate_*.45f));
+    v.osc.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*glide*std::exp2(static_cast<float>(osc1Octave_)));
+    v.osc2.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*glide*std::exp2(static_cast<float>(osc2Octave_)));
+    v.sub.SetFreq(std::min(v.fundamental*bendRatio_[v.channel]*vibrato*glide*std::exp2(static_cast<float>(subOctave_)),sampleRate_*.45f));
     const auto one=v.osc.Process(),two=v.osc2.Process();
     const float sub=v.sub.Process();
     // Per-voice deterministic xorshift; no global RNG, allocation or shared lock.
@@ -132,7 +199,9 @@ StereoSample Synth::ProcessStereo() {
     const StereoSample mixed{one.left*levels_[0]+two.left*levels_[1]+center,
                              one.right*levels_[0]+two.right*levels_[1]+center};
     const auto value=v.filter.Process(mixed);
-    sum.left+=value.left*env*v.velocity;sum.right+=value.right*env*v.velocity;
+    float velocity=v.velocity;
+    if(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_){monoVelocity_+=smoothing_*(v.velocity-monoVelocity_);velocity=monoVelocity_;}
+    sum.left+=value.left*env*velocity;sum.right+=value.right*env*velocity;
     if (!v.gate && !v.env.IsRunning()) v.note = -1;
   }
   gain_ += smoothing_ * (targetGain_ - gain_);
@@ -156,6 +225,7 @@ StereoSample Synth::ProcessStereo() {
           std::clamp(sum.right*protection_, -1.f, 1.f)};
 }
 bool Synth::Held(int note) const {
+  if(voiceMode_!=0){if(note<0||note>127)return false;for(int ch=0;ch<16;++ch)if(monoKeys_[ch*128+note].held)return true;return false;}
   for (const auto& v : voices_) if (v.note == note && v.held) return true;
   return false;
 }
