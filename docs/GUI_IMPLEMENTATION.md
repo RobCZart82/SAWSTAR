@@ -12,7 +12,7 @@ MAIN: oscillator waveform selectors and octave/detune/unison/width; mixer with
 four rectangular faders, horizontal Noise Color and noise menu; schematic filter
 curve, cutoff/resonance/drive, filter mix/key tracking and bottom mode selector;
 parameter-linked filter/amp envelope diagrams and controls; three FX mix knobs
-and On/Off toggles; output fader, level meter and Output Boost.
+and On/Off toggles; output fader, level meter, Output Boost and [master WIDE](MASTER_WIDTH.md).
 
 ADVANCED: performance, arp, shared LFO 1/2 editor and all four modulation rows are
 visible together. The lower effect-details panel switches between chorus, delay
@@ -31,9 +31,7 @@ and smoothed render-time/audio-duration CPU ratio. It is not the OS CPU meter.
 
 ## Deliberate differences from the artwork
 
-Only implemented functions have interactive controls. The artwork's master WIDE
-switch/amount is not an engine parameter: existing per-oscillator WIDTH remains
-available and OUTPUT retains the real Boost control. No dummy macro, variable
+Master WIDE is now implemented alongside Output Boost. No dummy macro, variable
 polyphony, extra detune/spread, editable arp sequence, or fake preset count is
 shown. Preset actions/search/categories need separate library functionality.
 This is the working GUI implementation of the current feature set, with further

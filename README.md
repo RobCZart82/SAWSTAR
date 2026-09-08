@@ -12,6 +12,11 @@ with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
 *GUI concept — work in progress. The image shows the design vision, not an implemented plugin.*
 
+## Master WIDE
+
+The OUTPUT panel now offers [master stereo width](docs/MASTER_WIDTH.md), with
+a smoothed switch and amount control. Older presets retain their original sound.
+
 ## Modular GUI
 
 The working editor now has a 1280 × 760 modular layout: tinted MAIN headers,

@@ -176,3 +176,10 @@ eighth-dotted/sixteenth-dotted (0..7), default 2 (1/16).
 87 `arp.octaves`: integer 1..4, default 1.
 88 `arp.swing`: 0..75%, default 0.
 89 `arp.hold`: Off/On, default Off.
+
+## Master width (appended IDs)
+
+- 90: `output.wide`, Off/On, default Off.
+- 91: `output.wide_amount`, 0–100%, default 50%.
+
+See [master width](MASTER_WIDTH.md) for signal order and compatibility.
