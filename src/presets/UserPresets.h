@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
+#include <string>
 #include "plugin/State.h"
 #include <filesystem>
 #include <fstream>

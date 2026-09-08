@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
+#include <string>
 #include "IControl.h"
 #include "presets/FactoryPresets.h"
 #include <functional>
