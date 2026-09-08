@@ -5,6 +5,7 @@
 #include "midi/Arpeggiator.h"
 #include <atomic>
 #include <array>
+#include "presets/UserPresets.h"
 
 class SAWSTAR final : public iplug::Plugin {
 public:
@@ -31,6 +32,7 @@ private:
   std::atomic<int> mRate{44100},mVoiceCount{0};
   std::atomic<bool> mArpReset{false};
   std::atomic<int> mBend{8192},mMod{0};
+  sawstar::UserPresetSelection mUserPreset;
   int mFactoryIndex = -1; // GUI-only, derived from the parameter snapshot.
   int mLfoPage = 0; // Editor selection only; both LFOs keep running.
   int mFxPage = 0; // Editor-only effect panel selection.

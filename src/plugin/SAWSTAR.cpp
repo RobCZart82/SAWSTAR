@@ -86,9 +86,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
                         GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
   mLayoutFunc = [this](IGraphics* g) {
-    auto loadFactory = [this,g](int index) {
-      if(index<0 || index>=static_cast<int>(sawstar::FactoryPresets().size()))return;
-      const auto& values=sawstar::FactoryPresets()[index].values;
+    auto apply = [this,g](const sawstar::Snapshot& values) {
       for (const auto& spec : sawstar::kParameters) {
         const int id=static_cast<int>(spec.id);
         BeginInformHostOfParamChangeFromUI(id);
@@ -98,12 +96,14 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
         SendParameterValueFromDelegate(id,value,true);
       }
       mArpReset.store(true);
-      mFactoryIndex=index;g->SetAllControlsDirty();
+      mFactoryIndex=sawstar::MatchFactoryPreset(values);g->SetAllControlsDirty();
     };
+    auto loadFactory=[this,apply](int index){if(index<0||index>=int(sawstar::FactoryPresets().size()))return;apply(sawstar::FactoryPresets()[index].values);mUserPreset.active=false;};
+    auto snapshot=[this]{sawstar::Snapshot values{};for(size_t i=0;i<values.size();++i)values[i]=GetParam(int(i))->Value();return values;};
     sawstar::Snapshot current{};
     for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
-    sawstar::gui::BuildLayout(g,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mPeakL,mPeakR,mCpu,mRate,mVoiceCount);
+    sawstar::gui::BuildLayout(g,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mPeakL,mPeakR,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply);
   };
 #endif
 }

@@ -8,6 +8,7 @@
 #include "gui/Controls/PerformanceWheel.h"
 #include "gui/Controls/Keyboard.h"
 #include <functional>
+#include "gui/Controls/UserPresetPanel.h"
 #include <string>
 namespace sawstar::gui {
 class LibraryRow final:public IControl{
@@ -17,10 +18,10 @@ public:LibraryRow(IRECT r,int i,const int& selected,std::function<void(int)> loa
  void OnMouseDown(float,float,const IMouseMod&)override{load_(index_);}
 };
 class LibraryInfo final:public IControl{
- const int& selected_;
-public:LibraryInfo(IRECT r,const int& selected):IControl(r),selected_(selected){SetIgnoreMouse(true);}
- void Draw(IGraphics& g)override{const bool custom=selected_<0;const auto& p=FactoryPresets()[custom?0:selected_];g.DrawText(IText(24,Text).WithAlign(EAlign::Near),custom?"Custom sound":p.name,mRECT.GetFromTop(45));
- std::string lesson=custom?"Your edited sound. Save it with your host's preset menu or in the project.":p.lesson;float y=mRECT.T+70;
+ const int& selected_;const UserPresetSelection& user_;
+public:LibraryInfo(IRECT r,const int& selected,const UserPresetSelection& user):IControl(r),selected_(selected),user_(user){SetIgnoreMouse(true);}
+ void Draw(IGraphics& g)override{const bool custom=selected_<0;const auto& p=FactoryPresets()[custom?0:selected_];g.DrawText(IText(24,Text).WithAlign(EAlign::Near),user_.active?user_.path.stem().u8string().c_str():custom?"Custom sound":p.name,mRECT.GetFromTop(45));
+ std::string lesson=user_.active?"User preset. Edit the name below to save a new copy or rename the selected file.":custom?"Your edited sound. Save it with your host's preset menu or in the project.":p.lesson;float y=mRECT.T+70;
  while(!lesson.empty()){size_t end=lesson.size()<=54?lesson.size():lesson.rfind(' ',54);if(end==std::string::npos||end==0)end=std::min<size_t>(54,lesson.size());auto line=lesson.substr(0,end);g.DrawText(IText(15,Text).WithAlign(EAlign::Near),line.c_str(),IRECT(mRECT.L,y,mRECT.R,y+22));lesson.erase(0,end+(end<lesson.size()?1:0));y+=23;}
  g.DrawText(IText(13,Blue).WithAlign(EAlign::Near),"SIGNAL FLOW",IRECT(mRECT.L,mRECT.T+190,mRECT.R,mRECT.T+220));
  const char* labels[]={"OSC","MIXER","FILTER","AMP","FX"};const IColor colors[]={IColor(255,70,206,237),IColor(255,144,173,246),IColor(255,220,179,86),IColor(255,84,213,186),IColor(255,178,143,231)};
@@ -28,7 +29,7 @@ public:LibraryInfo(IRECT r,const int& selected):IControl(r),selected_(selected){
  g.DrawText(IText(13,Text).WithAlign(EAlign::Near),"Sources > balance > tone > loudness envelope > space",IRECT(mRECT.L,mRECT.T+315,mRECT.R,mRECT.T+345));
  }
 };
-inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const int& preset,std::function<void(int)> load,const std::atomic<float>& peakL,const std::atomic<float>& peakR,const std::atomic<float>& cpu,const std::atomic<int>& rate,const std::atomic<int>& voices){
+inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const int& preset,std::function<void(int)> load,const std::atomic<float>& peakL,const std::atomic<float>& peakR,const std::atomic<float>& cpu,const std::atomic<int>& rate,const std::atomic<int>& voices,UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply){
  g->AttachPanelBackground(IColor(255,10,15,18));g->EnableMouseOver(true);g->AttachPopupMenuControl();g->AttachTextEntryControl();g->LoadFont("Roboto-Regular","Arial",ETextStyle::Normal);
  auto text=[&](IRECT r,const char* label,int size,const char* group=""){g->AttachControl(new ITextControl(r,label,IText(size,Text).WithAlign(EAlign::Near)),iplug::kNoTag,group);};
  auto section=[&](IRECT r,const char* name,const char* group,IColor color=Blue,bool tint=false){g->AttachControl(new Section(r,name,color,tint),iplug::kNoTag,group);};
@@ -38,7 +39,7 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  text(IRECT(20,17,272,61),"S A W S T A R",30);text(IRECT(285,20,427,38),"Simple Synth",13);text(IRECT(285,38,427,56),"B i g  S o u n d",13);
  auto select=[g,&page,&lfoPage,&fxPage](int next){page=next;const char* groups[]={"main","advanced","presets"};for(int i=0;i<3;++i)g->ForControlInGroup(groups[i],[i,next](IControl* c){c->Hide(i!=next);});for(int i=0;i<2;++i)g->ForControlInGroup(i?"lfo2":"lfo1",[i,next,&lfoPage](IControl* c){c->Hide(next!=1||lfoPage!=i);});const char* fx[]={"chorus","delay","reverb"};for(int i=0;i<3;++i)g->ForControlInGroup(fx[i],[i,next,&fxPage](IControl* c){c->Hide(next!=1||fxPage!=i);});g->SetAllControlsDirty();};
  const char* pages[]={"MAIN","ADVANCED","PRESETS"};for(int i=0;i<3;++i)g->AttachControl(new PageButton(IRECT(440+i*98,20,534+i*98,60),pages[i],i,page,[select,i]{select(i);}));
- g->AttachControl(new PresetSelector(IRECT(752,20,1268,60),preset,load));
+ g->AttachControl(new PresetSelector(IRECT(752,20,1268,60),preset,load,[&user,current]{return user.active?user.path.stem().u8string()+(current()!=user.saved?" *":""):std::string{};}));
  // MAIN: signal flow, with color restricted to section headers.
  section(IRECT(12,82,292,636),"OSCILLATORS","main",IColor(255,70,206,237),true);section(IRECT(300,82,464,636),"MIXER","main",IColor(255,144,173,246),true);section(IRECT(472,82,648,636),"FILTER","main",IColor(255,220,179,86),true);section(IRECT(656,82,826,636),"FILTER ENV","main",IColor(255,102,220,192),true);section(IRECT(834,82,1004,636),"AMP ENV","main",IColor(255,84,213,186),true);section(IRECT(1012,82,1118,636),"FX","main",IColor(255,178,143,231),true);section(IRECT(1126,82,1268,636),"OUTPUT","main",IColor(255,156,179,240),true);
  for(int osc=0;osc<2;++osc){float y=126+osc*173;g->AttachControl(new WaveformControl(IRECT(23,y,145,y+146),33+osc,osc?"OSC 2":"OSC 1"),iplug::kNoTag,"main");int ids[4]={osc?24:30,osc?27:5,osc?28:6,osc?29:7};const char* labels[]={"OCT","DETUNE","UNISON","WIDTH"};for(int j=0;j<4;++j)knob(150+(j%2)*66,y+(j/2)*80,63,ids[j],labels[j],"main");}
@@ -60,7 +61,7 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  const int dm[]={46,51,52,53};for(int i=0;i<4;++i)menu(IRECT(386+i*215,474,587+i*215,527),dm[i],i==0?"DELAY":i==1?"MODE":i==2?"CLOCK":"DIVISION","delay");for(int i=0;i<4;++i)knob(386+i*215,544,198,47+i,i==0?"MIX":i==1?"TIME ms":i==2?"FEEDBACK":"TONE Hz","delay");
  menu(IRECT(386,476,527,531),54,"REVERB","reverb");for(int i=0;i<4;++i)knob(541+i*179,520,165,55+i,i==0?"MIX":i==1?"SIZE":i==2?"DECAY s":"DAMPING Hz","reverb");
  // Factory selection is real; custom user presets continue through host saving.
- section(IRECT(12,82,570,636),"FACTORY LIBRARY","presets");section(IRECT(580,82,1268,636),"PRESET INFO / LEARNING","presets");for(int i=0;i<int(FactoryPresets().size());++i)g->AttachControl(new LibraryRow(IRECT(24,129+i*53,558,177+i*53),i,preset,load),iplug::kNoTag,"presets");g->AttachControl(new LibraryInfo(IRECT(604,134,1245,551),preset),iplug::kNoTag,"presets");text(IRECT(604,577,1245,619),"Save your own sounds using the host preset menu.",14,"presets");
+ section(IRECT(12,82,570,636),"FACTORY LIBRARY","presets");section(IRECT(580,82,1268,636),"PRESET INFO / LEARNING","presets");for(int i=0;i<int(FactoryPresets().size());++i)g->AttachControl(new LibraryRow(IRECT(24,129+i*53,558,177+i*53),i,preset,load),iplug::kNoTag,"presets");g->AttachControl(new LibraryInfo(IRECT(604,134,1245,551),preset,user),iplug::kNoTag,"presets");g->AttachControl(new UserPresetPanel(IRECT(604,487,1245,623),user,current,apply,[load]{load(0);}),iplug::kNoTag,"presets");
  section(IRECT(12,646,1268,724),"","",Blue);g->AttachControl(new PerformanceWheel(IRECT(23,654,54,702),true));g->AttachControl(new PerformanceWheel(IRECT(65,654,96,702),false));text(IRECT(23,703,60,721),"PITCH",9);text(IRECT(66,703,101,721),"MOD",9);
  g->AttachControl(new Keyboard(IRECT(115,654,1258,715),36,96,false,IColor(255,181,187,187),IColor(255,19,24,27),Blue,PanelColor,Text));g->AttachControl(new Status(IRECT(20,729,1260,750),cpu,rate,voices),9101);
  select(page);

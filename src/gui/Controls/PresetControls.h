@@ -6,15 +6,16 @@
 namespace sawstar::gui {
 class PresetSelector final : public iplug::igraphics::IControl {
 public:
- PresetSelector(const iplug::igraphics::IRECT& r,const int& selected,std::function<void(int)> action)
- :IControl(r),selected_(selected),action_(std::move(action)){
+ PresetSelector(const iplug::igraphics::IRECT& r,const int& selected,std::function<void(int)> action,std::function<std::string()> userName={})
+ :IControl(r),selected_(selected),action_(std::move(action)),userName_(userName){
   for(const auto& p:FactoryPresets())menu_.AddItem(p.name);
  }
  void Draw(iplug::igraphics::IGraphics& g)override{
   using namespace iplug::igraphics;IColor light(255,210,237,245);
   g.FillRoundRect(IColor(255,20,26,29),mRECT,5);g.DrawRoundRect(IColor(255,55,95,110),mRECT,5);
   g.DrawText(IText(18,light),"<",mRECT.GetFromLeft(28));g.DrawText(IText(18,light),">",mRECT.GetFromRight(28));
-  g.DrawText(IText(14,light),selected_<0?"Custom":FactoryPresets()[selected_].name,mRECT.GetHPadded(-30));
+  const auto name=userName_?userName_():std::string{};
+  g.DrawText(IText(14,light),!name.empty()?name.c_str():selected_<0?"Custom":FactoryPresets()[selected_].name,mRECT.GetHPadded(-30));
  }
  void OnMouseDown(float x,float y,const iplug::igraphics::IMouseMod&)override{
   if(x<mRECT.L+28)action_(StepFactoryPreset(selected_,-1));
@@ -25,7 +26,7 @@ public:
   if(menu&&menu->GetChosenItemIdx()>=0&&menu->GetChosenItemIdx()<static_cast<int>(FactoryPresets().size()))action_(menu->GetChosenItemIdx());
  }
 private:
- const int& selected_;std::function<void(int)> action_;iplug::igraphics::IPopupMenu menu_;
+ const int& selected_;std::function<void(int)> action_;std::function<std::string()> userName_;iplug::igraphics::IPopupMenu menu_;
 };
 class PresetRow final : public iplug::igraphics::IControl {
 public:
