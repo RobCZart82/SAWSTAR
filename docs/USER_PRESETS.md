@@ -1,14 +1,15 @@
 # User preset files
 
 PRESETS keeps the existing Factory list read-only and adds a User Presets panel.
-Click the name field to edit it, then use:
+Use the following actions:
 
-- **Save As**: save the current sound under a new name. Existing names are rejected,
+- **Save As**: open the native Save dialog with a suggested filename and User folder.
+  Edit the filename/location and click Save, or Cancel without writing. Existing names are rejected,
   never silently replaced. To update a sound, save a new copy first.
 - **Load**: open a `.sawstar` file using the native file picker.
 - **User Library**: scan and select a preset from the user folder, including after
   an application restart. External loaded files enter this folder only via Save As.
-- **Rename**: rename the selected user file to the text in the name field.
+- **Rename**: click the panel name field to edit it, then rename the selected user file.
 - **Delete**: confirm removal from the library. The file is renamed with a
   `.deleted` (or numbered `.deleted-N`) suffix in the same folder. Restore it by
   renaming it back to an unused `.sawstar` filename. The current sound keeps playing.
