@@ -19,9 +19,8 @@ visible together. The lower effect-details panel switches between chorus, delay
 and reverb. The persistent MAIN/ADVANCED/PRESETS tabs do not affect DSP state.
 
 PRESETS: actual existing factory entries and their learning descriptions, plus
-a schematic signal-flow diagram. Custom sounds continue to be saved through the
-host's preset/project facilities. This does not add a new preset bank or pretend
-that search/categories/favorites and standalone file actions already exist.
+a schematic signal-flow diagram. Custom sounds can also be managed through the new [User preset panel](USER_PRESETS.md).
+Search/categories/favorites remain future library work.
 
 Knobs retain iPlug's drag/value-entry behavior. Faders have rectangular handles
 and scale marks. On/Off toggles use a restrained blue fill/outline. Curve views
@@ -33,7 +32,7 @@ and smoothed render-time/audio-duration CPU ratio. It is not the OS CPU meter.
 
 Master WIDE is now implemented alongside Output Boost. No dummy macro, variable
 polyphony, extra detune/spread, editable arp sequence, or fake preset count is
-shown. Preset actions/search/categories need separate library functionality.
+shown. User file actions are implemented; search/categories remain future library work.
 This is the working GUI implementation of the current feature set, with further
 visual refinement possible after host inspection.
 

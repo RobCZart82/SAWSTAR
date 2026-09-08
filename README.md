@@ -12,6 +12,11 @@ with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
 *GUI concept — work in progress. The image shows the design vision, not an implemented plugin.*
 
+## User presets
+
+The PRESETS page now supports [named User preset files](docs/USER_PRESETS.md):
+Save As, Load, User Library, Rename, recoverable Delete and Init.
+
 ## Master WIDE
 
 The OUTPUT panel now offers [master stereo width](docs/MASTER_WIDTH.md), with
@@ -42,8 +47,7 @@ The concept above is the longer-term design, not a screenshot of this build.
 The fixed header now offers a eight-sound [factory preset library](docs/PRESETS.md),
 previous/next arrows and a dropdown, with short learning notes on the PRESETS page.
 Edited sounds show as Custom and are saved with the DAW project.
-This is not a tagged release. User preset files and full host automation acceptance
-remain outstanding. The user reported successful Windows manual testing of an
+This is not a tagged release. Full host automation acceptance remains outstanding. The user reported successful Windows manual testing of an
 earlier build; each subsequent build also receives automated Windows validation.
 
 ## First milestone: `v0.1 First Sound`
