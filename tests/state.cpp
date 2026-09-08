@@ -12,9 +12,10 @@ int main(){
  for(size_t i=0;i<20;++i)wanted[i]=fixture[i];
  wanted[21]=42;wanted[26]=1;wanted[31]=12;wanted[32]=2;wanted[33]=3;wanted[34]=1;wanted[36]=65;wanted[39]=1;wanted[42]=1;wanted[43]=31;wanted[44]=.7;wanted[45]=45;wanted[46]=1;wanted[47]=40;wanted[48]=250;wanted[49]=55;wanted[50]=3500;wanted[51]=1;wanted[52]=1;wanted[53]=2;wanted[54]=1;wanted[55]=30;wanted[56]=70;wanted[57]=4.2;wanted[58]=2500;wanted[59]=2;wanted[60]=230;wanted[61]=0;wanted[62]=3;wanted[63]=-35;wanted[64]=3.5;wanted[65]=42;wanted[71]=2;wanted[72]=4;wanted[73]=-36;wanted[80]=5;wanted[81]=1;wanted[82]=29;wanted[83]=1;wanted[84]=4;wanted[85]=5;wanted[86]=67;wanted[87]=3;wanted[88]=33;wanted[89]=1;
  Snapshot out{};
+ wanted[90]=1;wanted[91]=73;
  const auto state=EncodeState(wanted);
  check(DecodeState(state.data(),state.size(),out)==state.size() && out==wanted,"roundtrip");
- check(state[8]==1 && state[12]==56 && state[13]==4 && state[16]==0,"wire fixture");
+ check(state[8]==1 && state[12]==80 && state[13]==4 && state[16]==0,"wire fixture");
  // Old v1 payload with only the original five records must keep new defaults.
  auto oldV1=std::vector<uint8_t>(state.begin(),state.begin()+76);oldV1[12]=60;oldV1[13]=0;
  check(DecodeState(oldV1.data(),oldV1.size(),out)==76 && out[1]==wanted[1] &&
@@ -52,6 +53,8 @@ int main(){
  auto eightyThree=std::vector<uint8_t>(state.begin(),state.begin()+1012);eightyThree[12]=228;eightyThree[13]=3;
  check(DecodeState(eightyThree.data(),eightyThree.size(),out)==1012 && out[82]==29 && out[83]==0 && out[89]==0,"old modulation preset keeps arp and hold off");
  // Fixture for old physical doubles: -12, 10, 100, .7, 250, little endian.
+ auto ninety=std::vector<uint8_t>(state.begin(),state.begin()+1096);ninety[12]=56;ninety[13]=4;
+ check(DecodeState(ninety.data(),ninety.size(),out)==1096 && out[90]==0 && out[91]==50,"old GUI state keeps master width bypassed");
  const uint8_t old[]={0,0,0,0,0,0,40,192,0,0,0,0,0,0,36,64,0,0,0,0,0,0,89,64,
    102,102,102,102,102,102,230,63,0,0,0,0,0,64,111,64};
  auto legacyDefault=DefaultSnapshot();legacyDefault[19]=0;

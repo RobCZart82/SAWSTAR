@@ -26,6 +26,8 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       param->InitEnum(spec.name.data(),0,6,"",IParam::kFlagsNone,"Modulation","Off","LFO 1","LFO 2","Mod Wheel","Velocity","Aftertouch");
     else if(id>=71 && id<=82 && (id-71)%3==1)
       param->InitEnum(spec.name.data(),0,5,"",IParam::kFlagsNone,"Modulation","Filter Cutoff","Pitch","Amp Level","Pan","Noise Color");
+    else if(id==90)
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Output","Off","On");
     else if(id==83||id==89)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Arpeggiator","Off","On");
     else if(id==84)
@@ -126,6 +128,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetMixer(GetParam(20)->Value(),GetParam(21)->Value(),GetParam(22)->Value(),GetParam(23)->Value(),
     GetParam(24)->Int(),GetParam(25)->Int(),GetParam(62)->Int()==0?GetParam(26)->Int():GetParam(62)->Int()-1,GetParam(30)->Int());
   mSynth.SetNoiseColor(GetParam(63)->Value());
+  mSynth.SetWidth(GetParam(90)->Int()!=0,GetParam(91)->Value());
   mSynth.SetOsc2(GetParam(27)->Value(),GetParam(28)->Value(),GetParam(29)->Value());
   mSynth.SetOutputBoost(static_cast<float>(GetParam(19)->Value()));
   mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),

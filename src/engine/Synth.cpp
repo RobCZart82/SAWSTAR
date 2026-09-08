@@ -9,7 +9,7 @@ void Synth::Reset(double rate) {
   sustain_.fill(false); age_ = 0; gain_ = 0;
   ampSustain_=targetAmpSustain_;
   monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;glideRemaining_=monoOrder_=0;voiceMode_=0;
-  boost_=targetBoost_; protection_=1;
+  boost_=targetBoost_; protection_=1; width_.Init(sr);
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
   matrix_.Init(sr);pressure_.fill(0);smoothPressure_.fill(0);smoothWheel_.fill(0);lfo2_.Init(sr);
@@ -259,6 +259,7 @@ StereoSample Synth::ProcessStereo() {
   boost_ += smoothing_ * (targetBoost_ - boost_);
   sum.left*=lfo.amp*std::sqrt(1-lfo.pan);sum.right*=lfo.amp*std::sqrt(1+lfo.pan);
   sum=reverb_.Process(delay_.Process(chorus_.Process(sum)));
+  width_.Process(sum.left,sum.right);
   const float scale=gain_*boost_/16.f;
   sum.left*=scale; sum.right*=scale;
   // Stereo-linked peak guard: instant attack, 80 ms recovery, zero latency.

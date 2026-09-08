@@ -7,6 +7,7 @@
 #include "dsp/Effects/Chorus.h"
 #include "dsp/Effects/Delay.h"
 #include "dsp/Effects/Reverb.h"
+#include "dsp/Effects/Width.h"
 #include "dsp/LowPass.h"
 #include "dsp/FilterModulation.h"
 #include "Control/adsr.h"
@@ -28,6 +29,7 @@ public:
   void SetReverb(bool on,float mix,float size,float decay,float damping){reverb_.Set(on,mix,size,decay,damping);}
   void SetVoiceMode(int mode,float glideMs,bool overlapOnly);
   void SetOutputBoost(float dB);
+  void SetWidth(bool on,float amount){width_.Set(on,amount);}
   void SetMixer(float osc1, float osc2, float sub, float noise,
                 int osc2Octave, int subOctave, int noiseType, int osc1Octave);
   void SetNoiseColor(float percent) { targetNoiseColor_=std::clamp(percent*.01f,-1.f,1.f); }
@@ -79,6 +81,7 @@ private:
   Chorus chorus_;
   Delay delay_;
   Reverb reverb_;
+  Width width_;
   bool alternateWave_=false;
   std::array<bool, 16> sustain_{};
   std::array<int,16> bend_{{8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192}}, mod_{};
