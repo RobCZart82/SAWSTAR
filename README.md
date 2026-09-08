@@ -12,6 +12,14 @@ with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
 *GUI concept — work in progress. The image shows the design vision, not an implemented plugin.*
 
+## Modular GUI
+
+The working editor now has a 1280 × 760 modular layout: tinted MAIN headers,
+uniform blue ADVANCED panels, and a factory preset learning page. The white logo,
+tabs, preset selector, keyboard, wheels and status strip stay fixed across pages.
+See [GUI implementation and validation](docs/GUI_IMPLEMENTATION.md) for controls,
+known differences from the artwork and host-check coverage.
+
 ## Status: First Sound development build / 0.1.0-dev
 
 The iPlug2 VST3 now includes a custom 16-voice SAWSTAR engine using DaisySP's
