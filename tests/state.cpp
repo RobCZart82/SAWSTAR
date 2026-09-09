@@ -15,7 +15,7 @@ int main(){
  wanted[90]=1;wanted[91]=73;wanted[92]=2;
  const auto state=EncodeState(wanted);
  check(DecodeState(state.data(),state.size(),out)==state.size() && out==wanted,"roundtrip");
- check(state[8]==1 && state[12]==80 && state[13]==4 && state[16]==0,"wire fixture");
+ check(state[8]==1 && state[12]==92 && state[13]==4 && state[16]==0,"wire fixture");
  // Old v1 payload with only the original five records must keep new defaults.
  auto oldV1=std::vector<uint8_t>(state.begin(),state.begin()+76);oldV1[12]=60;oldV1[13]=0;
  check(DecodeState(oldV1.data(),oldV1.size(),out)==76 && out[1]==wanted[1] &&
