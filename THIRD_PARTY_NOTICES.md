@@ -1,6 +1,9 @@
 # Third-party notices
 
-SAWSTAR original work is MIT licensed. External work retains its own terms.
+SAWSTAR original source code is MIT licensed. External work retains its own terms.
+The embedded GYR creator logo is supplied by Gyuricza Róbert for SAWSTAR branding;
+it is excluded from the MIT source-code license. No separate logo reuse license
+is granted.
 
 - iPlug2: Copyright (C) the iPlug 2 Developers, with other contributors noted
   upstream. zlib-style license: [full notice](third_party/licenses/iPlug2-LICENSE.txt).

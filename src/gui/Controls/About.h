@@ -28,7 +28,7 @@ public:
   g.FillRoundRect(IColor(255,22,58,80),OK(),3);g.DrawRoundRect(Blue,OK(),3);g.DrawText(IText(15,Text),"OK",OK());
  }
  void OnMouseDown(float x,float y,const IMouseMod&)override{if(OK().Contains(x,y))Close();}
- bool OnKeyDown(float,float,const IKeyPress& key)override{if(key.VK==27||key.VK==13)Close();return true;}
+ bool OnKeyDown(float,float,const iplug::IKeyPress& key)override{if(key.VK==27||key.VK==13)Close();return true;}
 };
 class SettingsMenu final:public IControl {
  AboutWindow* about_;IPopupMenu menu_;
