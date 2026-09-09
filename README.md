@@ -14,8 +14,10 @@ with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
 ## User presets
 
-The PRESETS page now supports [named User preset files](docs/USER_PRESETS.md):
-Save As, Load, User Library, Rename, recoverable Delete and Init.
+The concept-based [preset browser](docs/USER_PRESETS.md) combines factory and user
+sounds with categories, search, persistent favorites and saved sound-flow diagrams.
+Save As, Load, Copy/Paste, Rename, recoverable Delete, Init and native multi-file
+Import are available. One sound remains one `.sawstar` file; there is no bank format.
 
 ## Master WIDE
 
@@ -25,7 +27,7 @@ a smoothed switch and amount control. Older presets retain their original sound.
 ## Modular GUI
 
 The working editor now has a 1280 × 760 modular layout: tinted MAIN headers,
-uniform blue ADVANCED panels, and a factory preset learning page. The white logo,
+uniform blue ADVANCED panels, and a shared factory/user preset learning page. The white logo,
 tabs, preset selector, keyboard, wheels and status strip stay fixed across pages.
 See [GUI implementation and validation](docs/GUI_IMPLEMENTATION.md) for controls,
 known differences from the artwork and host-check coverage.
@@ -44,8 +46,8 @@ Raise Filter Mix above 0% to engage filtering.
 [Build and test](docs/PLUGIN_SHELL.md). GitHub Actions builds macOS ARM64 and
 Windows x64 development archives and runs engine tests plus the VST3 validator.
 The concept above is the longer-term design, not a screenshot of this build.
-The fixed header now offers a eight-sound [factory preset library](docs/PRESETS.md),
-previous/next arrows and a dropdown, with short learning notes on the PRESETS page.
+The fixed header browses the eight embedded [factory sounds](docs/PRESETS.md) and
+managed user presets with previous/next arrows and a shared dropdown.
 Edited sounds show as Custom and are saved with the DAW project.
 This is not a tagged release. Full host automation acceptance remains outstanding. The user reported successful Windows manual testing of an
 earlier build; each subsequent build also receives automated Windows validation.

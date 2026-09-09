@@ -18,9 +18,9 @@ ADVANCED: performance, arp, shared LFO 1/2 editor and all four modulation rows a
 visible together. The lower effect-details panel switches between chorus, delay
 and reverb. The persistent MAIN/ADVANCED/PRESETS tabs do not affect DSP state.
 
-PRESETS: actual existing factory entries and their learning descriptions, plus
-a schematic signal-flow diagram. Custom sounds can also be managed through the new [User preset panel](USER_PRESETS.md).
-Search/categories/favorites remain future library work.
+PRESETS: the approved four-column browser with shared factory/user entries,
+category and search filters, persisted favorites, saved-settings learning diagrams
+and file actions including native batch import. See [Preset library](USER_PRESETS.md).
 
 Knobs retain iPlug's drag/value-entry behavior. Faders have rectangular handles
 and scale marks. On/Off toggles use a restrained blue fill/outline. Curve views
@@ -32,7 +32,7 @@ and smoothed render-time/audio-duration CPU ratio. It is not the OS CPU meter.
 
 Master WIDE is now implemented alongside Output Boost. No dummy macro, variable
 polyphony, extra detune/spread, editable arp sequence, or fake preset count is
-shown. User file actions are implemented; search/categories remain future library work.
+shown. Preset library categories/search/favorites and user file actions are implemented.
 This is the working GUI implementation of the current feature set, with further
 visual refinement possible after host inspection.
 

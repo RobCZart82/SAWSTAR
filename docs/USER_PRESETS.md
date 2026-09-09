@@ -1,56 +1,89 @@
-# User preset files
+# Preset library
 
-PRESETS keeps the existing Factory list read-only and adds a User Presets panel.
-Use the following actions:
+The approved final concept is the primary reference; the user's earlier notes are
+subordinate where they conflict. PRESETS uses four columns: Categories, Presets,
+Preset Info / How It Works and Preset Actions. No additional concept image or
+factory sounds are generated for this milestone.
 
-- **Save As**: open the native Save dialog with a suggested filename and User folder.
-  Edit the filename/location and click Save, or Cancel without writing. Existing names are rejected,
-  never silently replaced. To update a sound, save a new copy first.
-- **Load**: open a `.sawstar` file using the native file picker.
-- **User Library**: scan and select a preset from the user folder, including after
-  an application restart. External loaded files enter this folder only via Save As.
-- **Rename**: click the panel name field to edit it, then rename the selected user file.
-- **Delete**: confirm removal from the library. The file is renamed with a
-  `.deleted` (or numbered `.deleted-N`) suffix in the same folder. Restore it by
-  renaming it back to an unused `.sawstar` filename. The current sound keeps playing.
-- **Init**: load the existing Init factory sound.
+## Browsing
 
-Factory presets cannot be renamed or deleted. The name at the top shows the loaded
-user filename and `*` when the sound differs from its saved snapshot. The filename
-selection is editor metadata; DAW project state still embeds all sound parameters,
-so playback does not depend on an external preset file. Reopening a project does
-not restore the external filename association; load from User Library to associate
-it again. The top arrows/dropdown continue browsing Factory presets.
+Factory and user files share one list. All shows both; User shows saved/imported
+files. Factory categories map to the existing sound metadata. Empty categories
+remain empty rather than showing invented content. User sounds currently have the
+User category; editable category/tag metadata is future work. The count is real.
+Search matches name/category with case-insensitive ASCII matching; accented text
+can be searched with its original spelling. Enter commits the search, empty text
+clears it. Mouse wheel or Previous/Next pages navigate longer lists.
 
-## Storage
+Click a row to preview its saved sound; Load applies it. The info panel shows the
+saved waveform, mixer levels, filter, amplitude envelope and enabled/wet effects.
+The diagrams are schematic, not measured responses or live scopes. Factory sounds
+have authored descriptions; user sounds have a factual saved-settings summary.
+Hearts toggle favorites, persisted in favorites.txt in the user preset folder.
 
-- macOS: `~/Library/Application Support/SAWSTAR/Presets`
-- Windows: `%APPDATA%/SAWSTAR/Presets`
+The persistent top selector and arrows include both factory and managed user
+files. Top selection loads immediately. The loaded user filename has an asterisk
+when the current sound differs from its saved snapshot. Browsing another row does
+not itself change the playing sound or top title.
 
-Files use the existing versioned binary SAWSTAR state codec, including master WIDE.
-I/O happens only in editor actions, not in the audio processing callback. Invalid
-files are rejected before any parameter change. Names allow up to 80 UTF-8 bytes
-and exclude control/path characters and trailing dots/spaces. Operating-system
-filename restrictions also apply; errors are shown in the panel.
+## Actions
 
-The `user_preset_files` test covers save/read equality, name validation, refusal to
-overwrite, rename, archived deletion and corrupt-file rejection in a temporary
-folder. State tests cover parameter round-trips. Native dialogs and visual polish
-still require host interaction testing; no new factory sounds were added.
+- Load: apply the selected list entry after validating it.
+- Save As: native save dialog for the current sound; existing filenames are not
+  overwritten. Default destination is the managed user folder. When saving to an
+  external folder, also import a library copy; a library name collision is reported
+  and the external saved copy remains intact.
+- Init: load the embedded Init sound.
+- Copy/Paste: copy the current sound's parameters inside this editor and apply
+  them without creating a file. Save As persists the pasted sound. This is not a
+  system clipboard preset format; closing the editor clears this temporary copy.
+- Rename: enter a new name for the selected user file and press Enter. Factory
+  files are read-only. Favorite identity follows a successful rename.
+- Delete: confirm removal of the selected user file. A .deleted / .deleted-N
+  backup is retained beside it. The playing sound continues. Restore by renaming
+  the backup to an unused .sawstar filename.
+- Import: select one or many .sawstar files in the native file dialog. Validate
+  each file and copy it into the managed folder without overwriting existing
+  names. Report imported/skipped/failed counts and diagnostic filenames; a bad file
+  does not stop other imports. Cancel changes nothing. Imported sounds appear
+  under User without being automatically played.
 
-## Remaining visual work
+There is no bank format: one sound is one .sawstar file. Windows allows a combined
+selection path buffer of 65,536 characters; exceeding the platform dialog limit
+reports an error and requests a smaller selection.
 
-The controls are functional; final dropdown/button differentiation, typography,
-spacing and the green/orange/red (70/20/10 display-height) OUTPUT meter palette
-belong to the agreed final GUI polish milestone. Pre-release compatibility may be
-broken when justified by a concrete design improvement; no codec change is needed
-for this feature.
+## Storage and safety
 
-## Build checks
+- macOS: ~/Library/Application Support/SAWSTAR/Presets
+- Windows: %APPDATA%/SAWSTAR/Presets
 
-Code: `20da6bf362ad97bd84377ea7ce97a912f5b69760`.
+The existing versioned binary sound-state format is unchanged. User filenames
+allow up to 80 UTF-8 bytes with path/control characters excluded; OS restrictions
+also apply. File reads validate the state before applying any parameters. File I/O
+is done on editor actions, not the audio thread. The native macOS importer uses
+NSOpenPanel with multiple selection; Windows uses the multi-select common dialog.
+No third-party dependencies were added.
 
-- [macOS checks](https://github.com/RobCZart82/SAWSTAR/actions/runs/34260671316)
-- [Windows checks](https://github.com/RobCZart82/SAWSTAR/actions/runs/34260671314)
+DAW project state embeds all sound parameters. It does not depend on a preset file
+and does not preserve the external filename association; reload from the library
+to associate it. Favorites survive editor/app restart; clipboard and browser
+filter/preview selection are temporary editor state.
 
-The system-installed plugin is not replaced by this source change.
+## Validation
+
+Code: 9285b24a12a213b453d92f38d074971f2a5f78e5.
+
+- [macOS checks](https://github.com/RobCZart82/SAWSTAR/actions/runs/34359575985)
+- [Windows checks](https://github.com/RobCZart82/SAWSTAR/actions/runs/34359576007)
+
+preset_library_import tests 30-file import, content preservation, duplicate and
+conflicting names, corrupt/missing files, case-insensitive search, categories,
+favorites persistence across sequential editor instances and rename/archive behavior in a temporary directory.
+Existing user file lifecycle, engine and state tests also run. Native multi-select
+interaction and final visual layout still need manual REAPER host inspection.
+
+Both Release VST3 jobs passed 28 foundation/engine/file tests and 47 VST3
+validation checks. Both downloadable ZIP archives passed integrity checks.
+A REAPER UI inspection was attempted, but the automation tool returned no contents
+for the settings window, so native selection and layout are not claimed as tested.
+All six final jobs succeeded: macOS and Windows Debug, Release and VST3 Release.
