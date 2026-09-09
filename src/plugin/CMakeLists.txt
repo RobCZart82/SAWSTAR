@@ -36,3 +36,10 @@ string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," _logo_bytes "${_logo_hex}")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/CreatorLogo.h"
   "#pragma once\nnamespace sawstar::gui { inline constexpr unsigned char CreatorLogo[]={${_logo_bytes}}; }\n")
 target_include_directories(SAWSTAR-vst3 PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
+if(APPLE)
+  target_sources(SAWSTAR-vst3 PRIVATE ../gui/NativeImport.mm)
+else()
+  target_sources(SAWSTAR-vst3 PRIVATE ../gui/NativeImport.cpp)
+  target_link_libraries(SAWSTAR-vst3 PRIVATE comdlg32)
+endif()
