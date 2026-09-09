@@ -73,3 +73,29 @@ Validation for code commit `fb520b597f21a1de862bf2955d397fab02b6ac14`:
 Native REAPER visual inspection of this pass is still pending. A separate test
 bundle was scanned, but UI automation did not reliably open the FX window.
 The original VST search paths were restored; the installed bundle was not replaced.
+
+## Settings / About (2026-09-09)
+
+The persistent top-right gear opens a menu with About SAWSTAR. Selecting it opens
+a centered About window inside the plugin editor, above the current page. It shows
+the original creator logo, Gyuricza Róbert, the plugin version and project address.
+OK closes the window; Escape/Enter also close it when the editor receives the key.
+The full-editor overlay intercepts mouse clicks and wheel events while visible.
+DAW playback and incoming MIDI continue normally.
+
+The preset selector is slightly narrower to reserve the gear's own click area.
+MAIN, ADVANCED and PRESETS share the same settings control. The logo is embedded
+from assets/branding/GYR-Logo1.png at build time, unchanged, with its aspect ratio
+preserved and a light backing for the black lettering. It needs no external file
+at runtime. Creator branding is excluded from the source-code MIT license; see
+[branding notice](../assets/branding/README.md).
+
+About validation uses code commit `d4de33c0a3fdb4b64865f16e2dfd958723cabc8f`:
+[macOS run](https://github.com/RobCZart82/SAWSTAR/actions/runs/34307025293),
+[Windows run](https://github.com/RobCZart82/SAWSTAR/actions/runs/34307025243).
+The Release VST3 jobs run the foundation checks and VST3 processing/state validator.
+Interactive About menu/OK behavior still requires a native host GUI check; a build
+or binary-resource check alone does not prove that interaction.
+All six jobs completed successfully: macOS/Windows Debug, Release and VST3 Release.
+Both packaged plugin binaries were checked for the exact original PNG bytes, and
+both downloadable ZIP archives passed their integrity checks.
