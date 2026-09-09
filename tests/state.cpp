@@ -4,9 +4,22 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
+#include <limits>
 void check(bool ok,const char* name){if(!ok){std::cerr<<name<<"\n";std::exit(1);}}
 int main(){
  using namespace sawstar;
+ // Loading normalized values must not mark an untouched preset as modified.
+ const auto saved=DefaultSnapshot();auto restored=saved;
+ for(size_t i=0;i<saved.size();++i)restored[i]=Denormalize(kParameters[i],Normalize(kParameters[i],saved[i]));
+ check(SnapshotsMatch(saved,restored),"normalization roundtrip stays unmodified");
+ for(size_t i=0;i<saved.size();++i){
+  auto roundoff=saved;roundoff[i]=std::nextafter(saved[i],std::numeric_limits<double>::infinity());
+  check(SnapshotsMatch(saved,roundoff)&&SnapshotsMatch(roundoff,saved),"one-ULP roundoff is not an edit");
+  auto edited=saved;edited[i]+=.001;
+  check(!SnapshotsMatch(saved,edited),"small control changes remain visible");
+ }
+ restored[0]=std::numeric_limits<double>::quiet_NaN();check(!SnapshotsMatch(restored,restored),"NaN cannot match a preset");
  Snapshot wanted=DefaultSnapshot();
  const double fixture[]={-23.5,23.24,780,0.42,1234, 23, 64, 82, 1900, 35, 100, 36, 80, 25, 450, .35, 800, 12, 36, 18};
  for(size_t i=0;i<20;++i)wanted[i]=fixture[i];

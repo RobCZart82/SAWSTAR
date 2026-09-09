@@ -8,6 +8,8 @@ namespace sawstar {
 using Snapshot = std::array<double, kParameters.size()>;
 using StateBytes = std::array<uint8_t, 16 + 12 * kParameters.size()>;
 Snapshot DefaultSnapshot();
+// Ignore floating-point round-trip noise, without hiding a control's smallest step.
+bool SnapshotsMatch(const Snapshot& a,const Snapshot& b);
 StateBytes EncodeState(const Snapshot& values);
 // Returns consumed bytes or zero; output remains untouched on failure.
 // Accepts the VST3 wrapper's optional four-byte bypass trailer.

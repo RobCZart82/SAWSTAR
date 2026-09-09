@@ -20,6 +20,14 @@ double ReadDouble(const uint8_t* p) {
 Snapshot DefaultSnapshot() {
   Snapshot values{}; for(size_t i=0;i<values.size();++i) values[i]=kParameters[i].initial; return values;
 }
+bool SnapshotsMatch(const Snapshot& a,const Snapshot& b) {
+  for(size_t i=0;i<a.size();++i) {
+    if(!std::isfinite(a[i])||!std::isfinite(b[i]))return false;
+    const double tolerance=1.e-10*std::max({1.,std::abs(a[i]),std::abs(b[i])});
+    if(std::abs(a[i]-b[i])>tolerance)return false;
+  }
+  return true;
+}
 StateBytes EncodeState(const Snapshot& values) {
   static_assert(sizeof(double)==8 && std::numeric_limits<double>::is_iec559, "IEEE-754 required");
   StateBytes bytes{}; std::copy(magic.begin(),magic.end(),bytes.begin());
