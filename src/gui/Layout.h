@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "gui/Controls/Theme.h"
+#include "gui/Controls/About.h"
 #include "gui/Controls/PageButton.h"
 #include "gui/Controls/PresetControls.h"
 #include "gui/Controls/WaveformControl.h"
@@ -39,7 +40,7 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  text(IRECT(20,17,272,61),"S A W S T A R",30);text(IRECT(285,20,427,38),"Simple Synth",13);text(IRECT(285,38,427,56),"B i g  S o u n d",13);
  auto select=[g,&page,&lfoPage,&fxPage](int next){page=next;const char* groups[]={"main","advanced","presets"};for(int i=0;i<3;++i)g->ForControlInGroup(groups[i],[i,next](IControl* c){c->Hide(i!=next);});for(int i=0;i<2;++i)g->ForControlInGroup(i?"lfo2":"lfo1",[i,next,&lfoPage](IControl* c){c->Hide(next!=1||lfoPage!=i);});const char* fx[]={"chorus","delay","reverb"};for(int i=0;i<3;++i)g->ForControlInGroup(fx[i],[i,next,&fxPage](IControl* c){c->Hide(next!=1||fxPage!=i);});g->SetAllControlsDirty();};
  const char* pages[]={"MAIN","ADVANCED","PRESETS"};for(int i=0;i<3;++i)g->AttachControl(new PageButton(IRECT(440+i*98,20,534+i*98,60),pages[i],i,page,[select,i]{select(i);}));
- g->AttachControl(new PresetSelector(IRECT(752,20,1268,60),preset,load,[&user,current]{return user.active?user.path.stem().u8string()+(current()!=user.saved?" *":""):std::string{};}));
+ g->AttachControl(new PresetSelector(IRECT(752,20,1214,60),preset,load,[&user,current]{return user.active?user.path.stem().u8string()+(current()!=user.saved?" *":""):std::string{};}));
  // MAIN: signal flow, with color restricted to section headers.
  section(IRECT(12,82,292,636),"OSCILLATORS","main",IColor(255,70,206,237),true);section(IRECT(300,82,464,636),"MIXER","main",IColor(255,144,173,246),true);section(IRECT(472,82,648,636),"FILTER","main",IColor(255,220,179,86),true);section(IRECT(656,82,826,636),"FILTER ENV","main",IColor(255,102,220,192),true);section(IRECT(834,82,1004,636),"AMP ENV","main",IColor(255,84,213,186),true);section(IRECT(1012,82,1118,636),"FX","main",IColor(255,178,143,231),true);section(IRECT(1126,82,1268,636),"OUTPUT","main",IColor(255,156,179,240),true);
  for(int osc=0;osc<2;++osc){float y=126+osc*173;g->AttachControl(new WaveformControl(IRECT(23,y,145,y+146),33+osc,osc?"OSC 2":"OSC 1"),iplug::kNoTag,"main");int ids[4]={osc?24:30,osc?27:5,osc?28:6,osc?29:7};const char* labels[]={"OCT","DETUNE","UNISON","WIDTH"};for(int j=0;j<4;++j)knob(150+(j%2)*66,y+(j/2)*80,63,ids[j],labels[j],"main");}
@@ -64,6 +65,9 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  section(IRECT(12,82,570,636),"FACTORY LIBRARY","presets");section(IRECT(580,82,1268,636),"PRESET INFO / LEARNING","presets");for(int i=0;i<int(FactoryPresets().size());++i)g->AttachControl(new LibraryRow(IRECT(24,129+i*53,558,177+i*53),i,preset,load),iplug::kNoTag,"presets");g->AttachControl(new LibraryInfo(IRECT(604,134,1245,551),preset,user),iplug::kNoTag,"presets");g->AttachControl(new UserPresetPanel(IRECT(604,487,1245,623),user,current,apply,[load]{load(0);}),iplug::kNoTag,"presets");
  section(IRECT(12,646,1268,724),"","",Blue);g->AttachControl(new PerformanceWheel(IRECT(23,654,54,702),true));g->AttachControl(new PerformanceWheel(IRECT(65,654,96,702),false));text(IRECT(23,703,60,721),"PITCH",9);text(IRECT(66,703,101,721),"MOD",9);
  g->AttachControl(new Keyboard(IRECT(115,654,1258,715),36,96,false,IColor(255,181,187,187),IColor(255,19,24,27),Blue,PanelColor,Text));g->AttachControl(new Status(IRECT(20,729,1260,750),cpu,rate,voices),9101);
+ auto* about=new AboutWindow(IRECT(0,0,1280,760));
+ g->AttachControl(new SettingsMenu(IRECT(1228,20,1268,60),about));
+ g->AttachControl(about);
  select(page);
 }
 }

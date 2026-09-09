@@ -27,3 +27,12 @@ if(WIN32)
     LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/out/SAWSTAR.vst3/Contents/x86_64-win"
     LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/out/SAWSTAR.vst3/Contents/x86_64-win")
 endif()
+
+# Embed the original creator PNG so About needs no external asset installation.
+set(_logo "${PROJECT_SOURCE_DIR}/assets/branding/GYR-Logo1.png")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_logo}")
+file(READ "${_logo}" _logo_hex HEX)
+string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," _logo_bytes "${_logo_hex}")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/CreatorLogo.h"
+  "#pragma once\nnamespace sawstar::gui { inline constexpr unsigned char CreatorLogo[]={${_logo_bytes}}; }\n")
+target_include_directories(SAWSTAR-vst3 PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
