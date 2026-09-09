@@ -47,7 +47,12 @@ class PresetBrowser final:public IControl {
   TextLine(g,"TAGS",IRECT(651,290,1057,312),12,Blue);TextLine(g,e->category+(e->factory>=0?"  /  Factory":"  /  User"),IRECT(651,318,1057,343),14);
   TextLine(g,"HOW IT WORKS — saved settings",IRECT(651,364,1057,390),12,Blue);
   if(!preview_){TextLine(g,"Cannot read this preset.",IRECT(651,405,1057,432));return;}const auto& v=*preview_;const char* blocks[]={"OSC","MIXER","FILTER","ENV","FX"};
-  for(int i=0;i<5;++i){IRECT r(651+i*82,399,723+i*82,450);g.FillRoundRect(IColor(255,10,18,24),r,3);g.DrawRoundRect(Blue,r,3);g.DrawText(IText(12,Text),blocks[i],r);}
+  for(int i=0;i<5;++i){IRECT r(651+i*82,399,723+i*82,450);g.FillRoundRect(IColor(255,10,18,24),r,3);g.DrawRoundRect(Blue,r,3);g.DrawText(IText(11,Text),blocks[i],r.GetFromTop(19));auto plot=IRECT(r.L+7,r.T+23,r.R-7,r.B-6);
+   if(i==0||i==2){float px=plot.L,py=plot.MH();for(int j=0;j<=30;++j){float t=j/30.f,y=0;if(i==0){int wave=int(std::lround(v[33]));y=wave==0?2*t-1:wave==1?(t<.5f?1.f:-1.f):wave==2?1-4*std::abs(t-.5f):std::sin(t*6.2831853f);}else{float cutoff=float(Normalize(kParameters[8],v[8]));float low=1/(1+std::exp((t-cutoff)*14));int mode=int(v[32]);y=2*(mode<2?low:mode==2?1-low:4*low*(1-low))-1;}float x=plot.L+t*plot.W(),sy=plot.MH()-y*plot.H()*.45f;if(j)g.DrawLine(Blue,px,py,x,sy);px=x;py=sy;}}
+   else if(i==1){for(int j=0;j<4;++j){float x=plot.L+j*plot.W()/4;g.FillRect(Blue,IRECT(x,plot.B-float(v[20+j]/100)*plot.H(),x+6,plot.B));}}
+   else if(i==3){float a=.1f+.2f*float(Normalize(kParameters[1],v[1])),d=.15f+.15f*float(Normalize(kParameters[2],v[2]));float xs[]={0,a,a+d,.8f,1},ys[]={0,1,float(v[3]),float(v[3]),0};for(int j=1;j<5;++j)g.DrawLine(Blue,plot.L+xs[j-1]*plot.W(),plot.B-ys[j-1]*plot.H(),plot.L+xs[j]*plot.W(),plot.B-ys[j]*plot.H());}
+   else{for(int j=0;j<3;++j){int id=j==0?42:j==1?46:54;g.FillCircle(v[id]>.5&&v[id+1]>0?Blue:Border,plot.L+10+j*19,plot.MH(),5);}}
+  }
   const char* wave[]={"Saw","Square","Triangle","Sine"};auto w=[&](int id){return wave[std::clamp(int(std::lround(v[id])),0,3)];};
   TextLine(g,std::string("OSC1: ")+w(33)+"  |  OSC2: "+w(34),IRECT(651,463,1063,487),12);
   char line[150];std::snprintf(line,sizeof(line),"MIX: %.0f / %.0f / %.0f / %.0f",v[20],v[21],v[22],v[23]);TextLine(g,line,IRECT(651,490,1063,514),12);
