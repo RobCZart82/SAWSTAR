@@ -108,7 +108,7 @@ inline constexpr std::array<ParameterSpec, 93> kParameters{{
   {ParameterId::ArpSwing, "arp.swing", "Swing", "%", 0., 75., 0., Mapping::Linear},
   {ParameterId::ArpHold, "arp.hold", "Hold", "", 0., 1., 0., Mapping::Linear},
   {ParameterId::WidthEnabled, "output.wide", "Wide", "", 0., 1., 0., Mapping::Linear},
-  {ParameterId::WidthAmount, "output.wide_amount", "Amount Wide", "%", 0., 100., 50., Mapping::Linear}
+  {ParameterId::WidthAmount, "output.wide_amount", "Amount Wide", "%", 0., 100., 50., Mapping::Linear},
   {ParameterId::SubWave, "sub.waveform", "SUB Wave", "", 0., 2., 0., Mapping::Linear},
 }};
 

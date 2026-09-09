@@ -17,7 +17,7 @@ double source(float sr,int source,int type=0,int octave=-1,int wave=0){
 }
 int main(){for(float sr:{44100.f,48000.f,96000.f}){
  for(int i=0;i<4;++i)source(sr,i);
- for(int wave=1;wave<=2;++wave)source(sr,2,0,-1,wave);
+ const auto sine=source(sr,2,0,-1,0),tri=source(sr,2,0,-1,1),square=source(sr,2,0,-1,2);check(tri<sine*.9&&square>sine*1.1,"sub waveforms have distinct spectra and energy");
  source(sr,2,0,-2);source(sr,2,0,0);
  check(source(sr,3,1)<source(sr,3,0)*.3,"Dark Noise attenuates high frequency energy");
  sawstar::Synth s;s.Reset(sr);s.SetParameters(0,1,1,1,20);s.SetOutputBoost(24);

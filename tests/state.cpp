@@ -55,6 +55,7 @@ int main(){
  // Fixture for old physical doubles: -12, 10, 100, .7, 250, little endian.
  auto ninety=std::vector<uint8_t>(state.begin(),state.begin()+1096);ninety[12]=56;ninety[13]=4;
  check(DecodeState(ninety.data(),ninety.size(),out)==1096 && out[90]==0 && out[91]==50,"old GUI state keeps master width bypassed");
+ auto prior=std::vector<uint8_t>(state.begin(),state.begin()+1120);prior[12]=80;prior[13]=4;check(DecodeState(prior.data(),prior.size(),out)==1120&&out[92]==0,"old preset defaults SUB to Sine");
  const uint8_t old[]={0,0,0,0,0,0,40,192,0,0,0,0,0,0,36,64,0,0,0,0,0,0,89,64,
    102,102,102,102,102,102,230,63,0,0,0,0,0,64,111,64};
  auto legacyDefault=DefaultSnapshot();legacyDefault[19]=0;
