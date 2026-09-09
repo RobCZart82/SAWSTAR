@@ -32,11 +32,11 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  g->AttachControl(new Curve(IRECT(482,128,638,259),{8,32},false),iplug::kNoTag,"main");knob(478,280,55,8,"CUTOFF","main");knob(533,280,55,9,"RES","main");knob(588,280,55,31,"DRIVE","main");fader(IRECT(484,386,636,449),10,"FILTER MIX","main",true);fader(IRECT(484,489,636,554),12,"KEY TRACK","main",true);menu(IRECT(483,582,637,623),32,"","main");
  const char* adsr[]={"A","D","S","R"};for(int e=0;e<2;++e){float x=e?834:656;g->AttachControl(new Curve(IRECT(x+10,128,x+160,259),e?std::initializer_list<int>{1,2,3,4}:std::initializer_list<int>{13,14,15,16},true),iplug::kNoTag,"main");for(int j=0;j<4;++j)knob(x+3+j*41,280,40,(e?1:13)+j,adsr[j],"main");if(!e)knob(x+42,464,85,11,"AMOUNT","main");}
  for(int i=0;i<3;++i){knob(1021,143+i*141,88,i==0?43:i==1?47:55,i==0?"CHORUS":i==1?"DELAY":"REVERB","main");menu(IRECT(1021,225+i*141,1109,261+i*141),i==0?42:i==1?46:54,"","main");}
- fader(IRECT(1137,126,1227,421),0,"VOLUME","main");g->AttachControl(new Meter(IRECT(1236,147,1252,396),peakL,peakR),9100,"main");knob(1147,430,100,19,"BOOST dB","main");knob(1147,514,100,91,"AMOUNT WIDE","main");g->AttachControl(new Toggle(IRECT(1137,595,1257,623),90,"WIDE"),iplug::kNoTag,"main");
+ auto* volume=new Fader(IRECT(1137,126,1227,421),0,"VOLUME");g->AttachControl(volume,iplug::kNoTag,"main");g->AttachControl(new Meter(IRECT(1236,126,1252,421),peakL,peakR,volume),9100,"main");knob(1147,430,100,19,"BOOST dB","main");knob(1147,514,100,91,"AMOUNT WIDE","main");g->AttachControl(new Toggle(IRECT(1137,595,1257,623),90,"WIDE"),iplug::kNoTag,"main");
  // ADVANCED uses a single blue palette throughout.
  section(IRECT(12,82,260,421),"PERFORMANCE","advanced");section(IRECT(268,82,585,421),"ARPEGGIATOR","advanced");section(IRECT(593,82,879,421),"LFO","advanced");section(IRECT(887,82,1268,421),"MODULATION","advanced");
  menu(IRECT(24,133,247,180),59,"VOICE MODE","advanced");knob(23,202,105,60,"GLIDE ms","advanced");menu(IRECT(136,207,246,275),61,"GLIDE MODE","advanced");knob(23,316,105,17,"BEND RANGE","advanced");knob(136,316,105,18,"WHEEL DEPTH","advanced");
- menu(IRECT(279,130,359,178),83,"ARP","advanced");menu(IRECT(369,130,574,178),84,"ORDER","advanced");menu(IRECT(279,200,421,250),85,"RATE","advanced");menu(IRECT(432,200,574,250),89,"HOLD","advanced");knob(281,292,90,86,"GATE","advanced");knob(382,292,90,87,"OCTAVES","advanced");knob(481,292,90,88,"SWING","advanced");
+ menu(IRECT(279,130,359,178),83,"ARP","advanced");menu(IRECT(369,130,574,178),89,"HOLD","advanced");menu(IRECT(279,200,421,250),85,"RATE","advanced");menu(IRECT(432,200,574,250),84,"ORDER","advanced");knob(281,292,90,86,"GATE","advanced");knob(382,292,90,87,"OCTAVES","advanced");knob(481,292,90,88,"SWING","advanced");
  for(int bank=0;bank<2;++bank){g->AttachControl(new PageButton(IRECT(674+bank*97,89,766+bank*97,116),bank?"LFO 2":"LFO 1",bank,lfoPage,[&lfoPage,&page,select,bank]{lfoPage=bank;select(page);}),iplug::kNoTag,"advanced");const char* group=bank?"lfo2":"lfo1";int base=bank?64:35;
  menu(IRECT(605,132,867,175),base+2,"SHAPE",group);knob(600,190,86,base,"RATE Hz",group);knob(693,190,86,base+1,"AMOUNT",group);menu(IRECT(785,193,867,263),base+4,"SYNC",group);menu(IRECT(605,280,730,331),base+5,"DIVISION",group);menu(IRECT(740,280,867,331),base+6,"PHASE",group);menu(IRECT(605,347,867,401),base+3,"DESTINATION",group);}
  for(int row=0;row<4;++row){float y=132+row*67;int id=71+row*3;menu(IRECT(899,y,1006,y+51),id,row==0?"SOURCE":"","advanced");menu(IRECT(1014,y,1163,y+51),id+1,row==0?"DESTINATION":"","advanced");g->AttachControl(new Knob(IRECT(1173,y-7,1256,y+56),id+2,row==0?"AMOUNT":" "),iplug::kNoTag,"advanced");}
@@ -44,6 +44,13 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  menu(IRECT(386,474,513,529),42,"CHORUS","chorus");knob(551,492,165,43,"MIX","chorus");knob(739,492,165,44,"RATE","chorus");knob(927,492,165,45,"DEPTH","chorus");
  const int dm[]={46,51,52,53};for(int i=0;i<4;++i)menu(IRECT(386+i*215,474,587+i*215,527),dm[i],i==0?"DELAY":i==1?"MODE":i==2?"CLOCK":"DIVISION","delay");for(int i=0;i<4;++i)knob(386+i*215,544,198,47+i,i==0?"MIX":i==1?"TIME ms":i==2?"FEEDBACK":"TONE Hz","delay");
  menu(IRECT(386,476,527,531),54,"REVERB","reverb");for(int i=0;i<4;++i)knob(541+i*179,520,165,55+i,i==0?"MIX":i==1?"SIZE":i==2?"DECAY s":"DAMPING Hz","reverb");
+ // Quiet separators group related controls without changing their hit areas.
+ auto divider=[&](float l,float y,float rr,const char* group){g->AttachControl(new Divider(IRECT(l,y,rr,y+1)),iplug::kNoTag,group);};
+ divider(24,294,280,"main");divider(24,470,280,"main");
+ divider(312,470,452,"main");divider(484,376,636,"main");
+ divider(1021,272,1109,"main");divider(1021,413,1109,"main");
+ divider(1137,425,1257,"main");divider(1137,510,1257,"main");
+ divider(24,293,247,"advanced");
  // Shared factory/user library follows the approved four-column concept.
  g->AttachControl(new PresetBrowser(user,current,apply,load,confirm),9102,"presets");
  section(IRECT(12,646,1268,724),"","",Blue);g->AttachControl(new PerformanceWheel(IRECT(23,654,54,702),true));g->AttachControl(new PerformanceWheel(IRECT(65,654,96,702),false));text(IRECT(23,703,60,721),"PITCH",9);text(IRECT(66,703,101,721),"MOD",9);

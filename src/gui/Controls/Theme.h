@@ -29,6 +29,11 @@ public: Section(IRECT r,const char* title,IColor color=Blue,bool tint=false):ICo
  if(tint_)g.FillRect(IColor(35,color_.R,color_.G,color_.B),mRECT.GetFromTop(35));
  g.DrawText(IText(15,color_).WithAlign(EAlign::Near),title_,IRECT(mRECT.L+12,mRECT.T,mRECT.R-8,mRECT.T+35));}
 };
+// Decorative separators never capture input.
+class Divider final:public IControl{
+public:explicit Divider(IRECT r):IControl(r){SetIgnoreMouse(true);}
+ void Draw(IGraphics& g)override{g.DrawLine(Border,mRECT.L,mRECT.MH(),mRECT.R,mRECT.MH());}
+};
 class Knob final:public IVKnobControl{
 public:Knob(IRECT r,int id,const char* title):IVKnobControl(r,id,title,Style(),true){}
  void DrawValue(IGraphics& g,bool)override{char value[32];const double v=GetParam()->Value();std::snprintf(value,sizeof(value),std::abs(v)>=100?"%.0f":"%.1f",v);g.DrawText(mStyle.valueText,value,mValueBounds);}
@@ -43,9 +48,12 @@ class Fader final:public IVSliderControl{
 public:Fader(IRECT r,int id,const char* title,EDirection dir=EDirection::Vertical):IVSliderControl(r,id,title,Style(),true,dir,DEFAULT_GEARING,8,3,true){}
  void DrawValue(IGraphics& g,bool)override{char value[32];const double v=GetParam()->Value();std::snprintf(value,sizeof(value),"%.1f",v);g.DrawText(mStyle.valueText,value,mValueBounds);}
  void DrawHandle(IGraphics& g,const IRECT& r)override{auto b=r.GetCentredInside(mDirection==EDirection::Vertical?17:10,mDirection==EDirection::Vertical?10:17);g.FillRoundRect(Blue,b,2);g.DrawRoundRect(IColor(255,110,205,242),b,2);}
- void DrawTrack(IGraphics& g,const IRECT& filled)override{const auto r=GetTrackBounds();
- for(int i=0;i<=8;++i){if(mDirection==EDirection::Vertical){float y=r.T+r.H()*i/8;g.DrawLine(Border,r.MW()-7,y,r.MW()+7,y);}else{float x=r.L+r.W()*i/8;g.DrawLine(Border,x,r.MH()-6,x,r.MH()+6);}}
- IVSliderControl::DrawTrack(g,filled);}
+ void DrawTrack(IGraphics& g,const IRECT&)override{const auto r=GetTrackBounds();
+ g.FillRoundRect(IColor(255,17,46,65),r,1);g.DrawRoundRect(IColor(255,48,81,99),r,1);
+ if(GetValue()>0)g.FillRect(Blue,r.FracRect(mDirection,float(GetValue())));
+ for(int i=0;i<=8;++i){auto color=IColor(255,66,86,97);if(mDirection==EDirection::Vertical){float y=r.T+r.H()*i/8;g.DrawLine(color,r.L-6,y,r.L-2,y);g.DrawLine(color,r.R+2,y,r.R+6,y);}else{float x=r.L+r.W()*i/8;g.DrawLine(color,x,r.T-5,x,r.T-2);g.DrawLine(color,x,r.B+2,x,r.B+5);}}
+ }
+
 };
 // Parameter-linked schematic, not a measured frequency response or oscilloscope.
 class Curve final:public IControl{
@@ -60,20 +68,20 @@ public:Curve(IRECT r,std::initializer_list<int> ids,bool envelope):IControl(r,id
 class Toggle final:public IControl{
  const char* label_;
 public:Toggle(IRECT r,int id,const char* label):IControl(r,id),label_(label){}
- void Draw(IGraphics& g)override{const bool on=GetValue()>.5;g.FillRoundRect(on?IColor(255,22,58,80):IColor(255,13,19,22),mRECT,3);g.DrawRoundRect(on?Blue:Border,mRECT,3,nullptr,on?1.5f:1.f);char text[80];std::snprintf(text,sizeof(text),"%s%s%s",label_,*label_?"  ":"",on?"ON":"OFF");g.DrawText(IText(11,on?Text:IColor(255,130,150,158)),text,mRECT);}
+ void Draw(IGraphics& g)override{const bool on=GetValue()>.5;g.FillRoundRect(on?IColor(255,22,58,80):IColor(255,13,19,22),mRECT,3);g.DrawRoundRect(on?Blue:IColor(255,67,87,99),mRECT,3,nullptr,on?1.5f:1.f);char text[80];std::snprintf(text,sizeof(text),"%s%s%s",label_,*label_?"  ":"",on?"ON":"OFF");g.DrawText(IText(11,on?Text:IColor(255,130,150,158)),text,mRECT);}
  void OnMouseDown(float,float,const IMouseMod&)override{SetValue(GetValue()>.5?0:1);SetDirty(true);}
 };
 class Meter final:public IControl{
- const std::atomic<float>& left_;const std::atomic<float>& right_;
-public:Meter(IRECT r,const std::atomic<float>& l,const std::atomic<float>& rt):IControl(r),left_(l),right_(rt){SetIgnoreMouse(true);}
+ const std::atomic<float>& left_;const std::atomic<float>& right_;const Fader* fader_;
+public:Meter(IRECT r,const std::atomic<float>& l,const std::atomic<float>& rt,const Fader* fader):IControl(r),left_(l),right_(rt),fader_(fader){SetIgnoreMouse(true);}
  void Draw(IGraphics& g)override{
  for(int i=0;i<2;++i){const float value=i?right_.load():left_.load();const float fill=std::clamp((20*std::log10(std::max(value,1.e-6f))+60)/60,0.f,1.f);
- const IRECT r(mRECT.L+i*10,mRECT.T,mRECT.L+i*10+6,mRECT.B);g.FillRect(IColor(255,7,11,13),r);
- // Fixed display-height zones: ~70% green, ~20% orange, ~10% red.
+ const auto track=fader_->GetTrackBounds();const IRECT r(mRECT.L+i*10,track.T,mRECT.L+i*10+6,track.B);g.FillRect(IColor(255,7,11,13),r);
+ // Fixed display-height zones: ~70% green, ~20% yellow, ~10% red.
  // These are peak-meter colors, not a change to audio gain or meter ballistics.
  if(fill>0){const auto gradient=IPattern::CreateLinearGradient(r.MW(),r.B,r.MW(),r.T,{
  {IColor(255,40,145,88),0.f},{IColor(255,80,190,108),.68f},
- {IColor(255,222,157,62),.72f},{IColor(255,235,145,54),.88f},
+ {IColor(255,224,204,55),.72f},{IColor(255,241,218,64),.88f},
  {IColor(255,221,72,62),.92f},{IColor(255,235,81,69),1.f}});
  g.PathRect(r.GetFromBottom(r.H()*fill));g.PathFill(gradient);}
  g.DrawRect(Border,r);

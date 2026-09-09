@@ -105,3 +105,15 @@ both downloadable ZIP archives passed their integrity checks.
 The About creator PNG is replaced by an embedded Orbitron Bold SAWSTAR wordmark.
 The original asset is archived only. See [editor-close fix and confirmations](EDITOR_CLOSE_FIX.md)
 for the Retina cache ownership issue, safety controls and host-test limits.
+
+## Control finish pass
+
+Inactive page tabs and on/off controls have dark recessed fills and visible
+borders. Slider tracks share dim-blue empty tracks, blue value fill and eight
+intervals of subtle tick marks. The output meter reads its vertical endpoints
+from the volume slider track, avoiding label/handle padding mismatches. Meter
+height zones remain approximately 70% green, 20% yellow, 10% red.
+
+ARP HOLD occupies the former ORDER field and ORDER the former HOLD field.
+Non-interactive dividers separate oscillator, FX, mixer, performance and output
+control groups, including both sides of BOOST. No parameter IDs or DSP change.
