@@ -22,7 +22,7 @@ void Synth::Reset(double rate) {
   uint32_t seed=0x9e3779b9u;
   for (auto& v : voices_) {
     v = Voice{}; v.noiseState=seed; v.pink.Reset(seed^0xa341316cu); seed+=0x9e3779b9u;
-    v.osc2.Init(sr); v.sub.Init(sr); v.sub.SetWaveform(daisysp::Oscillator::WAVE_SIN); v.sub.SetAmp(1);
+    v.osc2.Init(sr); v.sub.Init(sr); v.sub.SetWaveform(0);
     v.osc.Init(sr); v.env.Init(sr); v.filter.Init(sr); v.filterMod.Init(sr);
   }
 }
@@ -91,6 +91,9 @@ void Synth::MonoMidi(int status,int note,int value) {
 }
 void Synth::SetWaveforms(int osc1,int osc2){alternateWave_=osc1!=0;for(auto& v:voices_){v.osc.SetWaveform(osc1);v.osc2.SetWaveform(osc2);}}
 void Synth::SetLfo(float hz,float depth,int shape,int target,bool sync,int division,double bpm,bool retrigger){lfo_.Set(hz,depth,shape,target,sync,division,bpm,retrigger);}
+void Synth::SetSubWave(int wave) {
+  for(auto& v:voices_)v.sub.SetWaveform(wave);
+}
 void Synth::SetMixer(float osc1,float osc2,float sub,float noise,
                      int osc2Octave,int subOctave,int noiseType,int osc1Octave) {
   const float values[]={osc1,osc2,sub,noise};

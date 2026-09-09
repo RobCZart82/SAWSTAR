@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "dsp/SubOscillator.h"
 #include "dsp/SevenSaw.h"
 #include "dsp/Lfo.h"
 #include "dsp/Modulation.h"
@@ -30,6 +31,7 @@ public:
   void SetVoiceMode(int mode,float glideMs,bool overlapOnly);
   void SetOutputBoost(float dB);
   void SetWidth(bool on,float amount){width_.Set(on,amount);}
+  void SetSubWave(int wave);
   void SetMixer(float osc1, float osc2, float sub, float noise,
                 int osc2Octave, int subOctave, int noiseType, int osc1Octave);
   void SetNoiseColor(float percent) { targetNoiseColor_=std::clamp(percent*.01f,-1.f,1.f); }
@@ -49,7 +51,7 @@ public:
 private:
   struct Voice {
     SevenSaw osc, osc2;
-    daisysp::Oscillator sub;
+    SubOscillator sub;
     float fundamental=440, darkNoise=0;
     uint32_t noiseState=1;
     PinkNoise pink;

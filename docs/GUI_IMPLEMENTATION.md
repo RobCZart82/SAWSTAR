@@ -127,3 +127,12 @@ filled rectangles reported in the host screenshot. ARP/HOLD use the same
 142-by-32 field size as the dropdowns below. FX selectors form a compact left
 column; enable and knobs share evenly spaced columns, with extra delay menus
 on a separate row.
+
+### Saved preview and SUB source
+
+SUB now uses the same 122-by-146 waveform panel as OSC1/2, aligned in the
+source column. It offers Sine/Triangle/Square and OCT; its duplicate LEVEL knob
+is removed. MAIN section outlines follow their header hues. Section and page
+titles use bold Arial. The header wordmark uses 36-point Orbitron with 1 pixel
+letter tracking, followed by the two-line motto. Preset search entry uses a
+muted off-white background and dark text. HOW IT WORKS shows saved data only.

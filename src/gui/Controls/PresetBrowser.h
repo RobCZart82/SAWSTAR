@@ -11,7 +11,7 @@ namespace sawstar::gui {
 class PresetBrowser final:public IControl {
  std::shared_ptr<int> lifetime_=std::make_shared<int>(0);
  ConfirmAction* confirm_;PresetLibrary library_;UserPresetSelection& user_;std::function<Snapshot()> current_;std::function<void(const Snapshot&)> apply_;std::function<void(int)> factory_;
- std::vector<int> visible_;std::string category_="All",query_,selected_,status_;int scroll_=0,editing_=0;bool live_=false;
+ std::vector<int> visible_;std::string category_="All",query_,selected_,status_;int scroll_=0,editing_=0;
  std::optional<Snapshot> preview_,clipboard_;WDL_String file_,folder_;
  static constexpr int Rows=12;
  IRECT Search()const{return IRECT(331,94,616,124);}
@@ -43,13 +43,11 @@ class PresetBrowser final:public IControl {
   SetDirty(false);
  }catch(const std::exception& e){Error(e);}}
  void TextLine(IGraphics& g,const std::string& s,IRECT r,int size=13,IColor color=Text){g.DrawText(IText(size,color).WithAlign(EAlign::Near),s.c_str(),r);}
- void Info(IGraphics& g){const auto* e=Selected();if(!e)return;TextLine(g,live_?"Current sound":e->name,IRECT(651,140,1038,177),22);
-  std::string lesson=live_?"Live settings of the current sound. Save As stores these parameters. Diagrams summarize the sound; they are not audio measurements.":e->lesson;float y=184;while(!lesson.empty()&&y<277){size_t n=lesson.size()<=43?lesson.size():lesson.rfind(' ',43);if(n==0||n==std::string::npos)n=std::min<size_t>(43,lesson.size());TextLine(g,lesson.substr(0,n),IRECT(651,y,1060,y+20),13);lesson.erase(0,n+(n<lesson.size()?1:0));y+=21;}
-  TextLine(g,"TAGS",IRECT(651,290,1057,312),12,Blue);TextLine(g,live_?"Live parameter view":e->category+(e->factory>=0?"  /  Factory":"  /  User"),IRECT(651,318,1057,343),14);
-  TextLine(g,"HOW IT WORKS - schematic",IRECT(651,354,1057,375),12,Blue);
-  for(int i=0;i<2;++i){IRECT b(651+i*203,377,848+i*203,397);g.FillRoundRect(live_==bool(i)?IColor(255,25,65,88):PanelColor,b,2);g.DrawText(IText(11,Text),i?"Current sound":"Saved settings",b);}
-
-  if(!live_&&!preview_){TextLine(g,"Cannot read this preset.",IRECT(651,405,1057,432));return;}const auto v=live_?current_():*preview_;const char* blocks[]={"OSC","MIXER","FILTER","ENV","FX"};
+ void Info(IGraphics& g){const auto* e=Selected();if(!e)return;TextLine(g,e->name,IRECT(651,140,1038,177),22);
+  std::string lesson=e->lesson;float y=184;while(!lesson.empty()&&y<277){size_t n=lesson.size()<=43?lesson.size():lesson.rfind(' ',43);if(n==0||n==std::string::npos)n=std::min<size_t>(43,lesson.size());TextLine(g,lesson.substr(0,n),IRECT(651,y,1060,y+20),13);lesson.erase(0,n+(n<lesson.size()?1:0));y+=21;}
+  TextLine(g,"TAGS",IRECT(651,290,1057,312),12,Blue);TextLine(g,e->category+(e->factory>=0?"  /  Factory":"  /  User"),IRECT(651,318,1057,343),14);
+  TextLine(g,"HOW IT WORKS - saved preset",IRECT(651,354,1057,375),12,Blue);
+  if(!preview_){TextLine(g,"Cannot read this preset.",IRECT(651,405,1057,432));return;}const auto v=*preview_;const char* blocks[]={"OSC","MIXER","FILTER","ENV","FX"};
   for(int i=0;i<5;++i){IRECT r(651+i*82,399,723+i*82,450);g.FillRoundRect(IColor(255,10,18,24),r,3);g.DrawRoundRect(Blue,r,3);g.DrawText(IText(11,Text),blocks[i],r.GetFromTop(19));auto plot=IRECT(r.L+7,r.T+23,r.R-7,r.B-6);
    if(i==0||i==2){float px=plot.L,py=plot.MH();for(int j=0;j<=30;++j){float t=j/30.f,y=0;if(i==0){int wave=int(std::lround(v[33]));y=wave==0?2*t-1:wave==1?(t<.5f?1.f:-1.f):wave==2?1-4*std::abs(t-.5f):std::sin(t*6.2831853f);}else{float cutoff=float(Normalize(kParameters[8],v[8]));float low=1/(1+std::exp((t-cutoff)*14));int mode=int(v[32]);y=2*(mode<2?low:mode==2?1-low:4*low*(1-low))-1;}float x=plot.L+t*plot.W(),sy=plot.MH()-y*plot.H()*.45f;if(j)g.DrawLine(Blue,px,py,x,sy);px=x;py=sy;}}
    else if(i==1){for(int j=0;j<4;++j){float x=plot.L+j*plot.W()/4;g.FillRect(Blue,IRECT(x,plot.B-float(v[20+j]/100)*plot.H(),x+6,plot.B));}}
@@ -57,7 +55,7 @@ class PresetBrowser final:public IControl {
    else{for(int j=0;j<3;++j){int id=j==0?42:j==1?46:54;g.FillCircle(v[id]>.5&&v[id+1]>0?Blue:Border,plot.L+10+j*19,plot.MH(),5);}}
   }
   const char* wave[]={"Saw","Square","Triangle","Sine"};auto w=[&](int id){return wave[std::clamp(int(std::lround(v[id])),0,3)];};
-  TextLine(g,std::string("OSC1: ")+w(33)+"  |  OSC2: "+w(34),IRECT(651,463,1063,487),12);
+  TextLine(g,std::string("OSC1: ")+w(33)+" | OSC2: "+w(34)+" | SUB: "+(v[92]<.5?"Sine":v[92]<1.5?"Triangle":"Square"),IRECT(651,463,1063,487),12);
   char line[150];std::snprintf(line,sizeof(line),"MIX: %.0f / %.0f / %.0f / %.0f",v[20],v[21],v[22],v[23]);TextLine(g,line,IRECT(651,490,1063,514),12);
   const char* filter[]={"Low Pass 12","Low Pass 24","High Pass 12","Band Pass 12"};std::snprintf(line,sizeof(line),"FILTER: %s / %.0f Hz",filter[std::clamp(int(std::lround(v[32])),0,3)],v[8]);TextLine(g,line,IRECT(651,517,1063,541),12);
   std::snprintf(line,sizeof(line),"AMP: A %.0f / D %.0f / S %.0f%% / R %.0f ms",v[1],v[2],v[3]*100,v[4]);TextLine(g,line,IRECT(651,544,1063,568),12);
@@ -67,7 +65,7 @@ public:
  PresetBrowser(UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply,std::function<void(int)> factory,ConfirmAction* confirm):IControl(IRECT(12,82,1268,636)),confirm_(confirm),library_(UserPresetFolder()),user_(user),current_(current),apply_(apply),factory_(factory){if(user_.active)selected_="user:"+user_.path.filename().u8string();else{int i=MatchFactoryPreset(current_());if(i>=0)selected_="factory:"+std::string(FactoryPresets()[i].key);}Refresh();}
  void SyncToSound(){try{library_.Refresh();Filter();if(user_.active)Select("user:"+user_.path.filename().u8string());else{int i=MatchFactoryPreset(current_());if(i>=0)Select("factory:"+std::string(FactoryPresets()[i].key));}}catch(const std::exception& e){Error(e);}}
  void Draw(IGraphics& g)override{
-  const IRECT boxes[]={IRECT(12,82,192,636),IRECT(200,82,630,636),IRECT(638,82,1075,636),IRECT(1083,82,1268,636)};const char* names[]={"CATEGORIES","PRESETS","PRESET INFO","PRESET ACTIONS"};for(int i=0;i<4;++i){g.FillRoundRect(PanelColor,boxes[i],3);g.DrawRoundRect(Border,boxes[i],3);TextLine(g,names[i],boxes[i].GetPadded(-12).GetFromTop(24),14,Blue);}
+  const IRECT boxes[]={IRECT(12,82,192,636),IRECT(200,82,630,636),IRECT(638,82,1075,636),IRECT(1083,82,1268,636)};const char* names[]={"CATEGORIES","PRESETS","PRESET INFO","PRESET ACTIONS"};for(int i=0;i<4;++i){g.FillRoundRect(PanelColor,boxes[i],3);g.DrawRoundRect(Border,boxes[i],3);g.DrawText(IText(14,Blue).WithFont("SAWSTAR-Bold").WithAlign(EAlign::Near),names[i],boxes[i].GetPadded(-12).GetFromTop(24));}
   const char* labels[]={"All","Favorites","Init","Leads","Pads","Plucks","Bass","Sub Pads","Arps","Keys","Sequences","FX","User"};const char* keys[]={"All","Favorites","Init","Lead","Pad","Pluck","Bass","Sub Pad","Arp","Keys","Sequence","FX","User"};
   for(int i=0;i<13;++i){IRECT r(24,137+i*34,180,168+i*34);if(category_==keys[i])g.FillRoundRect(IColor(255,25,65,88),r,3);TextLine(g,labels[i],r.GetHPadded(-8),14);}
   g.FillRoundRect(IColor(255,9,15,18),Search(),3);g.DrawRoundRect(Border,Search(),3);TextLine(g,query_.empty()?"Search presets...":query_,Search().GetHPadded(-8),13);
@@ -79,8 +77,7 @@ public:
   TextLine(g,status_,IRECT(650,606,1064,630),11);
  }
  void OnMouseDown(float x,float y,const IMouseMod&)override{try{
-  if(IRECT(651,377,1051,397).Contains(x,y)){live_=x>=854;SetDirty(false);return;}
-  if(Search().Contains(x,y)){editing_=0;GetUI()->CreateTextEntry(*this,IText(13,Text),Search(),query_.c_str());return;}
+  if(Search().Contains(x,y)){editing_=0;auto style=IText(13,Text);style.mTextEntryBGColor=IColor(255,225,224,217);style.mTextEntryFGColor=IColor(255,24,31,36);GetUI()->CreateTextEntry(*this,style,Search(),query_.c_str());return;}
   if(x<192&&y>=137&&y<137+13*34){const char* keys[]={"All","Favorites","Init","Lead","Pad","Pluck","Bass","Sub Pad","Arp","Keys","Sequence","FX","User"};category_=keys[int((y-137)/34)];scroll_=0;Filter();SetDirty(false);return;}
   if(x>=206&&x<=616&&y>=138&&y<558){int i=int((y-138)/35)+scroll_;if(i<int(visible_.size())){auto e=library_.entries[visible_[i]];if(x<238){library_.ToggleFavorite(e.key);Filter();}else Select(e.key);}SetDirty(false);return;}
   if(x>=206&&x<=616&&y>=600){scroll_+=x<408?-Rows:Rows;Filter();SetDirty(false);return;}

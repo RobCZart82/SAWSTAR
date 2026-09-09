@@ -4,10 +4,10 @@
 #include <cstdlib>
 #include <iostream>
 void check(bool ok,const char* why){if(!ok){std::cerr<<why<<'\n';std::exit(1);}}
-double source(float sr,int source,int type=0,int octave=-1){
+double source(float sr,int source,int type=0,int octave=-1,int wave=0){
  sawstar::Synth s;s.Reset(sr);s.SetParameters(0,1,1,1,20);s.SetOutputBoost(18);
  s.SetMixer(source==0?100:0,source==1?100:0,source==2?100:0,source==3?100:0,0,octave,type,0);
- s.Midi(0x90,69,127);double energy=0;int crossings=0;float last=0;
+ s.SetSubWave(wave);s.Midi(0x90,69,127);double energy=0;int crossings=0;float last=0;
  for(int i=0;i<sr;++i){auto x=s.ProcessStereo();check(std::isfinite(x.left)&&std::abs(x.left)<=.981f,"source bounds");
   if(i>sr/2){energy+=x.left*x.left;if(last<=0&&x.left>0)++crossings;}last=x.left;}
  check(energy>.01,"isolated source audible");
@@ -17,6 +17,7 @@ double source(float sr,int source,int type=0,int octave=-1){
 }
 int main(){for(float sr:{44100.f,48000.f,96000.f}){
  for(int i=0;i<4;++i)source(sr,i);
+ for(int wave=1;wave<=2;++wave)source(sr,2,0,-1,wave);
  source(sr,2,0,-2);source(sr,2,0,0);
  check(source(sr,3,1)<source(sr,3,0)*.3,"Dark Noise attenuates high frequency energy");
  sawstar::Synth s;s.Reset(sr);s.SetParameters(0,1,1,1,20);s.SetOutputBoost(24);

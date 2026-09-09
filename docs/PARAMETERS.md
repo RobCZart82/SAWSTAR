@@ -183,3 +183,9 @@ eighth-dotted/sixteenth-dotted (0..7), default 2 (1/16).
 - 91: `output.wide_amount`, 0–100%, default 50%.
 
 See [master width](MASTER_WIDTH.md) for signal order and compatibility.
+
+### SUB waveform
+
+Appended ID 92, `sub.waveform`: 0 Sine (default), 1 Triangle, 2 Square.
+Triangle sums eight odd harmonics below Nyquist; Square uses polyBLEP. Missing values in older
+states default to Sine. SUB gain remains mixer.sub (22), octave remains 25.

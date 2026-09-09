@@ -64,6 +64,8 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       param->InitEnum(spec.name.data(),2,6,"",IParam::kFlagsNone,"LFO","1/1","1/2","1/4","1/8","1/16","1/32");
     else if(spec.id==sawstar::ParameterId::LfoRetrigger||spec.id==sawstar::ParameterId::Lfo2Retrigger)
       param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"LFO","Free phase","Retrigger first key");
+    else if(spec.id==sawstar::ParameterId::SubWave)
+      param->InitEnum(spec.name.data(),0,3,"",IParam::kFlagsNone,"Sub","Sine","Triangle","Square");
     else if (spec.id == sawstar::ParameterId::FilterMode)
       param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Filter","Low Pass 12","Low Pass 24","High Pass 12","Band Pass 12");
     else if (spec.id == sawstar::ParameterId::NoiseSource)
@@ -128,6 +130,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   mSynth.SetMixer(GetParam(20)->Value(),GetParam(21)->Value(),GetParam(22)->Value(),GetParam(23)->Value(),
     GetParam(24)->Int(),GetParam(25)->Int(),GetParam(62)->Int()==0?GetParam(26)->Int():GetParam(62)->Int()-1,GetParam(30)->Int());
   mSynth.SetNoiseColor(GetParam(63)->Value());
+  mSynth.SetSubWave(GetParam(92)->Int());
   mSynth.SetWidth(GetParam(90)->Int()!=0,GetParam(91)->Value());
   mSynth.SetOsc2(GetParam(27)->Value(),GetParam(28)->Value(),GetParam(29)->Value());
   mSynth.SetOutputBoost(static_cast<float>(GetParam(19)->Value()));
@@ -186,7 +189,7 @@ void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
 }
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
-  if(GetUI()){for(int tag:{9100,9101,9102})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
+  if(GetUI()){for(int tag:{9100,9101})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
   sawstar::Snapshot current{};
   for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
   const int match=sawstar::MatchFactoryPreset(current);

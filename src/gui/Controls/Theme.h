@@ -4,6 +4,7 @@
 #include <cmath>
 #include <atomic>
 #include <cstdio>
+#include <string>
 namespace sawstar::gui {
 using namespace iplug::igraphics;
 inline const IColor Text(255,225,234,238),Blue(255,54,170,226),PanelColor(255,20,26,29),Border(255,48,61,67);
@@ -22,12 +23,17 @@ public:
  void Draw(IGraphics& g)override{if(*label_)g.DrawText(IText(11,Text).WithAlign(EAlign::Near),label_,mRECT.GetFromTop(15));WDL_String display;GetParam()->GetDisplay(display);DrawChoice(g,Field(),display.Get());}
  void OnMouseDown(float,float,const IMouseMod&)override{PromptUserInput(Field());}
 };
+class BrandWordmark final:public IControl{
+ bool font_;
+public:BrandWordmark(IRECT r,bool font):IControl(r),font_(font){SetIgnoreMouse(true);}
+ void Draw(IGraphics& g)override{auto style=IText(36,Text).WithFont(font_?"SAWSTAR-Orbitron":"Roboto-Regular").WithAlign(EAlign::Near);float x=mRECT.L;for(char c:std::string("SAWSTAR")){char letter[]={c,0};IRECT measured;g.MeasureText(style,letter,measured);g.DrawText(style,letter,IRECT(x,mRECT.T,x+measured.W()+2,mRECT.B));x+=measured.W()+1.f;}}
+};
 class Section final:public IControl{
  const char* title_;IColor color_;bool tint_;
 public: Section(IRECT r,const char* title,IColor color=Blue,bool tint=false):IControl(r),title_(title),color_(color),tint_(tint){SetIgnoreMouse(true);}
- void Draw(IGraphics& g)override{g.FillRoundRect(PanelColor,mRECT,3);g.DrawRoundRect(Border,mRECT,3);
+ void Draw(IGraphics& g)override{g.FillRoundRect(PanelColor,mRECT,3);g.DrawRoundRect(tint_?IColor(150,color_.R,color_.G,color_.B):Border,mRECT,3);
  if(tint_)g.FillRect(IColor(35,color_.R,color_.G,color_.B),mRECT.GetFromTop(35));
- g.DrawText(IText(15,color_).WithAlign(EAlign::Near),title_,IRECT(mRECT.L+12,mRECT.T,mRECT.R-8,mRECT.T+35));}
+ g.DrawText(IText(15,color_).WithFont("SAWSTAR-Bold").WithAlign(EAlign::Near),title_,IRECT(mRECT.L+12,mRECT.T,mRECT.R-8,mRECT.T+35));}
 };
 // Decorative separators never capture input.
 class Divider final:public IControl{

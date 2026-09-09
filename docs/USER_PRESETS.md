@@ -95,11 +95,10 @@ See [editor safety changes](EDITOR_CLOSE_FIX.md).
 
 ## Live explanations and identical imports
 
-HOW IT WORKS offers Saved settings for the selected library entry and Current
-sound for live plugin parameters, independent of list selection. The diagrams
-are explicitly schematic, not audio measurements. The amp envelope allocates
-attack, decay and release proportionally in milliseconds with a fixed 250 ms
-sustain illustration. Save As captures current parameters.
+HOW IT WORKS displays only the selected preset's saved parameters. Save As
+selects and displays the new saved sound. No live/saved toggle remains. Diagrams
+are generated from parameters, not stored images or audio measurements. The SUB
+waveform name is included.
 
 Import skips filename collisions without overwriting. Matching decoded parameter
 snapshots under different user filenames are skipped and reported with the
