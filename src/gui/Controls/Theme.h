@@ -48,6 +48,7 @@ class Fader final:public IVSliderControl{
 public:Fader(IRECT r,int id,const char* title,EDirection dir=EDirection::Vertical):IVSliderControl(r,id,title,Style(),true,dir,DEFAULT_GEARING,8,3,true){}
  void DrawValue(IGraphics& g,bool)override{char value[32];const double v=GetParam()->Value();std::snprintf(value,sizeof(value),"%.1f",v);g.DrawText(mStyle.valueText,value,mValueBounds);}
  void DrawHandle(IGraphics& g,const IRECT& r)override{auto b=r.GetCentredInside(mDirection==EDirection::Vertical?17:10,mDirection==EDirection::Vertical?10:17);g.FillRoundRect(Blue,b,2);g.DrawRoundRect(IColor(255,110,205,242),b,2);}
+ IRECT GetTrackBounds()const{auto r=IVSliderControl::GetTrackBounds();return mDirection==EDirection::Vertical?IRECT(r.MW()-3,r.T,r.MW()+3,r.B):IRECT(r.L,r.MH()-3,r.R,r.MH()+3);}
  void DrawTrack(IGraphics& g,const IRECT&)override{const auto r=GetTrackBounds();
  g.FillRoundRect(IColor(255,17,46,65),r,1);g.DrawRoundRect(IColor(255,48,81,99),r,1);
  if(GetValue()>0)g.FillRect(Blue,r.FracRect(mDirection,float(GetValue())));

@@ -117,3 +117,13 @@ height zones remain approximately 70% green, 20% yellow, 10% red.
 ARP HOLD occupies the former ORDER field and ORDER the former HOLD field.
 Non-interactive dividers separate oscillator, FX, mixer, performance and output
 control groups, including both sides of BOOST. No parameter IDs or DSP change.
+
+### Narrow-track correction and FX alignment
+
+The framework's public GetTrackBounds includes the full widget width. SAWSTAR
+now narrows the rendered track to 6 logical pixels (both slider orientations),
+keeping its length and mouse interaction unchanged. This corrects the wide
+filled rectangles reported in the host screenshot. ARP/HOLD use the same
+142-by-32 field size as the dropdowns below. FX selectors form a compact left
+column; enable and knobs share evenly spaced columns, with extra delay menus
+on a separate row.
