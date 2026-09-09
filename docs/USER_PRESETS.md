@@ -33,7 +33,7 @@ not itself change the playing sound or top title.
   overwritten. Default destination is the managed user folder. When saving to an
   external folder, also import a library copy; a library name collision is reported
   and the external saved copy remains intact.
-- Init: load the embedded Init sound.
+- Initialize: confirm before loading the embedded Init sound.
 - Copy/Paste: copy the current sound's parameters inside this editor and apply
   them without creating a file. Save As persists the pasted sound. This is not a
   system clipboard preset format; closing the editor clears this temporary copy.
@@ -87,3 +87,8 @@ validation checks. Both downloadable ZIP archives passed integrity checks.
 A REAPER UI inspection was attempted, but the automation tool returned no contents
 for the settings window, so native selection and layout are not claimed as tested.
 All six final jobs succeeded: macOS and Windows Debug, Release and VST3 Release.
+
+Initialize and Delete are now separated at the bottom of the actions panel,
+using a shared Cancel-default confirmation. Factory Delete is disabled.
+The quick-menu Init is isolated at the bottom; preset arrows skip initialization.
+See [editor safety changes](EDITOR_CLOSE_FIX.md).

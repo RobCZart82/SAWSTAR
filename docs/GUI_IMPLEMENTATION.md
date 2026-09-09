@@ -99,3 +99,9 @@ or binary-resource check alone does not prove that interaction.
 All six jobs completed successfully: macOS/Windows Debug, Release and VST3 Release.
 Both packaged plugin binaries were checked for the exact original PNG bytes, and
 both downloadable ZIP archives passed their integrity checks.
+
+## Current About and action safety
+
+The About creator PNG is replaced by an embedded Orbitron Bold SAWSTAR wordmark.
+The original asset is archived only. See [editor-close fix and confirmations](EDITOR_CLOSE_FIX.md)
+for the Retina cache ownership issue, safety controls and host-test limits.

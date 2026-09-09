@@ -64,5 +64,7 @@ MetalNanoVG (MIT, macOS), glad 0.1.28 (MIT) and Khronos headers (MIT, Windows),
 STB helpers (public domain or MIT option). WDL retains its zlib-style notice.
 Copies of the applicable notices accompany each development artifact.
 All these source revisions are fixed by the existing iPlug2 commit.
-No font file is bundled: the UI loads installed Arial via the platform font API.
+The regular UI loads installed Arial via the platform font API. About embeds
+unmodified Orbitron Bold (Matt McInerney, SIL OFL 1.1). The full original notice
+is in third_party/licenses/Orbitron-OFL.txt and shipped in plugin archives.
 The SAWSTAR original code remains MIT; optional LGPL DaisySP modules remain excluded.
