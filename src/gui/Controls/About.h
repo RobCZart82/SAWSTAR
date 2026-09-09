@@ -10,8 +10,7 @@ class AboutWindow final:public IControl {
  IRECT Box()const{return mRECT.GetCentredInside(580,410);}
  IRECT OK()const{auto b=Box();return IRECT(b.MW()-60,b.B-57,b.MW()+60,b.B-21);}
 public:
- explicit AboutWindow(IRECT r):IControl(r){Hide(true);}
- void OnInit()override{fontLoaded_=GetUI()->LoadFont("SAWSTAR-Orbitron",AboutFont,sizeof(AboutFont));}
+ explicit AboutWindow(IRECT r,bool fontLoaded):IControl(r),fontLoaded_(fontLoaded){Hide(true);}
  void Open(){Hide(false);GetUI()->SetAllControlsDirty();}
  void Close(){Hide(true);GetUI()->SetAllControlsDirty();}
  void Draw(IGraphics& g)override{

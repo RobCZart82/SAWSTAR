@@ -186,7 +186,7 @@ void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
 }
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
-  if(GetUI()){for(int tag:{9100,9101})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
+  if(GetUI()){for(int tag:{9100,9101,9102})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
   sawstar::Snapshot current{};
   for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
   const int match=sawstar::MatchFactoryPreset(current);

@@ -20,7 +20,7 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  auto knob=[&](float x,float y,float w,int id,const char* label,const char* group){g->AttachControl(new Knob(IRECT(x,y,x+w,y+79),id,label),iplug::kNoTag,group);};
  auto menu=[&](IRECT r,int id,const char* label,const char* group){if(id==42||id==46||id==54||id==83||id==89)g->AttachControl(new Toggle(r,id,label),iplug::kNoTag,group);else g->AttachControl(new Dropdown(r,id,label),iplug::kNoTag,group);};
  auto fader=[&](IRECT r,int id,const char* label,const char* group,bool horizontal=false){g->AttachControl(new Fader(r,id,label,horizontal?EDirection::Horizontal:EDirection::Vertical),iplug::kNoTag,group);};
- text(IRECT(20,17,272,61),"S A W S T A R",30);text(IRECT(285,20,427,38),"Simple Synth",13);text(IRECT(285,38,427,56),"B i g  S o u n d",13);
+ bool brandFont=g->LoadFont("SAWSTAR-Orbitron",AboutFont,sizeof(AboutFont));g->AttachControl(new ITextControl(IRECT(20,17,272,61),"SAWSTAR",IText(30,Text).WithFont(brandFont?"SAWSTAR-Orbitron":"Roboto-Regular").WithAlign(EAlign::Near)));text(IRECT(285,20,427,38),"Simple Synth",13);text(IRECT(285,38,427,56),"B i g  S o u n d",13);
  auto select=[g,&page,&lfoPage,&fxPage](int next){page=next;const char* groups[]={"main","advanced","presets"};for(int i=0;i<3;++i)g->ForControlInGroup(groups[i],[i,next](IControl* c){c->Hide(i!=next);});for(int i=0;i<2;++i)g->ForControlInGroup(i?"lfo2":"lfo1",[i,next,&lfoPage](IControl* c){c->Hide(next!=1||lfoPage!=i);});const char* fx[]={"chorus","delay","reverb"};for(int i=0;i<3;++i)g->ForControlInGroup(fx[i],[i,next,&fxPage](IControl* c){c->Hide(next!=1||fxPage!=i);});if(next==2)g->ForControlInGroup("presets",[](IControl* c){if(auto* b=dynamic_cast<PresetBrowser*>(c))b->SyncToSound();});g->SetAllControlsDirty();};
  const char* pages[]={"MAIN","ADVANCED","PRESETS"};for(int i=0;i<3;++i)g->AttachControl(new PageButton(IRECT(440+i*98,20,534+i*98,60),pages[i],i,page,[select,i]{select(i);}));
  g->AttachControl(new PresetSelector(IRECT(752,20,1214,60),preset,load,user,current,apply,[g]{g->ForControlInGroup("presets",[](IControl* c){if(auto* b=dynamic_cast<PresetBrowser*>(c))b->SyncToSound();});},confirm));
@@ -45,10 +45,10 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  const int dm[]={46,51,52,53};for(int i=0;i<4;++i)menu(IRECT(386+i*215,474,587+i*215,527),dm[i],i==0?"DELAY":i==1?"MODE":i==2?"CLOCK":"DIVISION","delay");for(int i=0;i<4;++i)knob(386+i*215,544,198,47+i,i==0?"MIX":i==1?"TIME ms":i==2?"FEEDBACK":"TONE Hz","delay");
  menu(IRECT(386,476,527,531),54,"REVERB","reverb");for(int i=0;i<4;++i)knob(541+i*179,520,165,55+i,i==0?"MIX":i==1?"SIZE":i==2?"DECAY s":"DAMPING Hz","reverb");
  // Shared factory/user library follows the approved four-column concept.
- g->AttachControl(new PresetBrowser(user,current,apply,load,confirm),iplug::kNoTag,"presets");
+ g->AttachControl(new PresetBrowser(user,current,apply,load,confirm),9102,"presets");
  section(IRECT(12,646,1268,724),"","",Blue);g->AttachControl(new PerformanceWheel(IRECT(23,654,54,702),true));g->AttachControl(new PerformanceWheel(IRECT(65,654,96,702),false));text(IRECT(23,703,60,721),"PITCH",9);text(IRECT(66,703,101,721),"MOD",9);
  g->AttachControl(new Keyboard(IRECT(115,654,1258,715),36,96,false,IColor(255,181,187,187),IColor(255,19,24,27),Blue,PanelColor,Text));g->AttachControl(new Status(IRECT(20,729,1260,750),cpu,rate,voices),9101);
- auto* about=new AboutWindow(IRECT(0,0,1280,760));
+ auto* about=new AboutWindow(IRECT(0,0,1280,760),brandFont);
  g->AttachControl(new SettingsMenu(IRECT(1228,20,1268,60),about));
  g->AttachControl(about);
  g->AttachControl(confirm);
