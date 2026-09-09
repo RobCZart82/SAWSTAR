@@ -8,6 +8,20 @@ namespace sawstar::gui {
 using namespace iplug::igraphics;
 inline const IColor Text(255,225,234,238),Blue(255,54,170,226),PanelColor(255,20,26,29),Border(255,48,61,67);
 inline IVStyle Style(){return DEFAULT_STYLE.WithColor(kBG,PanelColor).WithColor(kFG,IColor(255,36,45,50)).WithColor(kFR,Border).WithColor(kHL,Blue).WithColor(kX1,Blue).WithColor(kX2,Text).WithColor(kX3,Blue).WithDrawShadows(false).WithRoundness(.12f).WithLabelText(IText(11,Text)).WithValueText(IText(10,Text).WithVAlign(EVAlign::Bottom));}
+// A recessed value field and chevron identify choices, not on/off actions.
+inline void DrawChoice(IGraphics& g,const IRECT& r,const char* value,int size=11){
+ g.FillRoundRect(IColor(255,10,16,20),r,3);g.DrawRoundRect(Border,r,3);
+ g.DrawText(IText(size,Text).WithAlign(EAlign::Near),value,IRECT(r.L+9,r.T,r.R-25,r.B));
+ const float x=r.R-13,y=r.MH();g.DrawLine(Blue,x-4,y-2,x,y+2,nullptr,1.5f);g.DrawLine(Blue,x,y+2,x+4,y-2,nullptr,1.5f);
+}
+class Dropdown final:public IControl{
+ const char* label_;
+ IRECT Field()const{const auto area=*label_?mRECT.GetReducedFromTop(17):mRECT;return area.GetCentredInside(area.W(),std::min(32.f,area.H()));}
+public:
+ Dropdown(IRECT r,int id,const char* label):IControl(r,id),label_(label){mDisablePrompt=false;}
+ void Draw(IGraphics& g)override{if(*label_)g.DrawText(IText(11,Text).WithAlign(EAlign::Near),label_,mRECT.GetFromTop(15));WDL_String display;GetParam()->GetDisplay(display);DrawChoice(g,Field(),display.Get());}
+ void OnMouseDown(float,float,const IMouseMod&)override{PromptUserInput(Field());}
+};
 class Section final:public IControl{
  const char* title_;IColor color_;bool tint_;
 public: Section(IRECT r,const char* title,IColor color=Blue,bool tint=false):IControl(r),title_(title),color_(color),tint_(tint){SetIgnoreMouse(true);}
@@ -52,7 +66,19 @@ public:Toggle(IRECT r,int id,const char* label):IControl(r,id),label_(label){}
 class Meter final:public IControl{
  const std::atomic<float>& left_;const std::atomic<float>& right_;
 public:Meter(IRECT r,const std::atomic<float>& l,const std::atomic<float>& rt):IControl(r),left_(l),right_(rt){SetIgnoreMouse(true);}
- void Draw(IGraphics& g)override{for(int i=0;i<2;++i){float value=i?right_.load():left_.load();float fill=std::clamp((20*std::log10(std::max(value,1.e-6f))+60)/60,0.f,1.f);IRECT r(mRECT.L+i*10,mRECT.T,mRECT.L+i*10+6,mRECT.B);g.FillRect(IColor(255,7,11,13),r);g.FillRect(Blue,r.GetFromBottom(r.H()*fill));g.DrawRect(Border,r);}}
+ void Draw(IGraphics& g)override{
+ for(int i=0;i<2;++i){const float value=i?right_.load():left_.load();const float fill=std::clamp((20*std::log10(std::max(value,1.e-6f))+60)/60,0.f,1.f);
+ const IRECT r(mRECT.L+i*10,mRECT.T,mRECT.L+i*10+6,mRECT.B);g.FillRect(IColor(255,7,11,13),r);
+ // Fixed display-height zones: ~70% green, ~20% orange, ~10% red.
+ // These are peak-meter colors, not a change to audio gain or meter ballistics.
+ if(fill>0){const auto gradient=IPattern::CreateLinearGradient(r.MW(),r.B,r.MW(),r.T,{
+ {IColor(255,40,145,88),0.f},{IColor(255,80,190,108),.68f},
+ {IColor(255,222,157,62),.72f},{IColor(255,235,145,54),.88f},
+ {IColor(255,221,72,62),.92f},{IColor(255,235,81,69),1.f}});
+ g.PathRect(r.GetFromBottom(r.H()*fill));g.PathFill(gradient);}
+ g.DrawRect(Border,r);
+ }
+ }
 };
 class Status final:public IControl{
  const std::atomic<float>& cpu_;const std::atomic<int>& rate_;const std::atomic<int>& voices_;
