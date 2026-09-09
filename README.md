@@ -32,6 +32,10 @@ tabs, preset selector, keyboard, wheels and status strip stay fixed across pages
 See [GUI implementation and validation](docs/GUI_IMPLEMENTATION.md) for controls,
 known differences from the artwork and host-check coverage.
 
+The September 10 [audit fixes](docs/AUDIT_FIXES.md) protect concurrent preset saves,
+smooth SUB waveform changes and synchronize preset/keyboard display state.
+Knobs now share a subtle 270-degree dotted scale.
+
 ## Status: First Sound development build / 0.1.0-dev
 
 The iPlug2 VST3 now includes a custom 16-voice SAWSTAR engine using DaisySP's

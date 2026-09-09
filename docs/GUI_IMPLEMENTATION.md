@@ -136,3 +136,21 @@ is removed. MAIN section outlines follow their header hues. Section and page
 titles use bold Arial. The header wordmark uses 36-point Orbitron with 1 pixel
 letter tracking, followed by the two-line motto. Preset search entry uses a
 muted off-white background and dark text. HOW IT WORKS shows saved data only.
+
+
+## September 10 audit fixes and control readability
+
+- All MAIN/ADVANCED rotary controls have a quiet 270-degree dotted scale. The
+  scale fits inside each widget; smaller ADSR controls reserve space for the dots.
+- Both OSC control grids have a horizontal divider and a gap between their upper
+  values and lower labels. FILTER MIX and KEY TRACK also have a divider.
+- The quick preset dropdown anchors to the whole header field and opens below
+  its center when space permits; the framework keeps it within the editor.
+- User preset modification markers tolerate numerical round-trip noise and
+  refresh while controls are edited.
+- Each new keyboard resynchronizes held MIDI notes. Host state reloads invalidate
+  the previous user-preset identity on the GUI thread; a custom state does not
+  continue showing an unrelated saved preset's HOW IT WORKS diagram.
+
+See [audit fixes and regression coverage](AUDIT_FIXES.md). Visual alignment and
+editor lifecycle still require manual acceptance in the target host.

@@ -31,10 +31,14 @@ private:
   std::atomic<float> mPeakL{0},mPeakR{0},mCpu{0};
   std::atomic<int> mRate{44100},mVoiceCount{0};
   std::atomic<bool> mArpReset{false};
+  std::atomic<bool> mStateRestored{false};
   std::atomic<int> mBend{8192},mMod{0};
   sawstar::UserPresetSelection mUserPreset;
   int mFactoryIndex = -1; // GUI-only, derived from the parameter snapshot.
   int mLfoPage = 0; // Editor selection only; both LFOs keep running.
   int mFxPage = 0; // Editor-only effect panel selection.
   int mPage = 0; // Editor-only state; never read by the audio callback.
+#if IPLUG_EDITOR
+  void SyncRestoredPreset();
+#endif
 };

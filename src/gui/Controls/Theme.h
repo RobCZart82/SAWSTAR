@@ -43,8 +43,10 @@ public:explicit Divider(IRECT r):IControl(r){SetIgnoreMouse(true);}
 class Knob final:public IVKnobControl{
 public:Knob(IRECT r,int id,const char* title):IVKnobControl(r,id,title,Style(),true){}
  void DrawValue(IGraphics& g,bool)override{char value[32];const double v=GetParam()->Value();std::snprintf(value,sizeof(value),std::abs(v)>=100?"%.0f":"%.1f",v);g.DrawText(mStyle.valueText,value,mValueBounds);}
- void DrawWidget(IGraphics& g)override{const float radius=std::min(18.f,GetRadius()),cx=mWidgetBounds.MW(),cy=mWidgetBounds.MH();
+ void DrawWidget(IGraphics& g)override{const float radius=std::max(1.f,std::min(18.f,GetRadius()-5.f)),cx=mWidgetBounds.MW(),cy=mWidgetBounds.MH();
  const float a=-135.f+270.f*GetValue();
+ // Reserve space inside the widget so the 270-degree dotted scale cannot touch labels.
+ for(int i=0;i<=24;++i){const float angle=(-225.f+i*270.f/24.f)*.01745329252f;g.FillCircle(IColor(180,107,134,147),cx+std::cos(angle)*(radius+4.f),cy+std::sin(angle)*(radius+4.f),i%6==0?1.f:.7f);}
  g.FillCircle(IColor(255,10,14,17),cx,cy,radius);g.DrawCircle(Border,cx,cy,radius,nullptr,2);
  g.DrawArc(IColor(35,54,170,226),cx,cy,radius,-135,a,nullptr,6);
  g.DrawArc(Blue,cx,cy,radius,-135,a,nullptr,2);

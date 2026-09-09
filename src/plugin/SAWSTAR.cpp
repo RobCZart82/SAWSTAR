@@ -88,6 +88,11 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
                         GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
   mLayoutFunc = [this](IGraphics* g) {
+    SyncRestoredPreset();
+#if IPLUG_DSP
+    // The new keyboard has no highlighted keys, regardless of the old editor.
+    mDisplayed.fill(false);
+#endif
     auto apply = [this,g](const sawstar::Snapshot& values) {
       for (const auto& spec : sawstar::kParameters) {
         const int id=static_cast<int>(spec.id);
@@ -109,6 +114,18 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
   };
 #endif
 }
+#if IPLUG_EDITOR
+void SAWSTAR::SyncRestoredPreset() {
+  // Host state callbacks may run away from the GUI thread. Consume only here.
+  if(!mStateRestored.exchange(false))return;
+  mUserPreset={};
+  if(auto* g=GetUI()) {
+    if(auto* browser=dynamic_cast<sawstar::gui::PresetBrowser*>(g->GetControlWithTag(9102)))
+      browser->SyncToSound();
+    g->SetAllControlsDirty();
+  }
+}
+#endif
 #if IPLUG_DSP
 void SAWSTAR::OnReset() {
   mRate.store(static_cast<int>(GetSampleRate()));mPeakL.store(0);mPeakR.store(0);mCpu.store(0);mVoiceCount.store(0);
@@ -189,7 +206,8 @@ void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
 }
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
-  if(GetUI()){for(int tag:{9100,9101})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
+  SyncRestoredPreset();
+  if(GetUI()){for(int tag:{9100,9101,9103})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
   sawstar::Snapshot current{};
   for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
   const int match=sawstar::MatchFactoryPreset(current);
@@ -201,7 +219,9 @@ void SAWSTAR::OnIdle() {
   SendMidiMsgFromDelegate(wheel);
   wheel.mStatus=0xb0;wheel.mData1=1;wheel.mData2=mMod.load(std::memory_order_relaxed);
   SendMidiMsgFromDelegate(wheel);
-  for (int note = 0; note < 128; ++note) {
+  // Do not acknowledge note display changes while no editor exists.
+#if IPLUG_EDITOR
+  if(GetUI())for (int note = 0; note < 128; ++note) {
     const bool held = mHeld[note].load(std::memory_order_relaxed);
     if (held != mDisplayed[note]) {
       IMidiMsg msg;
@@ -209,6 +229,7 @@ void SAWSTAR::OnIdle() {
       SendMidiMsgFromDelegate(msg); mDisplayed[note] = held;
     }
   }
+#endif
 }
 #endif
 
@@ -229,5 +250,6 @@ int SAWSTAR::UnserializeState(const IByteChunk& chunk, int startPos) {
   for(double value:values) if(params.Put(&value)<0) return -1;
   if(UnserializeParams(params,0)<0) return -1;
   mArpReset.store(true);
+  mStateRestored.store(true);
   return startPos+static_cast<int>(consumed);
 }

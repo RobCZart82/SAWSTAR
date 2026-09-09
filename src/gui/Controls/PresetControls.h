@@ -2,6 +2,7 @@
 #pragma once
 #include <string>
 #include "IControl.h"
+#include "IPopupMenuControl.h"
 #include "presets/FactoryPresets.h"
 #include "presets/UserPresets.h"
 #include "gui/Controls/ConfirmAction.h"
@@ -19,10 +20,10 @@ public:
  void Draw(iplug::igraphics::IGraphics& g)override{
   using namespace iplug::igraphics;IColor light(255,210,237,245);g.FillRoundRect(IColor(255,20,26,29),mRECT,5);g.DrawRoundRect(IColor(255,55,95,110),mRECT,5);
   g.DrawText(IText(18,light),"<",mRECT.GetFromLeft(28));g.DrawText(IText(18,light),">",mRECT.GetFromRight(28));
-  auto name=user_.active?user_.path.stem().u8string()+(current_()!=user_.saved?" *":""):selected_<0?std::string("Custom"):std::string(FactoryPresets()[selected_].name);g.DrawText(IText(14,light),name.c_str(),mRECT.GetHPadded(-30));
+  auto name=user_.active?user_.path.stem().u8string()+(!SnapshotsMatch(current_(),user_.saved)?" *":""):selected_<0?std::string("Custom"):std::string(FactoryPresets()[selected_].name);g.DrawText(IText(14,light),name.c_str(),mRECT.GetHPadded(-30));
  }
  void OnMouseDown(float x,float,const iplug::igraphics::IMouseMod&)override{try{Refresh();int index=selected_;if(user_.active){index=-1;for(int i=0;i<int(files_.size());++i)if(files_[i]==user_.path){index=int(FactoryPresets().size())+i;break;}}int count=int(FactoryPresets().size()+files_.size());
-  if(x<mRECT.L+28)Load(index<=1?count-1:index-1);else if(x>mRECT.R-28)Load(index<1||index==count-1?1:index+1);else GetUI()->CreatePopupMenu(*this,menu_,mRECT.L,mRECT.B);
+  if(x<mRECT.L+28)Load(index<=1?count-1:index-1);else if(x>mRECT.R-28)Load(index<1||index==count-1?1:index+1);else {auto* popup=GetUI()->GetPopupMenuControl();if(popup)popup->SetMenuForcedSouth(true);GetUI()->CreatePopupMenu(*this,menu_,mRECT);if(popup)popup->SetMenuForcedSouth(false);}
  }catch(const std::exception& e){Error(e);}}
  void OnPopupMenuSelection(iplug::igraphics::IPopupMenu* menu,int)override{if(menu&&menu->GetChosenItemIdx()>=0)try{int i=menuIndices_.at(menu->GetChosenItemIdx());if(i>=0)Load(i);}catch(const std::exception& e){Error(e);}}
 };

@@ -17,16 +17,16 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  g->AttachPanelBackground(IColor(255,10,15,18));g->EnableMouseOver(true);g->AttachPopupMenuControl();g->AttachTextEntryControl();g->LoadFont("Roboto-Regular","Arial",ETextStyle::Normal);g->LoadFont("SAWSTAR-Bold","Arial",ETextStyle::Bold);
  auto text=[&](IRECT r,const char* label,int size,const char* group=""){g->AttachControl(new ITextControl(r,label,IText(size,Text).WithAlign(EAlign::Near)),iplug::kNoTag,group);};
  auto section=[&](IRECT r,const char* name,const char* group,IColor color=Blue,bool tint=false){g->AttachControl(new Section(r,name,color,tint),iplug::kNoTag,group);};
- auto knob=[&](float x,float y,float w,int id,const char* label,const char* group){g->AttachControl(new Knob(IRECT(x,y,x+w,y+79),id,label),iplug::kNoTag,group);};
+ auto knob=[&](float x,float y,float w,int id,const char* label,const char* group,float height=79){g->AttachControl(new Knob(IRECT(x,y,x+w,y+height),id,label),iplug::kNoTag,group);};
  auto menu=[&](IRECT r,int id,const char* label,const char* group){if(id==42||id==46||id==54||id==83||id==89)g->AttachControl(new Toggle(r,id,label),iplug::kNoTag,group);else g->AttachControl(new Dropdown(r,id,label),iplug::kNoTag,group);};
  auto fader=[&](IRECT r,int id,const char* label,const char* group,bool horizontal=false){g->AttachControl(new Fader(r,id,label,horizontal?EDirection::Horizontal:EDirection::Vertical),iplug::kNoTag,group);};
  bool brandFont=g->LoadFont("SAWSTAR-Orbitron",AboutFont,sizeof(AboutFont));g->AttachControl(new BrandWordmark(IRECT(20,15,285,63),brandFont));text(IRECT(298,20,427,38),"Simple Synth",13);text(IRECT(298,38,427,56),"B i g  S o u n d",13);
  auto select=[g,&page,&lfoPage,&fxPage](int next){page=next;const char* groups[]={"main","advanced","presets"};for(int i=0;i<3;++i)g->ForControlInGroup(groups[i],[i,next](IControl* c){c->Hide(i!=next);});for(int i=0;i<2;++i)g->ForControlInGroup(i?"lfo2":"lfo1",[i,next,&lfoPage](IControl* c){c->Hide(next!=1||lfoPage!=i);});const char* fx[]={"chorus","delay","reverb"};for(int i=0;i<3;++i)g->ForControlInGroup(fx[i],[i,next,&fxPage](IControl* c){c->Hide(next!=1||fxPage!=i);});if(next==2)g->ForControlInGroup("presets",[](IControl* c){if(auto* b=dynamic_cast<PresetBrowser*>(c))b->SyncToSound();});g->SetAllControlsDirty();};
  const char* pages[]={"MAIN","ADVANCED","PRESETS"};for(int i=0;i<3;++i)g->AttachControl(new PageButton(IRECT(440+i*98,20,534+i*98,60),pages[i],i,page,[select,i]{select(i);}));
- g->AttachControl(new PresetSelector(IRECT(752,20,1214,60),preset,load,user,current,apply,[g]{g->ForControlInGroup("presets",[](IControl* c){if(auto* b=dynamic_cast<PresetBrowser*>(c))b->SyncToSound();});},confirm));
+ g->AttachControl(new PresetSelector(IRECT(752,20,1214,60),preset,load,user,current,apply,[g]{g->ForControlInGroup("presets",[](IControl* c){if(auto* b=dynamic_cast<PresetBrowser*>(c))b->SyncToSound();});},confirm),9103);
  // MAIN: signal flow, with color restricted to section headers.
  section(IRECT(12,82,292,636),"OSCILLATORS","main",IColor(255,70,206,237),true);section(IRECT(300,82,464,636),"MIXER","main",IColor(255,144,173,246),true);section(IRECT(472,82,648,636),"FILTER","main",IColor(255,220,179,86),true);section(IRECT(656,82,826,636),"FILTER ENV","main",IColor(255,102,220,192),true);section(IRECT(834,82,1004,636),"AMP ENV","main",IColor(255,84,213,186),true);section(IRECT(1012,82,1118,636),"FX","main",IColor(255,178,143,231),true);section(IRECT(1126,82,1268,636),"OUTPUT","main",IColor(255,156,179,240),true);
- for(int osc=0;osc<2;++osc){float y=126+osc*173;g->AttachControl(new WaveformControl(IRECT(23,y,145,y+146),33+osc,osc?"OSC 2":"OSC 1"),iplug::kNoTag,"main");int ids[4]={osc?24:30,osc?27:5,osc?28:6,osc?29:7};const char* labels[]={"OCT","DETUNE","UNISON","WIDTH"};for(int j=0;j<4;++j)knob(150+(j%2)*66,y+(j/2)*80,63,ids[j],labels[j],"main");}
+ for(int osc=0;osc<2;++osc){float y=126+osc*173;g->AttachControl(new WaveformControl(IRECT(23,y,145,y+146),33+osc,osc?"OSC 2":"OSC 1"),iplug::kNoTag,"main");int ids[4]={osc?24:30,osc?27:5,osc?28:6,osc?29:7};const char* labels[]={"OCT","DETUNE","UNISON","WIDTH"};for(int j=0;j<4;++j)knob(150+(j%2)*66,y+(j/2)*86,63,ids[j],labels[j],"main",73);}
  g->AttachControl(new WaveformControl(IRECT(23,479,145,625),92,"SUB",true),iplug::kNoTag,"main");knob(150,479,63,25,"OCT","main");
 
  const char* sources[]={"OSC1","OSC2","SUB","NOISE"};for(int i=0;i<4;++i)fader(IRECT(308+i*37,126,344+i*37,457),20+i,sources[i],"main");fader(IRECT(312,480,452,553),63,"NOISE COLOR","main",true);g->AttachControl(new NoiseSelector(IRECT(311,586,453,621)),iplug::kNoTag,"main");
@@ -49,7 +49,8 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  // Quiet separators group related controls without changing their hit areas.
  auto divider=[&](float l,float y,float rr,const char* group){g->AttachControl(new Divider(IRECT(l,y,rr,y+1)),iplug::kNoTag,group);};
  divider(24,294,280,"main");divider(24,470,280,"main");
- divider(312,470,452,"main");divider(484,376,636,"main");
+ divider(152,205,280,"main");divider(152,378,280,"main");
+ divider(312,470,452,"main");divider(484,376,636,"main");divider(484,470,636,"main");
  divider(1021,272,1109,"main");divider(1021,413,1109,"main");
  divider(1137,425,1257,"main");divider(1137,510,1257,"main");
  divider(24,293,247,"advanced");
