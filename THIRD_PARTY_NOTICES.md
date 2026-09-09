@@ -1,7 +1,7 @@
 # Third-party notices
 
 SAWSTAR original source code is MIT licensed. External work retains its own terms.
-The embedded GYR creator logo is supplied by Gyuricza Róbert for SAWSTAR branding;
+The archived GYR creator logo is supplied by Gyuricza Róbert for SAWSTAR branding;
 it is excluded from the MIT source-code license. No separate logo reuse license
 is granted.
 
@@ -11,7 +11,7 @@ is granted.
   Plaits (Emilie Gillet) and Soundpipe (Paul Batchelor):
   [full notices](third_party/licenses/DaisySP-LICENSE.txt).
 
-The optional DaisySP-LGPL extension is excluded. No fonts are bundled. VST3 SDK sources are fetched at a pinned MIT revision for plugin builds. The user-supplied concept artwork has a
+The optional DaisySP-LGPL extension is excluded. Orbitron Bold is bundled unchanged under SIL OFL 1.1; see licenses/Orbitron-OFL.txt in plugin packages (third_party/licenses/Orbitron-OFL.txt in source). VST3 SDK sources are fetched at a pinned MIT revision for plugin builds. The user-supplied concept artwork has a
 SAWSTAR-branded AI edit; provenance is recorded in docs/reference/README.md. Before distributing a plugin, append notices for all
 actually linked SDK/graphics/resource dependencies. See docs/THIRD_PARTY.md.
 
