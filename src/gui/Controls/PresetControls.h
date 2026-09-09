@@ -7,12 +7,12 @@
 #include <functional>
 namespace sawstar::gui {
 class PresetSelector final : public iplug::igraphics::IControl {
- const int& selected_;std::function<void(int)> action_;UserPresetSelection& user_;std::function<Snapshot()> current_;std::function<void(const Snapshot&)> apply_;iplug::igraphics::IPopupMenu menu_;std::vector<fs::path> files_;
+ const int& selected_;std::function<void(int)> action_;UserPresetSelection& user_;std::function<Snapshot()> current_;std::function<void(const Snapshot&)> apply_;iplug::igraphics::IPopupMenu menu_;std::vector<fs::path> files_;std::function<void()> sync_;
  void Refresh(){files_=ListUserPresets(UserPresetFolder());menu_.Clear();for(const auto& p:FactoryPresets())menu_.AddItem(p.name);for(const auto& p:files_)menu_.AddItem((p.stem().u8string()+" [User]").c_str());}
- void Load(int i){if(i<int(FactoryPresets().size()))action_(i);else{auto path=files_.at(i-FactoryPresets().size());auto values=ReadUserPreset(path);apply_(values);user_.path=path;user_.name=path.stem().u8string();user_.saved=values;user_.active=true;}GetUI()->SetAllControlsDirty();}
+ void Load(int i){if(i<int(FactoryPresets().size()))action_(i);else{auto path=files_.at(i-FactoryPresets().size());auto values=ReadUserPreset(path);apply_(values);user_.path=path;user_.name=path.stem().u8string();user_.saved=values;user_.active=true;}if(sync_)sync_();GetUI()->SetAllControlsDirty();}
  void Error(const std::exception& e){GetUI()->ShowMessageBox(e.what(),"SAWSTAR",iplug::igraphics::kMB_OK);}
 public:
- PresetSelector(const iplug::igraphics::IRECT& r,const int& selected,std::function<void(int)> action,UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply):IControl(r),selected_(selected),action_(action),user_(user),current_(current),apply_(apply){}
+ PresetSelector(const iplug::igraphics::IRECT& r,const int& selected,std::function<void(int)> action,UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply,std::function<void()> sync):IControl(r),selected_(selected),action_(action),user_(user),current_(current),apply_(apply),sync_(sync){}
  void Draw(iplug::igraphics::IGraphics& g)override{
   using namespace iplug::igraphics;IColor light(255,210,237,245);g.FillRoundRect(IColor(255,20,26,29),mRECT,5);g.DrawRoundRect(IColor(255,55,95,110),mRECT,5);
   g.DrawText(IText(18,light),"<",mRECT.GetFromLeft(28));g.DrawText(IText(18,light),">",mRECT.GetFromRight(28));

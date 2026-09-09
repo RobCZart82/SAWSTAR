@@ -34,16 +34,17 @@ public:
  explicit PresetLibrary(fs::path root):root_(std::move(root)){
   if(!root_.empty()){std::ifstream in(root_/"favorites.txt");std::string key;while(in>>std::quoted(key))favorites_.insert(key);}Refresh();
  }
- void Refresh(){entries.clear();int i=0;for(const auto& p:FactoryPresets()){entries.push_back({"factory:"+std::string(p.key),p.name,p.category,p.lesson,{},i++});}
+ void Refresh(){ReloadFavorites();entries.clear();int i=0;for(const auto& p:FactoryPresets()){entries.push_back({"factory:"+std::string(p.key),p.name,p.category,p.lesson,{},i++});}
   warning.clear();if(root_.empty())return;try{for(const auto& p:ListUserPresets(root_))entries.push_back({"user:"+p.filename().u8string(),p.stem().u8string(),"User","User sound. The diagram below describes its saved settings.",p,-1});}catch(const std::exception& e){warning=e.what();}}
  bool Favorite(const std::string& key)const{return favorites_.count(key)>0;}
- void ToggleFavorite(const std::string& key){auto next=favorites_;if(next.count(key))next.erase(key);else next.insert(key);SaveFavorites(next);favorites_=std::move(next);}
- void MoveFavorite(const std::string& oldKey,const std::string& newKey){if(!Favorite(oldKey))return;auto next=favorites_;next.erase(oldKey);next.insert(newKey);SaveFavorites(next);favorites_=std::move(next);}
+ void ToggleFavorite(const std::string& key){ReloadFavorites();auto next=favorites_;if(next.count(key))next.erase(key);else next.insert(key);SaveFavorites(next);favorites_=std::move(next);}
+ void MoveFavorite(const std::string& oldKey,const std::string& newKey){ReloadFavorites();if(!Favorite(oldKey))return;auto next=favorites_;next.erase(oldKey);next.insert(newKey);SaveFavorites(next);favorites_=std::move(next);}
  std::vector<int> Filter(const std::string& category,const std::string& query)const{
   std::vector<int> out;auto q=Fold(query);for(int i=0;i<int(entries.size());++i){const auto& e=entries[i];bool match=category=="All"||(category=="Favorites"?Favorite(e.key):category=="Init"?e.factory==0:category=="User"?e.factory<0:category==e.category);
    if(match&&Fold(e.name+" "+e.category).find(q)!=std::string::npos)out.push_back(i);}return out;
  }
 private:
+ void ReloadFavorites(){if(root_.empty())return;std::ifstream in(root_/"favorites.txt");if(!in)return;std::set<std::string> values;std::string key;while(in>>std::quoted(key))values.insert(key);favorites_=std::move(values);}
  void SaveFavorites(const std::set<std::string>& values){if(root_.empty())throw std::runtime_error("User folder unavailable.");fs::create_directories(root_);std::ofstream out(root_/"favorites.txt",std::ios::trunc);if(!out)throw std::runtime_error("Cannot save favorites.");for(const auto& k:values)out<<std::quoted(k)<<'\n';out.close();if(!out)throw std::runtime_error("Cannot write favorites.");}
 };
 }
