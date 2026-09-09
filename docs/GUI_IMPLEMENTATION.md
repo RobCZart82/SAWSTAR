@@ -51,3 +51,25 @@ and ADVANCED were inspected again. A final modulation-row height correction was
 then built and validated by CI. This is not an exhaustive manual test of every
 control or Windows GUI scaling. Original REAPER VST search paths were restored.
 The system-installed plugin was not overwritten.
+
+## Visual polish pass (2026-09-09)
+
+Parameter dropdowns now use recessed dark value fields with a right-side blue
+chevron and a separate label. Noise type shares this field style. On/Off controls
+retain their blue active state and explicit ON/OFF text. Parameter IDs, popup
+selection handling, saved state and DSP are unchanged.
+
+The stereo OUTPUT peak display now has a restrained fixed-height gradient:
+approximately 70% green, 20% orange and 10% red from bottom to top. The palette
+stays anchored to the whole meter rather than stretching with the instantaneous
+level. Its existing -60 to 0 dB mapping and block-peak readings remain unchanged;
+it is not a calibrated analog VU simulation or a new clipping detector.
+
+Validation for code commit `fb520b597f21a1de862bf2955d397fab02b6ac14`:
+
+- [macOS checks and VST3 build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34305461225)
+- [Windows checks and VST3 build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34305461265)
+
+Native REAPER visual inspection of this pass is still pending. A separate test
+bundle was scanned, but UI automation did not reliably open the FX window.
+The original VST search paths were restored; the installed bundle was not replaced.
