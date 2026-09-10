@@ -38,6 +38,7 @@ private:
   int mFactoryIndex = -1; // GUI-only, derived from the parameter snapshot.
   int mLfoPage = 0; // Editor selection only; both LFOs keep running.
   int mFxPage = 0; // Editor-only effect panel selection.
+  float mGuiScale = 0.f; // Instance/editor preference, independent of sound presets.
   int mPage = 0; // Editor-only state; never read by the audio callback.
 #if IPLUG_EDITOR
   void SyncRestoredPreset();

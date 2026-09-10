@@ -84,8 +84,8 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
   MakeDefaultPreset("Init", 1);
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [this]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS,
-                        GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
+    if(mGuiScale<=0.f)mGuiScale=GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS,mGuiScale);
   };
   mLayoutFunc = [this](IGraphics* g) {
     SyncRestoredPreset();
@@ -110,7 +110,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     sawstar::Snapshot current{};
     for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
-    sawstar::gui::BuildLayout(g,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mPeakL,mPeakR,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply);
+    sawstar::gui::BuildLayout(g,mGuiScale,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mPeakL,mPeakR,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply);
   };
 #endif
 }

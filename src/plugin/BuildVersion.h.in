@@ -1,0 +1,3 @@
+#pragma once
+#define SAWSTAR_DISPLAY_VERSION "@PROJECT_VERSION@ Pre Release"
+#define SAWSTAR_BUILD_ID "@SAWSTAR_BUILD_ID@"

@@ -13,11 +13,12 @@ The September 10 user notes are consolidated here. The final concept remains the
 - Search, rename and parameter-entry fields share a dark background and light text, with blue selection/caret while editing. Native file dialogs retain OS styling.
 - Pitch/modulation captions are centered under the wheels. Effect enable buttons are narrower than effect selection buttons.
 
-## Next: version and settings
+## Implemented next package: version and settings
 
-- Small prerelease version below the existing logo, with build identification; keep host-compatible numeric version fields and distinguish development display text.
-- Align the two-line motto with the wordmark and add the restrained, tracked, bold footer “The Sounds of Trance”.
-- Gear menu: GUI Scale (75/100/125%), Updates / Downloads linking to GitHub Releases, separator, About. Add a separate Settings page only when it has additional useful global options. Check host resizing and editor reopen behavior before shipping scaling.
+- Prerelease version below the logo; About also shows the source commit ID. Host numeric version remains 0.1.0 during this prerelease cycle.
+- Motto aligned closer to the wordmark and a restrained “The Sounds of Trance” footer.
+- Gear menu: GUI Scale 75/100/125%, Updates / Downloads (GitHub Releases), separator, About. Scale is an instance/editor preference retained across editor reopen, not stored in sound presets or globally across restarts. No automatic updater.
+- macOS keypad Enter (Return code with 0x8000 flag) commits text entry like main Return; Escape cancels. A checked CMake patch compiles a build-directory copy of iPlug2 text entry, without modifying the pinned submodule. Both commands return immediately rather than passing a control character to the text editor.
 
 ## Next: DSP lifecycle and QA
 
