@@ -36,3 +36,5 @@ state roundtrip, sound output and note release at 44.1/48/96 kHz. Templates are
 checked for dry/unmodulated defaults. Final subjective level/timbre approval
 remains a listening task; these are an initial curated library, not a claim of
 equal perceived loudness for every MIDI phrase.
+
+Verification and host follow-up: [TEMPLATES_HOST_QA.md](TEMPLATES_HOST_QA.md).

@@ -61,7 +61,8 @@ and offline-render check also passed. Final content listening and acceptance
 of the release-candidate binary remain required.
 
 - [First release plan](docs/FIRST_RELEASE_PLAN.md)
-- [Latest engine/GUI QA](docs/PRE_RELEASE_QA.md)
+- [Latest Templates / host QA](docs/TEMPLATES_HOST_QA.md)
+- [Earlier engine/GUI QA](docs/PRE_RELEASE_QA.md)
 - [Installation and release preparation](docs/INSTALLATION.md)
 - [Windows manual checklist](docs/WINDOWS_ACCEPTANCE.md)
 
