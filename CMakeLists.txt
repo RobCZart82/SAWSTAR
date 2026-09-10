@@ -12,6 +12,8 @@ option(SAWSTAR_CHECK_DAISYSP "Compile and test the selected DaisySP primitives" 
 
 add_library(sawstar_foundation STATIC src/plugin/Parameters.cpp src/plugin/State.cpp src/presets/FactoryPresets.cpp src/presets/UserPresets.cpp)
 add_library(SAWSTAR::Foundation ALIAS sawstar_foundation)
+find_package(Threads REQUIRED)
+target_link_libraries(sawstar_foundation PUBLIC Threads::Threads)
 target_include_directories(sawstar_foundation PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_compile_features(sawstar_foundation PUBLIC cxx_std_17)
 set_target_properties(sawstar_foundation PROPERTIES
@@ -23,7 +25,9 @@ else()
 endif()
 
 if(BUILD_TESTING)
-  find_package(Threads REQUIRED)
+  add_executable(sawstar_preset_reliability tests/preset_reliability.cpp)
+  target_link_libraries(sawstar_preset_reliability PRIVATE SAWSTAR::Foundation Threads::Threads)
+  add_test(NAME preset_reliability COMMAND sawstar_preset_reliability)
   add_executable(sawstar_sub_tests tests/sub_oscillator.cpp)
   target_link_libraries(sawstar_sub_tests PRIVATE SAWSTAR::Foundation)
   add_test(NAME sub_waveform_transitions COMMAND sawstar_sub_tests)

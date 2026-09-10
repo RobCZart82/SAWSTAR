@@ -48,3 +48,156 @@ void SaveUserPreset(const fs::path& path,const Snapshot& values) {
   }
 }
 }
+
+#include "presets/Library.h"
+#include <atomic>
+#include <chrono>
+#include <mutex>
+#include <sstream>
+#include <thread>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
+#include <sys/file.h>
+#endif
+namespace sawstar {
+bool ValidPresetName(const std::string& s) {
+  if(s.empty()||s.size()>240||s.back()=='.'||s.back()==' '||s.find_first_of("/\\:*?\"<>|")!=std::string::npos)return false;
+  size_t chars=0;
+  for(size_t i=0;i<s.size();){
+    const auto c=static_cast<unsigned char>(s[i]);unsigned length=0,cp=0;
+    if(c<128){length=1;cp=c;}else if(c>=0xc2&&c<=0xdf){length=2;cp=c&31;}else if(c>=0xe0&&c<=0xef){length=3;cp=c&15;}else if(c>=0xf0&&c<=0xf4){length=4;cp=c&7;}else return false;
+    if(i+length>s.size())return false;
+    for(unsigned j=1;j<length;++j){auto b=static_cast<unsigned char>(s[i+j]);if((b&0xc0)!=0x80)return false;cp=(cp<<6)|(b&63);}
+    if(cp<32||cp==127||(length==2&&cp<128)||(length==3&&cp<2048)||(length==4&&cp<65536)||cp>0x10ffff||(cp>=0xd800&&cp<=0xdfff))return false;
+    i+=length;if(++chars>80)return false;
+  }
+  auto base=Fold(s.substr(0,s.find('.')));
+  if(base=="con"||base=="prn"||base=="aux"||base=="nul"||base=="conin$"||base=="conout$")return false;
+  if(base.rfind("com",0)==0||base.rfind("lpt",0)==0){auto n=base.substr(3);if((n.size()==1&&n[0]>='1'&&n[0]<='9')||n==u8"¹"||n==u8"²"||n==u8"³")return false;}
+  return true;
+}
+fs::path RenameUserPreset(const fs::path& source,const std::string& name) {
+  if(!ValidPresetName(name))throw std::runtime_error("Use a valid preset name of up to 80 characters. Shorten very long names.");
+  auto target=source.parent_path()/fs::u8path(name+".sawstar");if(target==source)return source;
+  if(fs::exists(target)){
+    if(Fold(target.filename().u8string())!=Fold(source.filename().u8string())||!fs::equivalent(source,target))throw std::runtime_error("That name already exists.");
+    // On case-insensitive volumes this is the same file, not an overwrite.
+    fs::rename(source,target);
+  }else{
+    // Link creation is exclusive: a concurrent writer cannot be overwritten.
+    fs::create_hard_link(source,target);
+    try{if(!fs::remove(source))throw std::runtime_error("Cannot remove old preset name.");}
+    catch(...){std::error_code ignored;fs::remove(target,ignored);throw;}
+  }
+  return target;
+}
+namespace {
+class FavoritesLock {
+#ifdef _WIN32
+  HANDLE file_=INVALID_HANDLE_VALUE;OVERLAPPED offset_{};
+#else
+  int file_=-1;
+#endif
+public:
+  explicit FavoritesLock(const fs::path& path){
+#ifdef _WIN32
+    file_=CreateFileW(path.c_str(),GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,nullptr);
+    if(file_==INVALID_HANDLE_VALUE)throw std::runtime_error("Cannot lock favorites.");
+#else
+    file_=::open(path.c_str(),O_RDWR|O_CREAT,0600);if(file_<0)throw std::runtime_error("Cannot lock favorites.");
+#endif
+    const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(2);
+    do {
+#ifdef _WIN32
+      if(LockFileEx(file_,LOCKFILE_EXCLUSIVE_LOCK|LOCKFILE_FAIL_IMMEDIATELY,0,1,0,&offset_))return;
+#else
+      if(::flock(file_,LOCK_EX|LOCK_NB)==0)return;
+#endif
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }while(std::chrono::steady_clock::now()<until);
+#ifdef _WIN32
+    CloseHandle(file_);
+#else
+    ::close(file_);
+#endif
+    throw std::runtime_error("Favorites are busy. Please try again.");
+  }
+  ~FavoritesLock(){
+#ifdef _WIN32
+    UnlockFileEx(file_,0,1,0,&offset_);CloseHandle(file_);
+#else
+    ::flock(file_,LOCK_UN);::close(file_);
+#endif
+  }
+  FavoritesLock(const FavoritesLock&)=delete;
+  FavoritesLock& operator=(const FavoritesLock&)=delete;
+};
+void ReplaceFavorites(const fs::path& root,const std::set<std::string>& values){
+  static std::atomic<unsigned long long> serial{0};
+#ifdef _WIN32
+  const auto pid=GetCurrentProcessId();
+#else
+  const auto pid=getpid();
+#endif
+  fs::path temp;int fd=-1;
+  for(int tries=0;tries<100&&fd<0;++tries){temp=root/("favorites.tmp-"+std::to_string(pid)+"-"+std::to_string(serial++));
+#ifdef _WIN32
+    fd=::_wopen(temp.c_str(),_O_WRONLY|_O_CREAT|_O_EXCL|_O_BINARY,_S_IREAD|_S_IWRITE);
+#else
+    fd=::open(temp.c_str(),O_WRONLY|O_CREAT|O_EXCL,0600);
+#endif
+    if(fd<0&&errno!=EEXIST)break;
+  }
+  if(fd<0)throw std::runtime_error("Cannot create favorites update.");
+  auto closeFile=[](int f){
+#ifdef _WIN32
+    return ::_close(f);
+#else
+    return ::close(f);
+#endif
+  };
+  try{
+    std::ostringstream out;for(const auto& k:values)out<<std::quoted(k)<<'\n';auto bytes=out.str();size_t pos=0;
+    while(pos<bytes.size()){
+#ifdef _WIN32
+      auto n=::_write(fd,bytes.data()+pos,static_cast<unsigned>(bytes.size()-pos));
+#else
+      auto n=::write(fd,bytes.data()+pos,bytes.size()-pos);
+#endif
+      if(n<0&&errno==EINTR)continue;if(n<=0)throw std::runtime_error("Cannot write favorites.");pos+=static_cast<size_t>(n);
+    }
+#ifdef _WIN32
+    if(::_commit(fd)!=0)throw std::runtime_error("Cannot flush favorites.");
+#else
+    if(::fsync(fd)!=0)throw std::runtime_error("Cannot flush favorites.");
+#endif
+    const int result=closeFile(fd);fd=-1;if(result!=0)throw std::runtime_error("Cannot close favorites update.");
+    const auto target=root/"favorites.txt";
+#ifdef _WIN32
+    if(!MoveFileExW(temp.c_str(),target.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH))throw std::runtime_error("Cannot replace favorites.");
+#else
+    fs::rename(temp,target);
+#endif
+  }catch(...){if(fd>=0)closeFile(fd);std::error_code ignored;fs::remove(temp,ignored);throw;}
+}
+}
+std::set<std::string> ReadFavorites(const fs::path& root){
+  std::set<std::string> values;if(root.empty())return values;
+  const auto path=root/"favorites.txt";std::ifstream in(path);if(!in){if(!fs::exists(path))return values;throw std::runtime_error("Cannot read favorites.");}
+  std::string line;while(std::getline(in,line)){if(line.empty())continue;std::istringstream row(line);std::string key;row>>std::ws;if(row.peek()!='"'||!(row>>std::quoted(key)))throw std::runtime_error("Favorites file is damaged; it has been preserved.");row>>std::ws;if(!row.eof())throw std::runtime_error("Favorites file is damaged; it has been preserved.");values.insert(key);}
+  if(in.bad())throw std::runtime_error("Cannot read favorites.");return values;
+}
+std::set<std::string> ChangeFavorite(const fs::path& root,const std::string& key,const std::string* moveTo){
+  if(root.empty())throw std::runtime_error("User folder unavailable.");
+  // No filesystem work or locking on the audio callback.
+  static std::mutex mutex;std::lock_guard<std::mutex> local(mutex);
+  fs::create_directories(root);FavoritesLock lock(root/"favorites.lock");auto next=ReadFavorites(root);
+  if(moveTo){if(!next.erase(key))return next;if(!moveTo->empty())next.insert(*moveTo);}
+  else if(!next.erase(key))next.insert(key);
+  ReplaceFavorites(root,next);return next;
+}
+}

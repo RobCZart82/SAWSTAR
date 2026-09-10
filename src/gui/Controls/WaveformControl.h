@@ -23,7 +23,7 @@ public:
    if(i)g.DrawLine(cyan,px,py,x,screenY,nullptr,1.5f);px=x;py=screenY;
   }
  }
- void OnMouseDown(float,float,const iplug::igraphics::IMouseMod&)override{GetUI()->CreatePopupMenu(*this,menu_,mRECT.L,mRECT.B);}
+ void OnMouseDown(float,float,const iplug::igraphics::IMouseMod&)override{GetUI()->CreatePopupMenu(*this,menu_,mRECT);}
  void OnPopupMenuSelection(iplug::igraphics::IPopupMenu* menu,int)override{
   if(menu&&menu->GetChosenItemIdx()>=0){SetValue(menu->GetChosenItemIdx()/(sub_?2.:3.));SetDirty(true);}
  }

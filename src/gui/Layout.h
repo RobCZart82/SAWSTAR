@@ -14,7 +14,7 @@
 namespace sawstar::gui {
 inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const int& preset,std::function<void(int)> load,const std::atomic<float>& peakL,const std::atomic<float>& peakR,const std::atomic<float>& cpu,const std::atomic<int>& rate,const std::atomic<int>& voices,UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply){
  auto* confirm=new ConfirmAction(IRECT(0,0,1280,760));
- g->AttachPanelBackground(IColor(255,10,15,18));g->EnableMouseOver(true);g->AttachPopupMenuControl();g->AttachTextEntryControl();g->LoadFont("Roboto-Regular","Arial",ETextStyle::Normal);g->LoadFont("SAWSTAR-Bold","Arial",ETextStyle::Bold);
+ g->AttachPanelBackground(IColor(255,10,15,18));g->EnableMouseOver(true);ConfigurePopups(g);g->AttachTextEntryControl();g->LoadFont("Roboto-Regular","Arial",ETextStyle::Normal);g->LoadFont("SAWSTAR-Bold","Arial",ETextStyle::Bold);
  auto text=[&](IRECT r,const char* label,int size,const char* group=""){g->AttachControl(new ITextControl(r,label,IText(size,Text).WithAlign(EAlign::Near)),iplug::kNoTag,group);};
  auto section=[&](IRECT r,const char* name,const char* group,IColor color=Blue,bool tint=false){g->AttachControl(new Section(r,name,color,tint),iplug::kNoTag,group);};
  auto knob=[&](float x,float y,float w,int id,const char* label,const char* group,float height=79){g->AttachControl(new Knob(IRECT(x,y,x+w,y+height),id,label),iplug::kNoTag,group);};
@@ -43,9 +43,9 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  for(int row=0;row<4;++row){float y=132+row*67;int id=71+row*3;menu(IRECT(899,y,1006,y+51),id,row==0?"SOURCE":"","advanced");menu(IRECT(1014,y,1163,y+51),id+1,row==0?"DESTINATION":"","advanced");g->AttachControl(new Knob(IRECT(1173,y-7,1256,y+56),id+2,row==0?"AMOUNT":" "),iplug::kNoTag,"advanced");}
  section(IRECT(12,433,1268,636),"EFFECT DETAILS","advanced");const char* effects[]={"CHORUS","DELAY","REVERB"};for(int i=0;i<3;++i)g->AttachControl(new PageButton(IRECT(24,478+i*45,174,512+i*45),effects[i],i,fxPage,[&fxPage,&page,select,i]{fxPage=i;select(page);}),iplug::kNoTag,"advanced");
  // Equal-width columns: enable shares the knob row; delay choices sit above it.
- menu(IRECT(220,558,390,590),42,"CHORUS","chorus");knob(420,540,170,43,"MIX","chorus");knob(620,540,170,44,"RATE","chorus");knob(820,540,170,45,"DEPTH","chorus");
- const int dm[]={51,52,53};for(int i=0;i<3;++i)menu(IRECT(420+i*200,475,590+i*200,527),dm[i],i==0?"MODE":i==1?"CLOCK":"DIVISION","delay");menu(IRECT(220,558,390,590),46,"DELAY","delay");for(int i=0;i<4;++i)knob(420+i*200,540,170,47+i,i==0?"MIX":i==1?"TIME ms":i==2?"FEEDBACK":"TONE Hz","delay");
- menu(IRECT(220,558,390,590),54,"REVERB","reverb");for(int i=0;i<4;++i)knob(420+i*200,540,170,55+i,i==0?"MIX":i==1?"SIZE":i==2?"DECAY s":"DAMPING Hz","reverb");
+ menu(IRECT(251,558,359,590),42,"CHORUS","chorus");knob(420,540,170,43,"MIX","chorus");knob(620,540,170,44,"RATE","chorus");knob(820,540,170,45,"DEPTH","chorus");
+ const int dm[]={51,52,53};for(int i=0;i<3;++i)menu(IRECT(420+i*200,475,590+i*200,527),dm[i],i==0?"MODE":i==1?"CLOCK":"DIVISION","delay");menu(IRECT(251,558,359,590),46,"DELAY","delay");for(int i=0;i<4;++i)knob(420+i*200,540,170,47+i,i==0?"MIX":i==1?"TIME ms":i==2?"FEEDBACK":"TONE Hz","delay");
+ menu(IRECT(251,558,359,590),54,"REVERB","reverb");for(int i=0;i<4;++i)knob(420+i*200,540,170,55+i,i==0?"MIX":i==1?"SIZE":i==2?"DECAY s":"DAMPING Hz","reverb");
  // Quiet separators group related controls without changing their hit areas.
  auto divider=[&](float l,float y,float rr,const char* group){g->AttachControl(new Divider(IRECT(l,y,rr,y+1)),iplug::kNoTag,group);};
  divider(24,294,280,"main");divider(24,470,280,"main");
@@ -56,7 +56,7 @@ inline void BuildLayout(IGraphics* g,int& page,int& lfoPage,int& fxPage,const in
  divider(24,293,247,"advanced");
  // Shared factory/user library follows the approved four-column concept.
  g->AttachControl(new PresetBrowser(user,current,apply,load,confirm),9102,"presets");
- section(IRECT(12,646,1268,724),"","",Blue);g->AttachControl(new PerformanceWheel(IRECT(23,654,54,702),true));g->AttachControl(new PerformanceWheel(IRECT(65,654,96,702),false));text(IRECT(23,703,60,721),"PITCH",9);text(IRECT(66,703,101,721),"MOD",9);
+ section(IRECT(12,646,1268,724),"","",Blue);g->AttachControl(new PerformanceWheel(IRECT(23,654,54,702),true));g->AttachControl(new PerformanceWheel(IRECT(65,654,96,702),false));g->AttachControl(new ITextControl(IRECT(23,703,54,721),"PITCH",IText(9,Text)));g->AttachControl(new ITextControl(IRECT(65,703,96,721),"MOD",IText(9,Text)));
  g->AttachControl(new Keyboard(IRECT(115,654,1258,715),36,96,false,IColor(255,181,187,187),IColor(255,19,24,27),Blue,PanelColor,Text));g->AttachControl(new Status(IRECT(20,729,1260,750),cpu,rate,voices),9101);
  auto* about=new AboutWindow(IRECT(0,0,1280,760),brandFont);
  g->AttachControl(new SettingsMenu(IRECT(1228,20,1268,60),about));

@@ -38,7 +38,7 @@ public:
   for(int i=0;i<8;++i){float a=i*.785398163f;g.DrawLine(Blue,x+std::cos(a)*9,y+std::sin(a)*9,x+std::cos(a)*14,y+std::sin(a)*14,nullptr,4);}
   g.DrawCircle(Blue,x,y,9,nullptr,4);g.FillCircle(PanelColor,x,y,5);
  }
- void OnMouseDown(float,float,const IMouseMod&)override{GetUI()->CreatePopupMenu(*this,menu_,mRECT.L,mRECT.B);}
+ void OnMouseDown(float,float,const IMouseMod&)override{GetUI()->CreatePopupMenu(*this,menu_,mRECT);}
  void OnPopupMenuSelection(IPopupMenu* menu,int)override{if(menu&&menu->GetChosenItemIdx()==0)about_->Open();}
 };
 }

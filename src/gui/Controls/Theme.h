@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "IControls.h"
+#include "IPopupMenuControl.h"
+#include "ITextEntryControl.h"
 #include <cmath>
 #include <atomic>
 #include <cstdio>
@@ -8,7 +10,10 @@
 namespace sawstar::gui {
 using namespace iplug::igraphics;
 inline const IColor Text(255,225,234,238),Blue(255,54,170,226),PanelColor(255,20,26,29),Border(255,48,61,67);
-inline IVStyle Style(){return DEFAULT_STYLE.WithColor(kBG,PanelColor).WithColor(kFG,IColor(255,36,45,50)).WithColor(kFR,Border).WithColor(kHL,Blue).WithColor(kX1,Blue).WithColor(kX2,Text).WithColor(kX3,Blue).WithDrawShadows(false).WithRoundness(.12f).WithLabelText(IText(11,Text)).WithValueText(IText(10,Text).WithVAlign(EVAlign::Bottom));}
+inline IText EntryStyle(int size){return IText(size,Text).WithTEColors(IColor(255,12,19,24),Text);}
+inline void StyleEntry(IGraphics* g){if(auto* entry=g->GetTextEntryControl())if(entry->EditInProgress()){auto style=entry->GetText();style.mFGColor=Text;style.mTextEntryBGColor=IColor(255,12,19,24);style.mTextEntryFGColor=Blue;entry->SetText(style);}}
+inline void ConfigurePopups(IGraphics* g){g->AttachPopupMenuControl(IText(14,Text));auto* popup=g->GetPopupMenuControl();popup->SetPanelColor(IColor(255,16,23,29));popup->SetCellBackgroundColor(IColor(255,16,23,29));popup->SetItemColor(Text);popup->SetItemMouseoverColor(IColor(255,25,65,88));popup->SetDisabledItemColor(IColor(255,116,135,145));popup->SetSeparatorColor(Border);popup->SetMenuForcedSouth(true);}
+inline IVStyle Style(){return DEFAULT_STYLE.WithColor(kBG,PanelColor).WithColor(kFG,IColor(255,36,45,50)).WithColor(kFR,Border).WithColor(kHL,Blue).WithColor(kX1,Blue).WithColor(kX2,Text).WithColor(kX3,Blue).WithDrawShadows(false).WithRoundness(.12f).WithLabelText(IText(11,Text)).WithValueText(EntryStyle(10).WithVAlign(EVAlign::Bottom));}
 // A recessed value field and chevron identify choices, not on/off actions.
 inline void DrawChoice(IGraphics& g,const IRECT& r,const char* value,int size=11){
  g.FillRoundRect(IColor(255,10,16,20),r,3);g.DrawRoundRect(Border,r,3);
@@ -21,7 +26,7 @@ class Dropdown final:public IControl{
 public:
  Dropdown(IRECT r,int id,const char* label):IControl(r,id),label_(label){mDisablePrompt=false;}
  void Draw(IGraphics& g)override{if(*label_)g.DrawText(IText(11,Text).WithAlign(EAlign::Near),label_,mRECT.GetFromTop(15));WDL_String display;GetParam()->GetDisplay(display);DrawChoice(g,Field(),display.Get());}
- void OnMouseDown(float,float,const IMouseMod&)override{PromptUserInput(Field());}
+ void OnMouseDown(float,float,const IMouseMod&)override{PromptUserInput(Field());StyleEntry(GetUI());}
 };
 class BrandWordmark final:public IControl{
  bool font_;

@@ -16,7 +16,7 @@ public:
    DrawChoice(g,mRECT,names_[choice],13);
  }
  void OnMouseDown(float,float,const iplug::igraphics::IMouseMod&)override {
-   GetUI()->CreatePopupMenu(*this,menu_,mRECT.L,mRECT.B);
+   GetUI()->CreatePopupMenu(*this,menu_,mRECT);
  }
  void OnPopupMenuSelection(iplug::igraphics::IPopupMenu* menu,int)override {
    if(menu&&menu->GetChosenItemIdx()>=0){SetValue((menu->GetChosenItemIdx()+1)/3.,0);SetDirty(true,0);}

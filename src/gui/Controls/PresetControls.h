@@ -23,7 +23,7 @@ public:
   auto name=user_.active?user_.path.stem().u8string()+(!SnapshotsMatch(current_(),user_.saved)?" *":""):selected_<0?std::string("Custom"):std::string(FactoryPresets()[selected_].name);g.DrawText(IText(14,light),name.c_str(),mRECT.GetHPadded(-30));
  }
  void OnMouseDown(float x,float,const iplug::igraphics::IMouseMod&)override{try{Refresh();int index=selected_;if(user_.active){index=-1;for(int i=0;i<int(files_.size());++i)if(files_[i]==user_.path){index=int(FactoryPresets().size())+i;break;}}int count=int(FactoryPresets().size()+files_.size());
-  if(x<mRECT.L+28)Load(index<=1?count-1:index-1);else if(x>mRECT.R-28)Load(index<1||index==count-1?1:index+1);else {auto* popup=GetUI()->GetPopupMenuControl();if(popup)popup->SetMenuForcedSouth(true);GetUI()->CreatePopupMenu(*this,menu_,mRECT);if(popup)popup->SetMenuForcedSouth(false);}
+  if(x<mRECT.L+28)Load(index<=1?count-1:index-1);else if(x>mRECT.R-28)Load(index<1||index==count-1?1:index+1);else {auto* popup=GetUI()->GetPopupMenuControl();if(popup)popup->SetMenuForcedSouth(true);GetUI()->CreatePopupMenu(*this,menu_,mRECT);}
  }catch(const std::exception& e){Error(e);}}
  void OnPopupMenuSelection(iplug::igraphics::IPopupMenu* menu,int)override{if(menu&&menu->GetChosenItemIdx()>=0)try{int i=menuIndices_.at(menu->GetChosenItemIdx());if(i>=0)Load(i);}catch(const std::exception& e){Error(e);}}
 };
