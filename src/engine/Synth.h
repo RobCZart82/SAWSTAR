@@ -100,6 +100,7 @@ private:
   std::array<float,4> levels_{{1,0,0,0}}, targetLevels_{{1,0,0,0}};
   std::array<float,3> noiseWeights_{{1,0,0}};
   int osc1Octave_=0, osc2Octave_=0, subOctave_=-1, noiseType_=0;
+  bool initialControlsPending_=true;
   float sampleRate_=44100, noisePole_=0, colorPole_=0, noiseColor_=0, targetNoiseColor_=0;
   float boost_=1, targetBoost_=1, protection_=1, protectionRelease_=0;
   float ampSustain_=.7f, targetAmpSustain_=.7f;

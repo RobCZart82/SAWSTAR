@@ -1,5 +1,6 @@
 #pragma once
 #define SAWSTAR_DISPLAY_VERSION "@PROJECT_VERSION@ Pre Release"
 #define SAWSTAR_BUILD_ID "@SAWSTAR_BUILD_ID@"
+#define SAWSTAR_HEADER_VERSION "Version: @PROJECT_VERSION@ - @SAWSTAR_DATE_LABEL@: @SAWSTAR_BUILD_DATE@"
 #include "config.h"
 static_assert(PLUG_VERSION_HEX == ((@PROJECT_VERSION_MAJOR@ << 16) | (@PROJECT_VERSION_MINOR@ << 8) | @PROJECT_VERSION_PATCH@), "Host and project versions must agree");

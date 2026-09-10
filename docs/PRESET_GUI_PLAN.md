@@ -1,5 +1,8 @@
 # Preset reliability and GUI completion plan
 
+The consolidated remaining work and approved version/date display are in
+[FIRST_RELEASE_PLAN.md](FIRST_RELEASE_PLAN.md).
+
 The September 10 user notes are consolidated here. The final concept remains the layout reference. Duplicate MIDI-note handling was completed separately; see OVERLAPPING_NOTES.md.
 
 ## Implemented in this change

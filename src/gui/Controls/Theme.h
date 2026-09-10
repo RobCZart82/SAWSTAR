@@ -25,7 +25,7 @@ class Dropdown final:public IControl{
  IRECT Field()const{const auto area=*label_?mRECT.GetReducedFromTop(17):mRECT;return area.GetCentredInside(area.W(),std::min(32.f,area.H()));}
 public:
  Dropdown(IRECT r,int id,const char* label):IControl(r,id),label_(label){mDisablePrompt=false;}
- void Draw(IGraphics& g)override{if(*label_)g.DrawText(IText(11,Text).WithAlign(EAlign::Near),label_,mRECT.GetFromTop(15));WDL_String display;GetParam()->GetDisplay(display);DrawChoice(g,Field(),display.Get());}
+ void Draw(IGraphics& g)override{if(*label_)g.DrawText(IText(11,Text).WithAlign(EAlign::Near),label_,mRECT.GetFromTop(15));WDL_String display;GetParam()->GetDisplay(display);DrawChoice(g,Field(),display.Get());if(GetMouseIsOver())g.DrawRoundRect(Blue,Field(),3);}
  void OnMouseDown(float,float,const IMouseMod&)override{PromptUserInput(Field());StyleEntry(GetUI());}
 };
 class BrandWordmark final:public IControl{
@@ -52,7 +52,7 @@ public:Knob(IRECT r,int id,const char* title):IVKnobControl(r,id,title,Style(),t
  const float a=-135.f+270.f*GetValue();
  // Reserve space inside the widget so the 270-degree dotted scale cannot touch labels.
  for(int i=0;i<=24;++i){const float angle=(-225.f+i*270.f/24.f)*.01745329252f;g.FillCircle(IColor(180,107,134,147),cx+std::cos(angle)*(radius+4.f),cy+std::sin(angle)*(radius+4.f),i%6==0?1.f:.7f);}
- g.FillCircle(IColor(255,10,14,17),cx,cy,radius);g.DrawCircle(Border,cx,cy,radius,nullptr,2);
+ g.FillCircle(GetMouseIsOver()?IColor(255,16,25,31):IColor(255,10,14,17),cx,cy,radius);g.DrawCircle(Border,cx,cy,radius,nullptr,2);
  g.DrawArc(IColor(35,54,170,226),cx,cy,radius,-135,a,nullptr,6);
  g.DrawArc(Blue,cx,cy,radius,-135,a,nullptr,2);
  const float rad=(a-90)*.01745329252f;g.DrawLine(Text,cx+std::cos(rad)*radius*.55f,cy+std::sin(rad)*radius*.55f,cx+std::cos(rad)*radius*.8f,cy+std::sin(rad)*radius*.8f,nullptr,2);}
@@ -82,7 +82,7 @@ public:Curve(IRECT r,std::initializer_list<int> ids,bool envelope):IControl(r,id
 class Toggle final:public IControl{
  const char* label_;
 public:Toggle(IRECT r,int id,const char* label):IControl(r,id),label_(label){}
- void Draw(IGraphics& g)override{const bool on=GetValue()>.5;g.FillRoundRect(on?IColor(255,22,58,80):IColor(255,13,19,22),mRECT,3);g.DrawRoundRect(on?Blue:IColor(255,67,87,99),mRECT,3,nullptr,on?1.5f:1.f);char text[80];std::snprintf(text,sizeof(text),"%s%s%s",label_,*label_?"  ":"",on?"ON":"OFF");g.DrawText(IText(11,on?Text:IColor(255,130,150,158)),text,mRECT);}
+ void Draw(IGraphics& g)override{const bool on=GetValue()>.5;g.FillRoundRect(on?IColor(255,22,58,80):IColor(255,13,19,22),mRECT,3);g.DrawRoundRect(on||GetMouseIsOver()?Blue:IColor(255,67,87,99),mRECT,3,nullptr,on?1.5f:1.f);char text[80];std::snprintf(text,sizeof(text),"%s%s%s",label_,*label_?"  ":"",on?"ON":"OFF");g.DrawText(IText(11,on?Text:IColor(255,130,150,158)),text,mRECT);}
  void OnMouseDown(float,float,const IMouseMod&)override{SetValue(GetValue()>.5?0:1);SetDirty(true);}
 };
 class Meter final:public IControl{

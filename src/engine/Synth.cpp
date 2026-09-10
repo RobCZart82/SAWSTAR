@@ -4,6 +4,7 @@
 #include <cmath>
 namespace sawstar {
 void Synth::Reset(double rate) {
+  initialControlsPending_=true;
   const float sr = SafeSampleRate(rate);
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
   sustain_.fill(false);downCounts_.fill(0);heldKeys_=0; age_ = 0; gain_ = 0;
@@ -207,6 +208,9 @@ void Synth::Midi(int status, int note, int value) {
   }
 }
 StereoSample Synth::ProcessStereo() {
+  // Host parameters arrive after Reset. Set the initial level targets once,
+  // independent of the previous patch; retain normal smoothing thereafter.
+  if(initialControlsPending_){levels_=targetLevels_;boost_=targetBoost_;initialControlsPending_=false;}
   // Crossfade types with the same 5 ms time constant as the mixer controls.
   // Keep all source histories running so a new selection needs no cold start.
   for(int type=0;type<3;++type){
