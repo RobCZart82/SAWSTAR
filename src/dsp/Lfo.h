@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "dsp/Safety.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -8,7 +9,7 @@ struct LfoOutput { float cutoff=0,pitch=0,amp=1,pan=0; };
 // One global LFO per synth. Tempo sync follows BPM, not host timeline phase.
 class Lfo {
 public:
- void Init(float rate){rate_=rate;phase_=0;value_=0;depths_.fill(0);slew_=1-std::exp(-1.f/(.01f*rate));edge_=1-std::exp(-1.f/(.002f*rate));hz_=targetHz_=1;}
+ void Init(float rate){rate=SafeSampleRate(rate);rate_=rate;phase_=0;value_=0;depths_.fill(0);slew_=1-std::exp(-1.f/(.01f*rate));edge_=1-std::exp(-1.f/(.002f*rate));hz_=targetHz_=1;}
  void Set(float hz,float depth,int shape,int target,bool sync,int division,double bpm,bool retrigger){
   static constexpr float beats[]={4,2,1,.5f,.25f,.125f};
   bpm=std::isfinite(bpm)&&bpm>0?std::clamp(bpm,1.,1000.):120.;

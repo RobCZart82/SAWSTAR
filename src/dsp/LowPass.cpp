@@ -7,7 +7,7 @@ namespace {
 float Safe(float v,float lo,float hi){return std::isfinite(v)?std::clamp(v,lo,hi):lo;}
 }
 void LowPass::Init(float sampleRate){
-  rate_=std::isfinite(sampleRate)&&sampleRate>=8000?sampleRate:44100;
+  rate_=SafeSampleRate(sampleRate);
   dcPole_=std::exp(-2*3.14159265358979323846*5/rate_);
   slew_=1-std::exp(-1/(0.01*rate_));cutoff_=-1;
   mode_=0;weights_={{1,0,0,0}};drive_=targetDrive_=0;

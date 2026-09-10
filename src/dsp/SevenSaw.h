@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "dsp/Safety.h"
 #include "Synthesis/oscillator.h"
 #include <array>
 namespace sawstar {
@@ -9,7 +10,7 @@ class SevenSaw {
 public:
   void Init(float sampleRate);
   void SetFreq(float hz);
-  void SetPitchMultiplier(float ratio) { pitch_=ratio; }
+  void SetPitchMultiplier(float ratio) { pitch_=FiniteClamp(ratio,0.f,4096.f,1.f); }
   void SetWaveform(int waveform);
   void SetShape(float detuneCents, float mix, float width);
   StereoSample Process();

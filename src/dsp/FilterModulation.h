@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "dsp/Safety.h"
 #include "Control/adsr.h"
 #include <algorithm>
 #include <cmath>
@@ -9,7 +10,7 @@ namespace sawstar {
 // host block size. LowPass smooths the resulting coefficient targets.
 class FilterModulation {
 public:
-  void Init(float rate) { env_.Init(rate); limit_=std::min(20000.f,rate*.45f); tick_=0; }
+  void Init(float rate) { rate=SafeSampleRate(rate); env_.Init(rate); limit_=std::min(20000.f,rate*.45f); tick_=0; }
   void Set(float base,float amount,float tracking,float attack,float decay,float sustain,float release) {
     base_=Safe(base,20,20000); amount_=Safe(amount,-96,96); tracking_=Safe(tracking,0,100)*.01f;
     env_.SetAttackTime(Safe(attack,1,10000)*.001f);
@@ -19,6 +20,7 @@ public:
   }
   void Trigger(bool hard) { env_.Retrigger(hard); tick_=0; }
   float Process(int note,bool gate,float wheelSemitones=0) {
+    note=std::clamp(note,0,127);wheelSemitones=FiniteClamp(wheelSemitones,-192.f,192.f,0.f);
     const float envelope=env_.Process(gate);
     if(tick_++==0) {
       const float semitones=amount_*envelope+tracking_*(note-60)+wheelSemitones;

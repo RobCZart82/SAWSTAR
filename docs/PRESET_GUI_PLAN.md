@@ -47,3 +47,7 @@ Run the complete C++ suite and macOS/Windows VST3 CI. `preset_reliability` cover
 - Final code `55b8946`: all six macOS/Windows CI jobs passed (31 foundation tests and 47 VST3 validator checks per platform).
 - REAPER 7.79/macOS: keypad Enter committed Search (`Pad` produced two results), Rename (re-entered the unchanged user name `123`) and knob value entry without inserting a control glyph. GUI scale 75/100/125 worked; 75% survived editor close/reopen and was returned to 100%. Version/footer and About build text were visually checked.
 - After the version-only correction, REAPER was restarted to unload its cached plugin module. About confirmed final build `55b8946`. The final macOS binary is installed; both package archives match their GitHub artifact digests. Windows GUI/keyboard acceptance remains a user host test.
+
+## Approved preset content phase (after engine/GUI completion)
+
+Rename the visible Init category to **Templates** when organizing the final library. Keep **Init** as the neutral preset and **Initialize** as the reset action. Templates will include **Pad-Init**, **Lead-Init**, **Pluck-Init** and other practical starting points. Refresh all existing Factory sounds against the final feature set, then add more embedded Factory presets. This content work remains deferred; no factory sounds or category labels are changed by the DSP safety package.

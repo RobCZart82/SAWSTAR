@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "dsp/Safety.h"
 #include <array>
 #include <algorithm>
 #include <cmath>
@@ -8,7 +9,7 @@ namespace sawstar {
 class Modulation {
 public:
  using Values=std::array<float,5>; // cutoff semitones, pitch semitones, amp, pan, color
- void Init(float sr){active_=dirty_=false;weights_={};combined_={};sources_={};targets_={};amounts_={};slew_=1-std::exp(-1.f/(.01f*sr));}
+ void Init(float sr){sr=SafeSampleRate(sr);active_=dirty_=false;weights_={};combined_={};sources_={};targets_={};amounts_={};slew_=1-std::exp(-1.f/(.01f*sr));}
  void Set(int row,int source,int target,float amount){if(row<0||row>=4)return;
   source=std::clamp(source,0,5);target=std::clamp(target,0,4);
   amount=std::isfinite(amount)?std::clamp(amount*.01f,-1.f,1.f):0;

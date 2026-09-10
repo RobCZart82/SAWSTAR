@@ -4,7 +4,7 @@
 #include <cmath>
 namespace sawstar {
 void Synth::Reset(double rate) {
-  const float sr = static_cast<float>(std::isfinite(rate) && rate >= 8000 ? rate : 44100);
+  const float sr = SafeSampleRate(rate);
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
   sustain_.fill(false);downCounts_.fill(0);heldKeys_=0; age_ = 0; gain_ = 0;
   ampSustain_=targetAmpSustain_;
@@ -14,7 +14,7 @@ void Synth::Reset(double rate) {
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
   matrix_.Init(sr);pressure_.fill(0);smoothPressure_.fill(0);smoothWheel_.fill(0);lfo2_.Init(sr);
   lfo_.Init(sr);chorus_.Init(sr);delay_.Init(sr);reverb_.Init(sr);alternateWave_=false;
-  noiseColor_=targetNoiseColor_=0;
+  noiseColor_=targetNoiseColor_;
   colorPole_=1.f-std::exp(-2.f*3.14159265358979323846f*1000.f/sr);
   sampleRate_=sr; noisePole_=1.f-std::exp(-2.f*3.14159265358979323846f*1200.f/sr);
   levels_=targetLevels_;
@@ -100,6 +100,7 @@ void Synth::SetMixer(float osc1,float osc2,float sub,float noise,
   for(size_t i=0;i<4;++i)targetLevels_[i]=std::isfinite(values[i])?std::clamp(values[i]*.01f,0.f,1.f):0;
   osc1Octave_=std::clamp(osc1Octave,-2,2); osc2Octave_=std::clamp(osc2Octave,-2,2);
   subOctave_=std::clamp(subOctave,-2,0); noiseType_=std::clamp(noiseType,0,2);
+  if(ActiveVoices()==0){noiseWeights_.fill(0);noiseWeights_[noiseType_]=1;}
 }
 void Synth::SetOsc2(float detune,float mix,float width) {
   for(auto& v:voices_)v.osc2.SetShape(detune,mix*.01f,width*.01f);
@@ -109,6 +110,8 @@ void Synth::SetOutputBoost(float dB) {
   targetBoost_=std::pow(10.f,dB/20.f);
 }
 void Synth::SetParameters(double gain, double attack, double decay, double sustain, double release) {
+  gain=FiniteClamp(gain,-60.,0.,-12.);
+  attack=FiniteClamp(attack,1.,10000.,10.);decay=FiniteClamp(decay,1.,10000.,100.);release=FiniteClamp(release,1.,10000.,250.);
   targetAmpSustain_=std::isfinite(sustain)?std::clamp(static_cast<float>(sustain),0.f,1.f):.7f;
   // Idle setup must retain the original envelope behavior on the first note.
   if(ActiveVoices()==0)ampSustain_=targetAmpSustain_;
@@ -124,10 +127,12 @@ void Synth::SetFilterCharacter(float driveDb,int mode) {
   for(auto& v:voices_)v.filter.SetCharacter(driveDb,mode);
 }
 void Synth::SetFilter(float cutoff,float resonance,float mix) {
-  cutoff_=cutoff; resonance_=resonance; filterMix_=mix;
+  cutoff_=FiniteClamp(cutoff,20.f,20000.f,12000.f); resonance_=FiniteClamp(resonance,0.f,100.f,0.f); filterMix_=FiniteClamp(mix,0.f,100.f,0.f);
   SetFilterEnvelope(amount_,tracking_,filterAttack_,filterDecay_,filterSustain_,filterRelease_);
 }
 void Synth::SetFilterEnvelope(float amount,float tracking,float attack,float decay,float sustain,float release) {
+  amount=FiniteClamp(amount,-96.f,96.f,0.f);tracking=FiniteClamp(tracking,0.f,100.f,0.f);
+  attack=FiniteClamp(attack,1.f,10000.f,10.f);decay=FiniteClamp(decay,1.f,10000.f,100.f);sustain=FiniteClamp(sustain,0.f,1.f,0.f);release=FiniteClamp(release,1.f,10000.f,250.f);
   amount_=amount; tracking_=tracking; filterAttack_=attack; filterDecay_=decay;
   filterSustain_=sustain; filterRelease_=release;
   for(auto& v:voices_) v.filterMod.Set(cutoff_,amount,tracking,attack,decay,sustain,release);

@@ -11,7 +11,7 @@ constexpr std::array<float,7> phases{{0,0.17f,0.73f,0.31f,0.91f,0.53f,0.09f}};
 float Safe(float value,float lo,float hi) { return std::isfinite(value)?std::clamp(value,lo,hi):lo; }
 }
 void SevenSaw::Init(float rate) {
-  rate_=std::isfinite(rate)&&rate>=8000?rate:44100;
+  rate_=SafeSampleRate(rate);
   slew_=1-std::exp(-1.f/(0.01f*rate_));
   pitch_=1;waveform_=0;waveWeights_={{1,0,0,0}};triangleHistory_.fill(0);
   ratios_.fill(1);targets_.fill(1);detune_=-1;

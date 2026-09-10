@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "dsp/Safety.h"
 #include "dsp/SubOscillator.h"
 #include "dsp/SevenSaw.h"
 #include "dsp/Lfo.h"
@@ -35,7 +36,7 @@ public:
   void SetSubWave(int wave);
   void SetMixer(float osc1, float osc2, float sub, float noise,
                 int osc2Octave, int subOctave, int noiseType, int osc1Octave);
-  void SetNoiseColor(float percent) { targetNoiseColor_=std::clamp(percent*.01f,-1.f,1.f); }
+  void SetNoiseColor(float percent) { targetNoiseColor_=FiniteClamp(percent,-100.f,100.f,0.f)*.01f;if(ActiveVoices()==0)noiseColor_=targetNoiseColor_; }
   void SetOsc2(float detune, float mix, float width);
   void Midi(int status, int data1, int data2);
   void SetFilterCharacter(float driveDb,int mode);

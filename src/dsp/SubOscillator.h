@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "dsp/Safety.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -26,10 +27,10 @@ class SubOscillator {
   }
 public:
   void Init(float sr) {
-    sr_=std::max(1.f,sr);phase_=0;step_=0;wave_=0;remaining_=0;
+    sr_=SafeSampleRate(sr);phase_=0;step_=0;wave_=0;remaining_=0;
     started_=false;weights_={1,0,0};
   }
-  void SetFreq(float hz){step_=std::clamp(double(hz)/sr_,0.,.45);}
+  void SetFreq(float hz){step_=std::clamp(double(FiniteClamp(hz,0.f,20000.f,0.f))/sr_,0.,.45);}
   void SetWaveform(int wave) {
     wave=std::clamp(wave,0,2);
     if(wave==wave_)return; // Repeated block updates must not restart the fade.
