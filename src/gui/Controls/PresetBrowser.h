@@ -79,11 +79,11 @@ public:
   g.DrawLine(Border,1091,510,1253,510);
   TextLine(g,status_,IRECT(650,606,1064,630),11);
  }
- void OnMouseDown(float x,float y,const IMouseMod&)override{try{
+ void OnMouseDown(float x,float y,const IMouseMod& mod)override{try{
   if(Search().Contains(x,y)){editing_=0;GetUI()->CreateTextEntry(*this,EntryStyle(13),Search(),query_.c_str());StyleEntry(GetUI());return;}
   if(x<192&&y>=137&&y<137+13*34){const char* keys[]={"All","Favorites","Templates","Lead","Pad","Pluck","Bass","Sub Pad","Arp","Keys","Sequence","FX","User"};category_=keys[int((y-137)/34)];scroll_=0;Filter();SetDirty(false);return;}
   if(ScrollTrack().Contains(x,y)){if(MaxScroll()){dragging_=true;dragOffset_=ScrollThumb().Contains(x,y)?y-ScrollThumb().T:ScrollThumb().H()/2;ScrollTo(y);}return;}
-  if(x>=206&&x<=597&&y>=138&&y<558){int i=int((y-138)/35)+scroll_;if(i<int(visible_.size())){auto e=library_.entries[visible_[i]];if(x<238){library_.ToggleFavorite(e.key);Filter();}else Select(e.key);}SetDirty(false);return;}
+  if(x>=206&&x<=597&&y>=138&&y<558){int i=int((y-138)/35)+scroll_;if(i<int(visible_.size())){auto e=library_.entries[visible_[i]];if(x<238){library_.ToggleFavorite(e.key);Filter();}else{Select(e.key);if(mod.L)LoadSelected();}}SetDirty(false);return;}
   for(int i=0;i<8;++i)if(Action(i).Contains(x,y)){if(i==6&&(!Selected()||Selected()->factory>=0))return;Do(i);return;}
  }catch(const std::exception& e){Error(e);}}
  void OnMouseDrag(float,float y,float,float,const IMouseMod&)override{if(dragging_)ScrollTo(y);}
