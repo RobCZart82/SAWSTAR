@@ -185,17 +185,22 @@ void ReplaceFavorites(const fs::path& root,const std::set<std::string>& values){
   }catch(...){if(fd>=0)closeFile(fd);std::error_code ignored;fs::remove(temp,ignored);throw;}
 }
 }
-std::set<std::string> ReadFavorites(const fs::path& root){
+static std::set<std::string> ReadFavoritesUnlocked(const fs::path& root){
   std::set<std::string> values;if(root.empty())return values;
   const auto path=root/"favorites.txt";std::ifstream in(path);if(!in){if(!fs::exists(path))return values;throw std::runtime_error("Cannot read favorites.");}
   std::string line;while(std::getline(in,line)){if(line.empty())continue;std::istringstream row(line);std::string key;row>>std::ws;if(row.peek()!='"'||!(row>>std::quoted(key)))throw std::runtime_error("Favorites file is damaged; it has been preserved.");row>>std::ws;if(!row.eof())throw std::runtime_error("Favorites file is damaged; it has been preserved.");values.insert(key);}
   if(in.bad())throw std::runtime_error("Cannot read favorites.");return values;
 }
+std::set<std::string> ReadFavorites(const fs::path& root){
+  if(root.empty()||!fs::exists(root/"favorites.txt"))return {};
+  // Windows readers must finish before atomic replacement of the open file.
+  FavoritesLock lock(root/"favorites.lock");return ReadFavoritesUnlocked(root);
+}
 std::set<std::string> ChangeFavorite(const fs::path& root,const std::string& key,const std::string* moveTo){
   if(root.empty())throw std::runtime_error("User folder unavailable.");
   // No filesystem work or locking on the audio callback.
   static std::mutex mutex;std::lock_guard<std::mutex> local(mutex);
-  fs::create_directories(root);FavoritesLock lock(root/"favorites.lock");auto next=ReadFavorites(root);
+  fs::create_directories(root);FavoritesLock lock(root/"favorites.lock");auto next=ReadFavoritesUnlocked(root);
   if(moveTo){if(!next.erase(key))return next;if(!moveTo->empty())next.insert(*moveTo);}
   else if(!next.erase(key))next.insert(key);
   ReplaceFavorites(root,next);return next;
