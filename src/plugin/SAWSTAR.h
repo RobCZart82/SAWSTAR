@@ -24,6 +24,7 @@ private:
   sawstar::Arpeggiator mArp;
   std::array<iplug::IMidiMsg, 1024> mEvents{};
   int mEventCount = 0;
+  int mMidiVoiceMode = 0;
   bool mOverflow = false;
   std::array<std::atomic<bool>, 128> mHeld{};
   std::array<bool, 128> mDisplayed{};

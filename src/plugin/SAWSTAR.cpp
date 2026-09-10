@@ -130,14 +130,16 @@ void SAWSTAR::SyncRestoredPreset() {
 void SAWSTAR::OnReset() {
   mRate.store(static_cast<int>(GetSampleRate()));mPeakL.store(0);mPeakR.store(0);mCpu.store(0);mVoiceCount.store(0);
   mSynth.Reset(GetSampleRate());mArp.Init(GetSampleRate());mArpReset.store(false);
-  mEventCount = 0; mOverflow = false;
+  mEventCount = 0; mOverflow = false;mMidiVoiceMode=0;
   mBend.store(8192);mMod.store(0);
   for (auto& held : mHeld) held.store(false, std::memory_order_relaxed);
 }
 void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   const auto started=std::chrono::steady_clock::now();float peakL=0,peakR=0;
   auto send=[this](int status,int note,int value){mSynth.Midi(status,note,value);};
-  if(mArpReset.exchange(false))mArp.Clear(send);
+  const int mode=GetParam(59)->Int();
+  if(mArpReset.exchange(false)||mode!=mMidiVoiceMode)mArp.Clear(send);
+  mMidiVoiceMode=mode;
   mArp.Set(GetParam(83)->Int()!=0,GetParam(84)->Int(),GetParam(85)->Int(),GetParam(86)->Value(),GetParam(87)->Int(),GetParam(88)->Value(),GetParam(89)->Int()!=0,GetTempo(),GetTransportIsRunning(),send);
   mSynth.SetLfo2(GetParam(64)->Value(),GetParam(65)->Value(),GetParam(66)->Int(),GetParam(67)->Int(),GetParam(68)->Int()!=0,GetParam(69)->Int(),GetTempo(),GetParam(70)->Int()!=0);
   for(int row=0;row<4;++row){const int id=71+row*3;mSynth.SetModulation(row,GetParam(id)->Int(),GetParam(id+1)->Int(),GetParam(id+2)->Value());}

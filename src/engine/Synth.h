@@ -15,6 +15,7 @@
 #include <array>
 #include <algorithm>
 #include <cstdint>
+#include <limits>
 namespace sawstar {
 // Audio-thread owned. Fixed storage: no allocation or locks while rendering.
 class Synth {
@@ -86,6 +87,8 @@ private:
   Width width_;
   bool alternateWave_=false;
   std::array<bool, 16> sustain_{};
+  std::array<uint32_t,2048> downCounts_{};
+  unsigned heldKeys_=0;
   std::array<int,16> bend_{{8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192,8192}}, mod_{};
   std::array<float,16> bendRatio_{{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}}, bendTarget_{{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
   float bendRange_=2,modDepth_=24;

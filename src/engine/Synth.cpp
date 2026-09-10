@@ -6,7 +6,7 @@ namespace sawstar {
 void Synth::Reset(double rate) {
   const float sr = static_cast<float>(std::isfinite(rate) && rate >= 8000 ? rate : 44100);
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
-  sustain_.fill(false); age_ = 0; gain_ = 0;
+  sustain_.fill(false);downCounts_.fill(0);heldKeys_=0; age_ = 0; gain_ = 0;
   ampSustain_=targetAmpSustain_;
   monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;glideRemaining_=monoOrder_=0;voiceMode_=0;
   boost_=targetBoost_; protection_=1; width_.Init(sr);
@@ -33,7 +33,7 @@ void Synth::SetVoiceMode(int mode,float glideMs,bool overlapOnly) {
     if(voiceMode_!=0&&monoPitchValid_&&voices_[0].note>=0){auto& v=voices_[0];v.fundamental=static_cast<float>(440*std::exp2((monoPitch_-69)/12.));v.osc.SetFreq(v.fundamental);v.osc2.SetFreq(v.fundamental);}
     // A mode change starts a new key phrase; release current sources safely.
     for(auto& v:voices_){if(v.note>=0&&(v.gate||v.gatePending)){v.env.Process(true);v.filterMod.Process(v.note,true);}v.held=v.gate=v.gatePending=false;}
-    monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;glideRemaining_=0;
+    monoKeys_.fill(MonoKey{});downCounts_.fill(0);heldKeys_=0;monoKey_=-1;monoPitchValid_=false;glideRemaining_=0;
     voiceMode_=mode;
   }
   if(glideMs_==0){monoPitch_=monoTarget_;glideRemaining_=0;}
@@ -147,12 +147,25 @@ void Synth::SetSaw(float detune,float mix,float width) {
 void Synth::Midi(int status, int note, int value) {
   const int channel = status & 15, kind = status & 240;
   if (note < 0 || note > 127 || value < 0 || value > 127) return;
+  const int index=channel*128+note;
+  const bool firstKey=heldKeys_==0;
+  if(kind==0x90&&value>0){
+    auto& count=downCounts_[index];
+    if(count==std::numeric_limits<uint32_t>::max())return;
+    if(count++==0)++heldKeys_;
+  }else if(kind==0x80||(kind==0x90&&value==0)){
+    auto& count=downCounts_[index];
+    if(count==0)return;
+    if(--count>0)return;
+    --heldKeys_;
+  }else if(kind==0xb0&&(note==120||note==123)){
+    for(int i=channel*128;i<(channel+1)*128;++i){if(downCounts_[i])--heldKeys_;downCounts_[i]=0;}
+  }
   if(kind==0xd0){pressure_[channel]=note/127.f;return;}
   if(voiceMode_!=0&&(kind==0x90||kind==0x80||(kind==0xb0&&(note==64||note==120||note==121||note==123)))){MonoMidi(status,note,value);return;}
   if(kind==0xe0){bend_[channel]=note+(value<<7);UpdateBend(channel);return;}
   if (kind == 0x90 && value > 0) {
-    bool held=false;for(const auto& v:voices_)held|=v.held;
-    if(!held){lfo_.Trigger();lfo2_.Trigger();}
+    if(firstKey){lfo_.Trigger();lfo2_.Trigger();}
     // Repeated note retriggers one voice; idle, then oldest released, then oldest held.
     Voice* chosen = nullptr;
     for (auto& v : voices_) if (v.note == note && v.channel == channel) { chosen = &v; break; }
@@ -276,10 +289,11 @@ StereoSample Synth::ProcessStereo() {
           std::clamp(sum.right*protection_, -1.f, 1.f)};
 }
 bool Synth::Held(int note) const {
-  if(voiceMode_!=0){if(note<0||note>127)return false;for(int ch=0;ch<16;++ch)if(monoKeys_[ch*128+note].held)return true;return false;}
-  for (const auto& v : voices_) if (v.note == note && v.held) return true;
+  if(note<0||note>127)return false;
+  for(int ch=0;ch<16;++ch)if(downCounts_[ch*128+note])return true;
   return false;
 }
+
 int Synth::ActiveVoices() const {
   int count = 0; for (const auto& v : voices_) if (v.note >= 0) ++count; return count;
 }

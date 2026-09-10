@@ -4,10 +4,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 namespace sawstar {
 // Audio-thread owned. Timing is in beats; first held key starts the phrase.
 class Arpeggiator {
- struct Key {bool down=false,latched=false;int velocity=0;uint64_t order=0;};
+ struct Key {uint32_t down=0,forwarded=0;bool latched=false;int velocity=0;uint64_t order=0;};
  struct Note {int pitch=0,channel=0,velocity=0,octave=0;uint64_t order=0;};
 public:
  void Init(double sr){rate_=std::isfinite(sr)&&sr>=8000?sr:44100;keys_={};pedal_={};count_=physical_=0;active_=-1;on_=wasOn_=hold_=running_=false;mode_=0;division_=2;octaves_=1;phase_=0;step_=order_=0;seed_=0x793a15u;fresh_=true;}
@@ -19,8 +20,8 @@ public:
   const int m=std::clamp(mode,0,4),o=std::clamp(octaves,1,4);
   if(on!=on_){
    Stop(send);for(int ch=0;ch<16;++ch){send(0xb0|ch,64,0);send(0xb0|ch,123,0);}
-   for(auto& k:keys_)k.latched=false;pedal_={};on_=on;fresh_=true;step_=0;
-   if(!on_)for(int i=0;i<2048;++i)if(keys_[i].down)send(0x90|(i/128),i%128,keys_[i].velocity);
+   for(auto& k:keys_){k.latched=false;k.forwarded=0;}pedal_={};on_=on;fresh_=true;step_=0;
+   if(!on_)for(int i=0;i<2048;++i)if(keys_[i].down){send(0x90|(i/128),i%128,keys_[i].velocity);keys_[i].forwarded=1;}
   }
   const bool rebuild=m!=mode_||o!=octaves_||hold_!=hold;
   mode_=m;octaves_=o;division_=std::clamp(division,0,7);
@@ -38,10 +39,16 @@ public:
   const int ch=status&15,kind=status&240,index=ch*128+note;
   if(kind==0x90&&value>0){
    if(on_&&hold_&&physical_==0){for(auto& k:keys_)k.latched=false;fresh_=true;step_=0;}
-   auto& k=keys_[index];if(!k.down)++physical_;k.down=true;k.latched=false;k.velocity=value;k.order=++order_;
+   auto& k=keys_[index];if(k.down==std::numeric_limits<uint32_t>::max())return;
+   if(k.down++==0)++physical_;k.latched=false;k.velocity=value;k.order=++order_;
+   if(!on_){send(status,note,value);++k.forwarded;}
    if(count_==0){fresh_=true;step_=0;}Rebuild();
   }else if(kind==0x80||(kind==0x90&&value==0)){
-   auto& k=keys_[index];if(k.down){--physical_;k.down=false;k.latched=on_&&(hold_||pedal_[ch]);}Rebuild();
+   auto& k=keys_[index];if(!k.down)return;
+   if(--k.down==0){--physical_;k.latched=on_&&(hold_||pedal_[ch]);}
+   // Restore one downstream voice on bypass; match only its forwarded Note Ons.
+   if(!on_&&k.forwarded>k.down){send(status,note,value);--k.forwarded;}
+   Rebuild();
    if(on_&&!count_)Stop(send);
   }else if(kind==0xb0&&note==64){
    pedal_[ch]=value>=64;
@@ -55,7 +62,7 @@ public:
    // Do not let the synth sustain arp steps after resetting controller state.
    if(on_)send(0xb0|ch,64,0);
   }
-  if(!on_ || (kind!=0x90&&kind!=0x80))send(status,note,value);
+  if(kind!=0x90&&kind!=0x80)send(status,note,value);
  }
  template<class Send> void Process(Send send){
   if(!on_||!count_)return;

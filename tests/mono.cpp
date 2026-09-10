@@ -15,7 +15,7 @@ int main(){
   s.Midi(0x80,81,0);wait(s,sr*.02f);check(std::abs(frequency(s,sr)-440)<12&&!s.Held(81),"fallback key");
   s.Midi(0x91,81,127);wait(s,sr*.02f);s.Midi(0x80,69,0);check(s.Held(81),"other channel note off isolated");s.Midi(0x81,81,0);wait(s,sr);check(s.ActiveVoices()==0,"last note release");
   setup(s,sr);s.Midi(0x90,69,127);s.Midi(0xb0,64,127);s.Midi(0x90,69,0);wait(s,sr*.1f);check(s.ActiveVoices()==1&&!s.Held(69),"pedal holds without physical key");s.Midi(0xb0,64,0);wait(s,sr);check(s.ActiveVoices()==0,"pedal release");
-  s.Midi(0x90,69,127);s.Midi(0x90,69,127);s.Midi(0x80,69,0);wait(s,sr);check(s.ActiveVoices()==0,"repeated note does not stick");
+  s.Midi(0x90,69,127);s.Midi(0x90,69,127);s.Midi(0x80,69,0);wait(s,sr);check(s.ActiveVoices()==1&&s.Held(69),"overlapping note survives first release");s.Midi(0x80,69,0);wait(s,sr);check(s.ActiveVoices()==0&&!s.Held(69),"repeated note releases after matching offs");
   s.Midi(0x90,69,127);s.Midi(0xb0,64,127);s.Midi(0x80,69,0);s.Midi(0xb0,121,0);wait(s,sr);check(s.ActiveVoices()==0,"reset controllers releases pedal");
   s.Midi(0x90,69,127);s.Midi(0x90,81,127);s.Midi(0xb0,123,0);wait(s,sr);check(s.ActiveVoices()==0&&!s.Held(69)&&!s.Held(81),"all notes off clears stack");
   s.Midi(0x90,69,127);s.Midi(0xb0,120,0);check(s.ActiveVoices()==0&&s.Process()==0,"panic silent");
