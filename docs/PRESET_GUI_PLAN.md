@@ -20,10 +20,10 @@ The September 10 user notes are consolidated here. The final concept remains the
 - Gear menu: GUI Scale 75/100/125%, Updates / Downloads (GitHub Releases), separator, About. Scale is an instance/editor preference retained across editor reopen, not stored in sound presets or globally across restarts. No automatic updater.
 - macOS keypad Enter (Return code with 0x8000 flag) commits text entry like main Return; Escape cancels. A checked CMake patch compiles a build-directory copy of iPlug2 text entry, without modifying the pinned submodule. Both commands return immediately rather than passing a control character to the text editor.
 
-## Next: DSP lifecycle and QA
+## DSP lifecycle and QA
 
-- Test Reset followed by restored Noise Color/Source and other smoothing targets; remove unintended startup transitions without removing normal live smoothing.
-- Apply finite-value validation consistently at public DSP boundaries.
+- Implemented: Noise Color survives Reset; idle noise source/color setup starts at the selected sound. Live smoothing remains. See DSP_SAFETY.md. Continue auditing other smoothing targets.
+- Implemented: finite-value guards for sample rates, gain/envelopes, filter inputs, sub frequency and pitch multiplier; regression coverage for invalid-input recovery.
 - Extend compiler warnings to own engine/plugin targets without changing third-party code; update milestones and packaging documentation.
 - Preserve the deliberate All Sound Off recovery after MIDI queue overflow.
 
