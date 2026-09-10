@@ -33,3 +33,10 @@ Once layout and behavior are accepted, unify subtle gradients, highlights, borde
 ## Verification
 
 Run the complete C++ suite and macOS/Windows VST3 CI. `preset_reliability` covers parallel instances, process contention on POSIX, partial-write failure on POSIX, reserved/Unicode names, uppercase extensions, case-only rename and external-save name collisions. GUI acceptance additionally checks dragging and wheel scrolling with more than 12 presets, short/empty filtered lists, popup edges and editing on each supported host. Automated tests do not establish visual acceptance.
+
+### September 10 verification result
+
+- Code commit `ded8215`: all six macOS/Windows Debug, Release and VST3 CI jobs succeeded. Each foundation suite passed 31 tests; each VST3 validator passed 47 tests.
+- Local ASan/UBSan: 31 tests passed; the three preset-related tests were rerun successfully after the final persistence changes.
+- REAPER 7.79/macOS: updated plugin opens, MAIN/ADVANCED/PRESETS switch successfully, FILTER popup is dark and centered below its source, search entry stays dark with light text, and searching `Pad` returns the two matching presets. Effect enable button sizing was visually checked. The scrollbar is correctly inactive with the existing 11-item library and filtered two-item list. Long-list dragging and Windows visual acceptance still need host testing.
+- Both downloaded artifact archives matched the GitHub SHA-256 digests. The macOS VST3 was installed with a backup of the previous bundle.
