@@ -8,12 +8,15 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstdlib>
+#include <memory>
 namespace sawstar {
 namespace fs=std::filesystem;
 inline fs::path UserPresetFolder(){
 #ifdef _WIN32
- const char* home=std::getenv("APPDATA");
- return home?fs::path(home)/"SAWSTAR"/"Presets":fs::path{};
+ wchar_t* value=nullptr;
+ if(::_wdupenv_s(&value,nullptr,L"APPDATA")!=0)return {};
+ std::unique_ptr<wchar_t,decltype(&std::free)> home(value,&std::free);
+ return home?fs::path(home.get())/"SAWSTAR"/"Presets":fs::path{};
 #else
  const char* home=std::getenv("HOME");
  return home?fs::path(home)/"Library"/"Application Support"/"SAWSTAR"/"Presets":fs::path{};

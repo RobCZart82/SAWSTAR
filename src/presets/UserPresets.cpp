@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #ifdef _WIN32
 #include <io.h>
+#include <share.h>
 #else
 #include <unistd.h>
 #endif
@@ -14,7 +15,8 @@ void SaveUserPreset(const fs::path& path,const Snapshot& values) {
   const auto bytes=EncodeState(values);
   if(!path.parent_path().empty())fs::create_directories(path.parent_path());
 #ifdef _WIN32
-  int fd=::_wopen(path.c_str(),_O_WRONLY|_O_CREAT|_O_EXCL|_O_BINARY,_S_IREAD|_S_IWRITE);
+  int fd=-1;
+  ::_wsopen_s(&fd,path.c_str(),_O_WRONLY|_O_CREAT|_O_EXCL|_O_BINARY,_SH_DENYNO,_S_IREAD|_S_IWRITE);
   auto closeFile=[](int handle){return ::_close(handle);};
 #else
   int fd=::open(path.c_str(),O_WRONLY|O_CREAT|O_EXCL,0666);
@@ -146,7 +148,7 @@ void ReplaceFavorites(const fs::path& root,const std::set<std::string>& values){
   fs::path temp;int fd=-1;
   for(int tries=0;tries<100&&fd<0;++tries){temp=root/("favorites.tmp-"+std::to_string(pid)+"-"+std::to_string(serial++));
 #ifdef _WIN32
-    fd=::_wopen(temp.c_str(),_O_WRONLY|_O_CREAT|_O_EXCL|_O_BINARY,_S_IREAD|_S_IWRITE);
+    ::_wsopen_s(&fd,temp.c_str(),_O_WRONLY|_O_CREAT|_O_EXCL|_O_BINARY,_SH_DENYNO,_S_IREAD|_S_IWRITE);
 #else
     fd=::open(temp.c_str(),O_WRONLY|O_CREAT|O_EXCL,0600);
 #endif

@@ -7,7 +7,7 @@ namespace sawstar::gui {
 // Schematic source shape, not an oscilloscope of the mixed/unison output.
 class WaveformControl final:public iplug::igraphics::IControl {
 public:
- WaveformControl(const iplug::igraphics::IRECT& r,int param,const char* title,bool sub=false):IControl(r,param),title_(title),sub_(sub){for(int i=0;i<(sub_?3:4);++i)menu_.AddItem(sub_?subNames_[i]:names_[i]);}
+ WaveformControl(const iplug::igraphics::IRECT& r,int param,const char* title,bool sub=false):IControl(r,param),sub_(sub),title_(title){for(int i=0;i<(sub_?3:4);++i)menu_.AddItem(sub_?subNames_[i]:names_[i]);}
  void Draw(iplug::igraphics::IGraphics& g)override{
   using namespace iplug::igraphics;
   const int choice=std::clamp(static_cast<int>(std::lround(GetValue()*(sub_?2:3))),0,sub_?2:3);const int w=sub_?(choice==0?3:choice==1?2:1):choice;

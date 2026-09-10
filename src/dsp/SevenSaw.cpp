@@ -19,7 +19,7 @@ void SevenSaw::Init(float rate) {
   for(size_t i=0;i<saws_.size();++i) {
     saws_[i].Init(rate_);saws_[i].SetWaveform(daisysp::Oscillator::WAVE_POLYBLEP_SAW);
     saws_[i].SetAmp(1);saws_[i].Reset(phases[i]);
-    const int kinds[]={daisysp::Oscillator::WAVE_POLYBLEP_SQUARE,daisysp::Oscillator::WAVE_POLYBLEP_SQUARE,daisysp::Oscillator::WAVE_SIN};
+    const uint8_t kinds[]={daisysp::Oscillator::WAVE_POLYBLEP_SQUARE,daisysp::Oscillator::WAVE_POLYBLEP_SQUARE,daisysp::Oscillator::WAVE_SIN};
     for(int w=0;w<3;++w){auto& o=alternatives_[w][i];o.Init(rate_);o.SetWaveform(kinds[w]);o.SetAmp(1);o.Reset(phases[i]);}
   }
 }

@@ -18,8 +18,8 @@ public:
     float y=r.B-3-static_cast<float>(GetValue())*(r.H()-6);
     g.FillRect(IColor(255,54,170,226),IRECT(r.L+2,y-1,r.R-2,y+1));
   }
-  void OnMouseDown(float x,float y,const iplug::igraphics::IMouseMod&) override { Move(y); }
-  void OnMouseDrag(float x,float y,float dx,float dy,const iplug::igraphics::IMouseMod&) override { Move(y); }
+  void OnMouseDown(float,float y,const iplug::igraphics::IMouseMod&) override { Move(y); }
+  void OnMouseDrag(float,float y,float,float,const iplug::igraphics::IMouseMod&) override { Move(y); }
   void OnMouseUp(float,float,const iplug::igraphics::IMouseMod&) override { if(pitch_)Send(.5); }
   void OnMouseDblClick(float,float,const iplug::igraphics::IMouseMod&) override { Send(pitch_?.5:0); }
   void OnMidi(const iplug::IMidiMsg& msg) override {

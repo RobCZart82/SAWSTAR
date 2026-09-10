@@ -42,37 +42,31 @@ including ARP bypass and all three voice modes.
 The [preset reliability and GUI plan](docs/PRESET_GUI_PLAN.md) covers safe favorites,
 external saves, a scrolling preset list and consistent dark popup/input styling.
 
-## Status: First Sound development build / 0.1.0-dev
+## Status: 0.1.0 development build
 
-The iPlug2 VST3 now includes a custom 16-voice SAWSTAR engine using DaisySP's
-polyBLEP saw primitives and Amp ADSR, velocity, sustain pedal and stereo 7-Saw output.
-MAIN / ADVANCED / PRESETS share a slim, clickable 61-key keyboard (MIDI 36–96)
-with cyan note feedback. There is no octave selector; the DAW can send all 128 notes.
-The original five IDs remain unchanged; Detune, Mix and Width append three new IDs.
-Versioned state reads older saves. Raise Mix above 0% to hear 7-Saw.
-A [resonant stereo low-pass](docs/FILTER.md) adds Cutoff, Resonance and Filter Mix.
-Raise Filter Mix above 0% to engage filtering.
+SAWSTAR has a working VST3 editor and 16-voice synth engine: two waveform/unison
+oscillators, a selectable SUB, White/Pink/Dark Noise with Color, mixer, filter
+and envelopes, chorus/delay/reverb, WIDE, performance controls, two LFOs,
+four modulation routes and an arpeggiator. Eight Factory presets are embedded;
+user sounds use individual `.sawstar` files with multi-file import.
 
-[Build and test](docs/PLUGIN_SHELL.md). GitHub Actions builds macOS ARM64 and
-Windows x64 development archives and runs engine tests plus the VST3 validator.
-The concept above is the longer-term design, not a screenshot of this build.
-The fixed header browses the eight embedded [factory sounds](docs/PRESETS.md) and
-managed user presets with previous/next arrows and a shared dropdown.
-Edited sounds show as Custom and are saved with the DAW project.
-This is not a tagged release. Full host automation acceptance remains outstanding. The user reported successful Windows manual testing of an
-earlier build; each subsequent build also receives automated Windows validation.
+The shared MAIN / ADVANCED / PRESETS shell includes a 61-key audition keyboard,
+pitch/modulation wheels, preset selector, build metadata and GUI scaling.
+The DAW can still send all 128 MIDI notes. The concept is a design reference;
+see [GUI implementation](docs/GUI_IMPLEMENTATION.md) for actual behavior.
 
-## First milestone: `v0.1 First Sound`
+There is no tagged public release yet. Automated macOS/Windows builds and VST3
+validation are available; manual acceptance of the final Windows GUI and the
+complete host automation matrix remains outstanding. Earlier successful host
+checks do not establish acceptance of every later binary.
 
-- [ ] VST3 loads and plays in REAPER on macOS and Windows.
-- [x] Three-tab shell: MAIN, ADVANCED, PRESETS.
-- [ ] MIDI input, including sample offsets and note-on velocity zero.
-- [x] Fixed-capacity polyphonic SAWSTAR voice manager.
-- [x] One bandlimited saw oscillator per voice, velocity and Amp ADSR.
-- [ ] Stereo output with conservative gain and parameter smoothing.
-- [ ] Versioned state save/recall and host automation.
+- [First release plan](docs/FIRST_RELEASE_PLAN.md)
+- [Latest engine/GUI QA](docs/PRE_RELEASE_QA.md)
+- [Installation and release preparation](docs/INSTALLATION.md)
+- [Windows manual checklist](docs/WINDOWS_ACCEPTANCE.md)
 
-The acceptance procedure is in [docs/MILESTONES.md](docs/MILESTONES.md).
+Templates and refreshed/expanded Factory content are planned after functional
+and visual acceptance. AU/CLAP are outside the first VST3 release scope.
 
 ## Build the foundation
 
