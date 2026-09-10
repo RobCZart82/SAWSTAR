@@ -58,3 +58,18 @@ Rename the visible Init category to **Templates** when organizing the final libr
 ## Templates implementation — 2026-09-10
 
 The deferred category/content step above is now implemented: see [FACTORY_LIBRARY.md](FACTORY_LIBRARY.md). Initialize still loads neutral Init. User preset files remain untouched.
+
+## Browser click loading — 2026-09-10
+
+A left click on a preset row (outside the favorite heart) now selects and loads
+the sound through the existing Load action. Previously it only selected the
+row and its saved preview, leaving the current sound unchanged. Factory,
+Templates and user entries share this behavior; neutral Init retains its
+Initialize confirmation. Clicking a heart only toggles its favorite state.
+The Load button remains available. Read failures report an error without
+applying a partial snapshot.
+
+Fix build: `e9485cf3576c61f0403ecef29ac32c730e15c37b`. The macOS bundle was
+installed with a backup; REAPER was left running, so manual click acceptance
+requires restarting the host to load the new binary. The DSP and saved preset
+values are unchanged by this fix.
