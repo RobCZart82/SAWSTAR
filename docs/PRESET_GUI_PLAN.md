@@ -41,3 +41,9 @@ Run the complete C++ suite and macOS/Windows VST3 CI. `preset_reliability` cover
 - Local ASan/UBSan: 31 tests passed; the three preset-related tests were rerun successfully after the final persistence changes.
 - REAPER 7.79/macOS: updated plugin opens, MAIN/ADVANCED/PRESETS switch successfully, FILTER popup is dark and centered below its source, search entry stays dark with light text, and searching `Pad` returns the two matching presets. Effect enable button sizing was visually checked. The scrollbar is correctly inactive with the existing 11-item library and filtered two-item list. Long-list dragging and Windows visual acceptance still need host testing.
 - Both downloaded artifact archives matched the GitHub SHA-256 digests. The macOS VST3 was installed with a backup of the previous bundle.
+
+### Settings/keypad package acceptance
+
+- Final code `55b8946`: all six macOS/Windows CI jobs passed (31 foundation tests and 47 VST3 validator checks per platform).
+- REAPER 7.79/macOS: keypad Enter committed Search (`Pad` produced two results), Rename (re-entered the unchanged user name `123`) and knob value entry without inserting a control glyph. GUI scale 75/100/125 worked; 75% survived editor close/reopen and was returned to 100%. Version/footer and About build text were visually checked.
+- After the version-only correction, REAPER was restarted to unload its cached plugin module. About confirmed final build `55b8946`. The final macOS binary is installed; both package archives match their GitHub artifact digests. Windows GUI/keyboard acceptance remains a user host test.
