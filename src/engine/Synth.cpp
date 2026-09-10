@@ -283,6 +283,7 @@ StereoSample Synth::ProcessStereo() {
   gain_ += smoothing_ * (targetGain_ - gain_);
   boost_ += smoothing_ * (targetBoost_ - boost_);
   sum.left*=lfo.amp*std::sqrt(1-lfo.pan);sum.right*=lfo.amp*std::sqrt(1+lfo.pan);
+  preFX_=sum;
   sum=reverb_.Process(delay_.Process(chorus_.Process(sum)));
   width_.Process(sum.left,sum.right);
   const float scale=gain_*boost_/16.f;

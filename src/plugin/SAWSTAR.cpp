@@ -128,6 +128,7 @@ void SAWSTAR::SyncRestoredPreset() {
 #endif
 #if IPLUG_DSP
 void SAWSTAR::OnReset() {
+  mScope.Reset(GetSampleRate());
   mRate.store(static_cast<int>(GetSampleRate()));mPeakL.store(0);mPeakR.store(0);mCpu.store(0);mVoiceCount.store(0);
   mSynth.Reset(GetSampleRate());mArp.Init(GetSampleRate());mArpReset.store(false);
   mEventCount = 0; mOverflow = false;mMidiVoiceMode=0;
@@ -182,6 +183,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     }
     mArp.Process(send);
     const auto value=mSynth.ProcessStereo();
+    const auto pre=mSynth.PreFX();mScope.Push((pre.left+pre.right)*.5f);
     peakL=std::max(peakL,std::abs(value.left));peakR=std::max(peakR,std::abs(value.right));
     const int channels=NOutChansConnected();
     if(channels==1) outputs[0][i]=static_cast<sample>((value.left+value.right)*0.5f);
@@ -209,6 +211,7 @@ void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
   SyncRestoredPreset();
+  if(GetUI())if(auto* c=dynamic_cast<sawstar::gui::ScopeControl*>(GetUI()->GetControlWithTag(9104)))c->Update(mScope,mPage==0);
   if(GetUI()){sawstar::gui::StyleEntry(GetUI());for(int tag:{9100,9101,9103})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
   sawstar::Snapshot current{};
   for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();

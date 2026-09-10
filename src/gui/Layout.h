@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "gui/Controls/Theme.h"
+#include "gui/Controls/ScopeControl.h"
 #include "gui/Controls/About.h"
 #include "gui/Controls/PageButton.h"
 #include "gui/Controls/PresetControls.h"
@@ -51,6 +52,8 @@ inline void BuildLayout(IGraphics* g,float& guiScale,int& page,int& lfoPage,int&
  auto divider=[&](float l,float y,float rr,const char* group){g->AttachControl(new Divider(IRECT(l,y,rr,y+1)),iplug::kNoTag,group);};
  divider(24,294,280,"main");divider(24,470,280,"main");
  divider(152,205,280,"main");divider(152,378,280,"main");
+ g->AttachControl(new ScopeControl(IRECT(845,401,993,621)),9104,"main");
+ divider(845,380,993,"main");
  divider(312,470,452,"main");divider(484,376,636,"main");divider(484,470,636,"main");
  divider(1021,272,1109,"main");divider(1021,413,1109,"main");
  divider(1137,425,1257,"main");divider(1137,510,1257,"main");

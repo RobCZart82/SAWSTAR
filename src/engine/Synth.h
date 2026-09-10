@@ -47,10 +47,12 @@ public:
   int ModWheel(int channel) const { return mod_[channel&15]; }
   void SetSaw(float detuneCents, float mixPercent, float widthPercent);
   StereoSample ProcessStereo();
+  StereoSample PreFX() const { return preFX_; } // Audio-thread observation only.
   float Process() { const auto s=ProcessStereo(); return (s.left+s.right)*0.5f; }
   bool Held(int note) const;
   int ActiveVoices() const;
 private:
+  StereoSample preFX_{};
   struct Voice {
     SevenSaw osc, osc2;
     SubOscillator sub;

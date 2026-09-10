@@ -4,6 +4,7 @@
 #include "engine/Synth.h"
 #include "midi/Arpeggiator.h"
 #include <atomic>
+#include "visual/Scope.h"
 #include <array>
 #include "presets/UserPresets.h"
 
@@ -34,6 +35,7 @@ private:
   std::atomic<bool> mArpReset{false};
   std::atomic<bool> mStateRestored{false};
   std::atomic<int> mBend{8192},mMod{0};
+  sawstar::Scope mScope;
   sawstar::UserPresetSelection mUserPreset;
   int mFactoryIndex = -1; // GUI-only, derived from the parameter snapshot.
   int mLfoPage = 0; // Editor selection only; both LFOs keep running.
