@@ -50,4 +50,4 @@ and musical listening acceptance of the finished sound/visual balance. Automated
 tests and screenshots do not establish those results. Templates/Factory content
 has not been changed.
 
-The expanded warning flags also expose existing unused callback arguments, constructor member-order and numeric-conversion/deprecation warnings. These are not reported as a warning-free build; follow-up cleanup remains.
+The expanded warning flags exposed unused callback arguments, constructor member-order and numeric-conversion/deprecation warnings in this build. The subsequent cleanup and focused host acceptance are recorded in [WARNINGS_HOST_QA.md](WARNINGS_HOST_QA.md).
