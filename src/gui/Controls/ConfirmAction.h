@@ -18,6 +18,6 @@ public:
   g.FillRoundRect(PanelColor,Cancel(),3);g.DrawRoundRect(!actionFocused_?Blue:Border,Cancel(),3,nullptr,2);g.DrawText(IText(14,Text),"Cancel",Cancel());g.FillRoundRect(IColor(255,56,30,30),Accept(),3);g.DrawRoundRect(actionFocused_?Blue:IColor(255,150,90,80),Accept(),3,nullptr,2);g.DrawText(IText(14,Text),action_.c_str(),Accept());
  }
  void OnMouseDown(float x,float y,const IMouseMod&)override{if(Cancel().Contains(x,y))Finish(false);else if(Accept().Contains(x,y))Finish(true);}
- bool OnKeyDown(float,float,const iplug::IKeyPress& key)override{if(key.VK==27)Finish(false);else if(key.VK==9){actionFocused_=!actionFocused_;SetDirty(false);}else if(key.VK==13)Finish(actionFocused_);return true;}
+ bool OnKeyDown(float,float,const iplug::IKeyPress& key)override{if(key.VK==27)Finish(false);else if(key.VK==9){actionFocused_=!actionFocused_;SetDirty(false);}else if((key.VK&0x7fff)==13)Finish(actionFocused_);return true;}
 };
 }
