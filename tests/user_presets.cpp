@@ -21,5 +21,21 @@ int main(){using namespace sawstar;auto root=fs::temp_directory_path()/("sawstar
   auto expected=values;expected[0]=-double(std::find(saved.begin(),saved.end(),true)-saved.begin()+1);
   check(ReadUserPreset(target)==expected);
  }
+ // Save overwrites only the loaded version and preserves a recoverable original.
+ auto overwrite=root/fs::u8path("Mentett ő.sawstar");SaveUserPreset(overwrite,values);
+ auto changed=values;changed[8]=1234;auto recovery=OverwriteUserPreset(overwrite,values,changed);
+ check(ReadUserPreset(overwrite)==changed&&ReadUserPreset(recovery)==values);
+ rejected=false;try{OverwriteUserPreset(overwrite,values,DefaultSnapshot());}catch(...){rejected=true;}
+ check(rejected&&ReadUserPreset(overwrite)==changed);
+ // Two instances loaded the same version; exactly one may replace it.
+ std::atomic<int> readySave{0};std::atomic<bool> goSave{false};std::array<bool,2> won{};std::vector<std::thread> savers;
+ for(int i=0;i<2;++i)savers.emplace_back([&,i]{auto next=changed;next[8]=2000+i*1000;++readySave;while(!goSave.load())std::this_thread::yield();try{OverwriteUserPreset(overwrite,changed,next);won[i]=true;}catch(const std::exception&){} });
+ while(readySave.load()!=2)std::this_thread::yield();goSave=true;for(auto& t:savers)t.join();check(won[0]!=won[1]);
+ check(ReadUserPreset(overwrite)[8]==(won[0]?2000:3000));
+ // Backup preparation failure must leave the target and no temporary update.
+ auto blocked=root/"blocked";SaveUserPreset(blocked/"Sound.sawstar",values);{std::ofstream f(blocked/".sawstar-backups");f<<"blocked";}
+ rejected=false;try{OverwriteUserPreset(blocked/"Sound.sawstar",values,changed);}catch(...){rejected=true;}check(rejected&&ReadUserPreset(blocked/"Sound.sawstar")==values);
+ for(const auto& f:fs::directory_iterator(blocked))check(f.path().extension()!=".tmp");
+ rejected=false;try{OverwriteUserPreset(root/"missing.sawstar",values,changed);}catch(...){rejected=true;}check(rejected&&!fs::exists(root/"missing.sawstar"));
  auto bad=root/"broken.sawstar";{std::ofstream out(bad);out<<"not a preset";}rejected=false;try{ReadUserPreset(bad);}catch(...){rejected=true;}check(rejected);fs::remove_all(root);std::cout<<"User preset lifecycle passed\n";
  }catch(const std::exception& e){fs::remove_all(root);std::cerr<<e.what()<<'\n';return 1;} }

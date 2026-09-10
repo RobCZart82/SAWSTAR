@@ -38,6 +38,11 @@ void SaveUserPreset(const fs::path& path,const Snapshot& values) {
       if(count<=0)throw std::runtime_error("Preset write failed.");
       written+=static_cast<size_t>(count);
     }
+#ifdef _WIN32
+    if(::_commit(fd)!=0)throw std::runtime_error("Cannot flush preset.");
+#else
+    if(::fsync(fd)!=0)throw std::runtime_error("Cannot flush preset.");
+#endif
     const int result=closeFile(fd);
     fd=-1; // Never retry close: the descriptor may already have been released.
     if(result!=0)throw std::runtime_error("Preset write failed.");
@@ -108,9 +113,9 @@ public:
   explicit FavoritesLock(const fs::path& path){
 #ifdef _WIN32
     file_=CreateFileW(path.c_str(),GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,nullptr);
-    if(file_==INVALID_HANDLE_VALUE)throw std::runtime_error("Cannot lock favorites.");
+    if(file_==INVALID_HANDLE_VALUE)throw std::runtime_error("Cannot lock preset library.");
 #else
-    file_=::open(path.c_str(),O_RDWR|O_CREAT,0600);if(file_<0)throw std::runtime_error("Cannot lock favorites.");
+    file_=::open(path.c_str(),O_RDWR|O_CREAT,0600);if(file_<0)throw std::runtime_error("Cannot lock preset library.");
 #endif
     const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(2);
     do {
@@ -126,7 +131,7 @@ public:
 #else
     ::close(file_);
 #endif
-    throw std::runtime_error("Favorites are busy. Please try again.");
+    throw std::runtime_error("Preset library is busy. Please try again.");
   }
   ~FavoritesLock(){
 #ifdef _WIN32
@@ -186,6 +191,37 @@ void ReplaceFavorites(const fs::path& root,const std::set<std::string>& values){
 #endif
   }catch(...){if(fd>=0)closeFile(fd);std::error_code ignored;fs::remove(temp,ignored);throw;}
 }
+}
+fs::path OverwriteUserPreset(const fs::path& path,const Snapshot& expected,const Snapshot& values){
+  if(!PresetExtension(path)||!ValidPresetName(path.stem().u8string()))throw std::runtime_error("Invalid user preset path.");
+  static std::mutex mutex;std::lock_guard<std::mutex> local(mutex);
+  const auto parent=path.parent_path().empty()?fs::path("."):path.parent_path();
+  FavoritesLock lock(parent/".sawstar-save.lock");
+  if(!fs::is_regular_file(fs::symlink_status(path)))throw std::runtime_error("Preset is missing or is not a regular file. Use Save As.");
+  if(ReadUserPreset(path)!=expected)throw std::runtime_error("Preset changed on disk. Reload it or use Save As to keep your edits.");
+  static std::atomic<unsigned long long> serial{0};
+#ifdef _WIN32
+  const auto pid=GetCurrentProcessId();
+#else
+  const auto pid=getpid();
+#endif
+  const auto token=std::to_string(std::chrono::system_clock::now().time_since_epoch().count())+"-"+std::to_string(pid)+"-"+std::to_string(serial++);
+  const auto temp=parent/(".sawstar-save-"+token+".tmp");
+  const auto backupDir=parent/".sawstar-backups";
+  const auto backup=backupDir/token/path.filename();
+  SaveUserPreset(temp,values);
+  try{
+    fs::create_directories(backup.parent_path());
+    if(!fs::copy_file(path,backup,fs::copy_options::none))throw std::runtime_error("Cannot create preset backup.");
+    // Check again after preparing the replacement; never overwrite known stale edits.
+    if(ReadUserPreset(path)!=expected)throw std::runtime_error("Preset changed on disk. Use Save As.");
+#ifdef _WIN32
+    if(!MoveFileExW(temp.c_str(),path.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH))throw std::runtime_error("Cannot replace preset. The previous version is preserved.");
+#else
+    fs::rename(temp,path);
+#endif
+  }catch(...){std::error_code ignored;fs::remove(temp,ignored);throw;}
+  return backup;
 }
 static std::set<std::string> ReadFavoritesUnlocked(const fs::path& root){
   std::set<std::string> values;if(root.empty())return values;

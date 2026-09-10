@@ -29,12 +29,21 @@ class PresetBrowser final:public IControl {
  void AddExternal(){if(!user_.active)return;const auto key=ActiveKey();if(key.rfind("external:",0)==0)library_.entries.push_back({key,user_.name,"User","Saved outside the User Library. The diagram shows its saved settings.",user_.path,-1});}
  void Refresh(){library_.Refresh();AddExternal();Filter();if(!Selected()&&!visible_.empty())selected_=library_.entries[visible_.front()].key;Select(selected_);if(!library_.warning.empty())status_=library_.warning;}
  void LoadSelected(){const auto* e=Selected();if(!e)throw std::runtime_error("Select a preset first.");if(e->factory==0){Do(2);return;}auto values=e->Read();if(e->factory>=0)factory_(e->factory);else{apply_(values);user_.path=e->path;user_.name=e->name;user_.saved=values;user_.active=true;}status_="Loaded "+e->name;GetUI()->SetAllControlsDirty();}
+ bool CanSave()const{return user_.active&&!user_.path.empty()&&!SnapshotsMatch(current_(),user_.saved);}
+ void Save(){if(!CanSave())return;const auto path=user_.path;const auto name=user_.name;const auto expected=user_.saved;const auto values=current_();
+  confirm_->Ask("Overwrite User Preset?","Overwrite the saved settings of \""+name+"\"? A recovery copy will be kept.","Overwrite",[this,path,name,expected,values,weak=std::weak_ptr<int>(lifetime_)]{
+   if(weak.expired())return;
+   try{if(!user_.active||user_.path!=path||user_.saved!=expected)throw std::runtime_error("Active preset changed. Please try Save again.");
+    OverwriteUserPreset(path,expected,values);user_.saved=values;user_.status="Saved "+name;Refresh();Select(ActiveKey());status_=user_.status;GetUI()->SetAllControlsDirty();
+   }catch(const std::exception& e){Error(e);}
+  });
+ }
  void SaveAs(){auto root=UserPresetFolder();if(root.empty())throw std::runtime_error("User preset folder unavailable.");fs::create_directories(root);folder_.Set(root.u8string().c_str());file_.Set((ValidPresetName(user_.name)?user_.name+".sawstar":"My Sound.sawstar").c_str());auto values=current_();
   GetUI()->PromptForFile(file_,folder_,EFileAction::Save,"sawstar",[this,weak=std::weak_ptr<int>(lifetime_),values](const WDL_String& f,const WDL_String&){if(weak.expired()||!f.GetLength())return;try{user_=SavePresetSelection(fs::u8path(f.Get()),values,UserPresetFolder());category_="User";query_.clear();Refresh();Select(ActiveKey());status_=user_.status;GetUI()->SetAllControlsDirty();
   }catch(const std::exception& e){Error(e);}});
  }
  void Do(int action){try{
-  if(action==0)LoadSelected();
+  if(action==0)Save();
   else if(action==1)SaveAs();
   else if(action==2){confirm_->Ask("Initialize Preset?","Initialize the current sound? Any unsaved changes will be lost.","Initialize",[this,weak=std::weak_ptr<int>(lifetime_)]{if(weak.expired())return;factory_(0);Select("factory:init");status_="Init loaded";GetUI()->SetAllControlsDirty();});}
   else if(action==3){clipboard_=current_();status_="Current sound copied.";}
@@ -75,7 +84,7 @@ public:
   for(int i=0;i<Rows&&scroll_+i<int(visible_.size());++i){auto& e=library_.entries[visible_[scroll_+i]];auto r=Row(i);if(e.key==selected_)g.FillRoundRect(IColor(255,25,65,88),r,2);DrawFavorite(g,r.GetFromLeft(32),library_.Favorite(e.key));TextLine(g,e.name,IRECT(r.L+38,r.T,r.R-85,r.B),14);g.FillCircle(e.factory>=0?IColor(255,190,91,91):IColor(255,87,181,119),r.R-73,r.MH(),3);TextLine(g,e.factory>=0?"Factory":"User",r.GetFromRight(63),11,Text);}
   TextLine(g,std::to_string(visible_.size())+" presets  |  "+std::to_string(library_.entries.size())+" total",IRECT(213,571,615,593),12);
   g.FillRoundRect(IColor(255,11,18,23),ScrollTrack(),3);g.DrawRoundRect(Border,ScrollTrack(),3);g.FillRoundRect(MaxScroll()?IColor(255,48,105,139):IColor(255,37,49,56),ScrollThumb().GetHPadded(-2),2);
-  Info(g);const char* actions[]={"Load","Save As...","Initialize","Copy","Paste","Rename","Delete","Import..."};for(int i=0;i<8;++i){auto r=Action(i);bool disabled=(i==4&&!clipboard_)||(i==6&&(!Selected()||Selected()->factory>=0));g.FillRoundRect(i==2||i==6?IColor(255,38,25,26):IColor(255,10,17,21),r,3);g.DrawRoundRect(disabled?Border:i==2||i==6?IColor(255,125,77,71):Border,r,3);g.DrawText(IText(14,disabled?Border:Text),actions[i],r);}
+  Info(g);const char* actions[]={"Save","Save As...","Initialize","Copy","Paste","Rename","Delete","Import..."};for(int i=0;i<8;++i){auto r=Action(i);bool disabled=(i==0&&!CanSave())||(i==4&&!clipboard_)||(i==6&&(!Selected()||Selected()->factory>=0));g.FillRoundRect(i==2||i==6?IColor(255,38,25,26):IColor(255,10,17,21),r,3);g.DrawRoundRect(disabled?Border:i==2||i==6?IColor(255,125,77,71):Border,r,3);g.DrawText(IText(14,disabled?Border:Text),actions[i],r);}
   g.DrawLine(Border,1091,510,1253,510);
   TextLine(g,status_,IRECT(650,606,1064,630),11);
  }
