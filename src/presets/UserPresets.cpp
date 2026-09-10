@@ -77,7 +77,7 @@ bool ValidPresetName(const std::string& s) {
   }
   auto base=Fold(s.substr(0,s.find('.')));
   if(base=="con"||base=="prn"||base=="aux"||base=="nul"||base=="conin$"||base=="conout$")return false;
-  if(base.rfind("com",0)==0||base.rfind("lpt",0)==0){auto n=base.substr(3);if((n.size()==1&&n[0]>='1'&&n[0]<='9')||n==u8"¹"||n==u8"²"||n==u8"³")return false;}
+  if(base.rfind("com",0)==0||base.rfind("lpt",0)==0){auto n=base.substr(3);if((n.size()==1&&n[0]>='1'&&n[0]<='9')||n==u8"\u00b9"||n==u8"\u00b2"||n==u8"\u00b3")return false;}
   return true;
 }
 fs::path RenameUserPreset(const fs::path& source,const std::string& name) {
