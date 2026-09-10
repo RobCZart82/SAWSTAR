@@ -19,6 +19,11 @@ sounds with categories, search, persistent favorites and saved sound-flow diagra
 Save, Save As, Copy/Paste, Rename, recoverable Delete, Init and native multi-file
 Import are available. One sound remains one `.sawstar` file; there is no bank format.
 
+## Real-time waveform
+
+The MAIN AMP ENV panel includes a green [PRE-FX oscilloscope](docs/REALTIME_SCOPE.md),
+with a fixed 32 ms view and no additional sound parameters.
+
 ## Master WIDE
 
 The OUTPUT panel now offers [master stereo width](docs/MASTER_WIDTH.md), with
