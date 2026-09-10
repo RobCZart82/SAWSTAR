@@ -15,7 +15,7 @@ The September 10 user notes are consolidated here. The final concept remains the
 
 ## Implemented next package: version and settings
 
-- Prerelease version below the logo; About also shows the source commit ID. Host numeric version remains 0.1.0 during this prerelease cycle.
+- Prerelease version below the logo; About also shows the source commit ID. The old packed host value decoded as 1.0.0 despite the 0.1.0 label; it is corrected to 0.1.0 and checked against the CMake project version at compile time. Plugin identity and sound state format are unchanged.
 - Motto aligned closer to the wordmark and a restrained “The Sounds of Trance” footer.
 - Gear menu: GUI Scale 75/100/125%, Updates / Downloads (GitHub Releases), separator, About. Scale is an instance/editor preference retained across editor reopen, not stored in sound presets or globally across restarts. No automatic updater.
 - macOS keypad Enter (Return code with 0x8000 flag) commits text entry like main Return; Escape cancels. A checked CMake patch compiles a build-directory copy of iPlug2 text entry, without modifying the pinned submodule. Both commands return immediately rather than passing a control character to the text editor.
