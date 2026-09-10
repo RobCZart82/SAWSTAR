@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <set>
+#include <memory>
 #include <string>
 void check(bool ok,const char* why){if(!ok){std::cerr<<why<<'\n';std::exit(1);}}
 int main(){
@@ -20,12 +21,12 @@ int main(){
   auto edited=v;edited[0]+=.01;check(MatchFactoryPreset(edited)==-1,"edited sound is Custom");
   for(float sr:{44100.f,48000.f,96000.f}){
    auto configure=[&](Rig& s,const Snapshot& values){s.init(sr);s.apply(values);};
-   Rig s;configure(s,v);
+   auto single=std::make_unique<Rig>();auto& s=*single;configure(s,v);
    s.midi(0x90,p==4?36:60,100);double energy=0;
    for(int i=0;i<sr*2;++i){auto x=s.process();check(std::isfinite(x.left)&&std::isfinite(x.right)&&std::abs(x.left)<=1&&std::abs(x.right)<=1,"factory audio bounds");energy+=x.left*x.left+x.right*x.right;}
    check(energy>.001,"factory preset produces audio");
    if(p==6||p==7){
-    Rig chord,withoutSecond;configure(chord,v);auto reduced=v;reduced[21]=0;configure(withoutSecond,reduced);
+    auto full=std::make_unique<Rig>(),reducedRig=std::make_unique<Rig>();auto& chord=*full;auto& withoutSecond=*reducedRig;configure(chord,v);auto reduced=v;reduced[21]=0;configure(withoutSecond,reduced);
     for(int note:{48,55,60,64,67}){chord.midi(0x90,note,110);withoutSecond.midi(0x90,note,110);}
     double peak=0,difference=0,stereo=0;
     for(int i=0;i<sr*5;++i){auto x=chord.process(),y=withoutSecond.process();
