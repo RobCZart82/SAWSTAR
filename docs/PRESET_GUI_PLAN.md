@@ -66,7 +66,7 @@ the sound through the existing Load action. Previously it only selected the
 row and its saved preview, leaving the current sound unchanged. Factory,
 Templates and user entries share this behavior; neutral Init retains its
 Initialize confirmation. Clicking a heart only toggles its favorite state.
-The Load button remains available. Read failures report an error without
+The subsequent User Save change replaces the Load button with Save. Read failures report an error without
 applying a partial snapshot.
 
 Fix build: `e9485cf3576c61f0403ecef29ac32c730e15c37b`. The macOS bundle was

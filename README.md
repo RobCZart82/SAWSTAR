@@ -16,7 +16,7 @@ with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
 The concept-based [preset browser](docs/USER_PRESETS.md) combines factory and user
 sounds with categories, search, persistent favorites and saved sound-flow diagrams.
-Save As, Load, Copy/Paste, Rename, recoverable Delete, Init and native multi-file
+Save, Save As, Copy/Paste, Rename, recoverable Delete, Init and native multi-file
 Import are available. One sound remains one `.sawstar` file; there is no bank format.
 
 ## Master WIDE

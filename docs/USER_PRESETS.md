@@ -13,9 +13,9 @@ remain empty rather than showing invented content. User sounds currently have th
 User category; editable category/tag metadata is future work. The count is real.
 Search matches name/category with case-insensitive ASCII matching; accented text
 can be searched with its original spelling. Enter commits the search, empty text
-clears it. Mouse wheel or Previous/Next pages navigate longer lists.
+clears it. Mouse wheel or the draggable scrollbar navigate longer lists.
 
-Click a row to preview its saved sound; Load applies it. The info panel shows the
+Left-click a row to select and load its saved sound (Init asks for confirmation). The info panel shows the
 saved waveform, mixer levels, filter, amplitude envelope and enabled/wet effects.
 The diagrams are schematic, not measured responses or live scopes. Factory sounds
 have authored descriptions; user sounds have a factual saved-settings summary.
@@ -23,12 +23,14 @@ Hearts toggle favorites, persisted in favorites.txt in the user preset folder.
 
 The persistent top selector and arrows include both factory and managed user
 files. Top selection loads immediately. The loaded user filename has an asterisk
-when the current sound differs from its saved snapshot. Browsing another row does
-not itself change the playing sound or top title.
+when the current sound differs from its saved snapshot. Changing categories or search filters does not change the playing sound.
 
 ## Actions
 
-- Load: apply the selected list entry after validating it.
+- Save: overwrite the active User preset after a Cancel-default confirmation naming
+  the preset. Enabled only when its sound has changed. Factory/Templates cannot
+  be overwritten; use Save As. The target is the active sound, not a different
+  preview selected by filtering. Successful Save refreshes the saved diagram.
 - Save As: native save dialog for the current sound; existing filenames are not
   overwritten. Default destination is the managed user folder. When saving to an
   external folder, also import a library copy; a library name collision is reported
@@ -95,7 +97,7 @@ See [editor safety changes](EDITOR_CLOSE_FIX.md).
 
 ## Live explanations and identical imports
 
-HOW IT WORKS displays only the selected preset's saved parameters. Save As
+HOW IT WORKS displays only the selected preset's saved parameters. Save refreshes the active saved sound; Save As
 selects and displays the new saved sound. No live/saved toggle remains. Diagrams
 are generated from parameters, not stored images or audio measurements. The SUB
 waveform name is included.
@@ -105,3 +107,41 @@ snapshots under different user filenames are skipped and reported with the
 existing name. A separate Cancel-default confirmation allows those copies.
 Factory/User text and colored dots indicate library ownership: factory sounds
 can still be edited and saved as user sounds. The shared header uses Orbitron.
+
+## Confirmed Save — 2026-09-10
+
+Save first writes and flushes a temporary file beside the target, retains the old
+file at `.sawstar-backups/<unique-id>/<preset-name>.sawstar`, then replaces the
+target. Recovery copies are not shown in the library. Copy a recovery file to an
+unused `.sawstar` filename to restore it. Backup or replacement errors are shown
+and do not mark the sound as saved. This is not a general disk-backup service.
+
+Save operations use an interprocess lock and reject a target whose decoded
+settings differ from the snapshot loaded by this instance. Reload or Save As
+resolves this conflict. Arbitrary external file edits are not coordinated by the
+lock. Save As remains an exclusive new-file operation. No state format, audio
+processing or factory preset values change.
+
+The confirmation saves the snapshot captured when Save was pressed. If host
+automation changes the sound meanwhile, the changed indicator remains.
+
+Verification: four targeted ASan/UBSan tests passed locally, including Unicode
+paths, recovery copies, competing writers, stale saves, missing files and a
+backup-creation failure. Full platform build results are recorded below.
+
+Manual host acceptance remains: load a User preset, edit a control, cancel Save
+and verify unchanged disk contents, then confirm Save and reopen the preset.
+Check the changed marker and saved diagrams, disabled Save for unmodified User
+and Factory sounds, and Save As for a new copy. Reopen two instances of one User
+preset and verify that the second stale Save reports a conflict. Restart REAPER
+to unload the previous binary before testing the installed build.
+
+Build `0245866db93f67c863e8526ee3332d8b70038a43`: both Release VST3 jobs
+passed 33 tests and 47 validator checks. Both artifact SHA-256 digests and inner
+ZIP integrity checks passed. The macOS bundle is installed with its predecessor
+preserved. Manual Save-dialog host acceptance is not claimed.
+
+- [macOS CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34528078863)
+- [Windows CI](https://github.com/RobCZart82/SAWSTAR/actions/runs/34528078935)
+
+All six macOS/Windows Debug, Release and VST3 jobs completed successfully.
