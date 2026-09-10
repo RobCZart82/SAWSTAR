@@ -54,3 +54,7 @@ Run the complete C++ suite and macOS/Windows VST3 CI. `preset_reliability` cover
 ## Approved preset content phase (after engine/GUI completion)
 
 Rename the visible Init category to **Templates** when organizing the final library. Keep **Init** as the neutral preset and **Initialize** as the reset action. Templates will include **Pad-Init**, **Lead-Init**, **Pluck-Init** and other practical starting points. Refresh all existing Factory sounds against the final feature set, then add more embedded Factory presets. This content work remains deferred; no factory sounds or category labels are changed by the DSP safety package.
+
+## Templates implementation — 2026-09-10
+
+The deferred category/content step above is now implemented: see [FACTORY_LIBRARY.md](FACTORY_LIBRARY.md). Initialize still loads neutral Init. User preset files remain untouched.

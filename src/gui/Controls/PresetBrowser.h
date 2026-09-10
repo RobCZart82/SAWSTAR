@@ -69,7 +69,7 @@ public:
  void SyncToSound(){try{library_.Refresh();AddExternal();Filter();if(user_.active)Select(ActiveKey());else{int i=MatchFactoryPreset(current_());Select(i>=0?"factory:"+std::string(FactoryPresets()[i].key):"");}}catch(const std::exception& e){Error(e);}}
  void Draw(IGraphics& g)override{
   const IRECT boxes[]={IRECT(12,82,192,636),IRECT(200,82,630,636),IRECT(638,82,1075,636),IRECT(1083,82,1268,636)};const char* names[]={"CATEGORIES","PRESETS","PRESET INFO","PRESET ACTIONS"};for(int i=0;i<4;++i){g.FillRoundRect(PanelColor,boxes[i],3);g.DrawRoundRect(Border,boxes[i],3);g.DrawText(IText(14,Blue).WithFont("SAWSTAR-Bold").WithAlign(EAlign::Near),names[i],boxes[i].GetPadded(-12).GetFromTop(24));}
-  const char* labels[]={"All","Favorites","Init","Leads","Pads","Plucks","Bass","Sub Pads","Arps","Keys","Sequences","FX","User"};const char* keys[]={"All","Favorites","Init","Lead","Pad","Pluck","Bass","Sub Pad","Arp","Keys","Sequence","FX","User"};
+  const char* labels[]={"All","Favorites","Templates","Leads","Pads","Plucks","Bass","Sub Pads","Arps","Keys","Sequences","FX","User"};const char* keys[]={"All","Favorites","Templates","Lead","Pad","Pluck","Bass","Sub Pad","Arp","Keys","Sequence","FX","User"};
   for(int i=0;i<13;++i){IRECT r(24,137+i*34,180,168+i*34);if(category_==keys[i])g.FillRoundRect(IColor(255,25,65,88),r,3);TextLine(g,labels[i],r.GetHPadded(-8),14);}
   g.FillRoundRect(IColor(255,9,15,18),Search(),3);g.DrawRoundRect(Border,Search(),3);TextLine(g,query_.empty()?"Search presets...":query_,Search().GetHPadded(-8),13);
   for(int i=0;i<Rows&&scroll_+i<int(visible_.size());++i){auto& e=library_.entries[visible_[scroll_+i]];auto r=Row(i);if(e.key==selected_)g.FillRoundRect(IColor(255,25,65,88),r,2);DrawFavorite(g,r.GetFromLeft(32),library_.Favorite(e.key));TextLine(g,e.name,IRECT(r.L+38,r.T,r.R-85,r.B),14);g.FillCircle(e.factory>=0?IColor(255,190,91,91):IColor(255,87,181,119),r.R-73,r.MH(),3);TextLine(g,e.factory>=0?"Factory":"User",r.GetFromRight(63),11,Text);}
@@ -81,7 +81,7 @@ public:
  }
  void OnMouseDown(float x,float y,const IMouseMod&)override{try{
   if(Search().Contains(x,y)){editing_=0;GetUI()->CreateTextEntry(*this,EntryStyle(13),Search(),query_.c_str());StyleEntry(GetUI());return;}
-  if(x<192&&y>=137&&y<137+13*34){const char* keys[]={"All","Favorites","Init","Lead","Pad","Pluck","Bass","Sub Pad","Arp","Keys","Sequence","FX","User"};category_=keys[int((y-137)/34)];scroll_=0;Filter();SetDirty(false);return;}
+  if(x<192&&y>=137&&y<137+13*34){const char* keys[]={"All","Favorites","Templates","Lead","Pad","Pluck","Bass","Sub Pad","Arp","Keys","Sequence","FX","User"};category_=keys[int((y-137)/34)];scroll_=0;Filter();SetDirty(false);return;}
   if(ScrollTrack().Contains(x,y)){if(MaxScroll()){dragging_=true;dragOffset_=ScrollThumb().Contains(x,y)?y-ScrollThumb().T:ScrollThumb().H()/2;ScrollTo(y);}return;}
   if(x>=206&&x<=597&&y>=138&&y<558){int i=int((y-138)/35)+scroll_;if(i<int(visible_.size())){auto e=library_.entries[visible_[i]];if(x<238){library_.ToggleFavorite(e.key);Filter();}else Select(e.key);}SetDirty(false);return;}
   for(int i=0;i<8;++i)if(Action(i).Contains(x,y)){if(i==6&&(!Selected()||Selected()->factory>=0))return;Do(i);return;}

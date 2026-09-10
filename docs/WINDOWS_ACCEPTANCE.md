@@ -1,5 +1,10 @@
 # Windows VST3 acceptance checklist
 
+User report, 2026-09-10: the preceding Windows development build worked without
+observed errors. Individual checklist steps and machine details were not supplied,
+so unchecked items below are a reusable final-release checklist, not reported failures.
+Retest the new Factory/Templates build where relevant.
+
 Record Windows version, CPU, REAPER version, audio device, sample rate/block
 size, SAWSTAR version/date and About commit ID. Test the matching final build,
 not an older plugin cached by the DAW. Keep real projects/presets backed up and

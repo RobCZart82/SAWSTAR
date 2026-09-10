@@ -47,7 +47,7 @@ external saves, a scrolling preset list and consistent dark popup/input styling.
 SAWSTAR has a working VST3 editor and 16-voice synth engine: two waveform/unison
 oscillators, a selectable SUB, White/Pink/Dark Noise with Color, mixer, filter
 and envelopes, chorus/delay/reverb, WIDE, performance controls, two LFOs,
-four modulation routes and an arpeggiator. Eight Factory presets are embedded;
+four modulation routes and an arpeggiator. Sixteen Factory presets are embedded (five Templates and eleven finished sounds);
 user sounds use individual `.sawstar` files with multi-file import.
 
 The shared MAIN / ADVANCED / PRESETS shell includes a 61-key audition keyboard,
@@ -56,17 +56,17 @@ The DAW can still send all 128 MIDI notes. The concept is a design reference;
 see [GUI implementation](docs/GUI_IMPLEMENTATION.md) for actual behavior.
 
 There is no tagged public release yet. Automated macOS/Windows builds and VST3
-validation are available; manual acceptance of the final Windows GUI and the
-complete host automation matrix remains outstanding. Earlier successful host
-checks do not establish acceptance of every later binary.
+validation are available; the previous Windows build passed user testing. A focused macOS automation
+and offline-render check also passed. Final content listening and acceptance
+of the release-candidate binary remain required.
 
 - [First release plan](docs/FIRST_RELEASE_PLAN.md)
 - [Latest engine/GUI QA](docs/PRE_RELEASE_QA.md)
 - [Installation and release preparation](docs/INSTALLATION.md)
 - [Windows manual checklist](docs/WINDOWS_ACCEPTANCE.md)
 
-Templates and refreshed/expanded Factory content are planned after functional
-and visual acceptance. AU/CLAP are outside the first VST3 release scope.
+See [the embedded library](docs/FACTORY_LIBRARY.md) for Templates and the
+refreshed sounds. Final musical acceptance is still required. AU/CLAP are outside the first VST3 release scope.
 
 ## Build the foundation
 

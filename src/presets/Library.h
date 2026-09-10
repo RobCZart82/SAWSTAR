@@ -53,7 +53,7 @@ public:
  void ToggleFavorite(const std::string& key){favorites_=ChangeFavorite(root_,key);}
  void MoveFavorite(const std::string& oldKey,const std::string& newKey){favorites_=ChangeFavorite(root_,oldKey,&newKey);}
  std::vector<int> Filter(const std::string& category,const std::string& query)const{
-  std::vector<int> out;auto q=Fold(query);for(int i=0;i<int(entries.size());++i){const auto& e=entries[i];bool match=category=="All"||(category=="Favorites"?Favorite(e.key):category=="Init"?e.factory==0:category=="User"?e.factory<0:category==e.category);
+  std::vector<int> out;auto q=Fold(query);for(int i=0;i<int(entries.size());++i){const auto& e=entries[i];bool match=category=="All"||(category=="Favorites"?Favorite(e.key):category=="User"?e.factory<0:category==e.category);
    if(match&&Fold(e.name+" "+e.category).find(q)!=std::string::npos)out.push_back(i);}return out;
  }
 private:
