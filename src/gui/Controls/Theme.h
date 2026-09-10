@@ -13,6 +13,13 @@ inline const IColor Text(255,225,234,238),Blue(255,54,170,226),PanelColor(255,20
 inline IText EntryStyle(int size){return IText(size,Text).WithTEColors(IColor(255,12,19,24),Text);}
 inline void StyleEntry(IGraphics* g){if(auto* entry=g->GetTextEntryControl())if(entry->EditInProgress()){auto style=entry->GetText();style.mFGColor=Text;style.mTextEntryBGColor=IColor(255,12,19,24);style.mTextEntryFGColor=Blue;entry->SetText(style);}}
 inline void ConfigurePopups(IGraphics* g){g->AttachPopupMenuControl(IText(14,Text));auto* popup=g->GetPopupMenuControl();popup->SetPanelColor(IColor(255,16,23,29));popup->SetCellBackgroundColor(IColor(255,16,23,29));popup->SetItemColor(Text);popup->SetItemMouseoverColor(IColor(255,25,65,88));popup->SetDisabledItemColor(IColor(255,116,135,145));popup->SetSeparatorColor(Border);popup->SetMenuForcedSouth(true);}
+// Vector heart avoids missing Unicode glyphs in platform fonts.
+inline void DrawFavorite(IGraphics& g,const IRECT& r,bool selected){
+ const float x=r.MW(),y=r.MH();g.PathClear();g.PathMoveTo(x,y+6);
+ g.PathCubicBezierTo(x-15,y-3,x-5,y-12,x,y-5);
+ g.PathCubicBezierTo(x+5,y-12,x+15,y-3,x,y+6);g.PathClose();
+ if(selected)g.PathFill(Blue);else g.PathStroke(Text,1.2f);
+}
 inline IVStyle Style(){return DEFAULT_STYLE.WithColor(kBG,PanelColor).WithColor(kFG,IColor(255,36,45,50)).WithColor(kFR,Border).WithColor(kHL,Blue).WithColor(kX1,Blue).WithColor(kX2,Text).WithColor(kX3,Blue).WithDrawShadows(false).WithRoundness(.12f).WithLabelText(IText(11,Text)).WithValueText(EntryStyle(10).WithVAlign(EVAlign::Bottom));}
 // A recessed value field and chevron identify choices, not on/off actions.
 inline void DrawChoice(IGraphics& g,const IRECT& r,const char* value,int size=11){
