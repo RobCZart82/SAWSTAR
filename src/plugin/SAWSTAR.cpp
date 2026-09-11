@@ -212,7 +212,8 @@ void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
   SyncRestoredPreset();
   if(GetUI())if(auto* c=dynamic_cast<sawstar::gui::ScopeControl*>(GetUI()->GetControlWithTag(9104)))c->Update(mScope,mPage==0);
-  if(GetUI()){sawstar::gui::StyleEntry(GetUI());for(int tag:{9100,9101,9103})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
+  if(GetUI()){sawstar::gui::StyleEntry(GetUI());for(int tag:{9100,9103})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
+  if(GetUI())if(auto* c=dynamic_cast<sawstar::gui::Status*>(GetUI()->GetControlWithTag(9101)))c->Update();
   sawstar::Snapshot current{};
   for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
   const int match=sawstar::MatchFactoryPreset(current);

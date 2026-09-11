@@ -7,6 +7,7 @@
 #include <atomic>
 #include <cstdio>
 #include <string>
+#include "visual/DisplayState.h"
 namespace sawstar::gui {
 using namespace iplug::igraphics;
 inline const IColor Text(255,225,234,238),Blue(255,54,170,226),PanelColor(255,27,34,38),Border(255,66,82,90);
@@ -136,8 +137,15 @@ public:Meter(IRECT r,const std::atomic<float>& l,const std::atomic<float>& rt,co
 };
 class Status final:public IControl{
  const std::atomic<float>& cpu_;const std::atomic<int>& rate_;const std::atomic<int>& voices_;
+ CpuDisplay displayed_;int rateValue_=0,voicesValue_=0;
 public:Status(IRECT r,const std::atomic<float>& c,const std::atomic<int>& sr,const std::atomic<int>& v):IControl(r),cpu_(c),rate_(sr),voices_(v){SetIgnoreMouse(true);}
- void Draw(IGraphics& g)override{char text[160];std::snprintf(text,sizeof(text),"CPU %.1f%%   |   %.1f kHz   |   %d / 16 VOICES   |   KEYBOARD / WHEELS: MIDI CH 1",cpu_.load(),rate_.load()/1000.,voices_.load());g.DrawText(IText(11,Text).WithAlign(EAlign::Near),text,mRECT);}
+ void Update(){
+  const bool cpuChanged=displayed_.Update(cpu_.load(),DisplayGate::Clock::now());
+  const int rate=rate_.load(),voices=voices_.load();
+  if(cpuChanged||rate!=rateValue_||voices!=voicesValue_)SetDirty(false);
+  rateValue_=rate;voicesValue_=voices;
+ }
+ void Draw(IGraphics& g)override{char text[160];std::snprintf(text,sizeof(text),"DSP CPU %.1f%%   |   %.1f kHz   |   %d / 16 VOICES   |   KEYBOARD / WHEELS: MIDI CH 1",displayed_.Value(),rateValue_/1000.,voicesValue_);g.DrawText(IText(11,Text).WithAlign(EAlign::Near),text,mRECT);}
 };
 
 }

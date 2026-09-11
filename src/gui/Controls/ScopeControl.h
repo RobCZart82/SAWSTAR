@@ -8,10 +8,21 @@ class ScopeControl final:public IControl {
 public:
   ScopeControl(const IRECT& bounds):IControl(bounds){SetIgnoreMouse(true);}
   void Update(Scope& scope,bool visible){
-    const bool fresh=scope.Latest(frame_);
-    const bool stale=std::chrono::steady_clock::now()-frame_.time>std::chrono::milliseconds(200);
-    if(visible&&(fresh||stale!=stale_))SetDirty(false);
-    stale_=stale;
+    // Drain on every idle, even while hidden. Hold only the displayed frame.
+    pendingFresh_=scope.Latest(pending_)||pendingFresh_;
+    const auto now=DisplayGate::Clock::now();
+    const bool stale=now-pending_.time>std::chrono::milliseconds(200);
+    const bool reveal=visible&&!visible_;
+    if(visible&&gate_.Due(now,std::chrono::milliseconds(90),reveal||stale!=stale_)){
+      if(pendingFresh_){
+        frame_=pending_;pendingFresh_=false;
+        unsigned length=0;const auto start=ScopeStart(frame_,length);
+        float peak=0;for(unsigned i=0;i<length;++i)peak=std::max(peak,std::abs(frame_.samples[start+i]));
+        peak_=ScopeDisplayPeak(peak_,peak);
+      }
+      stale_=stale;SetDirty(false);
+    }
+    visible_=visible;
   }
   void Draw(IGraphics& g) override {
     g.DrawText(IText(11,Text),"WAVEFORM",mRECT.GetFromTop(20));
@@ -26,9 +37,8 @@ public:
     const IColor green(255,104,244,58);
     if(stale_||length<2)g.DrawLine(green,r.L+2,r.MH(),r.R-2,r.MH(),nullptr,1.f);
     else {
-      float peak=0;for(unsigned i=0;i<length;++i)peak=std::max(peak,std::abs(frame_.samples[start+i]));
       // Display-only scaling, with a silence floor. No gain enters the audio path.
-      const float scale=(r.H()*.43f)/std::max(.05f,peak);
+      const float scale=(r.H()*.43f)/std::max(.05f,peak_);
       const int columns=std::max(2,int(r.W()-4));
       float lastX=r.L+2,lastY=r.MH()-frame_.samples[start]*scale;
       for(int col=0;col<columns;++col){
@@ -47,7 +57,9 @@ public:
     g.DrawText(IText(9,Text),label,mRECT.GetFromBottom(18));
   }
 private:
-  Scope::Frame frame_{};
-  bool stale_=true;
+  Scope::Frame frame_{},pending_{};
+  DisplayGate gate_;
+  float peak_=.05f;
+  bool stale_=true,visible_=false,pendingFresh_=false;
 };
 }
