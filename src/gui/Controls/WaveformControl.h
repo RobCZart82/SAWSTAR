@@ -12,7 +12,7 @@ public:
   using namespace iplug::igraphics;
   const int choice=std::clamp(static_cast<int>(std::lround(GetValue()*(sub_?2:3))),0,sub_?2:3);const int w=sub_?(choice==0?3:choice==1?2:1):choice;
   const IColor cyan(255,54,170,226),light(255,210,237,245);
-  g.FillRoundRect(DisplayColor,mRECT,3);g.DrawRoundRect(Border,mRECT,3);
+  g.FillRoundRect(DisplayColor,mRECT,3);DrawDisplayBezel(g,mRECT);
   g.DrawText(IText(12,light).WithFont("SAWSTAR-Bold"),title_,IRECT(mRECT.L,mRECT.T,mRECT.R,mRECT.T+18));
   DrawChoice(g,IRECT(mRECT.L+3,mRECT.B-25,mRECT.R-3,mRECT.B-3),sub_?subNames_[choice]:names_[choice],11);
   const auto curve=IRECT(mRECT.L+12,mRECT.T+23,mRECT.R-12,mRECT.B-34);DrawGrid(g,curve);

@@ -89,6 +89,8 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
   };
   mLayoutFunc = [this](IGraphics* g) {
     SyncRestoredPreset();
+  if(GetUI()){if(auto* meter=dynamic_cast<sawstar::gui::Meter*>(GetUI()->GetControlWithTag(9100)))meter->Update(mPage==0);}
+  else mMeter.Take();
 #if IPLUG_DSP
     // The new keyboard has no highlighted keys, regardless of the old editor.
     mDisplayed.fill(false);
@@ -110,7 +112,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     sawstar::Snapshot current{};
     for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
-    sawstar::gui::BuildLayout(g,mGuiScale,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mPeakL,mPeakR,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply);
+    sawstar::gui::BuildLayout(g,mGuiScale,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mMeter,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply);
   };
 #endif
 }
@@ -129,7 +131,7 @@ void SAWSTAR::SyncRestoredPreset() {
 #if IPLUG_DSP
 void SAWSTAR::OnReset() {
   mScope.Reset(GetSampleRate());
-  mRate.store(static_cast<int>(GetSampleRate()));mPeakL.store(0);mPeakR.store(0);mCpu.store(0);mVoiceCount.store(0);
+  mRate.store(static_cast<int>(GetSampleRate()));mMeter.Reset();mCpu.store(0);mVoiceCount.store(0);
   mSynth.Reset(GetSampleRate());mArp.Init(GetSampleRate());mArpReset.store(false);
   mEventCount = 0; mOverflow = false;mMidiVoiceMode=0;
   mBend.store(8192);mMod.store(0);
@@ -189,7 +191,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     if(channels==1) outputs[0][i]=static_cast<sample>((value.left+value.right)*0.5f);
     else for(int ch=0;ch<channels;++ch) outputs[ch][i]=static_cast<sample>(ch%2?value.right:value.left);
   }
-  mPeakL.store(peakL);mPeakR.store(peakR);mVoiceCount.store(mSynth.ActiveVoices());
+  mMeter.Publish(peakL,peakR);mVoiceCount.store(mSynth.ActiveVoices());
   if(frames>0){float used=100.f*std::chrono::duration<float>(std::chrono::steady_clock::now()-started).count()*GetSampleRate()/frames;mCpu.store(mCpu.load()*.9f+used*.1f);}
   for (int i = event; i < mEventCount; ++i) {
     mEvents[i - event] = mEvents[i]; mEvents[i - event].mOffset -= frames;
@@ -212,7 +214,7 @@ void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
   SyncRestoredPreset();
   if(GetUI())if(auto* c=dynamic_cast<sawstar::gui::ScopeControl*>(GetUI()->GetControlWithTag(9104)))c->Update(mScope,mPage==0);
-  if(GetUI()){sawstar::gui::StyleEntry(GetUI());for(int tag:{9100,9103})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
+  if(GetUI()){sawstar::gui::StyleEntry(GetUI());for(int tag:{9103})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
   if(GetUI())if(auto* c=dynamic_cast<sawstar::gui::Status*>(GetUI()->GetControlWithTag(9101)))c->Update();
   sawstar::Snapshot current{};
   for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();

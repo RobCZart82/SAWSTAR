@@ -13,7 +13,7 @@
 #include "gui/Controls/PresetBrowser.h"
 #include <string>
 namespace sawstar::gui {
-inline void BuildLayout(IGraphics* g,float& guiScale,int& page,int& lfoPage,int& fxPage,const int& preset,std::function<void(int)> load,const std::atomic<float>& peakL,const std::atomic<float>& peakR,const std::atomic<float>& cpu,const std::atomic<int>& rate,const std::atomic<int>& voices,UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply){
+inline void BuildLayout(IGraphics* g,float& guiScale,int& page,int& lfoPage,int& fxPage,const int& preset,std::function<void(int)> load,MeterMailbox& meter,const std::atomic<float>& cpu,const std::atomic<int>& rate,const std::atomic<int>& voices,UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply){
  auto* confirm=new ConfirmAction(IRECT(0,0,1280,760));
  g->AttachPanelBackground(IColor(255,17,24,28));g->EnableMouseOver(true);g->SetLayoutOnResize(false);ConfigurePopups(g);g->AttachTextEntryControl();g->LoadFont("Roboto-Regular","Arial",ETextStyle::Normal);g->LoadFont("SAWSTAR-Bold","Arial",ETextStyle::Bold);
  auto text=[&](IRECT r,const char* label,int size,const char* group=""){g->AttachControl(new ITextControl(r,label,IText(size,Text).WithAlign(EAlign::Near)),iplug::kNoTag,group);};
@@ -35,7 +35,7 @@ inline void BuildLayout(IGraphics* g,float& guiScale,int& page,int& lfoPage,int&
  g->AttachControl(new Curve(IRECT(482,128,638,259),{8,32},false),iplug::kNoTag,"main");knob(478,280,55,8,"CUTOFF","main");knob(533,280,55,9,"RES","main");knob(588,280,55,31,"DRIVE","main");fader(IRECT(484,386,636,449),10,"FILTER MIX","main",true);fader(IRECT(484,489,636,554),12,"KEY TRACK","main",true);menu(IRECT(483,582,637,623),32,"","main");
  const char* adsr[]={"A","D","S","R"};for(int e=0;e<2;++e){float x=e?834:656;g->AttachControl(new Curve(IRECT(x+10,128,x+160,259),e?std::initializer_list<int>{1,2,3,4}:std::initializer_list<int>{13,14,15,16},true),iplug::kNoTag,"main");for(int j=0;j<4;++j)knob(x+3+j*41,280,40,(e?1:13)+j,adsr[j],"main");if(!e)knob(x+42,464,85,11,"AMOUNT","main");}
  for(int i=0;i<3;++i){knob(1021,143+i*141,88,i==0?43:i==1?47:55,i==0?"CHORUS":i==1?"DELAY":"REVERB","main");menu(IRECT(1021,225+i*141,1109,261+i*141),i==0?42:i==1?46:54,"","main");}
- auto* volume=new Fader(IRECT(1137,126,1205,421),0,"VOLUME");g->AttachControl(volume,iplug::kNoTag,"main");g->AttachControl(new Meter(IRECT(1216,126,1254,421),peakL,peakR,volume),9100,"main");knob(1147,430,100,19,"BOOST dB","main");knob(1147,514,100,91,"AMOUNT WIDE","main");g->AttachControl(new Toggle(IRECT(1137,595,1257,623),90,"WIDE"),iplug::kNoTag,"main");
+ auto* volume=new Fader(IRECT(1137,126,1205,421),0,"VOLUME");g->AttachControl(volume,iplug::kNoTag,"main");g->AttachControl(new Meter(IRECT(1216,126,1254,421),meter,volume),9100,"main");knob(1147,430,100,19,"BOOST dB","main");knob(1147,514,100,91,"AMOUNT WIDE","main");g->AttachControl(new Toggle(IRECT(1137,595,1257,623),90,"WIDE"),iplug::kNoTag,"main");
  // ADVANCED uses a single blue palette throughout.
  section(IRECT(12,82,260,421),"PERFORMANCE","advanced");section(IRECT(268,82,585,421),"ARPEGGIATOR","advanced");section(IRECT(593,82,879,421),"LFO","advanced");section(IRECT(887,82,1268,421),"MODULATION","advanced");
  menu(IRECT(24,133,247,180),59,"VOICE MODE","advanced");knob(23,202,105,60,"GLIDE ms","advanced");menu(IRECT(136,207,246,275),61,"GLIDE MODE","advanced");knob(23,316,105,17,"BEND RANGE","advanced");knob(136,316,105,18,"WHEEL DEPTH","advanced");
