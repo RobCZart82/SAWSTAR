@@ -68,3 +68,27 @@ integrity were verified before installation.
 
 - [macOS correction build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34566162945)
 - [Windows correction build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34566162923)
+
+## Backlighting pass
+
+Build `3121f84da4f3189b02d0a4c18e16e0ab143e11b9` adds restrained layered blue
+light to knob rims/value arcs, slider handles/tracks, selected page/LFO/effect
+tabs and enabled toggles. Lit meter cells have a faint halo in their own color;
+the 14/4/2 cell zones and meter mapping are preserved. Labels and scale marks
+remain sharp. Active button lighting is inset into the existing control bounds.
+The implementation uses a small fixed number of vector draw layers, with no
+blur buffers, extra animation timers or changes to audio processing.
+
+All three pages were visually checked at 75%, 100% and 125% in REAPER 7.79 on
+macOS. LFO/effect tab selection, About open/close, and live scope/meter drawing
+worked; no overlap was observed in the inspected views. Scale was returned to
+100% and the separate test project closed without saving temporary edits.
+Windows manual visual acceptance remains pending.
+
+Both VST3 Release builds passed 34 foundation tests and 47 validator checks.
+The macOS package was verified and installed with a backup of the prior bundle.
+README screenshots now show this build: three plugin-only pages and a separate
+cropped About window. The images contain only authentic screenshot pixels.
+
+- [macOS backlighting build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34568237577)
+- [Windows backlighting build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34568237568)

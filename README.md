@@ -14,6 +14,12 @@ with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
 [Master GUI details](docs/MASTER_GUI.md) · [Earlier design concept](docs/reference/SAWSTAR_GUI_Concept.png)
 
+### About
+
+![SAWSTAR About window](docs/reference/SAWSTAR_About_REAPER.png)
+
+*Actual About window from the same development build, with the GYR monogram and both mottos.*
+
 ## User presets
 
 The concept-based [preset browser](docs/USER_PRESETS.md) combines factory and user
