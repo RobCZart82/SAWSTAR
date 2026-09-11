@@ -191,7 +191,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     if(channels==1) outputs[0][i]=static_cast<sample>((value.left+value.right)*0.5f);
     else for(int ch=0;ch<channels;++ch) outputs[ch][i]=static_cast<sample>(ch%2?value.right:value.left);
   }
-  mMeter.Publish(peakL,peakR);mVoiceCount.store(mSynth.ActiveVoices());
+  mMeter.Publish(peakL,peakR,uint32_t(std::chrono::duration_cast<std::chrono::milliseconds>(started.time_since_epoch()).count()));mVoiceCount.store(mSynth.ActiveVoices());
   if(frames>0){float used=100.f*std::chrono::duration<float>(std::chrono::steady_clock::now()-started).count()*GetSampleRate()/frames;mCpu.store(mCpu.load()*.9f+used*.1f);}
   for (int i = event; i < mEventCount; ++i) {
     mEvents[i - event] = mEvents[i]; mEvents[i - event].mOffset -= frames;

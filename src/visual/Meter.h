@@ -5,25 +5,40 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
+#include <cstring>
 namespace sawstar {
 // Single audio producer, one editor consumer. No allocation or UI calls in audio.
 // Accumulate block peaks until consumed so short transients survive GUI throttling.
 class MeterMailbox {
-  static_assert(std::atomic<float>::is_always_lock_free, "Meter requires lock-free floats");
-  std::array<std::atomic<float>,2> peaks_{};
+  static_assert(std::atomic<uint64_t>::is_always_lock_free, "Meter requires lock-free packets");
+  std::array<std::atomic<uint64_t>,2> peaks_{};
   std::array<std::atomic<bool>,2> clips_{};
+  static float Amplitude(uint64_t packet)noexcept{
+    const uint32_t bits=uint32_t(packet);float value;std::memcpy(&value,&bits,sizeof(value));return value;
+  }
 public:
-  void Publish(float left,float right) noexcept {
+  static uint32_t Now()noexcept{
+    return uint32_t(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());
+  }
+  void Publish(float left,float right,uint32_t now=Now()) noexcept {
     const float values[]={left,right};
     for(int ch=0;ch<2;++ch){
       const float value=std::isfinite(values[ch])?std::max(0.f,values[ch]):0.f;
       if(value>=1.f)clips_[ch].store(true,std::memory_order_relaxed);
-      float previous=peaks_[ch].load(std::memory_order_relaxed);
-      while(previous<value&&!peaks_[ch].compare_exchange_weak(previous,value,std::memory_order_relaxed)){}
+      uint32_t bits;std::memcpy(&bits,&value,sizeof(bits));
+      const uint64_t packet=(uint64_t(now)<<32)|bits;
+      auto previous=peaks_[ch].load(std::memory_order_relaxed);
+      // Timestamp and peak travel together. Unsigned subtraction handles clock wrap.
+      while((!previous||now-uint32_t(previous>>32)>200||Amplitude(previous)<=value)
+            &&!peaks_[ch].compare_exchange_weak(previous,packet,std::memory_order_relaxed)){}
     }
   }
-  std::array<float,2> Take() noexcept {
-    return {peaks_[0].exchange(0.f,std::memory_order_relaxed),peaks_[1].exchange(0.f,std::memory_order_relaxed)};
+  std::array<float,2> Take(uint32_t now=Now()) noexcept {
+    std::array<float,2> result{};
+    for(int ch=0;ch<2;++ch){const auto packet=peaks_[ch].exchange(0,std::memory_order_relaxed);
+      if(packet&&now-uint32_t(packet>>32)<=200)result[ch]=Amplitude(packet);}
+    return result;
   }
   bool Clipped(int ch)const noexcept{return clips_[ch].load(std::memory_order_relaxed);}
   void ClearClip(int ch)noexcept{clips_[ch].store(false,std::memory_order_relaxed);}
