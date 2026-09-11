@@ -5,7 +5,10 @@
   #error Stage must identify the extracted package directory
 #endif
 #ifndef Version
-  #define Version "1.0.0"
+  #error Version must be supplied from release.json
+#endif
+#ifndef CandidateSuffix
+  #define CandidateSuffix ""
 #endif
 [Setup]
 AppId=SAWSTAR-VST3-{#Arch}
@@ -28,13 +31,13 @@ MinVersion=10.0
 #endif
 LicenseFile={#Stage}\LICENSE
 OutputDir=..\..\dist
-OutputBaseFilename=SAWSTAR-{#Version}-rc3-Windows-{#Arch}-Setup
+OutputBaseFilename=SAWSTAR-{#Version}{#CandidateSuffix}-Windows-{#Arch}-Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayName=SAWSTAR ({#Arch})
 [Files]
-Source: "{#Stage}\SAWSTAR.vst3\*"; DestDir: "{commoncf64}\VST3\SAWSTAR.vst3"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#Stage}\SAWSTAR.vst3\*"; DestDir: "{commoncf64}\VST3\SAWSTAR.vst3"; Flags: ignoreversion recursesubdirs createallsubdirs sharedfile
 Source: "{#Stage}\docs\manuals\*"; DestDir: "{app}\manuals"; Flags: ignoreversion recursesubdirs
 Source: "{#Stage}\licenses\*"; DestDir: "{app}\licenses"; Flags: ignoreversion recursesubdirs
 Source: "{#Stage}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion

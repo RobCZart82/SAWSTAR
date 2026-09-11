@@ -187,6 +187,20 @@ public:
     :file_((path.parent_path().empty()?fs::path("."):path.parent_path())/".sawstar-save.lock"){}
 };
 }
+ImportReport ImportPresets(const std::vector<fs::path>& files,const fs::path& root,bool allowIdentical){
+ if(root.empty())throw std::runtime_error("User preset folder is unavailable.");fs::create_directories(root);PresetMutationLock lock(root/".import");ImportReport report;
+ for(const auto& p:files)try{
+  if(Fold(p.extension().u8string())!=".sawstar"||!ValidPresetName(p.stem().u8string()))throw std::runtime_error("Invalid preset filename.");
+  auto values=ReadUserPreset(p);auto target=root/fs::u8path(p.stem().u8string()+".sawstar");
+  // Case-insensitive collision policy is consistent on macOS and Windows.
+  bool collision=false;for(const auto& entry:ListUserPresets(root))if(Fold(entry.filename().u8string())==Fold(target.filename().u8string())){collision=true;break;}
+  if(collision){++report.skipped;report.details.push_back(p.filename().u8string()+": already in library; not overwritten.");continue;}
+  if(!allowIdentical){std::string match;for(const auto& entry:ListUserPresets(root)){try{if(ReadUserPreset(entry)==values){match=entry.stem().u8string();break;}}catch(const std::exception&){/* A damaged existing file must not block valid imports. */}}if(!match.empty()){++report.skipped;report.duplicates.push_back(p);report.details.push_back(p.filename().u8string()+": same settings as "+match);continue;}}
+  SaveUserPresetUnlocked(target,values);++report.imported;
+ }catch(const std::exception& e){++report.failed;report.details.push_back(p.filename().u8string()+": "+e.what());}
+ return report;
+}
+
 void SaveUserPreset(const fs::path& path,const Snapshot& values){
   if(!path.parent_path().empty())fs::create_directories(path.parent_path());
   PresetMutationLock lock(path);

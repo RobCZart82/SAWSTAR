@@ -74,3 +74,21 @@ biztonság > Megnyitás mindenképpen, amennyiben ez a SAWSTAR csomagnál elérh
 A megerősítést és a jelszó/Touch ID hitelesítést a saját gépeden végezd el.
 Ne kapcsold ki a rendszer egészének biztonsági védelmét. Sérült fájl vagy
 észlelt kártevő üzeneténél ne ezt az eljárást kövesd; jelezd a pontos hibát.
+
+## macOS manual uninstall / Kézi eltávolítás
+
+Quit all DAWs before removing SAWSTAR. In Finder, use **Go → Go to Folder**
+and remove `/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3` (administrator approval
+may be required). If you installed a per-user copy, also check
+`~/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3`. Restart the DAW and rescan plugins.
+Optional installed documentation is in
+`/Library/Application Support/SAWSTAR/Documentation`.
+
+Your sounds are separate: keep `~/Library/Application Support/SAWSTAR/Presets`
+unless you explicitly want to delete your user presets. Back them up first.
+
+Zárj be minden DAW-ot. A Finder **Ugrás → Ugrás mappához** menüjével nyisd meg
+a fenti VST3 mappát, és töröld a SAWSTAR.vst3 csomagot. A rendszerszintű példány
+eltávolítása rendszergazdai jóváhagyást kérhet. Ellenőrizd a felhasználói VST3
+mappát is, majd indítsd újra a DAW-ot és frissítsd a pluginlistát.
+A saját preseteket tartalmazó Presets mappát őrizd meg; törlés előtt mentsd el.

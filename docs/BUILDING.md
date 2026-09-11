@@ -1,50 +1,56 @@
-# Building and dependency setup
+# Building SAWSTAR
 
-## Foundation
+Use CMake 3.25+, Python 3, Git and a C++17 toolchain. The default build runs
+foundation tests without downloading plugin dependencies:
 
-CMake 3.21+, C++17 and Git are required. Use the commands in the root README.
-CMake builds a static parameter library and CTest contract checks. The default
-build has no third-party dependencies or network fetches.
+```sh
+cmake -S . -B build -DBUILD_TESTING=ON
+cmake --build build --config Release
+ctest --test-dir build -C Release --output-on-failure
+```
 
-On macOS use an installed Xcode/Command Line Tools toolchain with its license
-accepted by the developer. Install CMake from its official distribution or a
-package manager. On Windows install Visual Studio 2022's Desktop development
-with C++ workload and CMake; use `-G "Visual Studio 17 2022" -A x64` if needed.
-Use `--config Release`/`-C Release` with multi-configuration generators.
+For the instrument, run `python3 scripts/bootstrap-plugin.py` first. This sets
+up the pinned iPlug2, DaisySP and VST3 SDK dependencies. The iPlug2 submodule
+may appear modified because SDK placeholder files are replaced during setup.
 
-## Selected DSP integration check
+## macOS Universal
 
-Initialize only the top-level DaisySP submodule and enable
-`-DSAWSTAR_CHECK_DAISYSP=ON`. CMake compiles `oscillator.cpp` and `adsr.cpp`
-explicitly, with `Source`, `Source/Synthesis`, `Source/Control` and
-`Source/Utility` include paths. It does not include the omnibus daisysp.h,
-run DaisySP's full build, or enable `USE_DAISYSP_LGPL`.
+Use Xcode with its SDK and developer-accepted license. Build both slices:
 
-The test checks finite bounded audio, non-silence while gated, release to
-silence and approximate 440 Hz output at 44.1, 48 and 96 kHz. This is neither a
-voice-manager test nor a host-loading test.
+```sh
+cmake -S . -B build-mac -DSAWSTAR_BUILD_PLUGIN=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+cmake --build build-mac --config Release
+```
 
-## VST3 shell
+`release.json` defines the default minimum macOS target (11.0). Both slices
+must be present in distribution bundles. Intel execution under Rosetta does
+not replace testing on an Intel Mac. Packaging supports unsigned PKG/DMG
+files; signing and notarization require separately supplied Apple credentials.
 
-The silent shell is implemented. See [PLUGIN_SHELL.md](PLUGIN_SHELL.md) for
-bootstrap, build, identity and REAPER instructions. `scripts/bootstrap-plugin.py`
-fetches only the pinned SDK components and recognizes iPlug2's instruction-only
-SDK placeholder. It refuses to overwrite an unmanaged SDK directory.
+## Windows x64 and ARM64
 
-The bootstrap replaces the tracked instruction README inside the upstream
-SDK slot, so Git may report the iPlug2 submodule as locally modified after SDK
-installation. No iPlug2 library source is patched and the gitlink is unchanged.
+Install Visual Studio 2022 C++ desktop tools, CMake and the toolchain for the
+selected architecture. Use separate build directories:
 
-## CI scope
+```powershell
+cmake -S . -B build-x64 -G "Visual Studio 17 2022" -A x64 -DSAWSTAR_BUILD_PLUGIN=ON
+cmake --build build-x64 --config Release
+cmake -S . -B build-arm64 -G "Visual Studio 17 2022" -A ARM64 -DSAWSTAR_BUILD_PLUGIN=ON
+cmake --build build-arm64 --config Release
+```
 
-`build-macos.yml` runs on macos-14, `build-windows.yml` on windows-2022.
-Both build Debug and Release, initialize only DaisySP, enable DSP checks and
-run CTest. They run for pushes, pull requests and manual dispatch, use read-only
-repository permissions, and never sign, release, install or publish plugins.
+The plugin uses the static MSVC runtime and OpenGL renderer. End users do not
+need Visual Studio, CMake or the SDK. Inno Setup 6 builds the Windows installers.
 
-Each platform also has a Release VST3 job: pinned SDK bootstrap, real bundle
-build, Steinberg validator and packaged development artifact with notices.
-Plugin validation additionally requires CMake 3.25+ for SDK 3.8.1. These tests
-exercise the factory, processing and framework state; they do not inspect the
-GUI or replace the manual REAPER check. Artifact architectures are macOS ARM64
-and Windows x64, matching the selected runners.
+## Release metadata and CI
+
+Edit `release.json`, then run `python3 scripts/sync-release-metadata.py`.
+The generated literals in config.h and Info.plist are required by the plugin
+framework. `--check` detects stale generated metadata. Set `candidate` to an
+empty string for final package filenames; this does not publish a release.
+CMake and packaging scripts read the central metadata directly.
+
+CI builds Debug/Release checks and Release VST3 bundles, validates plugins,
+packages installers and exercises installation/uninstallation on disposable
+runners. Windows x64 and ARM64 have separate jobs; macOS builds Universal.
+These checks do not replace manual GUI or dual-architecture coexistence QA.

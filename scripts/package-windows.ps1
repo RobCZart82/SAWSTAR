@@ -6,7 +6,9 @@ Expand-Archive -Path $Archive -DestinationPath $stage
 $candidates=@("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe")
 $iscc=$candidates | Where-Object {Test-Path $_} | Select-Object -First 1
 if(!$iscc){throw 'Inno Setup 6 is required on the packaging runner.'}
-& $iscc "/DStage=$stage" "/DArch=$Arch" packaging/windows/SAWSTAR.iss
+$metadata=Get-Content (Join-Path $PSScriptRoot '../release.json') -Raw | ConvertFrom-Json
+$suffix=if($metadata.candidate){"-$($metadata.candidate)"}else{""}
+& $iscc "/DVersion=$($metadata.version)" "/DCandidateSuffix=$suffix" "/DStage=$stage" "/DArch=$Arch" packaging/windows/SAWSTAR.iss
 if($LASTEXITCODE -ne 0){throw 'Inno Setup failed'}
 Get-ChildItem dist/*Setup.exe | ForEach-Object {
  $hash=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()

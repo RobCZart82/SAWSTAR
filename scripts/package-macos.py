@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build an unsigned candidate PKG/DMG, or sign/notarize with supplied identities."""
-import argparse, pathlib, shutil, subprocess, tempfile, hashlib
+import json, argparse, pathlib, shutil, subprocess, tempfile, hashlib
 p=argparse.ArgumentParser()
 p.add_argument('bundle',type=pathlib.Path)
 p.add_argument('--application-identity');p.add_argument('--installer-identity');p.add_argument('--notary-profile')
@@ -8,6 +8,10 @@ a=p.parse_args()
 credentials=[a.application_identity,a.installer_identity,a.notary_profile]
 if any(credentials) and not all(credentials):p.error('Signing requires both identities and a Keychain notary profile')
 root=pathlib.Path(__file__).resolve().parents[1];out=root/'dist';out.mkdir(exist_ok=True)
+metadata=json.loads((root/'release.json').read_text())
+version=metadata['version'];minimum=metadata['macos_minimum']
+suffix=('-'+metadata['candidate']) if metadata['candidate'] else ''
+label=f'SAWSTAR {version}{suffix}'
 def run(*args):subprocess.run([str(x) for x in args],check=True)
 run('lipo',a.bundle/'Contents/MacOS/SAWSTAR','-verify_arch','arm64','x86_64')
 with tempfile.TemporaryDirectory() as temp:
@@ -17,17 +21,18 @@ with tempfile.TemporaryDirectory() as temp:
  for name in ['LICENSE','THIRD_PARTY_NOTICES.md','docs/INSTALLATION.md','docs/SYSTEM_REQUIREMENTS.md']:
   shutil.copy2(root/name,docs/pathlib.Path(name).name)
  shutil.copytree(root/'docs/manuals',docs/'manuals');shutil.copytree(root/'third_party/licenses',docs/'licenses')
+ shutil.copy2(root/'assets/branding/LICENSE.txt',docs/'licenses/SAWSTAR-BRANDING-LICENSE.txt')
  if all(credentials):run('codesign','--force','--options','runtime','--timestamp','--sign',a.application_identity,dest)
- run('pkgbuild','--root',payload,'--identifier','io.github.robczart82.sawstar','--version','1.0.0','--install-location','/',t/'component.pkg')
+ run('pkgbuild','--root',payload,'--identifier','io.github.robczart82.sawstar','--version',version,'--install-location','/',t/'component.pkg')
  distribution=t/'distribution.xml'
- distribution.write_text('''<?xml version="1.0" encoding="utf-8"?>
-<installer-gui-script minSpecVersion="2"><title>SAWSTAR 1.0.0 RC3</title>
+ distribution.write_text(f'''<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2"><title>{label}</title>
 <options customize="never" rootVolumeOnly="true" hostArchitectures="x86_64,arm64"/>
-<allowed-os-versions><os-version min="11.0"/></allowed-os-versions>
+<allowed-os-versions><os-version min="{minimum}"/></allowed-os-versions>
 <choices-outline><line choice="main"/></choices-outline>
 <choice id="main" visible="false"><pkg-ref id="io.github.robczart82.sawstar"/></choice>
-<pkg-ref id="io.github.robczart82.sawstar" version="1.0.0">component.pkg</pkg-ref></installer-gui-script>''')
- image=t/'image';image.mkdir();pkg=image/'SAWSTAR-1.0.0-rc3-macOS-Universal.pkg'
+<pkg-ref id="io.github.robczart82.sawstar" version="{version}">component.pkg</pkg-ref></installer-gui-script>''')
+ image=t/'image';image.mkdir();pkg=image/f'SAWSTAR-{version}{suffix}-macOS-Universal.pkg'
  args=['productbuild','--distribution',distribution,'--package-path',t]
  if all(credentials):args+=['--sign',a.installer_identity,'--timestamp']
  run(*args,pkg)
@@ -36,8 +41,8 @@ with tempfile.TemporaryDirectory() as temp:
   run('xcrun','stapler','staple',pkg)
  shutil.copy2(root/'docs/INSTALLATION.md',image/'INSTALLATION.md')
  shutil.copy2(pkg,out/pkg.name)
- dmg=out/'SAWSTAR-1.0.0-rc3-macOS-Universal.dmg'
- run('hdiutil','create','-volname','SAWSTAR 1.0.0 RC3','-srcfolder',image,'-format','UDZO',dmg)
+ dmg=out/f'SAWSTAR-{version}{suffix}-macOS-Universal.dmg'
+ run('hdiutil','create','-volname',label,'-srcfolder',image,'-format','UDZO',dmg)
  if all(credentials):
   run('codesign','--timestamp','--sign',a.application_identity,dmg)
   run('xcrun','notarytool','submit',dmg,'--keychain-profile',a.notary_profile,'--wait')

@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>SAWSTAR</string>
 	<key>CFBundleGetInfoString</key>
-	<string>SAWSTAR v1.0.0 Copyright 2026 Gyuricza Róbert / RobCZart82</string>
+	<string>SAWSTAR v1.0.0 Copyright (c) 2026 Gyuricza Róbert / RobCZart82</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright (c) 2026 Gyuricza Róbert / RobCZart82</string>
 	<key>CFBundleIdentifier</key>
@@ -27,6 +27,6 @@
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.13.0</string>
+	<string>11.0</string>
 </dict>
 </plist>

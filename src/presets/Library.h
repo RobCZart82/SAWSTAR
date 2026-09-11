@@ -15,19 +15,8 @@ struct ImportReport {
  int imported=0,skipped=0,failed=0;std::vector<std::string> details;
  std::string Summary()const{return std::to_string(imported)+" imported, "+std::to_string(skipped)+" skipped, "+std::to_string(failed)+" failed.";}
 };
-inline ImportReport ImportPresets(const std::vector<fs::path>& files,const fs::path& root,bool allowIdentical=false){
- if(root.empty())throw std::runtime_error("User preset folder is unavailable.");fs::create_directories(root);ImportReport report;
- for(const auto& p:files)try{
-  if(Fold(p.extension().u8string())!=".sawstar"||!ValidPresetName(p.stem().u8string()))throw std::runtime_error("Invalid preset filename.");
-  auto values=ReadUserPreset(p);auto target=root/fs::u8path(p.stem().u8string()+".sawstar");
-  // Case-insensitive collision policy is consistent on macOS and Windows.
-  bool collision=false;for(const auto& entry:ListUserPresets(root))if(Fold(entry.filename().u8string())==Fold(target.filename().u8string())){collision=true;break;}
-  if(collision){++report.skipped;report.details.push_back(p.filename().u8string()+": already in library; not overwritten.");continue;}
-  if(!allowIdentical){std::string match;for(const auto& entry:ListUserPresets(root)){try{if(ReadUserPreset(entry)==values){match=entry.stem().u8string();break;}}catch(const std::exception&){/* A damaged existing file must not block valid imports. */}}if(!match.empty()){++report.skipped;report.duplicates.push_back(p);report.details.push_back(p.filename().u8string()+": same settings as "+match);continue;}}
-  if(!fs::copy_file(p,target,fs::copy_options::none))throw std::runtime_error("Could not copy preset.");++report.imported;
- }catch(const std::exception& e){++report.failed;report.details.push_back(p.filename().u8string()+": "+e.what());}
- return report;
-}
+// Serialized with Save, Rename, Overwrite and Archive, including collision checks.
+ImportReport ImportPresets(const std::vector<fs::path>& files,const fs::path& root,bool allowIdentical=false);
 // A successful external save remains active even if its managed copy fails.
 inline UserPresetSelection SavePresetSelection(fs::path path,const Snapshot& values,const fs::path& root){
  if(path.extension().empty())path+=".sawstar";

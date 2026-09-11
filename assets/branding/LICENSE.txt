@@ -1,0 +1,10 @@
+SAWSTAR and GYR branding
+
+© 2026 Gyuricza Róbert / RobCZart82. All rights reserved.
+
+The SAWSTAR and GYR logos, creator marks and original branding artwork are
+not licensed under the repository's MIT source-code license. No separate
+permission to reuse or modify these branding assets is granted here.
+
+This notice does not restrict the MIT-licensed source code. Third-party
+fonts and components remain governed by their respective licenses.

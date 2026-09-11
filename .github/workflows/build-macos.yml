@@ -22,6 +22,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Check central release metadata
+        run: python scripts/sync-release-metadata.py --check
       - name: Initialize only the MIT DaisySP core
         run: git submodule update --init third_party/DaisySP
       - name: Configure foundation and selected DSP checks
@@ -67,7 +69,7 @@ jobs:
       - name: Test system-wide package on disposable runner
         run: |
           test ! -e /Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3
-          sudo installer -pkg dist/SAWSTAR-1.0.0-rc3-macOS-Universal.pkg -target /
+          sudo installer -pkg dist/SAWSTAR-*-macOS-Universal.pkg -target /
           cmp build-plugin/out/SAWSTAR.vst3/Contents/MacOS/SAWSTAR /Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3/Contents/MacOS/SAWSTAR
           test -f "/Library/Application Support/SAWSTAR/Documentation/manuals/SAWSTAR-User-Manual-EN.pdf"
           test -f "/Library/Application Support/SAWSTAR/Documentation/manuals/SAWSTAR-User-Manual-HU.pdf"

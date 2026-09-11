@@ -33,8 +33,8 @@ def package(bundle_parent, output):
         if not p.is_file():
             raise ValueError(f'Missing distribution document: {name}')
         files[name if name.startswith('docs/manuals/') else p.name] = p
-    version = re.search(r'project\(SAWSTAR VERSION ([0-9.]+)',
-                        (root / 'CMakeLists.txt').read_text()).group(1)
+    files['licenses/SAWSTAR-BRANDING-LICENSE.txt'] = root / 'assets/branding/LICENSE.txt'
+    version = json.loads((root / 'release.json').read_text())['version']
     try:
         revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root,
                                            stderr=subprocess.DEVNULL, text=True).strip()
