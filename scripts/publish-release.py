@@ -50,7 +50,7 @@ checks=''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p
 # A draft keeps partial uploads private; existing releases are never overwritten.
 gh('release','create',tag,'--target',sha,'--draft','--title',f'SAWSTAR {version}','--notes-file','docs/RELEASE_NOTES_1.0.0.md')
 gh('release','upload',tag,*[str(p) for p in sorted(assets.iterdir())])
-release=api(f'repos/{repo}/releases/tags/{tag}')
+release=json.loads(gh('release','view',tag,'--json','assets'))
 assert {a['name']:a['size'] for a in release['assets']}=={p.name:p.stat().st_size for p in assets.iterdir()}
 gh('release','edit',tag,'--draft=false','--latest')
 print(f'Published https://github.com/{repo}/releases/tag/{tag}')
