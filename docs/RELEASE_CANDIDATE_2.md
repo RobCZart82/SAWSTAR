@@ -46,6 +46,16 @@ foundation Debug and Release jobs.
 Actions artifact IDs: macOS 10191515800, Windows x64 10191533613,
 Windows ARM64 10191559344. The DMG contains the same PKG supplied separately.
 
+## User-reported functional acceptance
+
+On 2026-09-11, following the discussion of unsigned macOS installation, the user
+reported: "Kipróbáltam és működik minden jól" (tested, everything works well).
+Record this as successful user-reported functional testing in the current RC2
+context. Exact package, OS/host versions, architecture, download/quarantine state
+and any security prompts or approval steps were not specified. Do not infer
+clean-machine Gatekeeper acceptance or minimum-OS coverage from this report.
+The installation guide's exact macOS approval steps still require that detail.
+
 ## Not yet claimed
 
 - Native Intel Mac or physical Windows ARM64 DAW/graphics acceptance.
