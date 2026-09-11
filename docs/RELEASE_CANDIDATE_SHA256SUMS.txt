@@ -1,0 +1,2 @@
+7438e7cb4114c3b2f2ed764a24bf0b6d7511d80b3f2c8cbc62d570daa0ae63f8  SAWSTAR-1.0.0-rc1-macos-arm64.zip
+c75a328982f66e7ee4ba6c66ce90d202e209f3af455cb1c32f4813b7a49c7924  SAWSTAR-1.0.0-rc1-windows-x64.zip
