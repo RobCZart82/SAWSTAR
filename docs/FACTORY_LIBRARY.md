@@ -92,3 +92,19 @@ so their RMS is naturally lower. Listening acceptance is still required.
 The `factory_presets` test repeats this phrase check, checks headroom, and also
 checks each sound at 44.1/48/96 kHz for valid state, output and voice release.
 No WAV deliverables are generated.
+
+## Verification of this library build
+
+Candidate `900fe9800ee07f669a2072f3b7fe9cb8a3b89417` passed the local library
+and factory tests. Both macOS and Windows VST3 Release builds passed all 34
+foundation tests and all 47 VST3 validator checks. Downloaded package digests
+and ZIP integrity were verified; macOS was installed with a prior-version backup.
+
+REAPER 7.79/macOS showed seven Templates and loaded Keys-Init. Searching All
+for `Trance` returned SuperSaw One, Solid Saw Lead and Trance Pluck. Solid Saw
+Lead loaded with matching header, parameter values, tags and saved diagrams;
+the text did not overlap HOW IT WORKS. The separate test project was closed
+without saving. This is GUI/load validation, not final musical listening approval.
+
+- [macOS build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34569574994)
+- [Windows build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34569574984)

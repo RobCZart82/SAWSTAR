@@ -10,6 +10,12 @@ development builds are not that release. Set the version and actual release date
 when preparing the accepted release candidate; do not label a development build
 as a published release.
 
+Progress on 2026-09-11: the GUI backlighting pass and real three-page/About
+screenshots are in main. The embedded library now contains seven Templates and
+17 finished sounds with searchable tags and measured output trims (see
+FACTORY_LIBRARY.md). Remaining content work is musical listening acceptance and
+any resulting adjustments, before declaring the release candidate frozen.
+
 1. **Finish engine lifecycle QA.** Audit remaining smoothing targets across host
    Reset/sample-rate changes and parameter restoration. Exercise automation,
    transport, offline rendering, note overlap, sustain, voice stealing, ARP and
