@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
-#include "IControl.h"
+#include "gui/Controls/Theme.h"
 #include <algorithm>
 #include <cmath>
 namespace sawstar::gui {
@@ -12,10 +12,10 @@ public:
   using namespace iplug::igraphics;
   const int choice=std::clamp(static_cast<int>(std::lround(GetValue()*(sub_?2:3))),0,sub_?2:3);const int w=sub_?(choice==0?3:choice==1?2:1):choice;
   const IColor cyan(255,54,170,226),light(255,210,237,245);
-  g.FillRoundRect(IColor(255,20,26,29),mRECT,4);g.DrawRoundRect(IColor(255,55,95,110),mRECT,4);
-  g.DrawText(IText(12,light),title_,IRECT(mRECT.L,mRECT.T,mRECT.R,mRECT.T+18));
-  g.DrawText(IText(12,cyan),(sub_?subNames_[choice]:names_[choice]),IRECT(mRECT.L,mRECT.B-20,mRECT.R,mRECT.B));
-  const auto curve=IRECT(mRECT.L+12,mRECT.T+23,mRECT.R-12,mRECT.B-25);
+  g.FillRoundRect(DisplayColor,mRECT,3);g.DrawRoundRect(Border,mRECT,3);
+  g.DrawText(IText(12,light).WithFont("SAWSTAR-Bold"),title_,IRECT(mRECT.L,mRECT.T,mRECT.R,mRECT.T+18));
+  DrawChoice(g,IRECT(mRECT.L+3,mRECT.B-25,mRECT.R-3,mRECT.B-3),sub_?subNames_[choice]:names_[choice],11);
+  const auto curve=IRECT(mRECT.L+12,mRECT.T+23,mRECT.R-12,mRECT.B-34);DrawGrid(g,curve);
   float px=curve.L,py=0;
   for(int i=0;i<=96;++i){float p=i/96.f,y=0;
    switch(w){case 0:y=1-2*p;break;case 1:y=p<.5f?1:-1;break;case 2:y=1-4*std::abs(p-.5f);break;default:y=std::sin(6.283185307179586f*p);}
