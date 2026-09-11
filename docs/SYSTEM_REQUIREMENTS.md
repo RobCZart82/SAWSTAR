@@ -16,8 +16,9 @@ Windows compiler definitions target Windows 10 APIs; the ARM installer requires
 Windows 11. This alone is not proof that every API/driver/host combination works.
 
 Windows uses NanoVG/OpenGL, not DirectX; no separate DirectX runtime is specified.
-The project selects static MSVC runtime (/MT Release, /MTd Debug). Inspect final
-binary imports before claiming no separate VC++ Redistributable requirement.
+The project selects static MSVC runtime (/MT Release, /MTd Debug). RC2 final
+binary import audits passed on x64 and ARM64 with no separate MSVC runtime DLLs;
+no additional VC++ Redistributable is required by these candidate binaries.
 The Windows UCRT/OS components still come from the operating system.
 
 Visual Studio, CMake, Git, compilers and the VST3 SDK are development-only tools.

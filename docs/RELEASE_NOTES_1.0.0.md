@@ -19,10 +19,12 @@ Simple Synth - Big Sound. The Sounds of Trance.
 
 ## Packages and scope
 
-macOS Apple Silicon VST3 and Windows x64 VST3. No Intel Mac, AU, CLAP or
-standalone application is included. No installer is supplied; copy the complete
-bundle as described in INSTALLATION.md. Final minimum OS support remains to be
-established; CI operating-system versions alone are not a support guarantee.
+RC2 provides macOS Universal VST3 (Intel and Apple Silicon), Windows x64 and
+Windows ARM64 VST3 candidates. Windows Setup EXEs and a macOS PKG inside a DMG
+are available alongside build ZIPs. AU, CLAP and standalone formats are not
+included. See INSTALLATION.md and SYSTEM_REQUIREMENTS.md. Final minimum OS
+support remains to be established; CI OS versions alone are not a support guarantee.
+See RELEASE_CANDIDATE_2.md for exact validated files and limitations.
 
 These candidate packages are not represented as Developer ID signed/notarized
 or Windows Authenticode signed. macOS may contain an ad-hoc build signature;

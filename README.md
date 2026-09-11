@@ -17,7 +17,7 @@ wordmark/About/display-timing refinements; final release captures are pending.*
 **1.0.0 is currently a pre-release candidate, not a published release.**
 Candidate artifacts are available from [GitHub Actions](https://github.com/RobCZart82/SAWSTAR/actions).
 The final installers will appear on [Releases](https://github.com/RobCZart82/SAWSTAR/releases)
-after platform acceptance. See the [candidate record](docs/RELEASE_CANDIDATE.md).
+after platform acceptance. See the [candidate record](docs/RELEASE_CANDIDATE_2.md).
 
 ## Features
 

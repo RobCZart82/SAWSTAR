@@ -73,3 +73,8 @@ Candidate preparation: version identifiers aligned at 1.0.0; public date remains
 unset. Packages include both development-edition manuals, installation notes,
 license notices, an internal hash manifest and an external SHA-256 sidecar.
 Final manual metadata, signing/support policy and candidate acceptance remain open.
+
+RC2 presentation/distribution preparation adds native Windows ARM64, Universal
+macOS, installer smoke checks, stable visual telemetry and public-facing docs.
+See RELEASE_CANDIDATE_2.md for exact evidence; proposed OS minima, physical host
+acceptance, signing and final manual/screenshots remain publication gates.
