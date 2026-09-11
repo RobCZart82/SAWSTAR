@@ -28,7 +28,7 @@ MinVersion=10.0
 #endif
 LicenseFile={#Stage}\LICENSE
 OutputDir=..\..\dist
-OutputBaseFilename=SAWSTAR-{#Version}-rc2-Windows-{#Arch}-Setup
+OutputBaseFilename=SAWSTAR-{#Version}-rc3-Windows-{#Arch}-Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

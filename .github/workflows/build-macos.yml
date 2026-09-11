@@ -67,7 +67,7 @@ jobs:
       - name: Test system-wide package on disposable runner
         run: |
           test ! -e /Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3
-          sudo installer -pkg dist/SAWSTAR-1.0.0-rc2-macOS-Universal.pkg -target /
+          sudo installer -pkg dist/SAWSTAR-1.0.0-rc3-macOS-Universal.pkg -target /
           cmp build-plugin/out/SAWSTAR.vst3/Contents/MacOS/SAWSTAR /Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3/Contents/MacOS/SAWSTAR
           test -f "/Library/Application Support/SAWSTAR/Documentation/manuals/SAWSTAR-User-Manual-EN.pdf"
           test -f "/Library/Application Support/SAWSTAR/Documentation/manuals/SAWSTAR-User-Manual-HU.pdf"

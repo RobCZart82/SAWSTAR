@@ -21,13 +21,13 @@ with tempfile.TemporaryDirectory() as temp:
  run('pkgbuild','--root',payload,'--identifier','io.github.robczart82.sawstar','--version','1.0.0','--install-location','/',t/'component.pkg')
  distribution=t/'distribution.xml'
  distribution.write_text('''<?xml version="1.0" encoding="utf-8"?>
-<installer-gui-script minSpecVersion="2"><title>SAWSTAR 1.0.0 RC2</title>
+<installer-gui-script minSpecVersion="2"><title>SAWSTAR 1.0.0 RC3</title>
 <options customize="never" rootVolumeOnly="true" hostArchitectures="x86_64,arm64"/>
 <allowed-os-versions><os-version min="11.0"/></allowed-os-versions>
 <choices-outline><line choice="main"/></choices-outline>
 <choice id="main" visible="false"><pkg-ref id="io.github.robczart82.sawstar"/></choice>
 <pkg-ref id="io.github.robczart82.sawstar" version="1.0.0">component.pkg</pkg-ref></installer-gui-script>''')
- image=t/'image';image.mkdir();pkg=image/'SAWSTAR-1.0.0-rc2-macOS-Universal.pkg'
+ image=t/'image';image.mkdir();pkg=image/'SAWSTAR-1.0.0-rc3-macOS-Universal.pkg'
  args=['productbuild','--distribution',distribution,'--package-path',t]
  if all(credentials):args+=['--sign',a.installer_identity,'--timestamp']
  run(*args,pkg)
@@ -36,8 +36,8 @@ with tempfile.TemporaryDirectory() as temp:
   run('xcrun','stapler','staple',pkg)
  shutil.copy2(root/'docs/INSTALLATION.md',image/'INSTALLATION.md')
  shutil.copy2(pkg,out/pkg.name)
- dmg=out/'SAWSTAR-1.0.0-rc2-macOS-Universal.dmg'
- run('hdiutil','create','-volname','SAWSTAR 1.0.0 RC2','-srcfolder',image,'-format','UDZO',dmg)
+ dmg=out/'SAWSTAR-1.0.0-rc3-macOS-Universal.dmg'
+ run('hdiutil','create','-volname','SAWSTAR 1.0.0 RC3','-srcfolder',image,'-format','UDZO',dmg)
  if all(credentials):
   run('codesign','--timestamp','--sign',a.application_identity,dmg)
   run('xcrun','notarytool','submit',dmg,'--keychain-profile',a.notary_profile,'--wait')

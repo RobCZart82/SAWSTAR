@@ -46,3 +46,31 @@ User library: macOS `~/Library/Application Support/SAWSTAR/Presets`; Windows
 
 See SYSTEM_REQUIREMENTS.md for target versus tested OS support. Candidate PDFs
 are still the development edition and may illustrate an earlier GUI build.
+
+## macOS: downloaded package blocked
+
+The unsigned package can be blocked with a message that Apple could not verify
+it is free of malware. This was observed on macOS 26.6.2 after downloading the
+GitHub artifact with Firefox; the extracted PKG retained quarantine metadata.
+
+For the SAWSTAR package downloaded from this repository, first check its SHA256
+against the matching published checksum. If you trust this download, dismiss the
+warning with Done, open System Settings > Privacy & Security, and use Open Anyway
+for this specific SAWSTAR package, if offered. Confirm the named package and
+complete macOS authentication yourself. Then continue the installer.
+Do not disable Gatekeeper globally. A damaged-file or malware-detected warning
+should be investigated rather than treated as an ordinary unsigned-app warning.
+If no per-package option is offered, report the exact macOS version and message.
+
+Apple's instructions: https://support.apple.com/en-gb/102445
+
+### Magyar
+
+A letöltött, aláírás nélküli PKG-t a macOS blokkolhatja: az Apple nem tudja
+ellenőrizni, hogy mentes-e a rosszindulatú szoftverektől. Ellenőrizd a csomag
+SHA256 összegét a hozzá tartozó közzétett ellenőrzőösszeggel. Ha a hivatalos
+SAWSTAR-letöltésben megbízol: Kész > Rendszerbeállítások > Adatvédelem és
+biztonság > Megnyitás mindenképpen, amennyiben ez a SAWSTAR csomagnál elérhető.
+A megerősítést és a jelszó/Touch ID hitelesítést a saját gépeden végezd el.
+Ne kapcsold ki a rendszer egészének biztonsági védelmét. Sérült fájl vagy
+észlelt kártevő üzeneténél ne ezt az eljárást kövesd; jelezd a pontos hibát.
