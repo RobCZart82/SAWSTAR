@@ -1,8 +1,19 @@
-# Installing SAWSTAR candidates
+# Installing SAWSTAR 1.0.0 / Telepítés
 
-The first public release is planned as 1.0.0. Current artifacts are pre-release
-candidates. Back up projects and user presets and close the DAW before updating.
-Do not treat a renamed candidate package as the final release.
+Download [SAWSTAR 1.0.0](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.0).
+Recommended: the matching installer. Optional: a manual-install ZIP.
+Back up projects and user presets and close the DAW before updating.
+
+This online guide includes corrections made after release. The documents inside
+the original 1.0.0 downloads may contain older candidate wording; the released
+binaries and archive checksums have not been changed by these documentation updates.
+
+A [SAWSTAR 1.0.0 letöltése](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.0):
+elsősorban a megfelelő telepítőt válaszd; kézi telepítéshez ZIP is elérhető.
+Frissítés előtt zárd be a DAW-ot, és mentsd a projektjeidet, saját presetjeidet.
+Ez az online útmutató a kiadás utáni pontosításokat is tartalmazza. Az eredeti
+csomagok útmutatójában még lehet korábbi kiadásjelölt-szöveg; a kiadott binárisok
+és csomagok ellenőrzőösszegei változatlanok.
 
 ## Windows
 
@@ -15,11 +26,11 @@ The two architectures use separate installed-document/uninstaller locations.
 
 You can alternatively copy the entire SAWSTAR.vst3 bundle from the ZIP to the
 same VST3 directory. A VST3 is not a standalone EXE: Setup.exe is its installer.
-The candidates are not Authenticode signed; final distribution policy is pending.
+The 1.0.0 installers are not Authenticode signed; Windows may display a security warning.
 
 ## macOS
 
-The Universal candidate contains Intel and Apple Silicon code. Open the DMG
+The Universal package contains Intel and Apple Silicon code. Open the DMG
 and run the PKG. It installs system-wide to
 `/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3`, with documentation under
 `/Library/Application Support/SAWSTAR/Documentation`.
@@ -44,8 +55,8 @@ Retain the previous package until project recall and basic playing are confirmed
 User library: macOS `~/Library/Application Support/SAWSTAR/Presets`; Windows
 `%APPDATA%\SAWSTAR\Presets`. Factory presets are built in.
 
-See SYSTEM_REQUIREMENTS.md for target versus tested OS support. Candidate PDFs
-are still the development edition and may illustrate an earlier GUI build.
+See [System requirements](SYSTEM_REQUIREMENTS.md) for target versus tested OS support.
+The 1.0.0 PDFs illustrate the real GUI captured before release.
 
 ## macOS: downloaded package blocked
 
@@ -92,3 +103,96 @@ a fenti VST3 mappát, és töröld a SAWSTAR.vst3 csomagot. A rendszerszintű p�
 eltávolítása rendszergazdai jóváhagyást kérhet. Ellenőrizd a felhasználói VST3
 mappát is, majd indítsd újra a DAW-ot és frissítsd a pluginlistát.
 A saját preseteket tartalmazó Presets mappát őrizd meg; törlés előtt mentsd el.
+
+## macOS Terminal troubleshooting / Haladó hibaelhárítás
+
+### English
+
+Use the graphical approval steps above first. These are optional troubleshooting
+commands for an **already installed** SAWSTAR bundle, not steps to run in order.
+Close the DAW. Check the downloaded archive against SHA256SUMS.txt on the official
+release page before making changes. Quarantine removal bypasses the quarantine
+check for this bundle; it does not prove the download is safe or notarize it.
+Do not use it for a malware-detected warning or an unexplained damaged download.
+
+**Remove only the quarantine attribute**, when a trusted installed copy is
+blocked by quarantine and the graphical approval option is unavailable:
+
+```bash
+sudo xattr -dr com.apple.quarantine "/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3"
+```
+
+For a manual installation in your own user folder, use this alternative instead
+(no sudo normally needed):
+
+```bash
+xattr -dr com.apple.quarantine "$HOME/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3"
+```
+
+Use only the path where you actually installed the plugin. `-d` deletes the
+named attribute; `-r` applies recursively inside that bundle. A missing-attribute
+message means quarantine may already be absent. Then restart the DAW and rescan.
+This does not unblock a PKG that has not yet been installed.
+
+**Check the existing code signature**, without modifying the plugin:
+
+```bash
+codesign --verify --strict --verbose=2 "/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3"
+```
+
+For a user-local copy, replace the path with
+`"$HOME/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3"`.
+Success only verifies the existing signature; an ad hoc signature is not an
+Apple Developer ID signature or notarization. If verification fails, report the
+exact output and macOS version; reinstall the official copy before further repair.
+
+We do not prescribe `xattr -cr`: it removes all extended attributes rather than
+only quarantine. Nor is `codesign --force --sign -` a routine installation step:
+it replaces the existing signature with a local ad hoc signature and changes the
+installed bundle. These are not required follow-up commands.
+
+### Magyar
+
+Elsőként a fenti grafikus jóváhagyást használd. Az alábbiak opcionális
+hibaelhárítási lehetőségek a **már telepített** pluginhoz, nem egymás után
+kötelezően futtatandó lépések. Zárd be a DAW-ot, és ellenőrizd a letöltés SHA256
+összegét a hivatalos release SHA256SUMS.txt fájljával. A karanténjelölés törlése
+ennél a csomagnál megkerüli a karanténellenőrzést; nem igazolja a biztonságát,
+és nem jelent Apple-notarizációt. Kártevőészlelésnél vagy tisztázatlan sérülésnél
+ne alkalmazd ezt megoldásként.
+
+**Csak a karanténjelölés eltávolítása**, ha a megbízható telepített példányt
+karantén blokkolja, és a grafikus jóváhagyás nem elérhető:
+
+```bash
+sudo xattr -dr com.apple.quarantine "/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3"
+```
+
+Saját felhasználói mappába végzett kézi telepítésnél helyette ezt használd
+(általában sudo nélkül):
+
+```bash
+xattr -dr com.apple.quarantine "$HOME/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3"
+```
+
+Csak a tényleges telepítési helyre vonatkozó parancsot futtasd. A `-d` a
+megnevezett attribútumot törli, az `-r` a csomagon belül rekurzívan alkalmazza.
+A hiányzó attribútumról szóló üzenet azt is jelentheti, hogy már nincs karantén.
+Ezután indítsd újra a DAW-ot, és frissítsd a pluginlistát. Ez nem a még nem
+telepített PKG feloldására szolgál.
+
+**A meglévő aláírás ellenőrzése**, módosítás nélkül:
+
+```bash
+codesign --verify --strict --verbose=2 "/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3"
+```
+
+Felhasználói telepítésnél az útvonal legyen
+`"$HOME/Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3"`.
+A sikeres ellenőrzés nem jelent Developer ID-aláírást vagy notarizációt.
+Hibánál őrizd meg a pontos üzenetet és a macOS verzióját; további javítás előtt
+telepítsd újra a hivatalos példányt.
+
+Az `xattr -cr` nem ajánlott általános lépés: minden kiterjesztett attribútumot
+törölne. A `codesign --force --sign -` helyi ad hoc aláírásra cseréli a meglévőt,
+és módosítja a telepített csomagot; ez sem szükséges következő telepítési lépés.

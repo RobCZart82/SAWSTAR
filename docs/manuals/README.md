@@ -3,9 +3,10 @@
 - [English PDF](SAWSTAR-User-Manual-EN.pdf)
 - [Magyar PDF](SAWSTAR-User-Manual-HU.pdf)
 
-These 12-page manuals describe the 24-preset development baseline used for the
-1.0.0 candidate. Their cover/footer still identify the 0.1.0 development edition;
-this is intentional provenance, not the version of a candidate binary packaged
-alongside them. Update edition metadata and screenshots after final candidate
-acceptance, before publishing v1.0.0. No new synthesis features were introduced
-by the candidate version change.
+These 12-page manuals describe SAWSTAR 1.0.0 and its 24 embedded presets.
+Their edition date is 11 September 2026. Screenshots show the real pre-release
+GUI; image build labels reflect the capture date.
+
+For current installation corrections and bilingual macOS Terminal troubleshooting,
+see the [online installation guide](../INSTALLATION.md#macos-terminal-troubleshooting--haladó-hibaelhárítás).
+Released PDF files and download packages are unchanged by these online corrections.
