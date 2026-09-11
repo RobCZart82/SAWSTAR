@@ -57,7 +57,8 @@ class PresetBrowser final:public IControl {
  void TextLine(IGraphics& g,const std::string& s,IRECT r,int size=13,IColor color=Text){g.DrawText(IText(size,color).WithAlign(EAlign::Near),s.c_str(),r);}
  void Info(IGraphics& g){const auto* e=Selected();if(!e)return;TextLine(g,e->name,IRECT(651,140,1038,177),22);
   std::string lesson=e->lesson;float lessonY=184;while(!lesson.empty()&&lessonY<277){size_t n=lesson.size()<=43?lesson.size():lesson.rfind(' ',43);if(n==0||n==std::string::npos)n=std::min<size_t>(43,lesson.size());TextLine(g,lesson.substr(0,n),IRECT(651,lessonY,1060,lessonY+20),13);lesson.erase(0,n+(n<lesson.size()?1:0));lessonY+=21;}
-  TextLine(g,"TAGS",IRECT(651,290,1057,312),12,Blue);TextLine(g,e->category+(e->factory>=0?"  /  Factory":"  /  User"),IRECT(651,318,1057,343),14);
+  TextLine(g,"TAGS",IRECT(651,290,1057,312),12,Blue);TextLine(g,e->category+(e->factory>=0?"  /  Factory":"  /  User"),IRECT(651,314,1057,334),13);
+  TextLine(g,e->tags,IRECT(651,335,1057,353),12,Muted);
   TextLine(g,"HOW IT WORKS",IRECT(651,354,1057,375),12,Blue);
   if(!preview_){TextLine(g,"Cannot read this preset.",IRECT(651,405,1057,432));return;}const auto v=*preview_;const char* blocks[]={"OSC","MIXER","FILTER","ENV","FX"};
   for(int i=0;i<5;++i){IRECT r(651+i*82,399,723+i*82,450);g.FillRoundRect(IColor(255,10,18,24),r,3);const IColor colors[]={IColor(255,70,206,237),IColor(255,144,173,246),IColor(255,220,179,86),IColor(255,84,213,186),IColor(255,178,143,231)};const auto color=colors[i];g.DrawRoundRect(color,r,3);g.DrawText(IText(11,color),blocks[i],r.GetFromTop(19));auto plot=IRECT(r.L+7,r.T+23,r.R-7,r.B-6);

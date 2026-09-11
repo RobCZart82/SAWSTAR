@@ -39,7 +39,7 @@ inline UserPresetSelection SavePresetSelection(fs::path path,const Snapshot& val
  return result;
 }
 struct LibraryEntry {
- std::string key,name,category,lesson;fs::path path;int factory=-1;
+ std::string key,name,category,lesson;fs::path path;int factory=-1;std::string tags{};
  Snapshot Read()const{return factory>=0?FactoryPresets()[factory].values:ReadUserPreset(path);}
 };
 class PresetLibrary {
@@ -47,14 +47,14 @@ class PresetLibrary {
 public:
  std::vector<LibraryEntry> entries;std::string warning;
  explicit PresetLibrary(fs::path root):root_(std::move(root)){Refresh();}
- void Refresh(){warning.clear();try{ReloadFavorites();}catch(const std::exception& e){warning=e.what();}entries.clear();int i=0;for(const auto& p:FactoryPresets()){entries.push_back({"factory:"+std::string(p.key),p.name,p.category,p.lesson,{},i++});}
+ void Refresh(){warning.clear();try{ReloadFavorites();}catch(const std::exception& e){warning=e.what();}entries.clear();int i=0;for(const auto& p:FactoryPresets()){entries.push_back({"factory:"+std::string(p.key),p.name,p.category,p.lesson,{},i++,p.tags});}
   if(root_.empty())return;try{for(const auto& p:ListUserPresets(root_))entries.push_back({"user:"+p.filename().u8string(),p.stem().u8string(),"User","User sound. The diagram below describes its saved settings.",p,-1});}catch(const std::exception& e){warning=e.what();}}
  bool Favorite(const std::string& key)const{return favorites_.count(key)>0;}
  void ToggleFavorite(const std::string& key){favorites_=ChangeFavorite(root_,key);}
  void MoveFavorite(const std::string& oldKey,const std::string& newKey){favorites_=ChangeFavorite(root_,oldKey,&newKey);}
  std::vector<int> Filter(const std::string& category,const std::string& query)const{
   std::vector<int> out;auto q=Fold(query);for(int i=0;i<int(entries.size());++i){const auto& e=entries[i];bool match=category=="All"||(category=="Favorites"?Favorite(e.key):category=="User"?e.factory<0:category==e.category);
-   if(match&&Fold(e.name+" "+e.category).find(q)!=std::string::npos)out.push_back(i);}return out;
+   if(match&&Fold(e.name+" "+e.category+" "+e.tags).find(q)!=std::string::npos)out.push_back(i);}return out;
  }
 private:
  void ReloadFavorites(){favorites_=ReadFavorites(root_);}

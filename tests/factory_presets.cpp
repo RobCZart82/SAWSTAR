@@ -13,6 +13,8 @@ int main(){
  using namespace sawstar;const auto& presets=FactoryPresets();std::set<std::string> keys,names;
  check(presets[0].values==DefaultSnapshot(),"Init must use parameter defaults");
  for(size_t p=0;p<presets.size();++p){const auto& v=presets[p].values;
+  check(std::string(presets[p].tags).size()>0&&std::string(presets[p].tags).size()<=36,"short factory tags");
+  check(v[size_t(ParameterId::ArpHold)]==0,"factory must not latch notes by default");
   check(keys.insert(presets[p].key).second&&names.insert(presets[p].name).second,"unique preset identities");
   for(size_t i=0;i<v.size();++i)check(std::isfinite(v[i])&&v[i]>=kParameters[i].minimum&&v[i]<=kParameters[i].maximum,"valid factory value");
   check(MatchFactoryPreset(v)==static_cast<int>(p),"factory recognition");
@@ -37,6 +39,17 @@ int main(){
     check(peak>.01&&peak<.98,"dual oscillator chord has output headroom");
     check(difference/sr>.01,"OSC2 contributes to new sound");check(stereo/sr>.01,"new sound has stereo width");
     std::cout<<presets[p].name<<" @ "<<sr<<" Hz chord peak "<<20*std::log10(peak)<<" dBFS\n";
+   }
+   if(sr==48000.f){
+    auto chord=std::make_unique<Rig>();configure(*chord,v);
+    const bool bass=std::string(presets[p].category)=="Bass"||std::string(presets[p].key)=="bass_init";
+    if(bass)chord->midi(0x90,36,110);
+    else if(v[size_t(ParameterId::VoiceMode)]>0)chord->midi(0x90,60,110);
+    else for(int note:{48,55,60,64})chord->midi(0x90,note,110);
+    double peak=0,energy=0;
+    for(int i=0;i<48000*6;++i){auto x=chord->process();check(std::isfinite(x.left)&&std::isfinite(x.right),"factory chord finite");peak=std::max(peak,double(std::max(std::abs(x.left),std::abs(x.right))));energy+=(x.left*x.left+x.right*x.right)*.5;}
+    check(peak>.001&&peak<.95,"factory phrase audible with headroom");
+    std::cout<<"Factory level: "<<presets[p].key<<" peak "<<20*std::log10(peak)<<" dBFS, six-second RMS "<<10*std::log10(energy/(48000*6))<<" dBFS\n";
    }
    s.midi(0x80,p==4?36:60,0);for(int i=0;i<sr*std::max(12.,1.+5.*v[4]/1000.);++i)s.process();check(s.synth.ActiveVoices()==0,"factory release finishes");
   }

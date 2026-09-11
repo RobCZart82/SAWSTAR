@@ -20,6 +20,13 @@ with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
 *Actual About window from the same development build, with the GYR monogram and both mottos.*
 
+## Built-in sounds
+
+The [embedded Factory library](docs/FACTORY_LIBRARY.md) contains **24 sounds**:
+seven dry Templates and 17 Lead, Pad, Pluck, Bass, Keys and Arp presets. Each has
+saved signal-flow information and searchable character tags. No separate bank
+installation is required. Final listening approval remains part of release QA.
+
 ## User presets
 
 The concept-based [preset browser](docs/USER_PRESETS.md) combines factory and user
