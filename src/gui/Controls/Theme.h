@@ -16,6 +16,12 @@ inline void DrawPanel(IGraphics& g,const IRECT& r,float radius=3){
  g.PathRoundRect(r,radius);g.PathFill(IPattern::CreateLinearGradient(r.L,r.T,r.R,r.B,{{IColor(255,32,41,46),0.f},{PanelColor,.45f},{IColor(255,23,30,34),1.f}}));
  g.DrawRoundRect(Border,r,radius);
 }
+// Inset layers keep light within control bounds: no blur buffers or spill into labels.
+inline void DrawActiveLight(IGraphics& g,const IRECT& r){
+ g.DrawRoundRect(IColor(14,54,170,226),r.GetPadded(-3),3,nullptr,6);
+ g.DrawRoundRect(IColor(28,54,170,226),r.GetPadded(-1.5f),3,nullptr,3);
+ g.DrawRoundRect(IColor(220,83,190,238),r.GetPadded(-.75f),3,nullptr,1);
+}
 inline void DrawGrid(IGraphics& g,const IRECT& r){
  for(int i=1;i<6;++i){float x=r.L+r.W()*i/6;g.DrawLine(IColor(255,25,41,48),x,r.T,x,r.B);}
  for(int i=1;i<4;++i){float y=r.T+r.H()*i/4;g.DrawLine(IColor(255,25,41,48),r.L,y,r.R,y);}
@@ -71,19 +77,21 @@ public:Knob(IRECT r,int id,const char* title):IVKnobControl(r,id,title,Style(),t
  // Reserve space inside the widget so the 270-degree dotted scale cannot touch labels.
  for(int i=0;i<=24;++i){const float angle=(-225.f+i*270.f/24.f)*.01745329252f;g.FillCircle(IColor(180,107,134,147),cx+std::cos(angle)*(radius+4.f),cy+std::sin(angle)*(radius+4.f),i%6==0?1.f:.7f);}
  g.FillCircle(IColor(100,0,0,0),cx,cy+2,radius+1);
+ g.DrawCircle(IColor(22,54,170,226),cx,cy,radius+1,nullptr,3);
  g.FillCircle(GetMouseIsOver()?IColor(255,25,37,44):IColor(255,17,25,30),cx,cy,radius);g.DrawCircle(IColor(255,69,89,99),cx,cy,radius,nullptr,1.5f);
- g.DrawArc(IColor(35,54,170,226),cx,cy,radius,-135,a,nullptr,6);
+ g.DrawArc(IColor(12,54,170,226),cx,cy,radius,-135,a,nullptr,8);
+ g.DrawArc(IColor(44,54,170,226),cx,cy,radius,-135,a,nullptr,6);
  g.DrawArc(Blue,cx,cy,radius,-135,a,nullptr,2);
  const float rad=(a-90)*.01745329252f;g.DrawLine(Text,cx+std::cos(rad)*radius*.55f,cy+std::sin(rad)*radius*.55f,cx+std::cos(rad)*radius*.8f,cy+std::sin(rad)*radius*.8f,nullptr,2);}
 };
 class Fader final:public IVSliderControl{
 public:Fader(IRECT r,int id,const char* title,EDirection dir=EDirection::Vertical):IVSliderControl(r,id,title,Style(),true,dir,DEFAULT_GEARING,8,3,true){}
  void DrawValue(IGraphics& g,bool)override{char value[32];const double v=GetParam()->Value();std::snprintf(value,sizeof(value),"%.1f",v);g.DrawText(mStyle.valueText,value,mValueBounds);}
- void DrawHandle(IGraphics& g,const IRECT& r)override{auto b=r.GetCentredInside(mDirection==EDirection::Vertical?17:10,mDirection==EDirection::Vertical?10:17);g.PathRoundRect(b,2);g.PathFill(IPattern::CreateLinearGradient(b.MW(),b.T,b.MW(),b.B,{{IColor(255,91,197,240),0.f},{Blue,.5f},{IColor(255,36,129,189),1.f}}));g.DrawRoundRect(IColor(255,110,205,242),b,2);}
+ void DrawHandle(IGraphics& g,const IRECT& r)override{auto b=r.GetCentredInside(mDirection==EDirection::Vertical?17:10,mDirection==EDirection::Vertical?10:17);g.DrawRoundRect(IColor(16,54,170,226),b.GetPadded(2),3,nullptr,3);g.DrawRoundRect(IColor(34,54,170,226),b.GetPadded(.5f),2,nullptr,2);g.PathRoundRect(b,2);g.PathFill(IPattern::CreateLinearGradient(b.MW(),b.T,b.MW(),b.B,{{IColor(255,91,197,240),0.f},{Blue,.5f},{IColor(255,36,129,189),1.f}}));g.DrawRoundRect(IColor(255,110,205,242),b,2);}
  IRECT GetTrackBounds()const{auto r=IVSliderControl::GetTrackBounds();return mDirection==EDirection::Vertical?IRECT(r.MW()-3,r.T,r.MW()+3,r.B):IRECT(r.L,r.MH()-3,r.R,r.MH()+3);}
  void DrawTrack(IGraphics& g,const IRECT&)override{const auto r=GetTrackBounds();
  g.FillRoundRect(IColor(255,17,46,65),r,1);g.DrawRoundRect(IColor(255,48,81,99),r,1);
- if(GetValue()>0){g.PathRect(r.FracRect(mDirection,float(GetValue())));g.PathFill(IPattern::CreateLinearGradient(r.L,r.B,r.R,r.T,{{IColor(255,28,94,134),0.f},{Blue,1.f}}));}
+ if(GetValue()>0){g.DrawRoundRect(IColor(18,54,170,226),r.FracRect(mDirection,float(GetValue())),1,nullptr,3);g.PathRect(r.FracRect(mDirection,float(GetValue())));g.PathFill(IPattern::CreateLinearGradient(r.L,r.B,r.R,r.T,{{IColor(255,28,94,134),0.f},{Blue,1.f}}));}
  for(int i=0;i<=8;++i){auto color=IColor(255,66,86,97);if(mDirection==EDirection::Vertical){float y=r.T+r.H()*i/8;g.DrawLine(color,r.L-6,y,r.L-2,y);g.DrawLine(color,r.R+2,y,r.R+6,y);}else{float x=r.L+r.W()*i/8;g.DrawLine(color,x,r.T-5,x,r.T-2);g.DrawLine(color,x,r.B+2,x,r.B+5);}}
  }
 
@@ -101,7 +109,7 @@ public:Curve(IRECT r,std::initializer_list<int> ids,bool envelope):IControl(r,id
 class Toggle final:public IControl{
  const char* label_;
 public:Toggle(IRECT r,int id,const char* label):IControl(r,id),label_(label){}
- void Draw(IGraphics& g)override{const bool on=GetValue()>.5;g.FillRoundRect(on?IColor(255,22,58,80):IColor(255,13,19,22),mRECT,3);g.DrawRoundRect(on||GetMouseIsOver()?Blue:IColor(255,67,87,99),mRECT,3,nullptr,on?1.5f:1.f);char text[80];std::snprintf(text,sizeof(text),"%s%s%s",label_,*label_?"  ":"",on?"ON":"OFF");g.DrawText(IText(11,on?Text:IColor(255,130,150,158)),text,mRECT);}
+ void Draw(IGraphics& g)override{const bool on=GetValue()>.5;g.FillRoundRect(on?IColor(255,22,58,80):IColor(255,13,19,22),mRECT,3);g.DrawRoundRect(on||GetMouseIsOver()?Blue:IColor(255,67,87,99),mRECT,3,nullptr,on?1.5f:1.f);if(on)DrawActiveLight(g,mRECT);char text[80];std::snprintf(text,sizeof(text),"%s%s%s",label_,*label_?"  ":"",on?"ON":"OFF");g.DrawText(IText(11,on?Text:IColor(255,130,150,158)),text,mRECT);}
  void OnMouseDown(float,float,const IMouseMod&)override{SetValue(GetValue()>.5?0:1);SetDirty(true);}
 };
 class Meter final:public IControl{
@@ -118,6 +126,7 @@ public:Meter(IRECT r,const std::atomic<float>& l,const std::atomic<float>& rt,co
   const bool lit=fill>float(cell)/cells;
   const IColor color=cell<14?IColor(255,75,207,127):cell<18?IColor(255,246,211,83):IColor(255,239,89,75);
   const IRECT segment(r.L+1,r.B-(cell+1)*height+1,r.R-1,r.B-cell*height-1);
+  if(lit)g.FillRect(IColor(35,color.R,color.G,color.B),segment.GetPadded(.7f));
   g.FillRect(lit?color:IColor(255,color.R/5,color.G/5,color.B/5),segment);
  }
  g.DrawRect(Border,r);
