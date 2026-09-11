@@ -6,11 +6,13 @@ An open-source, saw-focused synthesizer for direct sound design and learning.
 Built toward **iPlug2 + a custom SAWSTAR voice/synth engine + DaisySP primitives**,
 with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
-## Concept
+## Plugin screenshot
 
-![SAWSTAR GUI concept: MAIN, ADVANCED and PRESETS](docs/reference/SAWSTAR_GUI_Concept.png)
+![SAWSTAR Master GUI running in REAPER on macOS](docs/reference/SAWSTAR_Master_GUI_REAPER.png)
 
-*GUI concept — work in progress. The image shows the design vision, not an implemented plugin.*
+*Actual Master GUI 1 running in REAPER 7.79 on macOS, captured on 2026-09-11. The pre-FX waveform and stereo output meter show a live sound; the demonstration uses temporary edits to SuperSaw One.*
+
+[Master GUI details](docs/MASTER_GUI.md) · [Earlier design concept](docs/reference/SAWSTAR_GUI_Concept.png)
 
 ## User presets
 
