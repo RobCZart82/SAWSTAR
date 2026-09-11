@@ -9,6 +9,7 @@ credentials=[a.application_identity,a.installer_identity,a.notary_profile]
 if any(credentials) and not all(credentials):p.error('Signing requires both identities and a Keychain notary profile')
 root=pathlib.Path(__file__).resolve().parents[1];out=root/'dist';out.mkdir(exist_ok=True)
 def run(*args):subprocess.run([str(x) for x in args],check=True)
+run('lipo',a.bundle/'Contents/MacOS/SAWSTAR','-verify_arch','arm64','x86_64')
 with tempfile.TemporaryDirectory() as temp:
  t=pathlib.Path(temp);payload=t/'payload';dest=payload/'Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3'
  shutil.copytree(a.bundle,dest)

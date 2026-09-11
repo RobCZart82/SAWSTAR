@@ -21,3 +21,10 @@ executables = [p for p in build.rglob(name) if p.is_file() and "Debug" not in p.
 if len(executables) != 1:
     raise SystemExit(f"Expected one validator executable, found {executables}")
 subprocess.run([str(executables[0]), str(root / "build-plugin/out/SAWSTAR.vst3")], check=True)
+
+# Exercise both slices of a Universal validator/plugin on Apple Silicon runners.
+# This is translated x86_64 validation, not a substitute for native Intel host QA.
+if os.name != 'nt' and 'x86_64' in os.environ.get('SAWSTAR_MAC_ARCHS',''):
+    import platform
+    if platform.machine() == 'arm64':
+        subprocess.run(['arch','-x86_64',str(executables[0]),str(root/'build-plugin/out/SAWSTAR.vst3')],check=True)

@@ -62,8 +62,15 @@ jobs:
         run: python scripts/package-plugin.py build-plugin/out SAWSTAR-macos.zip
       - name: Verify Universal slices and build candidate installer
         run: |
-          lipo -verify_arch arm64 x86_64 build-plugin/out/SAWSTAR.vst3/Contents/MacOS/SAWSTAR
+          lipo build-plugin/out/SAWSTAR.vst3/Contents/MacOS/SAWSTAR -verify_arch arm64 x86_64
           python scripts/package-macos.py build-plugin/out/SAWSTAR.vst3
+      - name: Test system-wide package on disposable runner
+        run: |
+          test ! -e /Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3
+          sudo installer -pkg dist/SAWSTAR-1.0.0-rc2-macOS-Universal.pkg -target /
+          cmp build-plugin/out/SAWSTAR.vst3/Contents/MacOS/SAWSTAR /Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3/Contents/MacOS/SAWSTAR
+          test -f "/Library/Application Support/SAWSTAR/Documentation/manuals/SAWSTAR-User-Manual-EN.pdf"
+          test -f "/Library/Application Support/SAWSTAR/Documentation/manuals/SAWSTAR-User-Manual-HU.pdf"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: SAWSTAR-macos-universal-candidate

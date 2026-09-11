@@ -75,6 +75,8 @@ jobs:
           python scripts/check-windows-runtime.py "build-plugin/out/SAWSTAR.vst3/Contents/$folder/SAWSTAR.vst3" '${{ matrix.arch }}'
       - name: Build Windows installer
         run: ./scripts/package-windows.ps1 -Archive SAWSTAR-windows.zip -Arch ${{ matrix.arch }}
+      - name: Test installer and uninstaller on disposable runner
+        run: ./scripts/test-windows-installer.ps1 -Arch ${{ matrix.arch }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: SAWSTAR-windows-${{ matrix.arch }}-candidate
