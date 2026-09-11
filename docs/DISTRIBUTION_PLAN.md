@@ -30,3 +30,20 @@ are created, exported or committed by the workflow.
 Reference: GitHub runner availability and Inno Setup architecture rules:
 https://docs.github.com/en/actions/reference/runners/github-hosted-runners
 https://jrsoftware.org/ishelp/topic_archidentifiers.htm
+
+## Current Apple membership constraint
+
+On 2026-09-11 the developer confirmed that they do not have Apple Developer
+Program membership. Continue preparing unsigned macOS candidates; Developer ID
+signing/notarization is deferred until membership and credentials are available.
+This does not block source development or Windows packaging. No membership
+purchase or account enrollment is initiated by this plan.
+
+For a possible unsigned macOS release, explicitly label the package as not
+Developer ID signed/notarized and verify installation of an actual downloaded,
+quarantined package plus host loading on a clean test system. CI installation
+of a locally built PKG is not evidence of Gatekeeper acceptance. A DMG/PKG is
+packaging, not a substitute for signing. Do not disable system-wide security
+checks or promise that every host will load the unsigned plugin.
+
+Apple reference: https://developer.apple.com/developer-id/
