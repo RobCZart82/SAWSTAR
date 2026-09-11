@@ -8,9 +8,9 @@ with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
 ## Plugin screenshot
 
-![SAWSTAR Master GUI running in REAPER on macOS](docs/reference/SAWSTAR_Master_GUI_REAPER.png)
+![SAWSTAR Master GUI: MAIN, ADVANCED and PRESETS](docs/reference/SAWSTAR_Master_GUI_REAPER.png)
 
-*Actual Master GUI 1 running in REAPER 7.79 on macOS, captured on 2026-09-11. The pre-FX waveform and stereo output meter show a live sound; the demonstration uses temporary edits to SuperSaw One.*
+*Actual Master GUI 1 running in REAPER 7.79 on macOS, captured on 2026-09-11. MAIN, ADVANCED and PRESETS are cropped to the plugin only and stacked vertically. MAIN shows a live pre-FX waveform and stereo output meter using temporary edits to SuperSaw One; the other views show the saved preset. These are screenshots of the development build, not concept renders.*
 
 [Master GUI details](docs/MASTER_GUI.md) · [Earlier design concept](docs/reference/SAWSTAR_GUI_Concept.png)
 

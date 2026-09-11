@@ -46,3 +46,25 @@ implied by CI success.
 
 - [macOS build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34564119821)
 - [Windows build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34564119450)
+
+## Motto correction and actual three-page screenshot
+
+Build `ab3d0ecbf596934da9908e9fef586c16c962d5c8` restores the approved
+`The  Sounds  of  Trance` wording, shared by the footer on all pages and About.
+The larger footer typography is retained. The first public release is planned as
+1.0.0; this remains a 0.1.0 development build, not a published release.
+
+On 2026-09-11, this macOS build was installed and inspected in REAPER 7.79.
+The motto was verified in MAIN, ADVANCED, PRESETS and About. The README image
+contains authentic captures of the three main pages, cropped to the plugin
+surface and stacked in that order. No GUI content was painted or generated.
+MAIN uses temporary attack/release edits to SuperSaw One to capture the live
+scope and stereo meter; ADVANCED and PRESETS show the saved SuperSaw One sound.
+The test project was closed without saving changes.
+
+Both macOS and Windows VST3 Release builds passed all 34 foundation tests and
+all 47 VST3 validator checks. The installed macOS artifact's SHA-256 and ZIP
+integrity were verified before installation.
+
+- [macOS correction build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34566162945)
+- [Windows correction build](https://github.com/RobCZart82/SAWSTAR/actions/runs/34566162923)
