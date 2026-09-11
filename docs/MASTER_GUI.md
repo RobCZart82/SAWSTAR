@@ -17,7 +17,7 @@ features. MAIN retains its section color coding. ADVANCED remains neutral/blue.
   2 red. Unlit cells stay dim. Existing peak values and dB mapping are unchanged.
 - Clear inactive page buttons; color-coded saved-preset signal-flow diagrams.
 - Slightly larger spaced wordmark; permanent lower-right motto:
-  `TRANCE  •  HOUSE  •  AMBIENT  •  BEYOND`.
+  `The  Sounds  of  Trance` (double spaces between words).
 - The same motto beneath the first slogan in About, plus a compact vector
   rendition of the user's GYR monogram. No external bitmap dependency is added.
 

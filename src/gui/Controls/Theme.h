@@ -11,7 +11,7 @@ namespace sawstar::gui {
 using namespace iplug::igraphics;
 inline const IColor Text(255,225,234,238),Blue(255,54,170,226),PanelColor(255,27,34,38),Border(255,66,82,90);
 inline const IColor DisplayColor(255,12,21,26),Muted(255,149,169,180);
-inline constexpr const char* Motto="TRANCE  •  HOUSE  •  AMBIENT  •  BEYOND";
+inline constexpr const char* Motto="The  Sounds  of  Trance";
 inline void DrawPanel(IGraphics& g,const IRECT& r,float radius=3){
  g.PathRoundRect(r,radius);g.PathFill(IPattern::CreateLinearGradient(r.L,r.T,r.R,r.B,{{IColor(255,32,41,46),0.f},{PanelColor,.45f},{IColor(255,23,30,34),1.f}}));
  g.DrawRoundRect(Border,r,radius);

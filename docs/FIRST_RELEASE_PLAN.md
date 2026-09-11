@@ -5,6 +5,11 @@ bootstrap milestones are historical and do not imply that existing synthesis
 features must be implemented again. Completed DSP safety checks are recorded in
 DSP_SAFETY.md. No new concept renders are required.
 
+The first public release will be **1.0.0**, tagged **v1.0.0**. Current 0.1.0
+development builds are not that release. Set the version and actual release date
+when preparing the accepted release candidate; do not label a development build
+as a published release.
+
 1. **Finish engine lifecycle QA.** Audit remaining smoothing targets across host
    Reset/sample-rate changes and parameter restoration. Exercise automation,
    transport, offline rendering, note overlap, sustain, voice stealing, ARP and
@@ -48,7 +53,7 @@ DSP_SAFETY.md. No new concept renders are required.
    known limitations and changelog. Review bundled licenses/notices/fonts and
    preset redistribution rights. Decide and document signing/notarization and
    packaging requirements before publication; do not claim unsupported targets.
-8. **First public GitHub Release.** Choose the final version/tag, attach verified
+8. **First public GitHub Release — 1.0.0 / v1.0.0.** Attach verified
    macOS and Windows VST3 packages with embedded presets and checksums, publish
    release notes and installation instructions, and verify downloads and the
    plugin's Releases link. Publishing the release is a separate final action
