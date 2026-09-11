@@ -14,13 +14,13 @@ Captured from build `d37fe4b` on 11 September 2026; plugin interface only.*
 
 ## Download
 
-**1.0.0 is currently a pre-release candidate, not a published release.**
-Candidate artifacts are available from [GitHub Actions](https://github.com/RobCZart82/SAWSTAR/actions).
-The final installers will appear on [Releases](https://github.com/RobCZart82/SAWSTAR/releases)
-after platform acceptance. See the [candidate record](docs/RELEASE_CANDIDATE_2.md) and
-[macOS installation acceptance](docs/MACOS_INSTALL_ACCEPTANCE.md).
-RC3 packaging incorporates the red popup hover fix and updated guides.
-No public release date has been assigned yet.
+Download **SAWSTAR 1.0.0** from [GitHub Releases](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.0).
+
+**Recommended installers:** Windows x64 / ARM64 Setup EXE, or macOS Universal
+DMG containing the PKG installer. **Manual installation:** separate VST3 ZIPs
+are available for each target. All packages include English/Hungarian PDF guides
+and license notices. The installers are unsigned; read the installation guide
+before proceeding through platform security prompts.
 
 ## Features
 
@@ -36,14 +36,13 @@ No public release date has been assigned yet.
 ## System requirements
 
 VST3 host and graphics driver required. Build targets are Windows x64, Windows
-ARM64 and macOS Universal (Intel + Apple Silicon). Newly added targets are
-candidates until their builds and host tests are confirmed. Proposed minimums
+ARM64 and macOS Universal (Intel + Apple Silicon). Build minimums
 are distinct from verified support: see [System requirements](docs/SYSTEM_REQUIREMENTS.md).
 Users do not need Visual Studio, CMake, Git, a compiler or the VST3 SDK.
 
 ## Installation
 
-Use a matching candidate installer or copy the full VST3 bundle manually.
+Use a matching installer or copy the full VST3 bundle manually.
 Close the host before updating and preserve your user presets.
 See [Installation](docs/INSTALLATION.md) for locations, architecture matching,
 unsigned-package status and avoiding duplicate macOS installations.
@@ -56,8 +55,8 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Factory library](docs/FACTORY_LIBRARY.md)
 - [Changelog](CHANGELOG.md) and [release preparation](docs/DISTRIBUTION_PLAN.md)
 
-The English and Hungarian guides now describe the 1.0.0 candidate installers.
-The screenshots show the current RC3 build; 1.0.0 has not yet been published.
+The English and Hungarian guides describe 1.0.0. Screenshots were captured
+from RC3; their build labels reflect that capture, not the final release binary.
 
 ## Building from source
 

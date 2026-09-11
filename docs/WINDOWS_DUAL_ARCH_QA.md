@@ -1,7 +1,9 @@
 # Windows x64 / ARM64 coexistence acceptance
 
-Status: pending execution on Windows 11 ARM64; this is not covered by the
-existing single-architecture install/uninstall CI jobs.
+Status: project owner reported successful joint installation/uninstallation
+on 11 September 2026. A security warning appeared, and proceeding allowed
+normal operation. Exact OS/build hashes and each sequence below were not
+recorded separately; this is user-reported acceptance, not an automated report.
 
 Use a disposable system with both new installers from the same commit.
 Preserve a user preset as a sentinel. Verify these sequences:

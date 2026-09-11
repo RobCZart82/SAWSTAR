@@ -1,0 +1,25 @@
+name: Publish final release
+on:
+  push:
+    branches: [main]
+    paths: [release.json]
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: sawstar-final-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify matching builds and publish complete release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: python scripts/publish-release.py
