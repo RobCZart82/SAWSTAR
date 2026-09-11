@@ -29,7 +29,7 @@ inline void DrawGrid(IGraphics& g,const IRECT& r){
 }
 inline IText EntryStyle(int size){return IText(size,Text).WithTEColors(IColor(255,12,19,24),Text);}
 inline void StyleEntry(IGraphics* g){if(auto* entry=g->GetTextEntryControl())if(entry->EditInProgress()){auto style=entry->GetText();style.mFGColor=Text;style.mTextEntryBGColor=IColor(255,12,19,24);style.mTextEntryFGColor=Blue;entry->SetText(style);}}
-inline void ConfigurePopups(IGraphics* g){g->AttachPopupMenuControl(IText(14,Text));auto* popup=g->GetPopupMenuControl();popup->SetPanelColor(IColor(255,16,23,29));popup->SetCellBackgroundColor(IColor(255,16,23,29));popup->SetItemColor(Text);popup->SetItemMouseoverColor(IColor(255,25,65,88));popup->SetDisabledItemColor(IColor(255,116,135,145));popup->SetSeparatorColor(Border);popup->SetMenuForcedSouth(true);}
+inline void ConfigurePopups(IGraphics* g){g->AttachPopupMenuControl(IText(14,Text));auto* popup=g->GetPopupMenuControl();popup->SetPanelColor(IColor(255,16,23,29));popup->SetCellBackgroundColor(IColor(255,16,23,29));popup->SetItemColor(Text);popup->SetItemMouseoverColor(IColor(255,255,100,100));popup->SetDisabledItemColor(IColor(255,116,135,145));popup->SetSeparatorColor(Border);popup->SetMenuForcedSouth(true);}
 // Vector heart avoids missing Unicode glyphs in platform fonts.
 inline void DrawFavorite(IGraphics& g,const IRECT& r,bool selected){
  const float x=r.MW(),y=r.MH();g.PathClear();g.PathMoveTo(x,y+6);
