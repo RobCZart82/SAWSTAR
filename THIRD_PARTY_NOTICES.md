@@ -19,3 +19,6 @@ Plugin artifacts also contain the notices for Steinberg VST3 SDK and its base,
 pluginterfaces and public.sdk components, WDL, NanoVG, NanoSVG, MetalNanoVG,
 FontStash, STB, glad and Khronos headers. See third_party/licenses and
 docs/THIRD_PARTY.md for exact versions and scope.
+
+The PDF manuals embed DejaVu Sans subsets. Their Bitstream/Arev notices are
+in third_party/licenses/DejaVu-NOTICE.txt (licenses/DejaVu-NOTICE.txt in packages).

@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>SAWSTAR</string>
 	<key>CFBundleGetInfoString</key>
-	<string>SAWSTAR v0.1.0 Copyright 2026 SAWSTAR contributors</string>
+	<string>SAWSTAR v1.0.0 Copyright 2026 SAWSTAR contributors</string>
 	<key>CFBundleIdentifier</key>
 	<string>io.github.robczart82.sawstar</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.1.0</string>
+	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
 	<string>SwSt</string>
 	<key>CFBundleVersion</key>
-	<string>0.1.0</string>
+	<string>1.0.0</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>LSMinimumSystemVersion</key>

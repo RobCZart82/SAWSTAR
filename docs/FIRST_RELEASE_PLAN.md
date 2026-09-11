@@ -5,8 +5,8 @@ bootstrap milestones are historical and do not imply that existing synthesis
 features must be implemented again. Completed DSP safety checks are recorded in
 DSP_SAFETY.md. No new concept renders are required.
 
-The first public release will be **1.0.0**, tagged **v1.0.0**. Current 0.1.0
-development builds are not that release. Set the version and actual release date
+The first public release will be **1.0.0**, tagged **v1.0.0**. The source now targets 1.0.0 pre-release candidates;
+previous 0.1.0 development builds are not that release. Set the version and actual release date
 when preparing the accepted release candidate; do not label a development build
 as a published release.
 
@@ -68,3 +68,8 @@ any resulting adjustments, before declaring the release candidate frozen.
 AU/CLAP, additional platforms, large modulation expansions and an automatic
 updater are not required for the first VST3 release. The instrument remains
 focused on approachable leads, pads and plucks.
+
+Candidate preparation: version identifiers aligned at 1.0.0; public date remains
+unset. Packages include both development-edition manuals, installation notes,
+license notices, an internal hash manifest and an external SHA-256 sidecar.
+Final manual metadata, signing/support policy and candidate acceptance remain open.

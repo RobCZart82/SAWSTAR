@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(SAWSTAR VERSION 0.1.0 LANGUAGES CXX)
+project(SAWSTAR VERSION 1.0.0 LANGUAGES CXX)
 
 option(SAWSTAR_BUILD_PLUGIN "Build the iPlug2 VST3 development shell" OFF)
 if(SAWSTAR_BUILD_PLUGIN)

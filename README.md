@@ -6,6 +6,21 @@ An open-source, saw-focused synthesizer for direct sound design and learning.
 Built toward **iPlug2 + a custom SAWSTAR voice/synth engine + DaisySP primitives**,
 with a custom [7-Saw unison layer](docs/SEVEN_SAW.md).
 
+## 1.0.0 release preparation
+
+The source is now a **1.0.0 pre-release candidate**, not a published v1.0.0.
+See [candidate notes](docs/RELEASE_NOTES_1.0.0.md) and
+[installation instructions](docs/INSTALLATION.md).
+
+### User manuals
+
+- [English PDF](docs/manuals/SAWSTAR-User-Manual-EN.pdf)
+- [Magyar használati útmutató (PDF)](docs/manuals/SAWSTAR-User-Manual-HU.pdf)
+
+Both guides are the development edition; final edition metadata and screenshots
+will follow candidate acceptance. The current screenshots below remain honestly
+labelled development captures.
+
 ## Plugin screenshot
 
 ![SAWSTAR Master GUI: MAIN, ADVANCED and PRESETS](docs/reference/SAWSTAR_Master_GUI_REAPER.png)
