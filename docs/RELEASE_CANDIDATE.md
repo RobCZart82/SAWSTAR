@@ -34,9 +34,17 @@ macOS signature inspection reports an ad-hoc linker signature, no TeamIdentifier
 and no sealed resources. This is not Developer ID signing/notarization. The Windows PE certificate directory is empty (no embedded Authenticode
 signature). Installed user plugins were not replaced.
 
+## User-reported Windows acceptance
+
+On 2026-09-11, the user reported "Windows teszt ok" following delivery of RC1.
+Record this as a successful user-reported Windows manual test for this candidate.
+The Windows version, host version and individual test cases were not specified;
+this does not establish a clean-install result or a minimum supported OS version.
+
 ## Still required for publication
 
-- Final clean-install and musical/GUI acceptance of the candidate binaries.
+- Final macOS candidate acceptance and clean-install coverage. Windows manual
+  acceptance was reported above; detailed test coverage remains unspecified.
 - Supported minimum OS versions and signing/distribution policy.
 - Final manual edition metadata and screenshots (current PDFs are the explicitly
   labelled 0.1.0 development edition; their function descriptions cover this
