@@ -12,7 +12,9 @@ not frequency. No parameter, mouse action or saved preset field is added.
 
 ## Reading the scope
 
-The view spans 32 ms at normal audio sample rates (tested through 192 kHz). A rising
+The view spans 32 ms at normal audio sample rates (tested through 192 kHz).
+At 384 kHz, the bounded capture window spans approximately 21.3 ms; the label
+is calculated from the actual window size and sample rate. A rising
 zero crossing with 2% hysteresis stabilizes periodic sounds; absent a trigger, the
 latest window still draws. SuperSaw, chords and noise naturally remain complex.
 Native samples are retained without smoothing or decimation. Per-column extrema
