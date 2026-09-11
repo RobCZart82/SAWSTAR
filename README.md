@@ -9,8 +9,8 @@ clear signal flow and a preset browser that explains saved sounds.
 
 ![SAWSTAR: MAIN, ADVANCED and PRESETS](docs/reference/SAWSTAR_Master_GUI_REAPER.png)
 
-*Real development-plugin screenshots in REAPER. These captures precede the RC2
-wordmark/About/display-timing refinements; final release captures are pending.*
+*Real SAWSTAR 1.0.0 RC3 screenshots in REAPER: MAIN, ADVANCED and PRESETS.
+Captured from build `d37fe4b` on 11 September 2026; plugin interface only.*
 
 ## Download
 
@@ -57,7 +57,7 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Changelog](CHANGELOG.md) and [release preparation](docs/DISTRIBUTION_PLAN.md)
 
 The English and Hungarian guides now describe the 1.0.0 candidate installers.
-The final screenshots will be captured from the accepted release build.
+The screenshots show the current RC3 build; 1.0.0 has not yet been published.
 
 ## Building from source
 
@@ -70,7 +70,7 @@ Historical implementation notes are indexed by the [development history](docs/DE
 
 ![SAWSTAR About](docs/reference/SAWSTAR_About_REAPER.png)
 
-*Real pre-RC2 About capture. A new capture will reflect the centered developer credit.*
+*Actual RC3 About window, build `d37fe4b`, with the centered developer credit.*
 
 ## License
 
