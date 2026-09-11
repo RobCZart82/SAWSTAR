@@ -39,8 +39,18 @@ jobs:
         run: python scripts/benchmark-audio.py
 
   vst3:
-    name: VST3 shell / Release
-    runs-on: windows-2022
+    name: VST3 / ${{ matrix.arch }} / Release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-2022
+          - arch: ARM64
+            runner: windows-11-arm
+    runs-on: ${{ matrix.runner }}
+    env:
+      SAWSTAR_WINDOWS_ARCH: ${{ matrix.arch }}
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -49,7 +59,7 @@ jobs:
       - name: Fetch pinned plugin dependencies
         run: python scripts/bootstrap-plugin.py
       - name: Configure VST3 shell
-        run: cmake -S . -B build-plugin -DCMAKE_BUILD_TYPE=Release -DSAWSTAR_BUILD_PLUGIN=ON -DBUILD_TESTING=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+        run: cmake -S . -B build-plugin -A ${{ matrix.arch }} -DCMAKE_BUILD_TYPE=Release -DSAWSTAR_BUILD_PLUGIN=ON -DBUILD_TESTING=ON -DIPLUG_DEPLOY_PLUGINS=OFF
       - name: Build VST3 and parameter checks
         run: cmake --build build-plugin --config Release --parallel 3
       - name: Test foundation
@@ -58,10 +68,19 @@ jobs:
         run: python scripts/validate-plugin.py
       - name: Package candidate, manuals and notices
         run: python scripts/package-plugin.py build-plugin/out SAWSTAR-windows.zip
+      - name: Audit architecture and static runtime
+        shell: pwsh
+        run: |
+          $folder = if ('${{ matrix.arch }}' -eq 'ARM64') { 'arm64-win' } else { 'x86_64-win' }
+          python scripts/check-windows-runtime.py "build-plugin/out/SAWSTAR.vst3/Contents/$folder/SAWSTAR.vst3" '${{ matrix.arch }}'
+      - name: Build Windows installer
+        run: ./scripts/package-windows.ps1 -Archive SAWSTAR-windows.zip -Arch ${{ matrix.arch }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: SAWSTAR-windows-candidate
+          name: SAWSTAR-windows-${{ matrix.arch }}-candidate
           path: |
             SAWSTAR-windows.zip
             SAWSTAR-windows.zip.sha256
+            dist/*Setup.exe
+            dist/*Setup.exe.sha256
           if-no-files-found: error

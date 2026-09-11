@@ -39,7 +39,9 @@ jobs:
         run: python scripts/benchmark-audio.py
 
   vst3:
-    name: VST3 shell / Release
+    name: VST3 Universal / Release
+    env:
+      SAWSTAR_MAC_ARCHS: "arm64;x86_64"
     runs-on: macos-14
     timeout-minutes: 25
     steps:
@@ -49,7 +51,7 @@ jobs:
       - name: Fetch pinned plugin dependencies
         run: python scripts/bootstrap-plugin.py
       - name: Configure VST3 shell
-        run: cmake -S . -B build-plugin -DCMAKE_BUILD_TYPE=Release -DSAWSTAR_BUILD_PLUGIN=ON -DBUILD_TESTING=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+        run: cmake -S . -B build-plugin "-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_BUILD_TYPE=Release -DSAWSTAR_BUILD_PLUGIN=ON -DBUILD_TESTING=ON -DIPLUG_DEPLOY_PLUGINS=OFF
       - name: Build VST3 and parameter checks
         run: cmake --build build-plugin --config Release --parallel 3
       - name: Test foundation
@@ -58,10 +60,17 @@ jobs:
         run: python scripts/validate-plugin.py
       - name: Package candidate, manuals and notices
         run: python scripts/package-plugin.py build-plugin/out SAWSTAR-macos.zip
+      - name: Verify Universal slices and build candidate installer
+        run: |
+          lipo -verify_arch arm64 x86_64 build-plugin/out/SAWSTAR.vst3/Contents/MacOS/SAWSTAR
+          python scripts/package-macos.py build-plugin/out/SAWSTAR.vst3
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: SAWSTAR-macos-candidate
+          name: SAWSTAR-macos-universal-candidate
           path: |
             SAWSTAR-macos.zip
             SAWSTAR-macos.zip.sha256
+            dist/*.pkg
+            dist/*.dmg
+            dist/*.sha256
           if-no-files-found: error

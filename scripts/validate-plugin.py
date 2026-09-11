@@ -6,9 +6,14 @@ import os
 root = Path(__file__).resolve().parents[1]
 sdk = root / "third_party/iPlug2/Dependencies/IPlug/VST3_SDK"
 build = root / "build-validator"
+extra=[]
+if os.name=="nt" and os.environ.get("SAWSTAR_WINDOWS_ARCH"):
+    extra += ["-A",os.environ["SAWSTAR_WINDOWS_ARCH"]]
+if os.environ.get("SAWSTAR_MAC_ARCHS"):
+    extra += ["-DCMAKE_OSX_ARCHITECTURES="+os.environ["SAWSTAR_MAC_ARCHS"],"-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0"]
 subprocess.run(["cmake", "-S", str(sdk), "-B", str(build),
                 "-DCMAKE_BUILD_TYPE=Release", "-DSMTG_ENABLE_VSTGUI_SUPPORT=OFF",
-                "-DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=OFF"], check=True)
+                "-DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=OFF"]+extra, check=True)
 subprocess.run(["cmake", "--build", str(build), "--config", "Release",
                 "--target", "validator", "--parallel", "3"], check=True)
 name = "validator.exe" if os.name == "nt" else "validator"

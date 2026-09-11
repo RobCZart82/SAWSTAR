@@ -23,9 +23,15 @@ set_target_properties(SAWSTAR-vst3 PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/out")
 # Keep the SDK's Windows bundle layout (the generic properties above are macOS only).
 if(WIN32)
+  if(CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+    set(_sawstar_win_arch "arm64-win")
+  else()
+    set(_sawstar_win_arch "x86_64-win")
+  endif()
+  target_compile_definitions(SAWSTAR-vst3 PRIVATE WINVER=0x0A00 _WIN32_WINNT=0x0A00)
   set_target_properties(SAWSTAR-vst3 PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/out/SAWSTAR.vst3/Contents/x86_64-win"
-    LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/out/SAWSTAR.vst3/Contents/x86_64-win")
+    LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/out/SAWSTAR.vst3/Contents/${_sawstar_win_arch}"
+    LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/out/SAWSTAR.vst3/Contents/${_sawstar_win_arch}")
 endif()
 
 # Embed an unchanged OFL font for the About wordmark; no PNG texture is needed.

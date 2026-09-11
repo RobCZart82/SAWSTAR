@@ -22,3 +22,7 @@ docs/THIRD_PARTY.md for exact versions and scope.
 
 The PDF manuals embed DejaVu Sans subsets. Their Bitstream/Arev notices are
 in third_party/licenses/DejaVu-NOTICE.txt (licenses/DejaVu-NOTICE.txt in packages).
+
+Windows installers use Inno Setup; its terms are included in
+third_party/licenses/InnoSetup-LICENSE.txt. This does not change the SAWSTAR
+source-code license.

@@ -26,7 +26,7 @@ def package(bundle_parent, output):
         if p.is_file():
             files['licenses/' + p.relative_to(root / 'third_party/licenses').as_posix()] = p
     for name in ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'docs/INSTALLATION.md',
-                 'docs/RELEASE_NOTES_1.0.0.md', 'docs/manuals/README.md',
+                 'docs/RELEASE_NOTES_1.0.0.md', 'docs/SYSTEM_REQUIREMENTS.md', 'docs/manuals/README.md',
                  'docs/manuals/SAWSTAR-User-Manual-EN.pdf',
                  'docs/manuals/SAWSTAR-User-Manual-HU.pdf']:
         p = root / name
