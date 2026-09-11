@@ -53,6 +53,7 @@ public:
   int ActiveVoices() const;
 private:
   StereoSample preFX_{};
+  uint16_t panicChannels_=0;
   struct Voice {
     SevenSaw osc, osc2;
     SubOscillator sub;

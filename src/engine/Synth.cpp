@@ -4,7 +4,7 @@
 #include <cmath>
 namespace sawstar {
 void Synth::Reset(double rate) {
-  initialControlsPending_=true;
+  initialControlsPending_=true;panicChannels_=0;preFX_={};
   const float sr = SafeSampleRate(rate);
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
   sustain_.fill(false);downCounts_.fill(0);heldKeys_=0; age_ = 0; gain_ = 0;
@@ -154,6 +154,15 @@ void Synth::Midi(int status, int note, int value) {
   const int channel = status & 15, kind = status & 240;
   if (note < 0 || note > 127 || value < 0 || value > 127) return;
   const int index=channel*128+note;
+  // Shared FX can be cleared only after every MIDI channel has been silenced.
+  // A new note starts a new panic sequence, preserving other-channel tails.
+  if(kind==0x90&&value>0)panicChannels_=0;
+  if(kind==0xb0&&note==120){
+    panicChannels_|=static_cast<uint16_t>(1u<<channel);
+    if(panicChannels_==0xffff){
+      chorus_.Clear();delay_.Clear();reverb_.Clear();preFX_={};panicChannels_=0;
+    }
+  }
   const bool firstKey=heldKeys_==0;
   if(kind==0x90&&value>0){
     auto& count=downCounts_[index];

@@ -59,10 +59,14 @@ private:
   double rate_=44100;
 };
 
-// A fixed 32 ms view, rising zero-crossing trigger with a small hysteresis.
+// A nominal 32 ms view (capacity-limited at high sample rates), with a rising
+// zero-crossing trigger and a small hysteresis.
 // Keep the original samples; the renderer uses per-pixel extrema at high pitches.
+inline unsigned ScopeWindowSamples(double rate){
+  return static_cast<unsigned>(std::clamp(rate*.032,2.,double(Scope::Capacity/2)));
+}
 inline unsigned ScopeStart(const Scope::Frame& f,unsigned& length){
-  length=std::min(f.count,static_cast<unsigned>(std::clamp(f.rate*.032,2.,double(Scope::Capacity/2))));
+  length=std::min(f.count,ScopeWindowSamples(f.rate));
   if(length<2)return 0;
   const unsigned latest=f.count-length;
   const unsigned begin=latest>length?latest-length:0;

@@ -10,6 +10,8 @@ namespace sawstar {
 // Buffers allocate in Init only; sample processing and parameter updates do not allocate.
 class Reverb {
 public:
+ // Audio-thread panic: discard history without reallocating or changing settings.
+ void Clear(){write_=valid_=0;low_.fill(0);}
  void Init(float sr){
   sr_=std::isfinite(sr)?std::clamp(sr,8000.f,384000.f):44100.f;
   for(auto& b:buffer_)b.assign(static_cast<size_t>(sr_*.13f)+2,0);

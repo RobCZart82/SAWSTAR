@@ -44,4 +44,15 @@ int main(){
   }
   a.Midi(0xb0,120,0);check(a.Process()==0,"panic remains silent");
  }
+ // Shared FX must survive a different channel's CC120, but not global panic.
+ auto wetSynth=std::make_unique<sawstar::Synth>();auto& fx=*wetSynth;
+ fx.Reset(48000);fx.SetParameters(0,1,10,1,10);
+ fx.SetChorus(true,50,.4f,50);fx.SetDelay(true,70,100,80,6000,false,false,3,120);fx.SetReverb(true,60,50,5,6000);
+ fx.Midi(0x91,60,127);for(int i=0;i<48000;++i)fx.ProcessStereo();
+ fx.Midi(0xb0,120,0);check(fx.Held(60),"channel panic preserves other channel");
+ double energy=0;for(int i=0;i<1000;++i){auto v=fx.ProcessStereo();energy+=v.left*v.left+v.right*v.right;}check(energy>0,"other channel still audible");
+ for(int ch=0;ch<16;++ch)fx.Midi(0xb0|ch,120,0);
+ for(int i=0;i<12000;++i){auto v=fx.ProcessStereo();check(v.left==0&&v.right==0,"global panic discards all effect history");}
+ fx.Midi(0x90,64,100);energy=0;for(int i=0;i<16000;++i){auto v=fx.ProcessStereo();energy+=v.left*v.left+v.right*v.right;}check(energy>0,"sound resumes after panic");
+
 }

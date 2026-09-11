@@ -27,5 +27,7 @@ int main(){
  // Reset touches only producer-owned state, while the consumer may drain.
  scope->Reset(96000);for(int i=0;i<10000;++i){scope->Push(.5f);if(i%4000==0)scope->Latest(*frame);}scope->Latest(*frame);
  check(frame->rate==96000);for(unsigned i=0;i<frame->count;++i)check(frame->samples[i]==.5f);
+ check(sawstar::ScopeWindowSamples(384000)==8192);
+ check(std::abs(1000.*sawstar::ScopeWindowSamples(384000)/384000.-21.333333)<.00001);
  std::cout<<"Scope native capture, trigger, queue saturation, concurrency and reset passed\n";
 }

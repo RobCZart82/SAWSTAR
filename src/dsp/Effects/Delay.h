@@ -8,6 +8,8 @@ namespace sawstar {
 // Original SAWSTAR stereo delay. Storage is prepared on Reset, never in Process/Set.
 class Delay {
 public:
+ // Audio-thread panic: discard history without reallocating or changing settings.
+ void Clear(){write_=valid_=0;low_[0]=low_[1]=0;}
  void Init(float sr){
   sr_=std::isfinite(sr)?std::clamp(sr,8000.f,384000.f):44100.f;
   for(auto& b:buffer_)b.assign(static_cast<size_t>(sr_*2)+2,0);

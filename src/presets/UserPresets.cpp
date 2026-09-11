@@ -11,7 +11,7 @@
 #endif
 
 namespace sawstar {
-void SaveUserPreset(const fs::path& path,const Snapshot& values) {
+static void SaveUserPresetUnlocked(const fs::path& path,const Snapshot& values) {
   const auto bytes=EncodeState(values);
   if(!path.parent_path().empty())fs::create_directories(path.parent_path());
 #ifdef _WIN32
@@ -86,21 +86,6 @@ bool ValidPresetName(const std::string& s) {
   if(base=="con"||base=="prn"||base=="aux"||base=="nul"||base=="conin$"||base=="conout$")return false;
   if(base.rfind("com",0)==0||base.rfind("lpt",0)==0){auto n=base.substr(3);if((n.size()==1&&n[0]>='1'&&n[0]<='9')||n==u8"\u00b9"||n==u8"\u00b2"||n==u8"\u00b3")return false;}
   return true;
-}
-fs::path RenameUserPreset(const fs::path& source,const std::string& name) {
-  if(!ValidPresetName(name))throw std::runtime_error("Use a valid preset name of up to 80 characters. Shorten very long names.");
-  auto target=source.parent_path()/fs::u8path(name+".sawstar");if(target==source)return source;
-  if(fs::exists(target)){
-    if(Fold(target.filename().u8string())!=Fold(source.filename().u8string())||!fs::equivalent(source,target))throw std::runtime_error("That name already exists.");
-    // On case-insensitive volumes this is the same file, not an overwrite.
-    fs::rename(source,target);
-  }else{
-    // Link creation is exclusive: a concurrent writer cannot be overwritten.
-    fs::create_hard_link(source,target);
-    try{if(!fs::remove(source))throw std::runtime_error("Cannot remove old preset name.");}
-    catch(...){std::error_code ignored;fs::remove(target,ignored);throw;}
-  }
-  return target;
 }
 namespace {
 class FavoritesLock {
@@ -192,11 +177,48 @@ void ReplaceFavorites(const fs::path& root,const std::set<std::string>& values){
   }catch(...){if(fd>=0)closeFile(fd);std::error_code ignored;fs::remove(temp,ignored);throw;}
 }
 }
+namespace {
+class PresetMutationLock {
+  inline static std::mutex mutex_;
+  std::unique_lock<std::mutex> local_{mutex_};
+  FavoritesLock file_;
+public:
+  explicit PresetMutationLock(const fs::path& path)
+    :file_((path.parent_path().empty()?fs::path("."):path.parent_path())/".sawstar-save.lock"){}
+};
+}
+void SaveUserPreset(const fs::path& path,const Snapshot& values){
+  if(!path.parent_path().empty())fs::create_directories(path.parent_path());
+  PresetMutationLock lock(path);
+  SaveUserPresetUnlocked(path,values);
+}
+fs::path RenameUserPreset(const fs::path& source,const std::string& name) {
+  PresetMutationLock lock(source);
+  if(!ValidPresetName(name))throw std::runtime_error("Use a valid preset name of up to 80 characters. Shorten very long names.");
+  auto target=source.parent_path()/fs::u8path(name+".sawstar");if(target==source)return source;
+  if(fs::exists(target)){
+    if(Fold(target.filename().u8string())!=Fold(source.filename().u8string())||!fs::equivalent(source,target))throw std::runtime_error("That name already exists.");
+    // On case-insensitive volumes this is the same file, not an overwrite.
+    fs::rename(source,target);
+  }else{
+    // Link creation is exclusive: a concurrent writer cannot be overwritten.
+    fs::create_hard_link(source,target);
+    try{if(!fs::remove(source))throw std::runtime_error("Cannot remove old preset name.");}
+    catch(...){std::error_code ignored;fs::remove(target,ignored);throw;}
+  }
+  return target;
+}
+fs::path ArchiveUserPreset(const fs::path& source){
+  PresetMutationLock lock(source);
+  auto target=source;target+=".deleted";
+  for(int i=1;fs::exists(target);++i){target=source;target+=".deleted-"+std::to_string(i);}
+  fs::rename(source,target);
+  return target;
+}
 fs::path OverwriteUserPreset(const fs::path& path,const Snapshot& expected,const Snapshot& values){
   if(!PresetExtension(path)||!ValidPresetName(path.stem().u8string()))throw std::runtime_error("Invalid user preset path.");
-  static std::mutex mutex;std::lock_guard<std::mutex> local(mutex);
+  PresetMutationLock lock(path);
   const auto parent=path.parent_path().empty()?fs::path("."):path.parent_path();
-  FavoritesLock lock(parent/".sawstar-save.lock");
   if(!fs::is_regular_file(fs::symlink_status(path)))throw std::runtime_error("Preset is missing or is not a regular file. Use Save As.");
   if(ReadUserPreset(path)!=expected)throw std::runtime_error("Preset changed on disk. Reload it or use Save As to keep your edits.");
   static std::atomic<unsigned long long> serial{0};
@@ -209,7 +231,7 @@ fs::path OverwriteUserPreset(const fs::path& path,const Snapshot& expected,const
   const auto temp=parent/(".sawstar-save-"+token+".tmp");
   const auto backupDir=parent/".sawstar-backups";
   const auto backup=backupDir/token/path.filename();
-  SaveUserPreset(temp,values);
+  SaveUserPresetUnlocked(temp,values);
   try{
     fs::create_directories(backup.parent_path());
     if(!fs::copy_file(path,backup,fs::copy_options::none))throw std::runtime_error("Cannot create preset backup.");

@@ -37,5 +37,15 @@ int main(){using namespace sawstar;auto root=fs::temp_directory_path()/("sawstar
  rejected=false;try{OverwriteUserPreset(blocked/"Sound.sawstar",values,changed);}catch(...){rejected=true;}check(rejected&&ReadUserPreset(blocked/"Sound.sawstar")==values);
  for(const auto& f:fs::directory_iterator(blocked))check(f.path().extension()!=".tmp");
  rejected=false;try{OverwriteUserPreset(root/"missing.sawstar",values,changed);}catch(...){rejected=true;}check(rejected&&!fs::exists(root/"missing.sawstar"));
+ // Save/Rename/Delete share one transaction order; no resurrected old name.
+ for(bool archive:{false,true})for(int round=0;round<32;++round){
+  auto dir=root/(std::string(archive?"delete":"rename")+std::to_string(round));
+  auto source=dir/"Old.sawstar";SaveUserPreset(source,values);
+  std::atomic<bool> go{false};bool saved=false,moved=false;fs::path destination;
+  std::thread save([&]{while(!go.load())std::this_thread::yield();try{OverwriteUserPreset(source,values,changed);saved=true;}catch(const std::exception&){} });
+  std::thread move([&]{while(!go.load())std::this_thread::yield();try{destination=archive?ArchiveUserPreset(source):RenameUserPreset(source,"New");moved=true;}catch(const std::exception&){} });
+  go=true;save.join();move.join();check(moved&&!fs::exists(source));
+  check(ReadUserPreset(destination)==(saved?changed:values));
+ }
  auto bad=root/"broken.sawstar";{std::ofstream out(bad);out<<"not a preset";}rejected=false;try{ReadUserPreset(bad);}catch(...){rejected=true;}check(rejected);fs::remove_all(root);std::cout<<"User preset lifecycle passed\n";
  }catch(const std::exception& e){fs::remove_all(root);std::cerr<<e.what()<<'\n';return 1;} }

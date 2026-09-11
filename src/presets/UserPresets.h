@@ -35,6 +35,6 @@ void SaveUserPreset(const fs::path& path,const Snapshot& values);
 fs::path OverwriteUserPreset(const fs::path& path,const Snapshot& expected,const Snapshot& values);
 inline std::vector<fs::path> ListUserPresets(const fs::path& folder){std::vector<fs::path> result;if(!fs::exists(folder))return result;for(const auto& f:fs::directory_iterator(folder))if(f.is_regular_file()&&PresetExtension(f.path()))result.push_back(f.path());std::sort(result.begin(),result.end());return result;}
 fs::path RenameUserPreset(const fs::path& source,const std::string& name);
-inline fs::path ArchiveUserPreset(const fs::path& source){auto target=source;target+=".deleted";for(int i=1;fs::exists(target);++i){target=source;target+=".deleted-"+std::to_string(i);}fs::rename(source,target);return target;}
+fs::path ArchiveUserPreset(const fs::path& source);
 struct UserPresetSelection {fs::path path;std::string name="My Sound",status;Snapshot saved{};bool active=false;};
 }

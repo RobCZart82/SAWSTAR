@@ -8,6 +8,8 @@ namespace sawstar {
 // Original SAWSTAR stereo chorus. No feedback, allocation or shared state.
 class Chorus {
 public:
+ // Audio-thread panic: discard history without reallocating or changing settings.
+ void Clear(){for(auto& b:buffer_)b.fill(0);write_=0;}
  void Init(float sampleRate) {
   rate_=std::isfinite(sampleRate)?std::clamp(sampleRate,8000.f,384000.f):44100.f;
   for(auto& b:buffer_)b.fill(0);

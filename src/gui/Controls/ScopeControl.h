@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #pragma once
+#include <cstdio>
 #include "gui/Controls/Theme.h"
 #include "visual/Scope.h"
 namespace sawstar::gui {
@@ -42,7 +43,8 @@ public:
       }
     }
     g.DrawRoundRect(Border,r,3);
-    g.DrawText(IText(9,Text),"PRE-FX  /  32 ms  /  AUTO",mRECT.GetFromBottom(18));
+    char label[64];std::snprintf(label,sizeof(label),"PRE-FX / %.3g ms / AUTO",1000.*ScopeWindowSamples(frame_.rate)/frame_.rate);
+    g.DrawText(IText(9,Text),label,mRECT.GetFromBottom(18));
   }
 private:
   Scope::Frame frame_{};
