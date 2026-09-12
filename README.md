@@ -7,10 +7,14 @@ The Sounds of Trance.
 An open-source VST3 synthesizer for approachable leads, pads and plucks, with
 clear signal flow and a preset browser that explains saved sounds.
 
-![SAWSTAR: MAIN, ADVANCED and PRESETS](docs/reference/SAWSTAR_Master_GUI_REAPER.png)
+![SAWSTAR MAIN](docs/reference/screenshot-main.png)
 
-*Real SAWSTAR 1.0.0 RC3 screenshots in REAPER: MAIN, ADVANCED and PRESETS.
-Captured from build `d37fe4b` on 11 September 2026; plugin interface only.*
+![SAWSTAR ADVANCED](docs/reference/screenshot-advanced.png)
+
+![SAWSTAR PRESETS](docs/reference/screenshot-presets.png)
+
+*Real screenshots of the upcoming SAWSTAR 1.0.1 preview in REAPER, supplied by
+Gyuricza Róbert. The current public release remains 1.0.0.*
 
 ## Download
 
@@ -55,8 +59,8 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Factory library](docs/FACTORY_LIBRARY.md)
 - [Changelog](CHANGELOG.md) and [release preparation](docs/DISTRIBUTION_PLAN.md)
 
-The English and Hungarian guides describe 1.0.0. Screenshots were captured
-from RC3; their build labels reflect that capture, not the final release binary.
+The English and Hungarian guides describe 1.0.0. The screenshots show the
+upcoming 1.0.1 preview, not the currently published 1.0.0 binary.
 
 ## Building from source
 
@@ -67,9 +71,9 @@ Historical implementation notes are indexed by the [development history](docs/DE
 
 ## About
 
-![SAWSTAR About](docs/reference/SAWSTAR_About_REAPER.png)
+![SAWSTAR About](docs/reference/screenshot-about.png)
 
-*Actual RC3 About window, build `d37fe4b`, with the centered developer credit.*
+*Actual 1.0.1 Pre Release About window, build `b53772f`.*
 
 ## License
 
