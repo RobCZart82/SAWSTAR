@@ -13,12 +13,12 @@ clear signal flow and a preset browser that explains saved sounds.
 
 ![SAWSTAR PRESETS](docs/reference/screenshot-presets.png)
 
-*Real screenshots of the upcoming SAWSTAR 1.0.1 preview in REAPER, supplied by
-Gyuricza Róbert. The current public release remains 1.0.0.*
+*Real screenshots captured from the SAWSTAR 1.0.1 preview in REAPER, supplied by
+Gyuricza Róbert. Capture labels are retained; the final release preserves this layout.*
 
 ## Download
 
-Download **SAWSTAR 1.0.0** from [GitHub Releases](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.0).
+Download **SAWSTAR 1.0.1** from [GitHub Releases](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.1).
 
 **Recommended installers:** Windows x64 / ARM64 Setup EXE, or macOS Universal
 DMG containing the PKG installer. **Manual installation:** separate VST3 ZIPs
@@ -57,10 +57,10 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [English PDF](docs/manuals/SAWSTAR-User-Manual-EN.pdf)
 - [Magyar PDF](docs/manuals/SAWSTAR-User-Manual-HU.pdf)
 - [Factory library](docs/FACTORY_LIBRARY.md)
-- [Changelog](CHANGELOG.md) and [release preparation](docs/DISTRIBUTION_PLAN.md)
+- [Changelog](CHANGELOG.md) and [1.0.1 release notes](docs/RELEASE_NOTES_1.0.1.md)
 
-The English and Hungarian guides describe 1.0.0. The screenshots show the
-upcoming 1.0.1 preview, not the currently published 1.0.0 binary.
+The English and Hungarian guides describe 1.0.1. The screenshots retain their
+original preview capture labels.
 
 ## Building from source
 
