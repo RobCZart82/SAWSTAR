@@ -41,9 +41,16 @@ std::string Fold(std::string s) {
   if(!count)throw std::runtime_error("Cannot lowercase name.");std::wstring lower(count,L'\0');
   LCMapStringEx(LOCALE_NAME_INVARIANT,LCMAP_LOWERCASE,wide.data(),n,lower.data(),count,nullptr,nullptr,0);
   n=NormalizeString(NormalizationD,lower.data(),count,nullptr,0);
-  if(n<=0)throw std::runtime_error("Cannot normalize name.");std::wstring norm(n,L'\0');
-  n=NormalizeString(NormalizationD,lower.data(),count,norm.data(),n);
-  if(n<=0)throw std::runtime_error("Cannot normalize name.");
+  if(n<=0)throw std::runtime_error("Cannot estimate normalized name.");std::wstring norm;
+  // Windows returns an estimate, not a guaranteed capacity. Retry its requested
+  // size for decomposed accents (NormalizeString, Microsoft Learn).
+  for(int attempt=0;attempt<10;++attempt){
+    norm.resize(n);const int actual=NormalizeString(NormalizationD,lower.data(),count,norm.data(),n);
+    if(actual>0){n=actual;break;}
+    if(GetLastError()!=ERROR_INSUFFICIENT_BUFFER||actual>=0||attempt==9)
+      throw std::runtime_error("Cannot normalize name.");
+    n=-actual;
+  }
   count=WideCharToMultiByte(CP_UTF8,0,norm.data(),n,nullptr,0,nullptr,nullptr);
   std::string out(count,'\0');WideCharToMultiByte(CP_UTF8,0,norm.data(),n,out.data(),count,nullptr,nullptr);return out;
 #else
