@@ -1,22 +1,17 @@
 # Changelog
 
+## 1.0.1 - 2026-09-12
+
+- Refine meter ballistics, CLIP display, keyboard glow, scales and typography.
+- Initialize idle voice targets and Reset gain correctly; retain active-voice smoothing.
+- Cache unchanged reverb settings; reduce duplicate wrapper work.
+- Reject empty state; group host parameters without changing IDs.
+- Protect Unicode preset-name collisions; improve confirmation text wrapping.
+- Add deterministic stress tests and refresh bilingual manuals/screenshots.
+
+See [1.0.1 release notes](docs/RELEASE_NOTES_1.0.1.md).
+
 ## 1.0.0 - 2026-09-11
 
-### RC2 preparation
-
-- Move header motto 5 px closer to the SAWSTAR wordmark.
-- Center Developed by / Gyuricza Róbert in About, retaining the separate GYR mark.
-- Label render-time usage DSP CPU; update its displayed value every 250 ms.
-- Hold scope frames for about 90 ms and smooth display scaling, without changing
-  capture timing or audio. Continue consuming frames when another tab is shown.
-- Add explicit Windows x64/ARM64 and macOS Universal build targets.
-- Add Windows Setup and macOS PKG/DMG candidate packaging; signing remains separate.
-- Separate user requirements from development prerequisites; replace stale README.
-
-### RC1
-
-Aligned plugin version metadata at 1.0.0 Pre Release. Packaged bilingual manuals,
-notices and checksums. Six original CI jobs passed; user reported Windows manual
-acceptance. See docs/RELEASE_CANDIDATE.md for exact binaries and evidence.
-
-No public v1.0.0 release has been published by these changes.
+First public release: VST3 for Windows x64/ARM64 and macOS Universal, with
+24 embedded presets, English/Hungarian PDF manuals, installers and manual ZIPs.

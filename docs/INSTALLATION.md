@@ -1,6 +1,6 @@
-# Installing SAWSTAR 1.0.0 / Telepítés
+# Installing SAWSTAR 1.0.1 / Telepítés
 
-Download [SAWSTAR 1.0.0](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.0).
+Download [SAWSTAR 1.0.1](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.1).
 Recommended: the matching installer. Optional: a manual-install ZIP.
 Back up projects and user presets and close the DAW before updating.
 
@@ -8,7 +8,7 @@ This online guide includes corrections made after release. The documents inside
 the original 1.0.0 downloads may contain older candidate wording; the released
 binaries and archive checksums have not been changed by these documentation updates.
 
-A [SAWSTAR 1.0.0 letöltése](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.0):
+A [SAWSTAR 1.0.1 letöltése](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.1):
 elsősorban a megfelelő telepítőt válaszd; kézi telepítéshez ZIP is elérhető.
 Frissítés előtt zárd be a DAW-ot, és mentsd a projektjeidet, saját presetjeidet.
 Ez az online útmutató a kiadás utáni pontosításokat is tartalmazza. Az eredeti
@@ -26,7 +26,7 @@ The two architectures use separate installed-document/uninstaller locations.
 
 You can alternatively copy the entire SAWSTAR.vst3 bundle from the ZIP to the
 same VST3 directory. A VST3 is not a standalone EXE: Setup.exe is its installer.
-The 1.0.0 installers are not Authenticode signed; Windows may display a security warning.
+The installers are not Authenticode signed; Windows may display a security warning.
 
 ## macOS
 
@@ -56,7 +56,7 @@ User library: macOS `~/Library/Application Support/SAWSTAR/Presets`; Windows
 `%APPDATA%\SAWSTAR\Presets`. Factory presets are built in.
 
 See [System requirements](SYSTEM_REQUIREMENTS.md) for target versus tested OS support.
-The 1.0.0 PDFs illustrate the real GUI captured before release.
+The 1.0.1 PDFs illustrate the real GUI captured from the preview.
 
 ## macOS: downloaded package blocked
 

@@ -3,10 +3,7 @@
 - [English PDF](SAWSTAR-User-Manual-EN.pdf)
 - [Magyar PDF](SAWSTAR-User-Manual-HU.pdf)
 
-These 12-page manuals describe SAWSTAR 1.0.0 and its 24 embedded presets.
-This branch carries the 12 September 2026 preview edition, with modulation-wheel clarification and 1.0.1 meter notes. Screenshots show the real pre-release
-GUI; image build labels reflect the capture date.
+These guides describe SAWSTAR 1.0.1 and its 24 embedded factory presets.
+Screenshots show the supplied 1.0.1 preview GUI; user-library entries and capture build labels may differ.
 
-For current installation corrections and bilingual macOS Terminal troubleshooting,
-see the [online installation guide](../INSTALLATION.md#macos-terminal-troubleshooting--haladó-hibaelhárítás).
-Released PDF files and download packages are unchanged by these online corrections.
+See the [installation guide](../INSTALLATION.md) for installation and bilingual macOS troubleshooting.
