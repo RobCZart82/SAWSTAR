@@ -22,7 +22,8 @@ inline fs::path UserPresetFolder(){
  return home?fs::path(home)/"Library"/"Application Support"/"SAWSTAR"/"Presets":fs::path{};
 #endif
 }
-inline std::string Fold(std::string s){for(auto& c:s)if(c>='A'&&c<='Z')c=char(c-'A'+'a');return s;}
+// UI/file operations only: canonical Unicode lowercase key, preserving accents.
+std::string Fold(std::string s);
 bool ValidPresetName(const std::string& name);
 inline bool PresetExtension(const fs::path& p){return Fold(p.extension().u8string())==".sawstar";}
 inline Snapshot ReadUserPreset(const fs::path& path){

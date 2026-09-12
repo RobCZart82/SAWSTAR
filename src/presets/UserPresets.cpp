@@ -1,5 +1,14 @@
 // SPDX-License-Identifier: MIT
 #include "presets/UserPresets.h"
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#elif defined(_WIN32)
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+#include <cstring>
 #include <cerrno>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -11,7 +20,41 @@
 #endif
 
 namespace sawstar {
+std::string Fold(std::string s) {
+#ifdef __APPLE__
+  auto text=CFStringCreateWithBytes(nullptr,reinterpret_cast<const UInt8*>(s.data()),s.size(),kCFStringEncodingUTF8,false);
+  if(!text)throw std::runtime_error("Invalid UTF-8 name.");
+  auto key=CFStringCreateMutableCopy(nullptr,0,text);CFRelease(text);
+  if(!key)throw std::bad_alloc();
+  auto locale=CFLocaleCreate(nullptr,CFSTR("en_US_POSIX"));
+  CFStringLowercase(key,locale);if(locale)CFRelease(locale);
+  CFStringNormalize(key,kCFStringNormalizationFormD);
+  std::string out(CFStringGetMaximumSizeForEncoding(CFStringGetLength(key),kCFStringEncodingUTF8)+1,'\0');
+  const bool ok=CFStringGetCString(key,out.data(),out.size(),kCFStringEncodingUTF8);CFRelease(key);
+  if(!ok)throw std::runtime_error("Cannot normalize name.");out.resize(std::strlen(out.c_str()));return out;
+#elif defined(_WIN32)
+  if(s.empty())return s;
+  int n=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,s.data(),int(s.size()),nullptr,0);
+  if(!n)throw std::runtime_error("Invalid UTF-8 name.");std::wstring wide(n,L'\0');
+  MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,s.data(),int(s.size()),wide.data(),n);
+  int count=LCMapStringEx(LOCALE_NAME_INVARIANT,LCMAP_LOWERCASE,wide.data(),n,nullptr,0,nullptr,nullptr,0);
+  if(!count)throw std::runtime_error("Cannot lowercase name.");std::wstring lower(count,L'\0');
+  LCMapStringEx(LOCALE_NAME_INVARIANT,LCMAP_LOWERCASE,wide.data(),n,lower.data(),count,nullptr,nullptr,0);
+  n=NormalizeString(NormalizationD,lower.data(),count,nullptr,0);
+  if(n<=0)throw std::runtime_error("Cannot normalize name.");std::wstring norm(n,L'\0');
+  n=NormalizeString(NormalizationD,lower.data(),count,norm.data(),n);
+  if(n<=0)throw std::runtime_error("Cannot normalize name.");
+  count=WideCharToMultiByte(CP_UTF8,0,norm.data(),n,nullptr,0,nullptr,nullptr);
+  std::string out(count,'\0');WideCharToMultiByte(CP_UTF8,0,norm.data(),n,out.data(),count,nullptr,nullptr);return out;
+#else
+  // Non-release platforms retain the historical ASCII search behavior.
+  for(auto& c:s)if(c>='A'&&c<='Z')c=char(c-'A'+'a');return s;
+#endif
+}
+
 static void SaveUserPresetUnlocked(const fs::path& path,const Snapshot& values) {
+  if(fs::exists(path.parent_path()))for(const auto& entry:ListUserPresets(path.parent_path()))
+    if(Fold(entry.filename().u8string())==Fold(path.filename().u8string()))throw std::runtime_error("That name already exists. Choose a new name.");
   const auto bytes=EncodeState(values);
   if(!path.parent_path().empty())fs::create_directories(path.parent_path());
 #ifdef _WIN32
@@ -210,6 +253,8 @@ fs::path RenameUserPreset(const fs::path& source,const std::string& name) {
   PresetMutationLock lock(source);
   if(!ValidPresetName(name))throw std::runtime_error("Use a valid preset name of up to 80 characters. Shorten very long names.");
   auto target=source.parent_path()/fs::u8path(name+".sawstar");if(target==source)return source;
+  for(const auto& entry:ListUserPresets(source.parent_path()))
+    if(Fold(entry.filename().u8string())==Fold(target.filename().u8string())&&!fs::equivalent(entry,source))throw std::runtime_error("That name already exists.");
   if(fs::exists(target)){
     if(Fold(target.filename().u8string())!=Fold(source.filename().u8string())||!fs::equivalent(source,target))throw std::runtime_error("That name already exists.");
     // On case-insensitive volumes this is the same file, not an overwrite.

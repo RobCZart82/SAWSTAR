@@ -82,7 +82,7 @@ public:Knob(IRECT r,int id,const char* title):IVKnobControl(r,id,title,Style(),t
  void DrawWidget(IGraphics& g)override{const float radius=std::max(1.f,std::min(18.f,GetRadius()-5.f)),cx=mWidgetBounds.MW(),cy=mWidgetBounds.MH();
  const float a=-135.f+270.f*GetValue();
  // Reserve space inside the widget so the 270-degree dotted scale cannot touch labels.
- for(int i=0;i<=24;++i){const float angle=(-225.f+i*270.f/24.f)*.01745329252f;g.FillCircle(IColor(180,107,134,147),cx+std::cos(angle)*(radius+4.f),cy+std::sin(angle)*(radius+4.f),i%6==0?1.f:.7f);}
+ for(int i=0;i<=24;++i){const float angle=(-225.f+i*270.f/24.f)*.01745329252f;g.FillCircle(IColor(220,139,163,176),cx+std::cos(angle)*(radius+4.f),cy+std::sin(angle)*(radius+4.f),i%6==0?1.f:.7f);}
  g.FillCircle(IColor(100,0,0,0),cx,cy+2,radius+1);
  g.DrawCircle(IColor(22,54,170,226),cx,cy,radius+1,nullptr,3);
  g.FillCircle(GetMouseIsOver()?IColor(255,25,37,44):IColor(255,17,25,30),cx,cy,radius);g.DrawCircle(IColor(255,69,89,99),cx,cy,radius,nullptr,1.5f);
@@ -99,7 +99,7 @@ public:Fader(IRECT r,int id,const char* title,EDirection dir=EDirection::Vertica
  void DrawTrack(IGraphics& g,const IRECT&)override{const auto r=GetTrackBounds();
  g.FillRoundRect(IColor(255,17,46,65),r,1);g.DrawRoundRect(IColor(255,48,81,99),r,1);
  if(GetValue()>0){g.DrawRoundRect(IColor(18,54,170,226),r.FracRect(mDirection,float(GetValue())),1,nullptr,3);g.PathRect(r.FracRect(mDirection,float(GetValue())));g.PathFill(IPattern::CreateLinearGradient(r.L,r.B,r.R,r.T,{{IColor(255,28,94,134),0.f},{Blue,1.f}}));}
- for(int i=0;i<=8;++i){auto color=IColor(255,66,86,97);if(mDirection==EDirection::Vertical){float y=r.T+r.H()*i/8;g.DrawLine(color,r.L-6,y,r.L-2,y);g.DrawLine(color,r.R+2,y,r.R+6,y);}else{float x=r.L+r.W()*i/8;g.DrawLine(color,x,r.T-5,x,r.T-2);g.DrawLine(color,x,r.B+2,x,r.B+5);}}
+ for(int i=0;i<=8;++i){auto color=IColor(255,104,126,139);if(mDirection==EDirection::Vertical){float y=r.T+r.H()*i/8;g.DrawLine(color,r.L-6,y,r.L-2,y);g.DrawLine(color,r.R+2,y,r.R+6,y);}else{float x=r.L+r.W()*i/8;g.DrawLine(color,x,r.T-5,x,r.T-2);g.DrawLine(color,x,r.B+2,x,r.B+5);}}
  }
 
 };
@@ -129,7 +129,7 @@ class Meter final:public IControl{
  }
 public:
  Meter(IRECT r,MeterMailbox& mailbox,const Fader* fader):IControl(r),mailbox_(mailbox),fader_(fader){
-  SetTooltip("Output sample peak / 1 second peak hold. Top red lights latch at 0 dBFS; click a light to reset. Output protection normally prevents clipping.");
+  SetTooltip("Output sample peak / 1 second peak hold. Top red lights latch at 0 dBFS; click a light to reset, or wait 5 seconds after the last clip. Output protection normally prevents clipping.");
  }
  void Update(bool visible){
   auto peaks=mailbox_.Take(); // Drain while hidden too; never replay a hidden interval.

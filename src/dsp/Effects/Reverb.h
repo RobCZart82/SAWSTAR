@@ -17,6 +17,7 @@ public:
   for(auto& b:buffer_)b.assign(static_cast<size_t>(sr_*.13f)+2,0);
   write_=valid_=0;low_.fill(0);mix_=targetMix_=0;on_=false;
   smooth_=1-std::exp(-1/(.02f*sr_));
+  cachedScale_=cachedSeconds_=cachedDamping_=-1;
   Set(false,20,50,2.5f,6000);
   delays_=targetDelays_;gains_=targetGains_;tone_=targetTone_;
  }
@@ -24,11 +25,15 @@ public:
   on_=on;targetMix_=on?Clean(mix,0,100,20)*.01f:0;
   const double scale=.6+Clean(size,0,100,50)*.01;
   const double seconds=Clean(decay,.2f,10,2.5f);
+  if(scale!=cachedScale_||seconds!=cachedSeconds_){
+  cachedScale_=scale;cachedSeconds_=seconds;
   for(size_t i=0;i<8;++i){
    targetDelays_[i]=kTimes[i]*scale*sr_;
    targetGains_[i]=static_cast<float>(std::exp(std::log(.001)*kTimes[i]*scale/seconds));
   }
-  targetTone_=1-std::exp(-6.28318530718f*std::min(Clean(damping,500,16000,6000),sr_*.45f)/sr_);
+  }
+  const float hz=std::min(Clean(damping,500,16000,6000),sr_*.45f);
+  if(hz!=cachedDamping_){cachedDamping_=hz;targetTone_=1-std::exp(-6.28318530718f*hz/sr_);}
  }
  bool IsDry()const{return mix_==0&&targetMix_==0;}
  StereoSample Process(StereoSample in){
@@ -64,6 +69,7 @@ private:
  std::array<double,8> delays_{},targetDelays_{};
  std::array<float,8> low_{},gains_{},targetGains_{};
  size_t write_=0,valid_=0;bool on_=false;
+ double cachedScale_=-1,cachedSeconds_=-1;float cachedDamping_=-1;
  float sr_=44100,smooth_=.001f,mix_=0,targetMix_=0,tone_=.5f,targetTone_=.5f;
 };
 }

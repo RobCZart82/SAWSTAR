@@ -12,7 +12,12 @@
 #endif
 using namespace sawstar;
 void check(bool b,const char* why){if(!b)throw std::runtime_error(why);}
-int main(){auto root=fs::temp_directory_path()/("sawstar-reliable-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));try{
+int main(){
+#if defined(__APPLE__) || defined(_WIN32)
+ if(sawstar::Fold(u8"ÉCHO ŐR")!=sawstar::Fold(u8"e\u0301cho őr"))throw std::runtime_error("Unicode canonical lowercase regression");
+ if(sawstar::Fold(u8"őr")==sawstar::Fold("or"))throw std::runtime_error("Accents must be preserved");
+#endif
+auto root=fs::temp_directory_path()/("sawstar-reliable-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));try{
  for(auto name:{"CON","con.txt","PRN","AUX","NUL","COM1","LPT9","CONIN$"})check(!ValidPresetName(name),"reserved filename accepted");
  std::string accents;for(int i=0;i<80;++i)accents+=u8"\u0151";check(ValidPresetName(accents),"80 Unicode letters");check(!ValidPresetName(accents+"a"),"81 letters accepted");check(!ValidPresetName(std::string("bad\xc0\xaf")),"invalid UTF-8 accepted");
  auto values=DefaultSnapshot();auto source=root/"external"/"Sound.SAWSTAR";auto saved=SavePresetSelection(source,values,root/"library");check(saved.active&&saved.path==root/"library"/"Sound.sawstar","uppercase save import");

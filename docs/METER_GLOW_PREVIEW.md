@@ -10,7 +10,7 @@ release or its downloadable files. Host version: 1.0.1; About: Pre Release.
 - Accumulate audio block maxima until the editor consumes them. Drain when hidden;
   reset displayed history when reopening or returning to MAIN.
 - Red caps latch actual output sample peaks >= 0 dBFS; click the respective cap
-  to clear. This is not a true-peak detector or a limiter-activity indicator.
+  to clear, or wait five seconds since the last clipped sample. This is not a true-peak detector or a limiter-activity indicator.
   Existing 0.98 output protection normally prevents it from lighting.
 - Inset dark/light display bezels; subtle extra scope-line glow.
 - GYR mark moved 60 logical pixels right, unchanged size; separator below URL.

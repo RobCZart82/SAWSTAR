@@ -39,6 +39,7 @@ public:
     // Retarget from the current mixture, including a partially completed fade.
     remaining_=std::max(1,int(sr_*.01));
   }
+  void SnapToTargets(){weights_={0,0,0};weights_[wave_]=1;remaining_=0;}
   float Process() {
     started_=true;
     if(remaining_>0) {

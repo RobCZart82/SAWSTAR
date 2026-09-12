@@ -13,7 +13,7 @@ namespace sawstar {
 class MeterMailbox {
   static_assert(std::atomic<uint64_t>::is_always_lock_free, "Meter requires lock-free packets");
   std::array<std::atomic<uint64_t>,2> peaks_{};
-  std::array<std::atomic<bool>,2> clips_{};
+  std::array<std::atomic<uint64_t>,2> clips_{}; // timestamp + 1; zero means manually cleared
   static float Amplitude(uint64_t packet)noexcept{
     const uint32_t bits=uint32_t(packet);float value;std::memcpy(&value,&bits,sizeof(value));return value;
   }
@@ -25,7 +25,7 @@ public:
     const float values[]={left,right};
     for(int ch=0;ch<2;++ch){
       const float value=std::isfinite(values[ch])?std::max(0.f,values[ch]):0.f;
-      if(value>=1.f)clips_[ch].store(true,std::memory_order_relaxed);
+      if(value>=1.f)clips_[ch].store(uint64_t(now)+1,std::memory_order_relaxed);
       uint32_t bits;std::memcpy(&bits,&value,sizeof(bits));
       const uint64_t packet=(uint64_t(now)<<32)|bits;
       auto previous=peaks_[ch].load(std::memory_order_relaxed);
@@ -40,7 +40,7 @@ public:
       if(packet&&now-uint32_t(packet>>32)<=200)result[ch]=Amplitude(packet);}
     return result;
   }
-  bool Clipped(int ch)const noexcept{return clips_[ch].load(std::memory_order_relaxed);}
+  bool Clipped(int ch,uint32_t now=Now())const noexcept{const auto stamp=clips_[ch].load(std::memory_order_relaxed);return stamp && uint32_t(now-uint32_t(stamp-1))<5000;}
   void ClearClip(int ch)noexcept{clips_[ch].store(false,std::memory_order_relaxed);}
   void Reset()noexcept{Take();ClearClip(0);ClearClip(1);}
 };
