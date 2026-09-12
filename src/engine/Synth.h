@@ -40,7 +40,7 @@ public:
   void SetOsc2(float detune, float mix, float width);
   void Midi(int status, int data1, int data2);
   void SetFilterCharacter(float driveDb,int mode);
-  void SetFilter(float cutoffHz, float resonancePercent, float mixPercent);
+  void SetFilter(float cutoffHz, float resonancePercent, float mixPercent, bool updateEnvelope=true);
   void SetFilterEnvelope(float amount, float tracking, float attack, float decay, float sustain, float release);
   void SetPerformance(float bendRange,float modDepth);
   int PitchBend(int channel) const { return bend_[channel&15]; }
@@ -68,6 +68,7 @@ private:
     bool held = false, gate = false, gatePending = false;
     float velocity = 0;
     StereoSample lastSample{}, correction{};
+    bool startPending=false;
     bool splicePending=false;
     int spliceRemaining=0;
     uint64_t age = 0;
@@ -89,7 +90,6 @@ private:
   Delay delay_;
   Reverb reverb_;
   Width width_;
-  bool alternateWave_=false;
   std::array<bool, 16> sustain_{};
   std::array<uint32_t,2048> downCounts_{};
   unsigned heldKeys_=0;

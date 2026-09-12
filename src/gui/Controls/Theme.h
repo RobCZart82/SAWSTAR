@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <string>
 #include "visual/DisplayState.h"
+#include "visual/Meter.h"
 namespace sawstar::gui {
 using namespace iplug::igraphics;
 inline const IColor Text(255,225,234,238),Blue(255,54,170,226),PanelColor(255,27,34,38),Border(255,66,82,90);
@@ -22,6 +23,11 @@ inline void DrawActiveLight(IGraphics& g,const IRECT& r){
  g.DrawRoundRect(IColor(14,54,170,226),r.GetPadded(-3),3,nullptr,6);
  g.DrawRoundRect(IColor(28,54,170,226),r.GetPadded(-1.5f),3,nullptr,3);
  g.DrawRoundRect(IColor(220,83,190,238),r.GetPadded(-.75f),3,nullptr,1);
+}
+// Recessed bezel entirely inside the existing bounds; no control movement.
+inline void DrawDisplayBezel(IGraphics& g,const IRECT& r){
+ g.DrawRoundRect(IColor(255,3,7,9),r.GetPadded(-.6f),3,nullptr,1.2f);
+ g.DrawRoundRect(IColor(255,79,98,107),r.GetPadded(-1.8f),2,nullptr,.8f);
 }
 inline void DrawGrid(IGraphics& g,const IRECT& r){
  for(int i=1;i<6;++i){float x=r.L+r.W()*i/6;g.DrawLine(IColor(255,25,41,48),x,r.T,x,r.B);}
@@ -55,7 +61,7 @@ public:
 class BrandWordmark final:public IControl{
  bool font_;
 public:BrandWordmark(IRECT r,bool font):IControl(r),font_(font){SetIgnoreMouse(true);}
- void Draw(IGraphics& g)override{auto style=IText(38,Text).WithFont(font_?"SAWSTAR-Orbitron":"Roboto-Regular").WithAlign(EAlign::Near);float x=mRECT.L;for(char c:std::string("SAWSTAR")){char letter[]={c,0};IRECT measured;g.MeasureText(style,letter,measured);g.DrawText(style,letter,IRECT(x,mRECT.T,x+measured.W()+2,mRECT.B));x+=measured.W()+1.6f;}}
+ void Draw(IGraphics& g)override{auto style=IText(38,Text).WithFont(font_?"SAWSTAR-Orbitron":"Roboto-Regular").WithAlign(EAlign::Near);float x=mRECT.L;for(char c:std::string("SAWSTAR")){char letter[]={c,0};IRECT measured;g.MeasureText(style,letter,measured);g.DrawText(style,letter,IRECT(x,mRECT.T,x+measured.W()+2,mRECT.B));x+=measured.W()+2.6f;}}
 };
 class Section final:public IControl{
  const char* title_;IColor color_;bool tint_;
@@ -76,7 +82,7 @@ public:Knob(IRECT r,int id,const char* title):IVKnobControl(r,id,title,Style(),t
  void DrawWidget(IGraphics& g)override{const float radius=std::max(1.f,std::min(18.f,GetRadius()-5.f)),cx=mWidgetBounds.MW(),cy=mWidgetBounds.MH();
  const float a=-135.f+270.f*GetValue();
  // Reserve space inside the widget so the 270-degree dotted scale cannot touch labels.
- for(int i=0;i<=24;++i){const float angle=(-225.f+i*270.f/24.f)*.01745329252f;g.FillCircle(IColor(180,107,134,147),cx+std::cos(angle)*(radius+4.f),cy+std::sin(angle)*(radius+4.f),i%6==0?1.f:.7f);}
+ for(int i=0;i<=24;++i){const float angle=(-225.f+i*270.f/24.f)*.01745329252f;g.FillCircle(IColor(220,139,163,176),cx+std::cos(angle)*(radius+4.f),cy+std::sin(angle)*(radius+4.f),i%6==0?1.f:.7f);}
  g.FillCircle(IColor(100,0,0,0),cx,cy+2,radius+1);
  g.DrawCircle(IColor(22,54,170,226),cx,cy,radius+1,nullptr,3);
  g.FillCircle(GetMouseIsOver()?IColor(255,25,37,44):IColor(255,17,25,30),cx,cy,radius);g.DrawCircle(IColor(255,69,89,99),cx,cy,radius,nullptr,1.5f);
@@ -93,7 +99,7 @@ public:Fader(IRECT r,int id,const char* title,EDirection dir=EDirection::Vertica
  void DrawTrack(IGraphics& g,const IRECT&)override{const auto r=GetTrackBounds();
  g.FillRoundRect(IColor(255,17,46,65),r,1);g.DrawRoundRect(IColor(255,48,81,99),r,1);
  if(GetValue()>0){g.DrawRoundRect(IColor(18,54,170,226),r.FracRect(mDirection,float(GetValue())),1,nullptr,3);g.PathRect(r.FracRect(mDirection,float(GetValue())));g.PathFill(IPattern::CreateLinearGradient(r.L,r.B,r.R,r.T,{{IColor(255,28,94,134),0.f},{Blue,1.f}}));}
- for(int i=0;i<=8;++i){auto color=IColor(255,66,86,97);if(mDirection==EDirection::Vertical){float y=r.T+r.H()*i/8;g.DrawLine(color,r.L-6,y,r.L-2,y);g.DrawLine(color,r.R+2,y,r.R+6,y);}else{float x=r.L+r.W()*i/8;g.DrawLine(color,x,r.T-5,x,r.T-2);g.DrawLine(color,x,r.B+2,x,r.B+5);}}
+ for(int i=0;i<=8;++i){auto color=IColor(255,104,126,139);if(mDirection==EDirection::Vertical){float y=r.T+r.H()*i/8;g.DrawLine(color,r.L-6,y,r.L-2,y);g.DrawLine(color,r.R+2,y,r.R+6,y);}else{float x=r.L+r.W()*i/8;g.DrawLine(color,x,r.T-5,x,r.T-2);g.DrawLine(color,x,r.B+2,x,r.B+5);}}
  }
 
 };
@@ -101,7 +107,7 @@ public:Fader(IRECT r,int id,const char* title,EDirection dir=EDirection::Vertica
 class Curve final:public IControl{
  bool envelope_;
 public:Curve(IRECT r,std::initializer_list<int> ids,bool envelope):IControl(r,ids),envelope_(envelope){SetIgnoreMouse(true);}
- void Draw(IGraphics& g)override{g.FillRoundRect(DisplayColor,mRECT,3);g.DrawRoundRect(Border,mRECT,3);DrawGrid(g,mRECT.GetPadded(-1));const auto r=mRECT.GetPadded(-10);
+ void Draw(IGraphics& g)override{g.FillRoundRect(DisplayColor,mRECT,3);DrawDisplayBezel(g,mRECT);DrawGrid(g,mRECT.GetPadded(-1));const auto r=mRECT.GetPadded(-10);
  float px=r.L,py=r.B;
  if(envelope_){float a=.08f+.25f*GetValue(0),d=.1f+.25f*GetValue(1),s=GetValue(2),rel=.08f+.25f*GetValue(3);float scale=1/(a+d+.25f+rel);float xs[]={0,a*scale,(a+d)*scale,(a+d+.25f)*scale,1};float ys[]={0,1,s,s,0};for(int i=1;i<5;++i){float x=r.L+xs[i]*r.W(),y=r.B-ys[i]*r.H();g.DrawLine(Blue,px,py,x,y,nullptr,1.5f);g.FillCircle(Blue,x,y,2);px=x;py=y;}}
  else{float cutoff=GetValue(0);int mode=std::lround(GetValue(1)*3);for(int i=0;i<=80;++i){float x=i/80.f;float low=1/(1+std::exp((x-cutoff)*14));float y=mode<2?low:mode==2?1-low:4*low*(1-low);float sy=r.B-y*r.H()*.8f;if(i)g.DrawLine(Blue,px,py,r.L+x*r.W(),sy,nullptr,1.5f);px=r.L+x*r.W();py=sy;}}
@@ -114,25 +120,58 @@ public:Toggle(IRECT r,int id,const char* label):IControl(r,id),label_(label){}
  void OnMouseDown(float,float,const IMouseMod&)override{SetValue(GetValue()>.5?0:1);SetDirty(true);}
 };
 class Meter final:public IControl{
- const std::atomic<float>& left_;const std::atomic<float>& right_;const Fader* fader_;
-public:Meter(IRECT r,const std::atomic<float>& l,const std::atomic<float>& rt,const Fader* fader):IControl(r),left_(l),right_(rt),fader_(fader){SetIgnoreMouse(true);}
+ MeterMailbox& mailbox_;const Fader* fader_;
+ std::array<MeterDisplay,2> display_{};
+ bool initialized_=false,visible_=false;
+ IRECT Lane(int ch)const{
+  const auto track=fader_->GetTrackBounds();const float width=(mRECT.W()-4.f)/2.f;
+  return IRECT(mRECT.L+ch*(width+4),track.T,mRECT.L+ch*(width+4)+width,track.B);
+ }
+public:
+ Meter(IRECT r,MeterMailbox& mailbox,const Fader* fader):IControl(r),mailbox_(mailbox),fader_(fader){
+  SetTooltip("Output sample peak / 1 second peak hold. Top red lights latch at 0 dBFS; click a light to reset, or wait 5 seconds after the last clip. Output protection normally prevents clipping.");
+ }
+ void Update(bool visible){
+  auto peaks=mailbox_.Take(); // Drain while hidden too; never replay a hidden interval.
+  if(!initialized_||visible!=visible_){display_={};peaks={0.f,0.f};}
+  const auto now=MeterDisplay::Clock::now();
+  for(int ch=0;ch<2;++ch)display_[ch].Update(peaks[ch],now);
+  initialized_=true;visible_=visible;
+  if(visible)SetDirty(false);
+ }
+ void OnMouseDown(float x,float y,const IMouseMod&)override{
+  for(int ch=0;ch<2;++ch)if(Lane(ch).GetFromTop(7).Contains(x,y))mailbox_.ClearClip(ch);
+  SetDirty(false);
+ }
  void Draw(IGraphics& g)override{
- for(int i=0;i<2;++i){const float value=i?right_.load():left_.load();const float fill=std::clamp((20*std::log10(std::max(value,1.e-6f))+60)/60,0.f,1.f);
- const auto track=fader_->GetTrackBounds();const float lane=(mRECT.W()-4.f)/2.f;
- const IRECT r(mRECT.L+i*(lane+4),track.T,mRECT.L+i*(lane+4)+lane,track.B);
- g.FillRect(DisplayColor,r);
- // Twenty equal-height cells: 14 green, 4 yellow, 2 red. No audio changes.
- constexpr int cells=20;const float height=r.H()/cells;
- for(int cell=0;cell<cells;++cell){
-  const bool lit=fill>float(cell)/cells;
-  const IColor color=cell<14?IColor(255,75,207,127):cell<18?IColor(255,246,211,83):IColor(255,239,89,75);
-  const IRECT segment(r.L+1,r.B-(cell+1)*height+1,r.R-1,r.B-cell*height-1);
-  if(lit)g.FillRect(IColor(35,color.R,color.G,color.B),segment.GetPadded(.7f));
-  g.FillRect(lit?color:IColor(255,color.R/5,color.G/5,color.B/5),segment);
- }
- g.DrawRect(Border,r);
- g.DrawText(IText(9,Muted),i?"R":"L",IRECT(r.L-2,r.B+3,r.R+2,r.B+17));
- }
+  for(int ch=0;ch<2;++ch){
+   const auto r=Lane(ch);g.FillRect(IColor(255,5,10,12),r);
+   // Clip cap fits inside the unchanged meter track rectangle.
+   const auto cap=r.GetPadded(-1).GetFromTop(4);
+   const bool clip=mailbox_.Clipped(ch);
+   g.FillRoundRect(clip?IColor(255,255,65,48):IColor(255,45,19,19),cap,1);
+   if(clip)g.DrawRoundRect(IColor(95,255,50,35),cap,1,nullptr,2);
+   const IRECT body(r.L,r.T+8,r.R,r.B);const float height=body.H()/MeterDisplay::Cells;
+   for(int cell=0;cell<MeterDisplay::Cells;++cell){
+    const IColor color=cell<14?IColor(255,92,236,87):cell<18?IColor(255,251,222,61):IColor(255,250,73,49);
+    const IRECT segment(body.L+1.5f,body.B-(cell+1)*height+1.5f,body.R-1.5f,body.B-cell*height-1.5f);
+    const float light=display_[ch].Brightness(cell);
+    // Layered vector strokes, no per-cell offscreen buffers or blur allocations.
+    g.FillRoundRect(IColor(255,color.R/12,color.G/12,color.B/12),segment,1.3f);
+    if(light>.01f){
+     g.DrawRoundRect(IColor(int(28*light),color.R,color.G,color.B),segment,1.3f,nullptr,3.f);
+     g.DrawRoundRect(IColor(int(65*light),color.R,color.G,color.B),segment,1.3f,nullptr,1.5f);
+     g.FillRoundRect(IColor(int(255*light),color.R,color.G,color.B),segment,1.3f);
+     g.DrawLine(IColor(int(100*light),255,255,220),segment.L+1,segment.T+1,segment.R-1,segment.T+1);
+    }
+    if(cell==display_[ch].HoldCell()){
+     g.DrawLine(IColor(60,color.R,color.G,color.B),segment.L,segment.MH(),segment.R,segment.MH(),nullptr,4);
+     g.DrawLine(IColor(255,239,249,229),segment.L,segment.MH(),segment.R,segment.MH(),nullptr,1.5f);
+    }
+   }
+   g.DrawRect(Border,r);
+   g.DrawText(IText(9,Muted),ch?"R":"L",IRECT(r.L-2,r.B+3,r.R+2,r.B+17));
+  }
  }
 };
 class Status final:public IControl{

@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -255,6 +256,16 @@ void RunScenario(float rate, uint64_t seed, uint64_t steps, bool verbose) {
   if(verbose) log.Dump(std::cout);
 }
 
+uint64_t ParseUnsigned(const char* input) {
+  const std::string text(input);
+  if(text.empty() || text.front()=='-' || text.front()=='+' || text.find_first_of(" \t\n\r")!=std::string::npos)
+    throw std::runtime_error("expected an unsigned integer");
+  size_t used=0;
+  const auto value=std::stoull(text,&used,text.size()>2&&text[0]=='0'&&(text[1]=='x'||text[1]=='X')?16:10);
+  if(used!=text.size())throw std::runtime_error("invalid integer suffix");
+  return value;
+}
+
 Options Parse(int argc, char** argv) {
   Options o;
   for(int i = 1; i < argc; ++i) {
@@ -263,23 +274,23 @@ Options Parse(int argc, char** argv) {
       if(i + 1 >= argc) throw std::runtime_error(std::string("missing value for ") + name);
       return argv[++i];
     };
-    if(arg == "--seed") o.seed = std::stoull(require("--seed"), nullptr, 0);
-    else if(arg == "--steps") o.steps = std::stoull(require("--steps"), nullptr, 0);
+    if(arg == "--seed") o.seed = ParseUnsigned(require("--seed"));
+    else if(arg == "--steps") o.steps = ParseUnsigned(require("--steps"));
     else if(arg == "--sample-rate") {
-      const double sr = std::stod(require("--sample-rate"));
+      const double sr = static_cast<double>(ParseUnsigned(require("--sample-rate")));
       if(!std::isfinite(sr) || sr < 8000. || sr > 384000.) throw std::runtime_error("sample rate must be 8000..384000");
       o.rates = {static_cast<float>(sr)};
     } else if(arg == "--verbose") o.verbose = true;
     else if(arg == "--help") {
       std::cout << "SAWSTAR torture test\n"
                    "  --seed N          deterministic seed (decimal or 0x...)\n"
-                   "  --steps N         blocks per sample rate (default 10000)\n"
+                   "  --steps N         blocks per sample rate (1..1000000, default 10000)\n"
                    "  --sample-rate Hz  test one rate instead of 44.1/48/96 kHz\n"
                    "  --verbose         dump final event history\n";
       std::exit(0);
     } else throw std::runtime_error("unknown argument: " + arg);
   }
-  if(o.steps == 0) throw std::runtime_error("--steps must be greater than zero");
+  if(o.steps == 0 || o.steps > 1000000) throw std::runtime_error("--steps must be 1..1000000");
   return o;
 }
 
@@ -289,9 +300,7 @@ int main(int argc, char** argv) {
   try {
     const auto options = Parse(argc, argv);
     for(float rate : options.rates) {
-      const uint64_t derived = options.seed ^
-        (static_cast<uint64_t>(std::llround(rate * 100.0)) * 0x9e3779b97f4a7c15ULL);
-      RunScenario(rate, derived, options.steps, options.verbose);
+      RunScenario(rate, options.seed, options.steps, options.verbose);
     }
     return 0;
   } catch(const std::exception& e) {

@@ -5,6 +5,7 @@
 #include "midi/Arpeggiator.h"
 #include <atomic>
 #include "visual/Scope.h"
+#include "visual/Meter.h"
 #include <array>
 #include "presets/UserPresets.h"
 
@@ -30,7 +31,8 @@ private:
   std::array<std::atomic<bool>, 128> mHeld{};
   std::array<bool, 128> mDisplayed{};
 #endif
-  std::atomic<float> mPeakL{0},mPeakR{0},mCpu{0};
+  sawstar::MeterMailbox mMeter;
+  std::atomic<float> mCpu{0};
   std::atomic<int> mRate{44100},mVoiceCount{0};
   std::atomic<bool> mArpReset{false};
   std::atomic<bool> mStateRestored{false};

@@ -14,7 +14,7 @@ void Synth::Reset(double rate) {
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
   matrix_.Init(sr);pressure_.fill(0);smoothPressure_.fill(0);smoothWheel_.fill(0);lfo2_.Init(sr);
-  lfo_.Init(sr);chorus_.Init(sr);delay_.Init(sr);reverb_.Init(sr);alternateWave_=false;
+  lfo_.Init(sr);chorus_.Init(sr);delay_.Init(sr);reverb_.Init(sr);
   noiseColor_=targetNoiseColor_;
   colorPole_=1.f-std::exp(-2.f*3.14159265358979323846f*1000.f/sr);
   sampleRate_=sr; noisePole_=1.f-std::exp(-2.f*3.14159265358979323846f*1200.f/sr);
@@ -59,7 +59,7 @@ void Synth::SelectMono(bool retrigger,bool allowGlide) {
   if(!monoPitchValid_)monoVelocity_=monoKeys_[selected].velocity/127.f;
   monoPitchValid_=true;monoKey_=selected;
   // Mono uses a fixed tuning reference; the sample-accurate pitch ratio carries glide.
-  if(!wasRunning){v.filter.Clear();monoVelocity_=monoKeys_[selected].velocity/127.f;}
+  if(!wasRunning){v.startPending=true;v.filter.Clear();monoVelocity_=monoKeys_[selected].velocity/127.f;}
   v.note=note;v.channel=ch;v.held=monoKeys_[selected].held;v.gate=true;
   v.velocity=monoKeys_[selected].velocity/127.f;v.fundamental=440;v.osc.SetFreq(440);v.osc2.SetFreq(440);
   if(retrigger||!wasRunning){v.env.Retrigger(false);v.filterMod.Trigger(!wasRunning);v.gatePending=true;}
@@ -90,7 +90,7 @@ void Synth::MonoMidi(int status,int note,int value) {
     }
   }
 }
-void Synth::SetWaveforms(int osc1,int osc2){alternateWave_=osc1!=0;for(auto& v:voices_){v.osc.SetWaveform(osc1);v.osc2.SetWaveform(osc2);}}
+void Synth::SetWaveforms(int osc1,int osc2){for(auto& v:voices_){v.osc.SetWaveform(osc1);v.osc2.SetWaveform(osc2);}}
 void Synth::SetLfo(float hz,float depth,int shape,int target,bool sync,int division,double bpm,bool retrigger){lfo_.Set(hz,depth,shape,target,sync,division,bpm,retrigger);}
 void Synth::SetSubWave(int wave) {
   for(auto& v:voices_)v.sub.SetWaveform(wave);
@@ -127,9 +127,9 @@ void Synth::SetParameters(double gain, double attack, double decay, double susta
 void Synth::SetFilterCharacter(float driveDb,int mode) {
   for(auto& v:voices_)v.filter.SetCharacter(driveDb,mode);
 }
-void Synth::SetFilter(float cutoff,float resonance,float mix) {
+void Synth::SetFilter(float cutoff,float resonance,float mix,bool updateEnvelope) {
   cutoff_=FiniteClamp(cutoff,20.f,20000.f,12000.f); resonance_=FiniteClamp(resonance,0.f,100.f,0.f); filterMix_=FiniteClamp(mix,0.f,100.f,0.f);
-  SetFilterEnvelope(amount_,tracking_,filterAttack_,filterDecay_,filterSustain_,filterRelease_);
+  if(updateEnvelope)SetFilterEnvelope(amount_,tracking_,filterAttack_,filterDecay_,filterSustain_,filterRelease_);
 }
 void Synth::SetFilterEnvelope(float amount,float tracking,float attack,float decay,float sustain,float release) {
   amount=FiniteClamp(amount,-96.f,96.f,0.f);tracking=FiniteClamp(tracking,0.f,100.f,0.f);
@@ -191,7 +191,7 @@ void Synth::Midi(int status, int note, int value) {
     v.splicePending=v.note>=0;
     if(!v.splicePending){v.lastSample={};v.correction={};v.spliceRemaining=0;}
     v.filterMod.Trigger(v.note<0);
-    if(v.note<0) v.filter.Clear();
+    if(v.note<0){v.startPending=true;v.filter.Clear();}
     v.note = note; v.channel = channel; v.held = v.gate = true;
     v.velocity = static_cast<float>(value) / 127.f; v.age = ++age_;
     v.fundamental=static_cast<float>(440. * std::pow(2., (note - 69) / 12.));
@@ -219,7 +219,7 @@ void Synth::Midi(int status, int note, int value) {
 StereoSample Synth::ProcessStereo() {
   // Host parameters arrive after Reset. Set the initial level targets once,
   // independent of the previous patch; retain normal smoothing thereafter.
-  if(initialControlsPending_){levels_=targetLevels_;boost_=targetBoost_;initialControlsPending_=false;}
+  if(initialControlsPending_){levels_=targetLevels_;boost_=targetBoost_;gain_=targetGain_;initialControlsPending_=false;}
   // Crossfade types with the same 5 ms time constant as the mixer controls.
   // Keep all source histories running so a new selection needs no cold start.
   for(int type=0;type<3;++type){
@@ -259,6 +259,9 @@ StereoSample Synth::ProcessStereo() {
     v.osc.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*routedPitch*glide*octave1);
     v.osc2.SetPitchMultiplier(bendRatio_[v.channel]*vibrato*routedPitch*glide*octave2);
     v.sub.SetFreq(std::min(v.fundamental*bendRatio_[v.channel]*vibrato*routedPitch*glide*subOctave,sampleRate_*.45f));
+    // Snap only a genuinely idle voice, after note-specific cutoff/pitch are known.
+    // Retriggered/stolen and legato voices keep their continuity and smoothing.
+    if(v.startPending){v.osc.SnapToTargets();v.osc2.SnapToTargets();v.sub.SnapToTargets();v.filter.SnapToTargets();v.startPending=false;}
     const auto one=v.osc.Process(),two=v.osc2.Process();
     const float sub=v.sub.Process();
     // Per-voice deterministic xorshift; no global RNG, allocation or shared lock.

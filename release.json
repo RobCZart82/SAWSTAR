@@ -1,7 +1,6 @@
 {
-  "version": "1.0.0",
-  "candidate": "",
+  "version": "1.0.1",
+  "candidate": "rc1",
   "macos_minimum": "11.0",
-  "copyright": "Copyright (c) 2026 Gyuricza Róbert / RobCZart82",
-  "release_date": "2026.09.11."
+  "copyright": "Copyright (c) 2026 Gyuricza Róbert / RobCZart82"
 }

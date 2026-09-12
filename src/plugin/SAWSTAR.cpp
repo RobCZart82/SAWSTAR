@@ -21,65 +21,67 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
 : Plugin(info, MakeConfig(static_cast<int>(sawstar::kParameters.size()), 1)) {
   for (const auto& spec : sawstar::kParameters) {
     auto* param = GetParam(static_cast<int>(spec.id));
+    const auto prefix=spec.key.substr(0,spec.key.find('.'));
+    const char* group=prefix=="amp"?"Amp Envelope":prefix=="filter"?"Filter":prefix=="output"?"Output":prefix=="performance"?"Performance":prefix=="mixer"||prefix=="noise"?"Mixer":prefix=="sub"?"Sub":prefix=="saw"||prefix=="osc1"?"Oscillator 1":prefix=="osc2"?"Oscillator 2":prefix=="lfo"?"LFO 1":prefix=="lfo2"?"LFO 2":prefix=="chorus"?"Chorus":prefix=="delay"?"Delay":prefix=="reverb"?"Reverb":prefix=="arp"?"Arpeggiator":"Modulation";
     const int id=static_cast<int>(spec.id);
     if(id>=71 && id<=82 && (id-71)%3==0)
-      param->InitEnum(spec.name.data(),0,6,"",IParam::kFlagsNone,"Modulation","Off","LFO 1","LFO 2","Mod Wheel","Velocity","Aftertouch");
+      param->InitEnum(spec.name.data(),0,6,"",IParam::kFlagsNone,group,"Off","LFO 1","LFO 2","Mod Wheel","Velocity","Aftertouch");
     else if(id>=71 && id<=82 && (id-71)%3==1)
-      param->InitEnum(spec.name.data(),0,5,"",IParam::kFlagsNone,"Modulation","Filter Cutoff","Pitch","Amp Level","Pan","Noise Color");
+      param->InitEnum(spec.name.data(),0,5,"",IParam::kFlagsNone,group,"Filter Cutoff","Pitch","Amp Level","Pan","Noise Color");
     else if(id==90)
-      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Output","Off","On");
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,group,"Off","On");
     else if(id==83||id==89)
-      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Arpeggiator","Off","On");
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,group,"Off","On");
     else if(id==84)
-      param->InitEnum(spec.name.data(),0,5,"",IParam::kFlagsNone,"Arpeggiator","Up","Down","Up/Down","Random","Played");
+      param->InitEnum(spec.name.data(),0,5,"",IParam::kFlagsNone,group,"Up","Down","Up/Down","Random","Played");
     else if(id==85)
-      param->InitEnum(spec.name.data(),2,8,"",IParam::kFlagsNone,"Arpeggiator","1/4","1/8","1/16","1/32","1/8 Triplet","1/16 Triplet","1/8 Dotted","1/16 Dotted");
+      param->InitEnum(spec.name.data(),2,8,"",IParam::kFlagsNone,group,"1/4","1/8","1/16","1/32","1/8 Triplet","1/16 Triplet","1/8 Dotted","1/16 Dotted");
     else if(id==87)
-      param->InitInt(spec.name.data(),1,1,4,"oct");
+      param->InitInt(spec.name.data(),1,1,4,"oct",IParam::kFlagsNone,group);
     else if(spec.id==sawstar::ParameterId::Osc1Wave||spec.id==sawstar::ParameterId::Osc2Wave)
-      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Oscillator","Saw","Square","Triangle","Sine");
+      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,group,"Saw","Square","Triangle","Sine");
     else if(spec.id==sawstar::ParameterId::VoiceMode)
-      param->InitEnum(spec.name.data(),0,3,"",IParam::kFlagsNone,"Performance","Poly","Mono","Legato");
+      param->InitEnum(spec.name.data(),0,3,"",IParam::kFlagsNone,group,"Poly","Mono","Legato");
     else if(spec.id==sawstar::ParameterId::GlideMode)
-      param->InitEnum(spec.name.data(),1,2,"",IParam::kFlagsNone,"Performance","Always","Overlap only");
+      param->InitEnum(spec.name.data(),1,2,"",IParam::kFlagsNone,group,"Always","Overlap only");
     else if(spec.id==sawstar::ParameterId::ReverbEnabled)
-      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Reverb","Off","On");
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,group,"Off","On");
     else if(spec.id==sawstar::ParameterId::DelayEnabled)
-      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Delay","Off","On");
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,group,"Off","On");
     else if(spec.id==sawstar::ParameterId::DelayMode)
-      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Delay","Stereo","Ping-pong");
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,group,"Stereo","Ping-pong");
     else if(spec.id==sawstar::ParameterId::DelaySync)
-      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Delay","Free ms","Tempo Sync");
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,group,"Free ms","Tempo Sync");
     else if(spec.id==sawstar::ParameterId::DelayDivision)
-      param->InitEnum(spec.name.data(),3,7,"",IParam::kFlagsNone,"Delay","1/16","1/8","1/8 dotted","1/4","1/4 dotted","1/2","1/1");
+      param->InitEnum(spec.name.data(),3,7,"",IParam::kFlagsNone,group,"1/16","1/8","1/8 dotted","1/4","1/4 dotted","1/2","1/1");
     else if(spec.id==sawstar::ParameterId::ChorusEnabled)
-      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Effects","Off","On");
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,group,"Off","On");
     else if(spec.id==sawstar::ParameterId::LfoShape||spec.id==sawstar::ParameterId::Lfo2Shape)
-      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"LFO","Sine","Triangle","Ramp","Square");
+      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,group,"Sine","Triangle","Ramp","Square");
     else if(spec.id==sawstar::ParameterId::LfoTarget||spec.id==sawstar::ParameterId::Lfo2Target)
-      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"LFO","Filter Cutoff","Pitch","Amp Level","Pan");
+      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,group,"Filter Cutoff","Pitch","Amp Level","Pan");
     else if(spec.id==sawstar::ParameterId::LfoSync||spec.id==sawstar::ParameterId::Lfo2Sync)
-      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"LFO","Free Hz","Tempo Sync");
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,group,"Free Hz","Tempo Sync");
     else if(spec.id==sawstar::ParameterId::LfoDivision||spec.id==sawstar::ParameterId::Lfo2Division)
-      param->InitEnum(spec.name.data(),2,6,"",IParam::kFlagsNone,"LFO","1/1","1/2","1/4","1/8","1/16","1/32");
+      param->InitEnum(spec.name.data(),2,6,"",IParam::kFlagsNone,group,"1/1","1/2","1/4","1/8","1/16","1/32");
     else if(spec.id==sawstar::ParameterId::LfoRetrigger||spec.id==sawstar::ParameterId::Lfo2Retrigger)
-      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"LFO","Free phase","Retrigger first key");
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,group,"Free phase","Retrigger first key");
     else if(spec.id==sawstar::ParameterId::SubWave)
-      param->InitEnum(spec.name.data(),0,3,"",IParam::kFlagsNone,"Sub","Sine","Triangle","Square");
+      param->InitEnum(spec.name.data(),0,3,"",IParam::kFlagsNone,group,"Sine","Triangle","Square");
     else if (spec.id == sawstar::ParameterId::FilterMode)
-      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Filter","Low Pass 12","Low Pass 24","High Pass 12","Band Pass 12");
+      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,group,"Low Pass 12","Low Pass 24","High Pass 12","Band Pass 12");
     else if (spec.id == sawstar::ParameterId::NoiseSource)
-      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,"Mixer","Legacy White/Dark","White Noise","Dark Noise","Pink Noise");
+      param->InitEnum(spec.name.data(),0,4,"",IParam::kFlagsNone,group,"Legacy White/Dark","White Noise","Dark Noise","Pink Noise");
     else if (spec.id == sawstar::ParameterId::NoiseType)
-      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,"Mixer","White Noise","Dark Noise");
+      param->InitEnum(spec.name.data(),0,2,"",IParam::kFlagsNone,group,"White Noise","Dark Noise");
     else if (spec.id == sawstar::ParameterId::Osc1Octave || spec.id == sawstar::ParameterId::Osc2Octave || spec.id == sawstar::ParameterId::SubOctave)
-      param->InitInt(spec.name.data(),static_cast<int>(spec.initial),static_cast<int>(spec.minimum),static_cast<int>(spec.maximum),"oct");
+      param->InitInt(spec.name.data(),static_cast<int>(spec.initial),static_cast<int>(spec.minimum),static_cast<int>(spec.maximum),"oct",IParam::kFlagsNone,group);
     else if (spec.mapping == sawstar::Mapping::Logarithmic)
       param->InitDouble(spec.name.data(), spec.initial, spec.minimum, spec.maximum, 0.01,
-                        spec.unit.data(), IParam::kFlagsNone, static_cast<int>(spec.id) >= 8 ? "Filter" : "Amp", IParam::ShapeExp());
+                        spec.unit.data(), IParam::kFlagsNone, group, IParam::ShapeExp());
     else
       param->InitDouble(spec.name.data(), spec.initial, spec.minimum, spec.maximum, 0.001,
-                        spec.unit.data());
+                        spec.unit.data(),IParam::kFlagsNone,group);
   }
   MakeDefaultPreset("Init", 1);
 #if IPLUG_EDITOR
@@ -110,7 +112,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     sawstar::Snapshot current{};
     for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
-    sawstar::gui::BuildLayout(g,mGuiScale,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mPeakL,mPeakR,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply);
+    sawstar::gui::BuildLayout(g,mGuiScale,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mMeter,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply);
   };
 #endif
 }
@@ -129,7 +131,7 @@ void SAWSTAR::SyncRestoredPreset() {
 #if IPLUG_DSP
 void SAWSTAR::OnReset() {
   mScope.Reset(GetSampleRate());
-  mRate.store(static_cast<int>(GetSampleRate()));mPeakL.store(0);mPeakR.store(0);mCpu.store(0);mVoiceCount.store(0);
+  mRate.store(static_cast<int>(GetSampleRate()));mMeter.Reset();mCpu.store(0);mVoiceCount.store(0);
   mSynth.Reset(GetSampleRate());mArp.Init(GetSampleRate());mArpReset.store(false);
   mEventCount = 0; mOverflow = false;mMidiVoiceMode=0;
   mBend.store(8192);mMod.store(0);
@@ -164,7 +166,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     GetParam(39)->Int()!=0,GetParam(40)->Int(),GetTempo(),GetParam(41)->Int()!=0);
   mSynth.SetFilterCharacter(static_cast<float>(GetParam(31)->Value()),GetParam(32)->Int());
   mSynth.SetFilter(static_cast<float>(GetParam(8)->Value()), static_cast<float>(GetParam(9)->Value()),
-                   static_cast<float>(GetParam(10)->Value()));
+                   static_cast<float>(GetParam(10)->Value()),false);
   mSynth.SetFilterEnvelope(static_cast<float>(GetParam(11)->Value()), static_cast<float>(GetParam(12)->Value()),
     static_cast<float>(GetParam(13)->Value()), static_cast<float>(GetParam(14)->Value()),
     static_cast<float>(GetParam(15)->Value()), static_cast<float>(GetParam(16)->Value()));
@@ -175,6 +177,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     mEventCount = 0; mOverflow = false;
   mBend.store(8192);mMod.store(0);
   }
+  const int channels=NOutChansConnected();
   int event = 0;
   for (int i = 0; i < frames; ++i) {
     while (event < mEventCount && mEvents[event].mOffset <= i) {
@@ -185,11 +188,10 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     const auto value=mSynth.ProcessStereo();
     const auto pre=mSynth.PreFX();mScope.Push((pre.left+pre.right)*.5f);
     peakL=std::max(peakL,std::abs(value.left));peakR=std::max(peakR,std::abs(value.right));
-    const int channels=NOutChansConnected();
     if(channels==1) outputs[0][i]=static_cast<sample>((value.left+value.right)*0.5f);
     else for(int ch=0;ch<channels;++ch) outputs[ch][i]=static_cast<sample>(ch%2?value.right:value.left);
   }
-  mPeakL.store(peakL);mPeakR.store(peakR);mVoiceCount.store(mSynth.ActiveVoices());
+  mMeter.Publish(peakL,peakR,uint32_t(std::chrono::duration_cast<std::chrono::milliseconds>(started.time_since_epoch()).count()));mVoiceCount.store(mSynth.ActiveVoices());
   if(frames>0){float used=100.f*std::chrono::duration<float>(std::chrono::steady_clock::now()-started).count()*GetSampleRate()/frames;mCpu.store(mCpu.load()*.9f+used*.1f);}
   for (int i = event; i < mEventCount; ++i) {
     mEvents[i - event] = mEvents[i]; mEvents[i - event].mOffset -= frames;
@@ -211,8 +213,10 @@ void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
   SyncRestoredPreset();
+  if(GetUI()){if(auto* meter=dynamic_cast<sawstar::gui::Meter*>(GetUI()->GetControlWithTag(9100)))meter->Update(mPage==0);}
+  else mMeter.Take();
   if(GetUI())if(auto* c=dynamic_cast<sawstar::gui::ScopeControl*>(GetUI()->GetControlWithTag(9104)))c->Update(mScope,mPage==0);
-  if(GetUI()){sawstar::gui::StyleEntry(GetUI());for(int tag:{9100,9103})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
+  if(GetUI()){sawstar::gui::StyleEntry(GetUI());for(int tag:{9103})if(auto* c=GetUI()->GetControlWithTag(tag))c->SetDirty(false);}
   if(GetUI())if(auto* c=dynamic_cast<sawstar::gui::Status*>(GetUI()->GetControlWithTag(9101)))c->Update();
   sawstar::Snapshot current{};
   for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
@@ -246,7 +250,7 @@ bool SAWSTAR::SerializeState(IByteChunk& chunk) const {
   return chunk.PutBytes(bytes.data(), static_cast<int>(bytes.size())) > 0;
 }
 int SAWSTAR::UnserializeState(const IByteChunk& chunk, int startPos) {
-  if(startPos<0 || startPos>chunk.Size()) return -1;
+  if(startPos<0 || startPos>=chunk.Size() || !chunk.GetData()) return -1;
   sawstar::Snapshot values{};
   const auto consumed=sawstar::DecodeState(chunk.GetData()+startPos,
     static_cast<size_t>(chunk.Size()-startPos),values);

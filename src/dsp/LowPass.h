@@ -8,6 +8,7 @@ class LowPass {
 public:
   void Init(float sampleRate);
   void Clear();
+  void SnapToTargets(){g_=targetG_;k_=targetK_;mix_=targetMix_;drive_=targetDrive_;weights_.fill(0);weights_[mode_]=1;}
   void Set(float cutoffHz, float resonancePercent, float mixPercent);
   void SetCharacter(float driveDb, int mode);
   StereoSample Process(StereoSample input);

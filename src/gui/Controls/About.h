@@ -22,11 +22,12 @@ public:
   g.DrawText(IText(16,Text),"Simple Synth - Big Sound",IRECT(b.L,b.T+114,b.R,b.T+143));
   g.DrawText(IText(13,Text),Motto,IRECT(b.L+20,b.T+146,b.R-20,b.T+171));
   g.DrawLine(Blue,b.L+85,b.T+184,b.R-85,b.T+184);
-  DrawDeveloperMark(g,IRECT(b.L+80,b.T+202,b.L+123,b.T+271));
+  DrawDeveloperMark(g,IRECT(b.L+140,b.T+202,b.L+183,b.T+271));
   g.DrawText(IText(13,Muted),"Developed by",IRECT(b.L,b.T+200,b.R,b.T+222));
   g.DrawText(IText(20,Text),"Gyuricza Róbert",IRECT(b.L,b.T+225,b.R,b.T+254));
   g.DrawText(IText(11,Text),"Version " SAWSTAR_DISPLAY_VERSION " / " SAWSTAR_BUILD_ID,IRECT(b.L,b.T+262,b.R,b.T+284));
   g.DrawText(IText(12,Blue),"github.com/RobCZart82/SAWSTAR",IRECT(b.L,b.T+291,b.R,b.T+316));
+  g.DrawLine(Blue,b.L+85,b.T+321,b.R-85,b.T+321);
   g.DrawText(IText(12,Text),"iPlug2 / DaisySP   |   SAWSTAR code: MIT",IRECT(b.L,b.T+327,b.R,b.T+349));
   g.DrawText(IText(12,Text),"Orbitron: Matt McInerney / SIL OFL 1.1",IRECT(b.L,b.T+351,b.R,b.T+373));
   g.FillRoundRect(IColor(255,22,58,80),OK(),3);g.DrawRoundRect(Blue,OK(),3);g.DrawText(IText(15,Text),"OK",OK());
