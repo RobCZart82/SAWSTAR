@@ -46,13 +46,13 @@ public:
         float lo=frame_.samples[start+a],hi=lo;
         for(unsigned i=a+1;i<b;++i){lo=std::min(lo,frame_.samples[start+i]);hi=std::max(hi,frame_.samples[start+i]);}
         const float x=r.L+2+col,y=r.MH()-frame_.samples[start+a]*scale;
-        g.DrawLine(IColor(35,104,244,58),lastX,lastY,x,y,nullptr,3.f);
+        g.DrawLine(IColor(55,104,244,58),lastX,lastY,x,y,nullptr,3.f);
         g.DrawLine(green,lastX,lastY,x,y,nullptr,1.f);
         g.DrawLine(green,x,r.MH()-hi*scale,x,r.MH()-lo*scale,nullptr,1.f);
         lastX=x;lastY=y;
       }
     }
-    g.DrawRoundRect(Border,r,3);
+    DrawDisplayBezel(g,r);
     char label[64];std::snprintf(label,sizeof(label),"PRE-FX / %.3g ms / AUTO",1000.*ScopeWindowSamples(frame_.rate)/frame_.rate);
     g.DrawText(IText(9,Text),label,mRECT.GetFromBottom(18));
   }

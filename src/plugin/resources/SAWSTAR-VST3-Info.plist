@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>SAWSTAR</string>
 	<key>CFBundleGetInfoString</key>
-	<string>SAWSTAR v1.0.0 Copyright (c) 2026 Gyuricza Róbert / RobCZart82</string>
+	<string>SAWSTAR v1.0.1 Copyright (c) 2026 Gyuricza Róbert / RobCZart82</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright (c) 2026 Gyuricza Róbert / RobCZart82</string>
 	<key>CFBundleIdentifier</key>
@@ -19,11 +19,11 @@
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>1.0.1</string>
 	<key>CFBundleSignature</key>
 	<string>SwSt</string>
 	<key>CFBundleVersion</key>
-	<string>1.0.0</string>
+	<string>1.0.1</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>LSMinimumSystemVersion</key>

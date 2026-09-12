@@ -13,6 +13,7 @@ public:
   void SetPitchMultiplier(float ratio) { pitch_=FiniteClamp(ratio,0.f,4096.f,1.f); }
   void SetWaveform(int waveform);
   void SetShape(float detuneCents, float mix, float width);
+  void SnapToTargets(){mix_=targetMix_;width_=targetWidth_;ratios_=targets_;waveWeights_.fill(0);waveWeights_[waveform_]=1;}
   StereoSample Process();
 private:
   std::array<daisysp::Oscillator,7> saws_;
