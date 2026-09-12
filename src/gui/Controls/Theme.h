@@ -61,7 +61,7 @@ public:
 class BrandWordmark final:public IControl{
  bool font_;
 public:BrandWordmark(IRECT r,bool font):IControl(r),font_(font){SetIgnoreMouse(true);}
- void Draw(IGraphics& g)override{auto style=IText(38,Text).WithFont(font_?"SAWSTAR-Orbitron":"Roboto-Regular").WithAlign(EAlign::Near);float x=mRECT.L;for(char c:std::string("SAWSTAR")){char letter[]={c,0};IRECT measured;g.MeasureText(style,letter,measured);g.DrawText(style,letter,IRECT(x,mRECT.T,x+measured.W()+2,mRECT.B));x+=measured.W()+1.6f;}}
+ void Draw(IGraphics& g)override{auto style=IText(38,Text).WithFont(font_?"SAWSTAR-Orbitron":"Roboto-Regular").WithAlign(EAlign::Near);float x=mRECT.L;for(char c:std::string("SAWSTAR")){char letter[]={c,0};IRECT measured;g.MeasureText(style,letter,measured);g.DrawText(style,letter,IRECT(x,mRECT.T,x+measured.W()+2,mRECT.B));x+=measured.W()+2.6f;}}
 };
 class Section final:public IControl{
  const char* title_;IColor color_;bool tint_;
