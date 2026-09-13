@@ -3,10 +3,15 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
+// Keep large test fixtures off the Windows Debug main-thread stack.
+// Allocation is test setup only, outside the audio processing loop.
 void check(bool value,const char* why){if(!value){std::cerr<<why<<'\n';std::exit(1);}}
 int main(){for(float sr:{44100.f,48000.f,96000.f}){
  {
-  sawstar::Synth changing,continuing;
+  auto changingOwner=std::make_unique<sawstar::Synth>();
+  auto continuingOwner=std::make_unique<sawstar::Synth>();
+  auto& changing=*changingOwner;auto& continuing=*continuingOwner;
   for(auto s:{&changing,&continuing}){s->Reset(sr);s->SetVoiceMode(2,0,true);
    s->SetParameters(-6,1,1,1,1);s->SetFilter(20000,0,0);s->SetWaveforms(3,3);
    s->Midi(0x90,48,127);for(int i=0;i<int(sr*.05)+3;++i)s->Process();}
@@ -18,7 +23,7 @@ int main(){for(float sr:{44100.f,48000.f,96000.f}){
          "transition must retain the old waveform beyond the first sample");}
  }
  for(int mode:{1,2}){
-  sawstar::Synth s;s.Reset(sr);s.SetVoiceMode(mode,0,true);
+  auto owner=std::make_unique<sawstar::Synth>();auto& s=*owner;s.Reset(sr);s.SetVoiceMode(mode,0,true);
   s.SetParameters(-6,1,1,1,1);s.SetFilter(1500,80,100);
   s.Midi(0x90,48,127);for(int i=0;i<1000;++i)s.Process();
   // Retarget faster than any transition can finish; then release immediately.
@@ -37,7 +42,9 @@ int main(){for(float sr:{44100.f,48000.f,96000.f}){
   }
  }
  for(int mode:{1,2})for(bool pedal:{false,true}){
-  sawstar::Synth a,b;
+  auto aOwner=std::make_unique<sawstar::Synth>();
+  auto bOwner=std::make_unique<sawstar::Synth>();
+  auto& a=*aOwner;auto& b=*bOwner;
   for(auto s:{&a,&b}){s->Reset(sr);s->SetParameters(-6,3,100,.2,200);
    s->SetVoiceMode(mode,0,true);s->SetFilter(1200,60,100);
    s->Midi(0x90,48,127);s->Midi(0x90,60,127);s->Midi(0x90,80,127);
@@ -53,7 +60,9 @@ int main(){for(float sr:{44100.f,48000.f,96000.f}){
   check(a.ActiveVoices()==0&&b.ActiveVoices()==0,"grouped releases must finish");
  }
  for(int mode:{1,2}){
-  sawstar::Synth a,b;
+  auto aOwner=std::make_unique<sawstar::Synth>();
+  auto bOwner=std::make_unique<sawstar::Synth>();
+  auto& a=*aOwner;auto& b=*bOwner;
   for(auto s:{&a,&b}){s->Reset(sr);s->SetParameters(-6,1,1,1,10);
    s->SetVoiceMode(mode,0,true);s->SetFilter(20000,0,0);
    s->Midi(0x90,48,127);s->Midi(0x90,60,127);
@@ -65,7 +74,7 @@ int main(){for(float sr:{44100.f,48000.f,96000.f}){
    check(x.left==y.left&&x.right==y.right,"unrelated release must not cancel active continuity correction");}
  }
  for(int mode:{1,2})for(int wave:{0,1,2,3}){
-  sawstar::Synth s;s.Reset(sr);s.SetParameters(-6,1,1,1,10);
+  auto owner=std::make_unique<sawstar::Synth>();auto& s=*owner;s.Reset(sr);s.SetParameters(-6,1,1,1,10);
   s.SetVoiceMode(mode,0,true);s.SetWaveforms(wave,wave);s.SetFilter(20000,0,0);
   s.Midi(0x90,48,127);
   for(int n=0;n<12;++n){
@@ -85,7 +94,7 @@ int main(){for(float sr:{44100.f,48000.f,96000.f}){
   check(s.Process()==0,"mono panic must silence an active correction");
  }
  for(bool full:{false,true}){
-  sawstar::Synth s;s.Reset(sr);s.SetParameters(0,1,1,1,10);s.SetOutputBoost(18);
+  auto owner=std::make_unique<sawstar::Synth>();auto& s=*owner;s.Reset(sr);s.SetParameters(0,1,1,1,10);s.SetOutputBoost(18);
   s.Midi(0x90,60,127);
   if(full)for(int ch=1;ch<16;++ch)s.Midi(0x90|ch,60,1);
   float previous=0;for(int i=0;i<int(sr/2)+17;++i)previous=s.Process();
