@@ -52,7 +52,8 @@ void Synth::SelectMono(bool retrigger,bool allowGlide) {
   auto& v=voices_[0];
   if(selected<0){monoKey_=-1;v.held=v.gate=false;monoTail_.gate=false;return;}
   const bool same=selected==monoKey_;if(same&&!retrigger){v.held=monoKeys_[selected].held;return;}
-  retrigger=retrigger||voiceMode_==1;
+  // Returning to an already-held key is not a fresh strike: preserve both
+  // envelopes. Mono Note On requests retrigger explicitly below.
   const int note=selected%128,ch=selected/128;
   const bool wasRunning=v.note>=0;
   if(wasRunning&&monoPitchValid_&&!v.startPending&&!monoTailCaptured_){
@@ -89,7 +90,9 @@ void Synth::MonoMidi(int status,int note,int value) {
     auto& key=monoKeys_[index];key.held=true;key.latched=false;key.velocity=value;key.order=++monoOrder_;
     // Any release-only poly voices from a mode change stop before the mono note starts.
     for(size_t i=1;i<voices_.size();++i){voices_[i].note=-1;voices_[i].held=voices_[i].gate=false;}
-    SelectMono(voiceMode_==1||!overlap,!overlapOnly_||overlap);
+    // Repeating the selected key articulates a new note in either event order.
+    // The shared counter keeps an overlapping Note Off from releasing it.
+    SelectMono(voiceMode_==1||!overlap||index==monoKey_,!overlapOnly_||overlap);
   }else if(kind==0x80||(kind==0x90&&value==0)){
     auto& key=monoKeys_[index];if(!key.held)return;key.held=false;key.latched=sustain_[channel];
     // Resolve a group of same-sample releases once, before rendering. Otherwise

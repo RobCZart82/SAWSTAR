@@ -65,3 +65,36 @@ especially overlapping bass/pluck notes, glide, and fast repeated notes. Do not
 normalize away the transient differences. GUI geometry and musical gate rules
 are deliberately unchanged; any further envelope-rule change needs its own
 comparison.
+
+
+## rc3: release fallback and repeated-note articulation
+
+The user heard improvement in rc2 but still heard the pop. Inserting short gaps
+between MIDI phrases eliminated most of it. rc3 makes two targeted changes;
+it does not lengthen the 6 ms crossfade or move any GUI control.
+
+* Mono Note Off fallback now preserves the amplitude and filter envelope stages.
+  Previously SelectMono forced a fresh attack even without a new Note On. A
+  still-held key can therefore return without an extra envelope accent. Pitch
+  fallback and last-note priority remain active; rc3 does not discard held notes.
+* A repeated Note On on the selected Legato key explicitly retriggers. Adjacent
+  same-pitch notes now sound identical for Off/On and On/Off ordering (with zero
+  glide), using the existing matched-note counters. Different-pitch overlapping
+  Legato notes retain their existing envelope behavior.
+
+This deliberately changes articulation in those two situations. It does not
+claim to remove every transient. The original project contains a real 25 ms
+lower-note fallback, which remains audible as a pitch event.
+
+In the same 44.1 kHz engine-only reproduction window (5.710018–5.736 seconds),
+rc2 peak/RMS were 0.031207 / 0.015068, and rc3 0.025172 / 0.012175 (about 19%
+lower peak and RMS). This comparison is not a perceptual pass/fail criterion.
+The initial attack remains sample-identical to rc2 and starts with a zero sample;
+the user's tiny transport-start click remains an open host/listening check.
+
+Regression tests isolate repeated-note event ordering in Poly, Mono and Legato,
+and amplitude/filter envelope fallback at identical pitch on separate channels.
+All run at 44.1, 48 and 96 kHz. Existing mono, overlapping-note, short-note,
+idle-start, reset, parameter transition, engine audit and 10,000-step torture
+checks pass locally. Fixtures stay on the heap to avoid Windows Debug stack
+exhaustion (the rc2 test-only follow-up also passed Windows CI).

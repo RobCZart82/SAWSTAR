@@ -9,6 +9,35 @@
 void check(bool value,const char* why){if(!value){std::cerr<<why<<'\n';std::exit(1);}}
 int main(){for(float sr:{44100.f,48000.f,96000.f}){
  {
+  auto aOwner=std::make_unique<sawstar::Synth>();auto bOwner=std::make_unique<sawstar::Synth>();
+  auto& a=*aOwner;auto& b=*bOwner;
+  for(int mode:{0,1,2}){
+   for(auto v:{&a,&b}){v->Reset(sr);v->SetVoiceMode(mode,0,true);
+    v->SetParameters(-6,4,20,.1f,100);v->SetWaveforms(3,3);v->SetFilter(20000,0,0);
+    v->Midi(0x90,60,100);for(int i=0;i<int(sr*.2);++i)v->Process();}
+   a.Midi(0x80,60,0);a.Midi(0x90,60,100);
+   b.Midi(0x90,60,100);b.Midi(0x80,60,0);
+   for(int i=0;i<int(sr*.05);++i){auto x=a.ProcessStereo(),y=b.ProcessStereo();
+    check(x.left==y.left&&x.right==y.right,"adjacent repeated note must not depend on on/off ordering");}
+   a.Midi(0x80,60,0);b.Midi(0x80,60,0);
+   for(int i=0;i<int(sr);++i){a.Process();b.Process();}
+   check(a.ActiveVoices()==0&&b.ActiveVoices()==0,"repeated note counters must release fully");
+  }
+  // Two keys on different channels at identical pitch isolate the envelope
+  // behavior from an intentional pitch change during last-note fallback.
+  for(float filterAmount:{0.f,48.f}){
+  for(auto v:{&a,&b}){v->Reset(sr);v->SetVoiceMode(1,0,true);
+   v->SetParameters(-6,4,20,.1f,100);v->SetWaveforms(3,3);v->SetFilter(20000,0,0);
+   if(filterAmount>0){v->SetFilter(400,60,100);v->SetFilterEnvelope(filterAmount,0,4,20,.1f,100);}
+   v->Midi(0x90,60,100);v->Midi(0x91,60,100);
+   for(int i=0;i<int(sr*.3);++i)v->Process();}
+  a.Midi(0x81,60,0);
+  for(int i=0;i<int(sr*.05);++i){a.Process();b.Process();
+   if(i>int(sr*.007))check(std::abs(a.PreFX().left-b.PreFX().left)<1e-5f,
+                         "note-off fallback must not create a fresh amplitude/filter attack");}
+  }
+ }
+ {
   auto changingOwner=std::make_unique<sawstar::Synth>();
   auto continuingOwner=std::make_unique<sawstar::Synth>();
   auto& changing=*changingOwner;auto& continuing=*continuingOwner;
