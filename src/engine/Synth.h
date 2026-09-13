@@ -74,6 +74,11 @@ private:
     uint64_t age = 0;
   };
   std::array<Voice, 16> voices_{};
+  // One fixed, short-lived transition voice; never consumes musical polyphony.
+  Voice monoTail_{};
+  float monoTailRatio_=1,monoTailVelocity_=0;
+  int monoTailRemaining_=0,monoTailLength_=1;
+  bool monoTailCaptured_=false;
   struct MonoKey { bool held=false,latched=false; int velocity=0; uint64_t order=0; };
   std::array<MonoKey,2048> monoKeys_{};
   int voiceMode_=0,monoKey_=-1;

@@ -5,6 +5,7 @@
 namespace sawstar {
 void Synth::Reset(double rate) {
   initialControlsPending_=true;panicChannels_=0;preFX_={};
+  monoTailRemaining_=0;monoTailCaptured_=false;
   const float sr = SafeSampleRate(rate);
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
   sustain_.fill(false);downCounts_.fill(0);heldKeys_=0; age_ = 0; gain_ = 0;
@@ -31,6 +32,7 @@ void Synth::SetVoiceMode(int mode,float glideMs,bool overlapOnly) {
   mode=std::clamp(mode,0,2);glideMs_=std::isfinite(glideMs)?std::clamp(glideMs,0.f,2000.f):0;
   overlapOnly_=overlapOnly;
   if(mode!=voiceMode_){
+    monoTail_.gate=false;monoTailCaptured_=false;
     if(voiceMode_!=0&&monoPitchValid_&&voices_[0].note>=0){auto& v=voices_[0];v.fundamental=static_cast<float>(440*std::exp2((monoPitch_-69)/12.));v.osc.SetFreq(v.fundamental);v.osc2.SetFreq(v.fundamental);}
     // A mode change starts a new key phrase; release current sources safely.
     for(auto& v:voices_){if(v.note>=0&&(v.gate||v.gatePending)){v.env.Process(true);v.filterMod.Process(v.note,true);}v.held=v.gate=v.gatePending=false;}
@@ -48,11 +50,21 @@ void Synth::SelectMono(bool retrigger,bool allowGlide) {
     if(selected<0||(k.held&&!monoKeys_[selected].held)||(k.held==monoKeys_[selected].held&&k.order>monoKeys_[selected].order))selected=i;
   }
   auto& v=voices_[0];
-  if(selected<0){monoKey_=-1;v.held=v.gate=false;return;}
+  if(selected<0){monoKey_=-1;v.held=v.gate=false;monoTail_.gate=false;return;}
   const bool same=selected==monoKey_;if(same&&!retrigger){v.held=monoKeys_[selected].held;return;}
   retrigger=retrigger||voiceMode_==1;
   const int note=selected%128,ch=selected/128;
   const bool wasRunning=v.note>=0;
+  if(wasRunning&&monoPitchValid_&&!v.startPending&&!monoTailCaptured_){
+    // Snapshot the audible voice once per sample, before its note/filter/envelope
+    // targets change. A rapid retarget replaces this single bounded tail; the
+    // existing correction below joins to the last mixed output in that case.
+    monoTail_=v;monoTail_.splicePending=false;monoTail_.spliceRemaining=0;
+    monoTailRatio_=static_cast<float>(std::exp2((monoPitch_-69)/12.));
+    monoTailVelocity_=monoVelocity_;
+    monoTailLength_=std::max(2,static_cast<int>(sampleRate_*.006f));
+    monoTailRemaining_=monoTailLength_;monoTailCaptured_=true;
+  }
   // Reuse the same continuity correction as Poly. Unrelated note-offs must
   // not cancel a correction already in progress; idle starts have no tail.
   v.splicePending=wasRunning;
@@ -160,6 +172,7 @@ void Synth::SetSaw(float detune,float mix,float width) {
 void Synth::Midi(int status, int note, int value) {
   const int channel = status & 15, kind = status & 240;
   if (note < 0 || note > 127 || value < 0 || value > 127) return;
+  if(kind==0xb0&&note==120&&monoTail_.channel==channel)monoTailRemaining_=0;
   const int index=channel*128+note;
   // Shared FX can be cleared only after every MIDI channel has been silenced.
   // A new note starts a new panic sequence, preserving other-channel tails.
@@ -251,10 +264,16 @@ StereoSample Synth::ProcessStereo() {
   const float octave1=std::exp2(static_cast<float>(osc1Octave_));
   const float octave2=std::exp2(static_cast<float>(osc2Octave_));
   const float subOctave=std::exp2(static_cast<float>(subOctave_));
-  for (auto& v : voices_) if (v.note >= 0) {
+  StereoSample tailSample{};
+  // Render the preserved old voice before voice zero so the latter can blend it.
+  for (size_t slot=0;slot<=voices_.size();++slot) {
+    const bool tail=slot==0;
+    if(tail&&monoTailRemaining_==0)continue;
+    auto& v=tail?monoTail_:voices_[slot-1];
+    if(v.note<0)continue;
     const auto route=matrix_.Evaluate({lfo_.Value(),lfo2_.Value(),smoothWheel_[v.channel],v.velocity,smoothPressure_[v.channel]});
     const float routedPitch=route[1]==0?1.f:std::exp2(route[1]/12.f);
-    const float glide=(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_)?monoRatio:1.f;
+    const float glide=tail?monoTailRatio_:((voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_)?monoRatio:1.f);
     // DaisySP detects release from a gate edge. Preserve a zero-length MIDI
     // note's edge when note-on and note-off arrive before its first sample.
     if(v.gatePending){
@@ -286,11 +305,18 @@ StereoSample Synth::ProcessStereo() {
     const StereoSample mixed{one.left*levels_[0]+two.left*levels_[1]+center,
                              one.right*levels_[0]+two.right*levels_[1]+center};
     const auto value=v.filter.Process(mixed);
-    float velocity=v.velocity;
+    float velocity=tail?monoTailVelocity_:v.velocity;
     if(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_){monoVelocity_+=smoothing_*(v.velocity-monoVelocity_);velocity=monoVelocity_;}
     const float routedAmp=1+route[2];
     StereoSample rendered{value.left*env*velocity*routedAmp*std::sqrt(1-route[3]),
                           value.right*env*velocity*routedAmp*std::sqrt(1+route[3])};
+    if(tail){tailSample=rendered;continue;}
+    if(&v==&voices_[0]&&monoTailRemaining_>0){
+      const float u=static_cast<float>(monoTailLength_-monoTailRemaining_)/(monoTailLength_-1);
+      const float weight=u*u*(3-2*u); // Smooth endpoints, unity summed weights.
+      rendered.left=tailSample.left*(1-weight)+rendered.left*weight;
+      rendered.right=tailSample.right*(1-weight)+rendered.right*weight;
+    }
     // A short correction ramp joins a reused voice to its previous output.
     // Retargeting uses the already-corrected sample, including dense MIDI bursts.
     const int spliceLength=std::max(1,static_cast<int>(sampleRate_*.003f));
@@ -298,8 +324,11 @@ StereoSample Synth::ProcessStereo() {
     if(v.spliceRemaining){const float weight=static_cast<float>(v.spliceRemaining--)/spliceLength;
       rendered.left+=v.correction.left*weight;rendered.right+=v.correction.right*weight;}
     v.lastSample=rendered;sum.left+=rendered.left;sum.right+=rendered.right;
-    if (!v.gate && !v.env.IsRunning() && v.spliceRemaining==0) v.note = -1;
+    if (!v.gate && !v.env.IsRunning() && v.spliceRemaining==0
+        && (&v!=&voices_[0]||monoTailRemaining_<=1)) v.note = -1;
   }
+  if(monoTailRemaining_>0)--monoTailRemaining_;
+  monoTailCaptured_=false;
   gain_ += smoothing_ * (targetGain_ - gain_);
   boost_ += smoothing_ * (targetBoost_ - boost_);
   sum.left*=lfo.amp*std::sqrt(1-lfo.pan);sum.right*=lfo.amp*std::sqrt(1+lfo.pan);

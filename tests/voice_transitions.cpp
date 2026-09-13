@@ -5,6 +5,37 @@
 #include <iostream>
 void check(bool value,const char* why){if(!value){std::cerr<<why<<'\n';std::exit(1);}}
 int main(){for(float sr:{44100.f,48000.f,96000.f}){
+ {
+  sawstar::Synth changing,continuing;
+  for(auto s:{&changing,&continuing}){s->Reset(sr);s->SetVoiceMode(2,0,true);
+   s->SetParameters(-6,1,1,1,1);s->SetFilter(20000,0,0);s->SetWaveforms(3,3);
+   s->Midi(0x90,48,127);for(int i=0;i<int(sr*.05)+3;++i)s->Process();}
+  changing.Midi(0x90,96,127);
+  // A four-octave jump must initially follow the continued old waveform,
+  // not merely match its final sample and immediately switch derivatives.
+  for(int i=0;i<int(sr*.0005);++i){changing.Process();continuing.Process();
+   check(std::abs(changing.PreFX().left-continuing.PreFX().left)<.05f,
+         "transition must retain the old waveform beyond the first sample");}
+ }
+ for(int mode:{1,2}){
+  sawstar::Synth s;s.Reset(sr);s.SetVoiceMode(mode,0,true);
+  s.SetParameters(-6,1,1,1,1);s.SetFilter(1500,80,100);
+  s.Midi(0x90,48,127);for(int i=0;i<1000;++i)s.Process();
+  // Retarget faster than any transition can finish; then release immediately.
+  for(int n=0;n<100;++n){s.Midi(0x90,60+n%24,100);
+   for(int i=0;i<7;++i){auto x=s.ProcessStereo();
+    check(std::isfinite(x.left)&&std::isfinite(x.right)&&std::abs(x.left)<=.98001f&&std::abs(x.right)<=.98001f,
+          "dense mono crossfades remain finite and bounded");}
+   s.Midi(0x80,60+n%24,0);}
+  s.Midi(0x80,48,0);for(int i=0;i<int(sr*.2);++i)s.Process();
+  check(s.ActiveVoices()==0&&s.Process()==0,"short release must finish even with a transition tail");
+  for(int target:{0,1,2}){
+   s.SetVoiceMode(mode,0,true);s.Midi(0x90,48,127);for(int i=0;i<1000;++i)s.Process();
+   s.Midi(0x90,84,127);s.Process();s.SetVoiceMode(target,0,true);
+   for(int ch=0;ch<16;++ch)s.Midi(0xb0|ch,120,0);
+   check(s.Process()==0&&s.ActiveVoices()==0,"mode switch and panic must clear transition audio");
+  }
+ }
  for(int mode:{1,2})for(bool pedal:{false,true}){
   sawstar::Synth a,b;
   for(auto s:{&a,&b}){s->Reset(sr);s->SetParameters(-6,3,100,.2,200);
