@@ -74,21 +74,32 @@ private:
     uint64_t age = 0;
   };
   std::array<Voice, 16> voices_{};
-  // One fixed, short-lived transition voice; never consumes musical polyphony.
-  Voice monoTail_{};
-  float monoTailRatio_=1,monoTailVelocity_=0;
-  int monoTailRemaining_=0,monoTailLength_=1;
-  bool monoTailCaptured_=false;
+  // Preserve overlapping fades without allocating or consuming musical voices.
+  // Each branch keeps its own deadline: retargeting never prolongs old audio.
+  struct MonoTail {
+    Voice voice;
+    float ratio=1,velocity=0,startWeight=0;
+    int remaining=0,length=2;
+    float Weight() const {
+      if(remaining<=0)return 0;
+      const float u=static_cast<float>(length-remaining)/(length-1);
+      return startWeight*(1-u*u*(3-2*u));
+    }
+  };
+  std::array<MonoTail,4> monoTails_{};
+  bool monoTailCaptured_=false,monoTailComplete_=false;
   struct MonoKey { bool held=false,latched=false; int velocity=0; uint64_t order=0; };
   std::array<MonoKey,2048> monoKeys_{};
   int voiceMode_=0,monoKey_=-1;
   bool overlapOnly_=true,monoPitchValid_=false;
+  bool monoPitchRendered_=false;
   bool monoSelectionPending_=false;
   float glideMs_=0,monoVelocity_=0;
   double monoPitch_=69,monoTarget_=69,monoStep_=0;
   uint64_t glideRemaining_=0,monoOrder_=0;
   void MonoMidi(int status,int note,int value);
   void SelectMono(bool retrigger,bool allowGlide);
+  void CaptureMonoTail();
   Lfo lfo_,lfo2_;
   Modulation matrix_;
   std::array<float,16> pressure_{},smoothPressure_{},smoothWheel_{};

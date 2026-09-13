@@ -9,6 +9,64 @@
 void check(bool value,const char* why){if(!value){std::cerr<<why<<'\n';std::exit(1);}}
 int main(){for(float sr:{44100.f,48000.f,96000.f}){
  {
+  auto owner=std::make_unique<sawstar::Synth>();auto& s=*owner;
+  s.Reset(sr);s.SetVoiceMode(1,0,true);s.SetParameters(-6,1,1,1,100);
+  s.SetWaveforms(3,3);s.SetFilter(20000,0,0);
+  s.Midi(0x90,48,127);for(int i=0;i<int(sr*.2f)+17;++i)s.Process();
+  s.Midi(0x80,48,0);s.Midi(0x91,72,127);s.Process();
+  s.Midi(0x81,72,0);s.Midi(0x92,84,127);s.Process();
+  s.Midi(0xb2,120,0);s.Process();
+  check(s.ActiveVoices()==0&&std::abs(s.PreFX().left)>1e-4f,
+        "channel-local panic must preserve other-channel transition tails without a main voice");
+  s.Midi(0xb0,120,0);s.Midi(0xb1,120,0);
+  check(s.Process()==0,"panic on every contributing channel must clear all transition branches");
+  s.Reset(sr);check(s.Process()==0,"reset must clear all overlapping transition branches");
+ }
+ {
+  auto changingOwner=std::make_unique<sawstar::Synth>();
+  auto continuingOwner=std::make_unique<sawstar::Synth>();
+  auto& changing=*changingOwner;auto& continuing=*continuingOwner;
+  for(int mode:{1,2})for(int note:{36,48,60})for(int interval:{12,36})
+  for(int wave:{0,1,2,3})for(int phase:{0,7,23,71}){
+   for(auto s:{&changing,&continuing}){s->Reset(sr);s->SetVoiceMode(mode,0,true);
+    s->SetParameters(-6,1,1,1,100);s->SetWaveforms(wave,wave);s->SetFilter(20000,0,0);
+    s->Midi(0x90,note,127);for(int i=0;i<int(sr*.05f)+phase;++i)s->Process();}
+   changing.Midi(0x90,note+interval,127);
+   changing.Process();continuing.Process();
+   changing.Midi(0x80,note+interval,0);
+   // A one-sample excursion barely enters the mix. The return should follow
+   // the continued low tone, including natural saw/square edges: flattening
+   // an ordinary edge to the previous sample must not add a lasting offset.
+   for(int i=0;i<int(sr*.0005f);++i){changing.Process();continuing.Process();
+    check(std::abs(changing.PreFX().left-continuing.PreFX().left)<.01f,
+          "overlapping retarget must preserve the outgoing waveform and its natural edges");}
+  }
+ }
+ {
+  auto chordOwner=std::make_unique<sawstar::Synth>();
+  auto referenceOwner=std::make_unique<sawstar::Synth>();
+  auto& chord=*chordOwner;auto& reference=*referenceOwner;
+  for(int mode:{1,2})for(bool overlap:{false,true})for(float glide:{3.f,15.f,120.f}){
+   for(auto s:{&chord,&reference}){
+    // Reuse the fixture across resets: a previous phrase must not count as
+    // rendered pitch history for the new processing lifecycle.
+    s->Reset(sr);s->SetVoiceMode(mode,0,overlap);s->Midi(0x90,69,100);
+    for(int i=0;i<64;++i)s->Process();
+    s->Reset(sr);s->SetVoiceMode(mode,s==&chord?glide:0.f,overlap);
+    s->SetParameters(-6,3,100,.8,100);s->SetWaveforms(0,1);
+    s->SetMixer(90,25,10,0,0,-1,0,0);s->SetFilter(233,60,100);s->SetFilterCharacter(3,1);
+    for(int i=0;i<int(sr*.02f);++i)s->Process();
+    // All note-ons share one sample. None of the intermediate priorities
+    // has generated sound, so the first chord has no pitch to glide FROM.
+    for(int note:{58,65,70,73,77,82})s->Midi(0x90,note,100);
+   }
+   for(int i=0;i<int(sr*.15f);++i){auto x=chord.ProcessStereo(),y=reference.ProcessStereo();
+    check(x.left==y.left&&x.right==y.right,
+          "first same-sample mono chord must not glide from an unrendered intermediate note");}
+   for(int note:{58,65,70,73,77,82})check(chord.Held(note),"first chord keeps every held key");
+  }
+ }
+ {
   auto aOwner=std::make_unique<sawstar::Synth>();auto bOwner=std::make_unique<sawstar::Synth>();
   auto& a=*aOwner;auto& b=*bOwner;
   for(int mode:{0,1,2}){
@@ -103,18 +161,20 @@ int main(){for(float sr:{44100.f,48000.f,96000.f}){
    check(x.left==y.left&&x.right==y.right,"unrelated release must not cancel active continuity correction");}
  }
  for(int mode:{1,2})for(int wave:{0,1,2,3}){
-  auto owner=std::make_unique<sawstar::Synth>();auto& s=*owner;s.Reset(sr);s.SetParameters(-6,1,1,1,10);
+  auto owner=std::make_unique<sawstar::Synth>();auto& s=*owner;auto reference=std::make_unique<sawstar::Synth>();s.Reset(sr);s.SetParameters(-6,1,1,1,10);
   s.SetVoiceMode(mode,0,true);s.SetWaveforms(wave,wave);s.SetFilter(20000,0,0);
   s.Midi(0x90,48,127);
   for(int n=0;n<12;++n){
    for(int i=0;i<static_cast<int>(sr*.013)+n*7;++i)s.Process();
-   auto previous=s.PreFX();s.Midi(0x90,84,80);s.Process();auto next=s.PreFX();
-   check(std::abs(next.left-previous.left)<1e-5f&&std::abs(next.right-previous.right)<1e-5f,
-         "mono/legato new note must preserve first-sample continuity");
+   *reference=s;reference->Process();auto expected=reference->PreFX();
+   s.Midi(0x90,84,127);s.Process();auto next=s.PreFX();
+   check(std::abs(next.left-expected.left)<1e-5f&&std::abs(next.right-expected.right)<1e-5f,
+         "mono/legato new note must continue the outgoing waveform naturally");
    for(int i=0;i<static_cast<int>(sr*.011)+n*3;++i)s.Process();
-   previous=s.PreFX();s.Midi(0x80,84,0);s.Process();next=s.PreFX();
-   check(std::abs(next.left-previous.left)<1e-5f&&std::abs(next.right-previous.right)<1e-5f,
-         "mono/legato held-note fallback must preserve first-sample continuity");
+   *reference=s;reference->Process();expected=reference->PreFX();
+   s.Midi(0x80,84,0);s.Process();next=s.PreFX();
+   check(std::abs(next.left-expected.left)<1e-5f&&std::abs(next.right-expected.right)<1e-5f,
+         "mono/legato held-note fallback must continue the outgoing waveform naturally");
   }
   s.Midi(0x80,48,0);for(int i=0;i<int(sr);++i)s.Process();
   check(s.ActiveVoices()==0&&s.Process()==0,"mono correction must not leave a hanging voice");
