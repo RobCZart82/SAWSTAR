@@ -3,6 +3,9 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
+// Multiple engine fixtures exceed the Windows 1 MiB thread stack. Allocate
+// test storage during setup; audio processing still performs no allocation.
 #include <array>
 void check(bool ok,const char* why){if(!ok){std::cerr<<why<<'\n';std::exit(1);}}
 // Compare averaged spectral power at frequencies two octaves apart.
@@ -22,7 +25,7 @@ double pinkSlope(float sr){
 }
 struct Energy {double total=0,difference=0;};
 Energy render(float sr,int type,float color){
- sawstar::Synth s;s.Reset(sr);s.SetParameters(0,1,1,1,20);s.SetMixer(0,0,0,100,0,-1,type,0);s.SetNoiseColor(color);s.Midi(0x90,60,127);
+ auto sStorage=std::make_unique<sawstar::Synth>();auto& s=*sStorage;s.Reset(sr);s.SetParameters(0,1,1,1,20);s.SetMixer(0,0,0,100,0,-1,type,0);s.SetNoiseColor(color);s.Midi(0x90,60,127);
  Energy e;float last=0;
  for(int i=0;i<int(sr)*2;++i){float x=s.Process();check(std::isfinite(x)&&std::abs(x)<=.981f,"noise finite and bounded");
   if(i>sr){e.total+=x*x;e.difference+=(x-last)*(x-last);}last=x;}
@@ -38,7 +41,7 @@ int main(){
   // A/B renders share the same random sequences. Compare switched output to
   // an unchanged reference: switching itself must add only a small first step.
   for(int from=0;from<3;++from)for(int to=0;to<3;++to)if(from!=to){
-    sawstar::Synth moving,steady,destination;
+    auto movingStorage=std::make_unique<sawstar::Synth>();auto& moving=*movingStorage;auto steadyStorage=std::make_unique<sawstar::Synth>();auto& steady=*steadyStorage;auto destinationStorage=std::make_unique<sawstar::Synth>();auto& destination=*destinationStorage;
     for(auto* s:{&moving,&steady,&destination}){s->Reset(sr);s->SetParameters(0,1,1,1,20);s->SetOutputBoost(18);s->SetMixer(0,0,0,100,0,-1,from,0);s->Midi(0x90,60,127);}
     destination.SetMixer(0,0,0,100,0,-1,to,0);
     for(int i=0;i<int(sr)/2;++i){moving.Process();steady.Process();destination.Process();}
@@ -51,7 +54,7 @@ int main(){
     }
     check(changed>1,"noise type still changes the sound");
   }
-  sawstar::Synth a,b;a.Reset(sr);b.Reset(sr);b.SetNoiseColor(100);a.Midi(0x90,60,127);b.Midi(0x90,60,127);
+  auto aStorage=std::make_unique<sawstar::Synth>();auto& a=*aStorage;auto bStorage=std::make_unique<sawstar::Synth>();auto& b=*bStorage;a.Reset(sr);b.Reset(sr);b.SetNoiseColor(100);a.Midi(0x90,60,127);b.Midi(0x90,60,127);
   for(int i=0;i<8192;++i)check(a.Process()==b.Process(),"noise color leaves oscillators unchanged");
  }
 }
