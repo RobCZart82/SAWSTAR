@@ -291,7 +291,7 @@ StereoSample Synth::ProcessStereo() {
     v.sub.SetFreq(std::min(v.fundamental*bendRatio_[v.channel]*vibrato*routedPitch*glide*subOctave,sampleRate_*.45f));
     // Snap only a genuinely idle voice, after note-specific cutoff/pitch are known.
     // Retriggered/stolen and legato voices keep their continuity and smoothing.
-    if(v.startPending){v.osc.SnapToTargets();v.osc2.SnapToTargets();v.sub.SnapToTargets();v.filter.SnapToTargets();v.startPending=false;}
+    if(v.startPending){v.osc.SnapToTargets();v.osc2.SnapToTargets();v.sub.SnapToTargets();v.filter.SnapToTargets();v.filter.BeginNote();v.startPending=false;}
     const auto one=v.osc.Process(),two=v.osc2.Process();
     const float sub=v.sub.Process();
     // Per-voice deterministic xorshift; no global RNG, allocation or shared lock.

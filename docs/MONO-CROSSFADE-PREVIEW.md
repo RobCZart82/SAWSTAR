@@ -98,3 +98,37 @@ All run at 44.1, 48 and 96 kHz. Existing mono, overlapping-note, short-note,
 idle-start, reset, parameter transition, engine audit and 10,000-step torture
 checks pass locally. Fixtures stay on the heap to avoid Windows Debug stack
 exhaustion (the rc2 test-only follow-up also passed Windows CI).
+
+
+## rc4: isolated cold-filter entry experiment
+
+Offline controls confirmed that source phase and cold filter history strongly
+influence the original first-note transient. Pre-running the source/filter for
+10 ms before opening the unchanged amp envelope reduced first-10-ms peak from
+0.026777 to 0.001989, but this is not a suitable direct implementation: it packs
+extra rendering work into the note-on callback and advances source phase.
+A phase offset also changed the result, without establishing a generally correct
+phase for every waveform/preset. Neither control is shipped.
+
+rc4 instead adds a 0.5 ms smoothstep entry into the filter's wet excitation on
+truly idle voice starts. The amplitude envelope, dry path, MIDI timing, GUI and
+running-voice retarget rules are unchanged. There is no pre-render loop,
+lookahead, allocation or added sample buffering. The first half-millisecond of
+the wet-path articulation deliberately changes; listening must judge pluck
+sharpness. This is not a claim of perceptually identical attack.
+
+LowPass::BeginNote explicitly requests the entry. Clear alone still clears
+history without changing the general filter's input behavior. The entry state
+belongs to each filter instance and is included in the existing voice copy.
+
+At 44.1 kHz with the original preset/MIDI, first-10-ms output peak changed from
+0.026777 (rc3) to 0.005972 (rc4), about 78% lower. The 100–130 ms post-onset
+comparison window is sample-identical. The 5.710–5.736 second fallback window
+retains its 0.025172 peak: rc4 specifically does NOT solve that remaining event.
+
+The idle-start regression compares a cold LP24 saw entry against the controlled
+entry at 44.1/48/96 kHz; it also checks exact dry bypass and settled-response
+agreement. Filter, filter-character, filter-modulation, mono, repeated-note,
+short-note, idle-start, reset, parameter transition, engine-audit and torture
+checks passed locally. The next listening comparison should first compare the
+initial chord alone; then check that bass/pluck attacks remain suitably sharp.

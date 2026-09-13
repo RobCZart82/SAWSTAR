@@ -8,6 +8,7 @@ class LowPass {
 public:
   void Init(float sampleRate);
   void Clear();
+  void BeginNote(){startupRemaining_=startupLength_;}
   void SnapToTargets(){g_=targetG_;k_=targetK_;mix_=targetMix_;drive_=targetDrive_;weights_.fill(0);weights_[mode_]=1;}
   void Set(float cutoffHz, float resonancePercent, float mixPercent);
   void SetCharacter(float driveDb, int mode);
@@ -20,6 +21,7 @@ private:
   int mode_=0;
   double drive_=0,targetDrive_=0;
   double rate_=44100,slew_=0.002,g_=1,targetG_=1,k_=2,targetK_=2,mix_=0,targetMix_=0;
+  int startupLength_=2,startupRemaining_=0;
   float cutoff_=-1;
 };
 }
