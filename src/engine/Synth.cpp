@@ -291,7 +291,36 @@ StereoSample Synth::ProcessStereo() {
     v.sub.SetFreq(std::min(v.fundamental*bendRatio_[v.channel]*vibrato*routedPitch*glide*subOctave,sampleRate_*.45f));
     // Snap only a genuinely idle voice, after note-specific cutoff/pitch are known.
     // Retriggered/stolen and legato voices keep their continuity and smoothing.
-    if(v.startPending){v.osc.SnapToTargets();v.osc2.SnapToTargets();v.sub.SnapToTargets();v.filter.SnapToTargets();v.filter.BeginNote();v.startPending=false;}
+    if(v.startPending){
+      v.osc.SnapToTargets();v.osc2.SnapToTargets();v.sub.SnapToTargets();v.filter.SnapToTargets();
+      const float pitch=bendRatio_[v.channel]*vibrato*routedPitch*glide;
+      const float base=v.fundamental*pitch;
+      float lowest=sampleRate_;
+      if(levels_[0]>0)lowest=std::min(lowest,base*octave1);
+      if(levels_[1]>0)lowest=std::min(lowest,base*octave2);
+      if(levels_[2]>0)lowest=std::min(lowest,base*subOctave);
+      bool prepared=false;
+      if(levels_[3]==0 && v.filter.WantsPreparedStart(lowest)
+         && (levels_[0]==0 || v.osc.CanPreviewStart())
+         && (levels_[1]==0 || v.osc2.CanPreviewStart())
+         && (levels_[2]==0 || base*subOctave<sampleRate_*.45f)){
+        constexpr int count=LowPass::kStartPreviewSamples;
+        const float scale=sampleRate_/(count*lowest);
+        StereoSample mixed[count]{},part[count];
+        // Work on copies: preserve actual phase and the complete dry signal.
+        if(levels_[0]>0){auto preview=v.osc;preview.SetPitchMultiplier(pitch*octave1*scale);
+          preview.RenderStartPreview(part,count);
+          for(int n=0;n<count;++n){mixed[n].left=part[n].left*levels_[0];mixed[n].right=part[n].right*levels_[0];}}
+        if(levels_[1]>0){auto preview=v.osc2;preview.SetPitchMultiplier(pitch*octave2*scale);
+          preview.RenderStartPreview(part,count);
+          for(int n=0;n<count;++n){mixed[n].left+=part[n].left*levels_[1];mixed[n].right+=part[n].right*levels_[1];}}
+        if(levels_[2]>0){auto preview=v.sub;preview.SetFreq(base*subOctave*scale);
+          for(int n=0;n<count;++n){const float center=preview.Process()*levels_[2];mixed[n].left+=center;mixed[n].right+=center;}}
+        prepared=v.filter.PrepareStart(mixed,lowest);
+      }
+      if(!prepared)v.filter.BeginNote();
+      v.startPending=false;
+    }
     const auto one=v.osc.Process(),two=v.osc2.Process();
     const float sub=v.sub.Process();
     // Per-voice deterministic xorshift; no global RNG, allocation or shared lock.

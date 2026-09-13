@@ -15,6 +15,11 @@ public:
   void SetShape(float detuneCents, float mix, float width);
   void SnapToTargets(){mix_=targetMix_;width_=targetWidth_;ratios_=targets_;waveWeights_.fill(0);waveWeights_[waveform_]=1;}
   StereoSample Process();
+  // Only an idle, snapped copy may use the fixed-shape preview renderer.
+  // The leaky triangle has a non-periodic startup history; do not extrapolate it.
+  bool CanPreviewStart() const;
+  void RenderStartPreview(StereoSample* output, int frames);
+
 private:
   std::array<daisysp::Oscillator,7> saws_;
   std::array<std::array<daisysp::Oscillator,7>,3> alternatives_;

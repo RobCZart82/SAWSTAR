@@ -13,6 +13,12 @@ public:
   void Set(float cutoffHz, float resonancePercent, float mixPercent);
   void SetCharacter(float driveDb, int mode);
   StereoSample Process(StereoSample input);
+  static constexpr int kStartPreviewSamples = 64;
+  bool WantsPreparedStart(float fundamental) const;
+  // Audio-thread only. Estimate a zero-mean tonal history at the current phase.
+  // No allocation, extra audible samples, envelope advance or MIDI lookahead.
+  bool PrepareStart(const StereoSample (&preview)[kStartPreviewSamples], float fundamental);
+
 private:
   std::array<double,2> dcInput_{},dcOutput_{};
   double dcPole_=0;

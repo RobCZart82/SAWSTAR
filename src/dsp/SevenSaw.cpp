@@ -67,3 +67,30 @@ StereoSample SevenSaw::Process() {
   return result;
 }
 }
+
+namespace sawstar {
+bool SevenSaw::CanPreviewStart() const {
+  if (waveform_ == 2) return false;
+  // Clamped oscillators no longer share the intended harmonic relationships.
+  for (float ratio : ratios_)
+    if (hz_ * pitch_ * ratio >= rate_ * .45f) return false;
+  return true;
+}
+}
+namespace sawstar {
+void SevenSaw::RenderStartPreview(StereoSample* out,int frames){
+  for(int n=0;n<frames;++n)out[n]={};
+  for(size_t i=0;i<saws_.size();++i){
+    const float frequency=std::min(hz_*pitch_*ratios_[i],rate_*.45f);
+    auto& o=waveform_==0?saws_[i]:alternatives_[waveform_-1][i];o.SetFreq(frequency);
+    const float mix=i==0?1.f:mix_,pan=pans[i]*width_,l=1-pan,r=1+pan;
+    for(int n=0;n<frames;++n){float v=o.Process();
+      if(waveform_==2){const float increment=frequency/rate_;
+        triangleHistory_[i]=increment*(v/.707f)+(1-increment)*triangleHistory_[i];v=4*triangleHistory_[i];}
+      v*=mix;out[n].left+=v*l;out[n].right+=v*r;
+    }
+  }
+  const float norm=1/(1+6*mix_);
+  for(int n=0;n<frames;++n){out[n].left*=norm;out[n].right*=norm;}
+}
+}
