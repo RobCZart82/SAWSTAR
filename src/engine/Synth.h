@@ -78,6 +78,7 @@ private:
   std::array<MonoKey,2048> monoKeys_{};
   int voiceMode_=0,monoKey_=-1;
   bool overlapOnly_=true,monoPitchValid_=false;
+  bool monoSelectionPending_=false;
   float glideMs_=0,monoVelocity_=0;
   double monoPitch_=69,monoTarget_=69,monoStep_=0;
   uint64_t glideRemaining_=0,monoOrder_=0;

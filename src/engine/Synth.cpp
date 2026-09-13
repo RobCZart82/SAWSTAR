@@ -9,7 +9,7 @@ void Synth::Reset(double rate) {
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
   sustain_.fill(false);downCounts_.fill(0);heldKeys_=0; age_ = 0; gain_ = 0;
   ampSustain_=targetAmpSustain_;
-  monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;glideRemaining_=monoOrder_=0;voiceMode_=0;
+  monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;monoSelectionPending_=false;glideRemaining_=monoOrder_=0;voiceMode_=0;
   boost_=targetBoost_; protection_=1; width_.Init(sr);
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
@@ -36,22 +36,27 @@ void Synth::SetVoiceMode(int mode,float glideMs,bool overlapOnly) {
     for(auto& v:voices_){if(v.note>=0&&(v.gate||v.gatePending)){v.env.Process(true);v.filterMod.Process(v.note,true);}v.held=v.gate=v.gatePending=false;}
     monoKeys_.fill(MonoKey{});downCounts_.fill(0);heldKeys_=0;monoKey_=-1;monoPitchValid_=false;glideRemaining_=0;
     voiceMode_=mode;
+    monoSelectionPending_=false;
   }
   if(glideMs_==0){monoPitch_=monoTarget_;glideRemaining_=0;}
 }
 void Synth::SelectMono(bool retrigger,bool allowGlide) {
+  monoSelectionPending_=false;
   int selected=-1;
   // Physically held keys take priority over pedal-latched keys, then last-note priority.
   for(int i=0;i<2048;++i){const auto& k=monoKeys_[i];if(!k.held&&!k.latched)continue;
     if(selected<0||(k.held&&!monoKeys_[selected].held)||(k.held==monoKeys_[selected].held&&k.order>monoKeys_[selected].order))selected=i;
   }
   auto& v=voices_[0];
-  v.splicePending=false;v.spliceRemaining=0;
   if(selected<0){monoKey_=-1;v.held=v.gate=false;return;}
   const bool same=selected==monoKey_;if(same&&!retrigger){v.held=monoKeys_[selected].held;return;}
   retrigger=retrigger||voiceMode_==1;
   const int note=selected%128,ch=selected/128;
   const bool wasRunning=v.note>=0;
+  // Reuse the same continuity correction as Poly. Unrelated note-offs must
+  // not cancel a correction already in progress; idle starts have no tail.
+  v.splicePending=wasRunning;
+  if(!wasRunning){v.lastSample={};v.correction={};v.spliceRemaining=0;}
   const bool slide=monoPitchValid_&&allowGlide&&glideMs_>0;
   monoTarget_=note;
   if(slide){glideRemaining_=std::max<uint64_t>(1,static_cast<uint64_t>(sampleRate_*glideMs_*.001));monoStep_=(monoTarget_-monoPitch_)/glideRemaining_;}
@@ -75,12 +80,14 @@ void Synth::MonoMidi(int status,int note,int value) {
     SelectMono(voiceMode_==1||!overlap,!overlapOnly_||overlap);
   }else if(kind==0x80||(kind==0x90&&value==0)){
     auto& key=monoKeys_[index];if(!key.held)return;key.held=false;key.latched=sustain_[channel];
-    SelectMono(false,true);
+    // Resolve a group of same-sample releases once, before rendering. Otherwise
+    // release order can retrigger envelopes on keys with zero audible duration.
+    monoSelectionPending_=true;
   }else if(kind==0xb0){
     if(note==121){pressure_[channel]=0;bend_[channel]=8192;mod_[channel]=0;UpdateBend(channel);}
     if(note==64||note==121){sustain_[channel]=note==64&&value>=64;
       if(!sustain_[channel])for(int i=channel*128;i<(channel+1)*128;++i)monoKeys_[i].latched=false;
-      SelectMono(false,true);
+      monoSelectionPending_=true;
     }else if(note==120||note==123){
       for(int i=channel*128;i<(channel+1)*128;++i)monoKeys_[i]=MonoKey{};
       sustain_[channel]=false;
@@ -217,6 +224,7 @@ void Synth::Midi(int status, int note, int value) {
   }
 }
 StereoSample Synth::ProcessStereo() {
+  if(monoSelectionPending_)SelectMono(false,true);
   // Host parameters arrive after Reset. Set the initial level targets once,
   // independent of the previous patch; retain normal smoothing thereafter.
   if(initialControlsPending_){levels_=targetLevels_;boost_=targetBoost_;gain_=targetGain_;initialControlsPending_=false;}
