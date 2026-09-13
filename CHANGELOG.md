@@ -2,6 +2,8 @@
 
 ## Unreleased — 1.0.2 test branch
 
+- Reset a truly idle voice's amplitude envelope before reuse. Retire voices over 6 ms when changing Poly/Mono/Legato mode, preserving outgoing sources when the next Mono note starts. Add multi-rate lifecycle and continuity regressions; see [mode transition fixes](docs/MODE_TRANSITIONS.md).
+
 - Retain overlapping Mono/Legato transition branches with fixed storage and finite fade deadlines. Preserve natural waveform edges instead of adding a spurious correction offset; cover dense retargets, channel-local panic and 576 waveform/phase transition cases.
 
 - Do not glide from an intermediate first-chord note that has never rendered audio. Preserve Always Glide between previously rendered, separated notes. See [mono transition research](docs/MONO_TRANSITION_RESEARCH.md) for the separate, unresolved low-note fallback investigation.

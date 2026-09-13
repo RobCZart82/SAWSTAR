@@ -29,15 +29,25 @@ void Synth::Reset(double rate) {
     v.osc.Init(sr); v.env.Init(sr); v.filter.Init(sr); v.filterMod.Init(sr);
   }
 }
+void Synth::RetireVoice(Voice& v) {
+  if(v.note<0)return;
+  // Keep an existing deadline when automation changes mode again mid-fade.
+  if(v.modeFadeRemaining==0){
+    v.modeFadeLength=std::max(2,static_cast<int>(sampleRate_*.006f));
+    v.modeFadeRemaining=v.modeFadeLength;
+  }
+  if(v.gate||v.gatePending){v.env.Process(true);v.filterMod.Process(v.note,true);}
+  v.held=v.gate=v.gatePending=false;
+}
 void Synth::SetVoiceMode(int mode,float glideMs,bool overlapOnly) {
   mode=std::clamp(mode,0,2);glideMs_=std::isfinite(glideMs)?std::clamp(glideMs,0.f,2000.f):0;
   overlapOnly_=overlapOnly;
   if(mode!=voiceMode_){
-    for(auto& tail:monoTails_)tail.voice.gate=false;
+    for(auto& tail:monoTails_)if(tail.remaining>0)RetireVoice(tail.voice);
     monoTailCaptured_=monoTailComplete_=false;
-    if(voiceMode_!=0&&monoPitchValid_&&voices_[0].note>=0){auto& v=voices_[0];v.fundamental=static_cast<float>(440*std::exp2((monoPitch_-69)/12.));v.osc.SetFreq(v.fundamental);v.osc2.SetFreq(v.fundamental);}
+    if(voiceMode_!=0&&monoPitchValid_&&voices_[0].note>=0){auto& v=voices_[0];v.fundamental=static_cast<float>(440*std::exp2((monoPitch_-69)/12.));v.osc.SetFreq(v.fundamental);v.osc2.SetFreq(v.fundamental);v.velocity=monoVelocity_;}
     // A mode change starts a new key phrase; release current sources safely.
-    for(auto& v:voices_){if(v.note>=0&&(v.gate||v.gatePending)){v.env.Process(true);v.filterMod.Process(v.note,true);}v.held=v.gate=v.gatePending=false;}
+    for(auto& v:voices_)RetireVoice(v);
     monoKeys_.fill(MonoKey{});downCounts_.fill(0);heldKeys_=0;monoKey_=-1;monoPitchValid_=monoPitchRendered_=false;glideRemaining_=0;
     voiceMode_=mode;
     monoSelectionPending_=false;
@@ -66,8 +76,10 @@ void Synth::CaptureMonoTail() {
   }
   available->voice=voices_[0];
   available->voice.splicePending=false;available->voice.spliceRemaining=0;
-  available->ratio=static_cast<float>(std::exp2((monoPitch_-69)/12.));
-  available->velocity=monoVelocity_;available->startWeight=weight;
+  // Immediately after Poly -> Mono, voice zero still has its real Poly
+  // fundamental. There is no rendered mono pitch/velocity history yet.
+  available->ratio=monoPitchValid_?static_cast<float>(std::exp2((monoPitch_-69)/12.)):1.f;
+  available->velocity=monoPitchValid_?monoVelocity_:voices_[0].velocity;available->startWeight=weight;
   available->length=std::max(2,static_cast<int>(sampleRate_*.006f));
   available->remaining=available->length;
 }
@@ -85,7 +97,7 @@ void Synth::SelectMono(bool retrigger,bool allowGlide) {
   // envelopes. Mono Note On requests retrigger explicitly below.
   const int note=selected%128,ch=selected/128;
   const bool wasRunning=v.note>=0;
-  if(wasRunning&&monoPitchValid_&&!v.startPending&&!monoTailCaptured_){
+  if(wasRunning&&!v.startPending&&!monoTailCaptured_){
     // Capture only the current source's audible share, once per sample.
     // Older branches continue with their original gains and fade deadlines.
     CaptureMonoTail();
@@ -109,8 +121,9 @@ void Synth::SelectMono(bool retrigger,bool allowGlide) {
   // Mono uses a fixed tuning reference; the sample-accurate pitch ratio carries glide.
   if(!wasRunning){v.startPending=true;v.filter.Clear();monoVelocity_=monoKeys_[selected].velocity/127.f;}
   v.note=note;v.channel=ch;v.held=monoKeys_[selected].held;v.gate=true;
+  v.modeFadeRemaining=0;
   v.velocity=monoKeys_[selected].velocity/127.f;v.fundamental=440;v.osc.SetFreq(440);v.osc2.SetFreq(440);
-  if(retrigger||!wasRunning){v.env.Retrigger(false);v.filterMod.Trigger(!wasRunning);v.gatePending=true;}
+  if(retrigger||!wasRunning){v.env.Retrigger(!wasRunning);v.filterMod.Trigger(!wasRunning);v.gatePending=true;}
 }
 void Synth::MonoMidi(int status,int note,int value) {
   const int channel=status&15,kind=status&240,index=channel*128+note;
@@ -118,8 +131,8 @@ void Synth::MonoMidi(int status,int note,int value) {
     bool overlap=false;for(const auto& k:monoKeys_)overlap|=k.held;
     if(!overlap){lfo_.Trigger();lfo2_.Trigger();}
     auto& key=monoKeys_[index];key.held=true;key.latched=false;key.velocity=value;key.order=++monoOrder_;
-    // Any release-only poly voices from a mode change stop before the mono note starts.
-    for(size_t i=1;i<voices_.size();++i){voices_[i].note=-1;voices_[i].held=voices_[i].gate=false;}
+    // Other Poly slots finish their bounded mode fade. Cutting them here
+    // would lose audible audio and freeze their ADSR at a nonzero level.
     // Repeating the selected key articulates a new note in either event order.
     // The shared counter keeps an overlapping Note Off from releasing it.
     SelectMono(voiceMode_==1||!overlap||index==monoKey_,!overlapOnly_||overlap);
@@ -242,7 +255,9 @@ void Synth::Midi(int status, int note, int value) {
     if (!chosen) for (auto& v : voices_) if (!v.held && (!chosen || v.age < chosen->age)) chosen = &v;
     if (!chosen) chosen = &*std::min_element(voices_.begin(), voices_.end(), [](const Voice& a, const Voice& b) { return a.age < b.age; });
     auto& v = *chosen;
-    v.splicePending=v.note>=0;
+    const bool wasRunning=v.note>=0;
+    v.splicePending=wasRunning;
+    v.modeFadeRemaining=0;
     if(!v.splicePending){v.lastSample={};v.correction={};v.spliceRemaining=0;}
     v.filterMod.Trigger(v.note<0);
     if(v.note<0){v.startPending=true;v.filter.Clear();}
@@ -250,7 +265,7 @@ void Synth::Midi(int status, int note, int value) {
     v.velocity = static_cast<float>(value) / 127.f; v.age = ++age_;
     v.fundamental=static_cast<float>(440. * std::pow(2., (note - 69) / 12.));
     v.osc.SetFreq(v.fundamental); v.osc2.SetFreq(v.fundamental);
-    v.env.Retrigger(false);v.gatePending=true;
+    v.env.Retrigger(!wasRunning);v.gatePending=true;
   } else if (kind == 0x80 || (kind == 0x90 && value == 0)) {
     for (auto& v : voices_) if (v.note == note && v.channel == channel) {
       v.held = false; v.gate = sustain_[channel];
@@ -377,6 +392,16 @@ StereoSample Synth::ProcessStereo() {
     const float routedAmp=1+route[2];
     StereoSample rendered{value.left*env*velocity*routedAmp*std::sqrt(1-route[3]),
                           value.right*env*velocity*routedAmp*std::sqrt(1+route[3])};
+    float modeFade=1;
+    if(v.modeFadeRemaining>0){
+      const float u=static_cast<float>(v.modeFadeLength-v.modeFadeRemaining)/(v.modeFadeLength-1);
+      modeFade=1-u*u*(3-2*u);
+      rendered.left*=modeFade;rendered.right*=modeFade;
+      if(--v.modeFadeRemaining==0){
+        v.note=-1;v.held=v.gate=v.gatePending=v.startPending=false;
+        v.env.Retrigger(true);
+      }
+    }
     if(tail){const float weight=monoTails_[slot].Weight();
       tailSample.left+=rendered.left*weight;tailSample.right+=rendered.right*weight;continue;}
     if(&v==&voices_[0]){
@@ -389,7 +414,7 @@ StereoSample Synth::ProcessStereo() {
     const int spliceLength=std::max(1,static_cast<int>(sampleRate_*.003f));
     if(v.splicePending){v.correction={v.lastSample.left-rendered.left,v.lastSample.right-rendered.right};v.spliceRemaining=spliceLength;v.splicePending=false;}
     if(v.spliceRemaining){const float weight=static_cast<float>(v.spliceRemaining--)/spliceLength;
-      rendered.left+=v.correction.left*weight;rendered.right+=v.correction.right*weight;}
+      rendered.left+=v.correction.left*weight*modeFade;rendered.right+=v.correction.right*weight*modeFade;}
     v.lastSample=rendered;sum.left+=rendered.left;sum.right+=rendered.right;
     if (!v.gate && !v.env.IsRunning() && v.spliceRemaining==0
         && (&v!=&voices_[0]||!tailsContinue)) v.note = -1;

@@ -71,6 +71,8 @@ private:
     bool startPending=false;
     bool splicePending=false;
     int spliceRemaining=0;
+    // Retire a previous voice-mode phrase in place, without new voice slots.
+    int modeFadeRemaining=0,modeFadeLength=2;
     uint64_t age = 0;
   };
   std::array<Voice, 16> voices_{};
@@ -100,6 +102,7 @@ private:
   void MonoMidi(int status,int note,int value);
   void SelectMono(bool retrigger,bool allowGlide);
   void CaptureMonoTail();
+  void RetireVoice(Voice& voice);
   Lfo lfo_,lfo2_;
   Modulation matrix_;
   std::array<float,16> pressure_{},smoothPressure_{},smoothWheel_{};
