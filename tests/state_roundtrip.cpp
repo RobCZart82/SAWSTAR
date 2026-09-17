@@ -2,6 +2,7 @@
 #include "plugin/Parameters.h"
 #include "plugin/State.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
