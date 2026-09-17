@@ -1,0 +1,171 @@
+name: Code quality
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  coverage:
+    name: Linux code coverage
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Initialize DaisySP
+        run: git submodule update --init third_party/DaisySP
+
+      - name: Install coverage tools
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install gcovr
+
+      - name: Configure coverage build
+        run: |
+          cmake -S . -B build-coverage \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTING=ON \
+            -DSAWSTAR_CHECK_DAISYSP=ON \
+            -DCMAKE_CXX_FLAGS="--coverage -O0 -g" \
+            -DCMAKE_C_FLAGS="--coverage -O0 -g" \
+            -DCMAKE_EXE_LINKER_FLAGS="--coverage" \
+            -DCMAKE_SHARED_LINKER_FLAGS="--coverage"
+
+      - name: Build
+        run: cmake --build build-coverage --parallel 2
+
+      - name: Run tests
+        run: |
+          ctest \
+            --test-dir build-coverage \
+            --output-on-failure \
+            --timeout 180
+
+      - name: Generate coverage report
+        run: |
+          gcovr \
+            --root . \
+            --filter 'src/' \
+            --exclude 'src/plugin/' \
+            --exclude 'third_party/' \
+            --exclude 'build.*/' \
+            --print-summary \
+            --xml-pretty \
+            --xml coverage.xml \
+            --html-details coverage.html \
+            --fail-under-line 70
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: linux-coverage-report
+          path: |
+            coverage.xml
+            coverage.html
+            coverage.html.*
+          if-no-files-found: warn
+
+  sanitizer:
+    name: Linux AddressSanitizer and UBSan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+
+    env:
+      ASAN_OPTIONS: >-
+        detect_leaks=1:
+        abort_on_error=1:
+        halt_on_error=1:
+        strict_init_order=1
+      UBSAN_OPTIONS: >-
+        print_stacktrace=1:
+        halt_on_error=1:
+        abort_on_error=1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Initialize DaisySP
+        run: git submodule update --init third_party/DaisySP
+
+      - name: Configure sanitizer build
+        run: |
+          cmake -S . -B build-sanitized \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTING=ON \
+            -DSAWSTAR_CHECK_DAISYSP=ON \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -O1 -g" \
+            -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -O1 -g" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address,undefined"
+
+      - name: Build
+        run: cmake --build build-sanitized --parallel 2
+
+      - name: Run sanitized tests
+        run: |
+          ctest \
+            --test-dir build-sanitized \
+            --output-on-failure \
+            --timeout 180
+
+  thread-sanitizer:
+    name: Linux ThreadSanitizer
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+
+    env:
+      TSAN_OPTIONS: >-
+        halt_on_error=1:
+        second_deadlock_stack=1:
+        history_size=7
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Initialize DaisySP
+        run: git submodule update --init third_party/DaisySP
+
+      - name: Configure ThreadSanitizer build
+        run: |
+          cmake -S . -B build-tsan \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTING=ON \
+            -DSAWSTAR_CHECK_DAISYSP=ON \
+            -DCMAKE_CXX_FLAGS="-fsanitize=thread -fno-omit-frame-pointer -O1 -g" \
+            -DCMAKE_C_FLAGS="-fsanitize=thread -fno-omit-frame-pointer -O1 -g" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread"
+
+      - name: Build
+        run: cmake --build build-tsan --parallel 2
+
+      - name: Run ThreadSanitizer tests
+        run: |
+          ctest \
+            --test-dir build-tsan \
+            --output-on-failure \
+            --timeout 180 \
+            -R 'scope|preset|user_preset|reliability'
+            
