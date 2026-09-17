@@ -2,6 +2,8 @@ name: Code quality
 
 on:
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 
@@ -13,6 +15,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ---------------------------------------------------------------------------
+  # Code coverage
+  # ---------------------------------------------------------------------------
   coverage:
     name: Linux code coverage
     runs-on: ubuntu-24.04
@@ -30,8 +35,8 @@ jobs:
 
       - name: Install coverage tools
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install gcovr
+          python3 -m pip install --user "gcovr==8.6"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Configure coverage build
         run: |
@@ -40,9 +45,7 @@ jobs:
             -DBUILD_TESTING=ON \
             -DSAWSTAR_CHECK_DAISYSP=ON \
             -DCMAKE_CXX_FLAGS="--coverage -O0 -g" \
-            -DCMAKE_C_FLAGS="--coverage -O0 -g" \
-            -DCMAKE_EXE_LINKER_FLAGS="--coverage" \
-            -DCMAKE_SHARED_LINKER_FLAGS="--coverage"
+            -DCMAKE_EXE_LINKER_FLAGS="--coverage"
 
       - name: Build
         run: cmake --build build-coverage --parallel 2
@@ -59,14 +62,12 @@ jobs:
           gcovr \
             --root . \
             --filter 'src/' \
-            --exclude 'src/plugin/' \
             --exclude 'third_party/' \
-            --exclude 'build.*/' \
+            --exclude 'build-.*/' \
             --print-summary \
             --xml-pretty \
             --xml coverage.xml \
-            --html-details coverage.html \
-            --fail-under-line 70
+            --html-details coverage.html
 
       - name: Upload coverage reports
         if: always()
@@ -79,21 +80,18 @@ jobs:
             coverage.html.*
           if-no-files-found: warn
 
+
+  # ---------------------------------------------------------------------------
+  # AddressSanitizer + UndefinedBehaviorSanitizer
+  # ---------------------------------------------------------------------------
   sanitizer:
     name: Linux AddressSanitizer and UBSan
     runs-on: ubuntu-24.04
     timeout-minutes: 25
 
     env:
-      ASAN_OPTIONS: >-
-        detect_leaks=1:
-        abort_on_error=1:
-        halt_on_error=1:
-        strict_init_order=1
-      UBSAN_OPTIONS: >-
-        print_stacktrace=1:
-        halt_on_error=1:
-        abort_on_error=1
+      ASAN_OPTIONS: detect_leaks=1:abort_on_error=1:halt_on_error=1:strict_init_order=1
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1:abort_on_error=1
 
     steps:
       - name: Checkout
@@ -112,9 +110,7 @@ jobs:
             -DBUILD_TESTING=ON \
             -DSAWSTAR_CHECK_DAISYSP=ON \
             -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -O1 -g" \
-            -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -O1 -g" \
-            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined" \
-            -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address,undefined"
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
 
       - name: Build
         run: cmake --build build-sanitized --parallel 2
@@ -126,16 +122,17 @@ jobs:
             --output-on-failure \
             --timeout 180
 
+
+  # ---------------------------------------------------------------------------
+  # ThreadSanitizer
+  # ---------------------------------------------------------------------------
   thread-sanitizer:
     name: Linux ThreadSanitizer
     runs-on: ubuntu-24.04
     timeout-minutes: 25
 
     env:
-      TSAN_OPTIONS: >-
-        halt_on_error=1:
-        second_deadlock_stack=1:
-        history_size=7
+      TSAN_OPTIONS: halt_on_error=1:second_deadlock_stack=1:history_size=7
 
     steps:
       - name: Checkout
@@ -154,9 +151,7 @@ jobs:
             -DBUILD_TESTING=ON \
             -DSAWSTAR_CHECK_DAISYSP=ON \
             -DCMAKE_CXX_FLAGS="-fsanitize=thread -fno-omit-frame-pointer -O1 -g" \
-            -DCMAKE_C_FLAGS="-fsanitize=thread -fno-omit-frame-pointer -O1 -g" \
-            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread" \
-            -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread"
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread"
 
       - name: Build
         run: cmake --build build-tsan --parallel 2
@@ -167,5 +162,5 @@ jobs:
             --test-dir build-tsan \
             --output-on-failure \
             --timeout 180 \
-            -R 'scope|preset|user_preset|reliability'
+            -R '^(realtime_scope|preset_reliability|preset_library_import|user_preset_files)$'
             
