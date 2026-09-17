@@ -59,15 +59,23 @@ if(BUILD_TESTING)
   add_executable(sawstar_sub_tests tests/sub_oscillator.cpp)
   target_link_libraries(sawstar_sub_tests PRIVATE SAWSTAR::Foundation)
   add_test(NAME sub_waveform_transitions COMMAND sawstar_sub_tests)
+  
   add_executable(sawstar_library_tests tests/preset_library.cpp)
   target_link_libraries(sawstar_library_tests PRIVATE SAWSTAR::Foundation)
   add_test(NAME preset_library_import COMMAND sawstar_library_tests)
+  
   add_executable(sawstar_user_preset_tests tests/user_presets.cpp)
   target_link_libraries(sawstar_user_preset_tests PRIVATE SAWSTAR::Foundation Threads::Threads)
   add_test(NAME user_preset_files COMMAND sawstar_user_preset_tests)
+  
   add_executable(sawstar_state_tests tests/state.cpp)
   target_link_libraries(sawstar_state_tests PRIVATE SAWSTAR::Foundation)
   add_test(NAME state_compatibility COMMAND sawstar_state_tests)
+  
+  add_executable(sawstar_state_roundtrip_tests tests/state_roundtrip.cpp)
+  target_link_libraries(sawstar_state_roundtrip_tests PRIVATE SAWSTAR::Foundation)
+  add_test(NAME state_roundtrip COMMAND sawstar_state_roundtrip_tests)
+  
   add_executable(sawstar_parameter_tests tests/parameters.cpp)
   target_link_libraries(sawstar_parameter_tests PRIVATE SAWSTAR::Foundation)
   add_test(NAME parameter_contract COMMAND sawstar_parameter_tests)
