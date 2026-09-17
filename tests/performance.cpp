@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 void check(bool ok,const char* why){if(!ok){std::cerr<<why<<'\n';std::exit(1);}}
 void prepare(sawstar::Synth& s,float sr,int ch=0){s.Reset(sr);s.SetParameters(0,1,1,1,10);s.Midi(0x90|ch,69,127);}
 double frequency(sawstar::Synth& s,float sr){
