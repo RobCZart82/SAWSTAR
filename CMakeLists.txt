@@ -1,217 +1,1009 @@
 cmake_minimum_required(VERSION 3.21)
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/release.json" SAWSTAR_METADATA)
-string(JSON SAWSTAR_VERSION GET "${SAWSTAR_METADATA}" version)
-string(JSON SAWSTAR_MACOS_MINIMUM GET "${SAWSTAR_METADATA}" macos_minimum)
-if(APPLE AND NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "${SAWSTAR_MACOS_MINIMUM}" CACHE STRING "Minimum macOS version")
-endif()
-project(SAWSTAR VERSION ${SAWSTAR_VERSION} LANGUAGES CXX)
 
-option(SAWSTAR_BUILD_PLUGIN "Build the iPlug2 VST3 development shell" OFF)
+# ---------------------------------------------------------------------------
+# Project metadata
+# ---------------------------------------------------------------------------
+
+file(READ
+  "${CMAKE_CURRENT_SOURCE_DIR}/release.json"
+  SAWSTAR_METADATA
+)
+
+string(JSON SAWSTAR_VERSION
+  GET "${SAWSTAR_METADATA}" version
+)
+
+string(JSON SAWSTAR_MACOS_MINIMUM
+  GET "${SAWSTAR_METADATA}" macos_minimum
+)
+
+if(APPLE AND NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET)
+  set(
+    CMAKE_OSX_DEPLOYMENT_TARGET
+    "${SAWSTAR_MACOS_MINIMUM}"
+    CACHE STRING "Minimum macOS version"
+  )
+endif()
+
+project(
+  SAWSTAR
+  VERSION ${SAWSTAR_VERSION}
+  LANGUAGES CXX
+)
+
+# ---------------------------------------------------------------------------
+# Build options
+# ---------------------------------------------------------------------------
+
+option(
+  SAWSTAR_BUILD_PLUGIN
+  "Build the iPlug2 VST3 development shell"
+  OFF
+)
+
+option(
+  SAWSTAR_CHECK_DAISYSP
+  "Compile and test the selected DaisySP primitives"
+  OFF
+)
+
 if(SAWSTAR_BUILD_PLUGIN)
   enable_language(C)
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+  set(
+    CMAKE_MSVC_RUNTIME_LIBRARY
+    "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+  )
 endif()
+
+# ---------------------------------------------------------------------------
+# Testing and common dependencies
+# ---------------------------------------------------------------------------
 
 include(CTest)
-if(BUILD_TESTING)
-  add_executable(sawstar_meter_tests tests/meter.cpp)
-  target_include_directories(sawstar_meter_tests PRIVATE src)
-  target_compile_features(sawstar_meter_tests PRIVATE cxx_std_17)
-  add_test(NAME meter_ballistics COMMAND sawstar_meter_tests)
-  add_executable(sawstar_display_tests tests/display_state.cpp)
-  target_include_directories(sawstar_display_tests PRIVATE src)
-  target_compile_features(sawstar_display_tests PRIVATE cxx_std_17)
-  add_test(NAME display_timing COMMAND sawstar_display_tests)
-  add_executable(sawstar_scope_tests tests/scope.cpp)
-  target_include_directories(sawstar_scope_tests PRIVATE src)
-  target_compile_features(sawstar_scope_tests PRIVATE cxx_std_17)
-  add_test(NAME realtime_scope COMMAND sawstar_scope_tests)
-endif()
-option(SAWSTAR_CHECK_DAISYSP "Compile and test the selected DaisySP primitives" OFF)
 
-add_library(sawstar_foundation STATIC src/plugin/Parameters.cpp src/plugin/State.cpp src/presets/FactoryPresets.cpp src/presets/UserPresets.cpp)
-add_library(SAWSTAR::Foundation ALIAS sawstar_foundation)
 find_package(Threads REQUIRED)
-if(BUILD_TESTING)
-  target_link_libraries(sawstar_scope_tests PRIVATE Threads::Threads)
-endif()
-target_link_libraries(sawstar_foundation PUBLIC Threads::Threads)
+
+# ---------------------------------------------------------------------------
+# Foundation library
+# ---------------------------------------------------------------------------
+
+add_library(
+  sawstar_foundation
+  STATIC
+    src/plugin/Parameters.cpp
+    src/plugin/State.cpp
+    src/presets/FactoryPresets.cpp
+    src/presets/UserPresets.cpp
+)
+
+add_library(
+  SAWSTAR::Foundation
+  ALIAS
+  sawstar_foundation
+)
+
+target_include_directories(
+  sawstar_foundation
+  PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+)
+
+target_compile_features(
+  sawstar_foundation
+  PUBLIC
+    cxx_std_17
+)
+
+target_link_libraries(
+  sawstar_foundation
+  PUBLIC
+    Threads::Threads
+)
+
 if(APPLE)
-  target_link_libraries(sawstar_foundation PUBLIC "-framework CoreFoundation")
+  target_link_libraries(
+    sawstar_foundation
+    PUBLIC
+      "-framework CoreFoundation"
+  )
 elseif(WIN32)
-  target_link_libraries(sawstar_foundation PUBLIC Normaliz)
-endif()
-target_include_directories(sawstar_foundation PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_compile_features(sawstar_foundation PUBLIC cxx_std_17)
-set_target_properties(sawstar_foundation PROPERTIES
-  CXX_EXTENSIONS OFF POSITION_INDEPENDENT_CODE ON)
-if(MSVC)
-  target_compile_options(sawstar_foundation PRIVATE /W4 /permissive-)
-else()
-  target_compile_options(sawstar_foundation PRIVATE -Wall -Wextra -Wpedantic)
+  target_link_libraries(
+    sawstar_foundation
+    PUBLIC
+      Normaliz
+  )
 endif()
 
-if(BUILD_TESTING)
-  add_executable(sawstar_preset_reliability tests/preset_reliability.cpp)
-  target_link_libraries(sawstar_preset_reliability PRIVATE SAWSTAR::Foundation Threads::Threads)
-  add_test(NAME preset_reliability COMMAND sawstar_preset_reliability)
-  add_executable(sawstar_sub_tests tests/sub_oscillator.cpp)
-  target_link_libraries(sawstar_sub_tests PRIVATE SAWSTAR::Foundation)
-  add_test(NAME sub_waveform_transitions COMMAND sawstar_sub_tests)
-  
-  add_executable(sawstar_library_tests tests/preset_library.cpp)
-  target_link_libraries(sawstar_library_tests PRIVATE SAWSTAR::Foundation)
-  add_test(NAME preset_library_import COMMAND sawstar_library_tests)
-  
-  add_executable(sawstar_user_preset_tests tests/user_presets.cpp)
-  target_link_libraries(sawstar_user_preset_tests PRIVATE SAWSTAR::Foundation Threads::Threads)
-  add_test(NAME user_preset_files COMMAND sawstar_user_preset_tests)
-  
-  add_executable(sawstar_state_tests tests/state.cpp)
-  target_link_libraries(sawstar_state_tests PRIVATE SAWSTAR::Foundation)
-  add_test(NAME state_compatibility COMMAND sawstar_state_tests)
-  
-  add_executable(sawstar_state_roundtrip_tests tests/state_roundtrip.cpp)
-  target_link_libraries(sawstar_state_roundtrip_tests PRIVATE SAWSTAR::Foundation)
-  add_test(NAME state_roundtrip COMMAND sawstar_state_roundtrip_tests)
-  
-  add_executable(sawstar_parameter_tests tests/parameters.cpp)
-  target_link_libraries(sawstar_parameter_tests PRIVATE SAWSTAR::Foundation)
-  add_test(NAME parameter_contract COMMAND sawstar_parameter_tests)
+set_target_properties(
+  sawstar_foundation
+  PROPERTIES
+    CXX_EXTENSIONS OFF
+    POSITION_INDEPENDENT_CODE ON
+)
+
+if(MSVC)
+  target_compile_options(
+    sawstar_foundation
+    PRIVATE
+      /W4
+      /permissive-
+  )
+else()
+  target_compile_options(
+    sawstar_foundation
+    PRIVATE
+      -Wall
+      -Wextra
+      -Wpedantic
+  )
 endif()
+
+# ---------------------------------------------------------------------------
+# Foundation and utility tests
+# ---------------------------------------------------------------------------
+
+if(BUILD_TESTING)
+
+  add_executable(
+    sawstar_meter_tests
+    tests/meter.cpp
+  )
+
+  target_include_directories(
+    sawstar_meter_tests
+    PRIVATE
+      src
+  )
+
+  target_compile_features(
+    sawstar_meter_tests
+    PRIVATE
+      cxx_std_17
+  )
+
+  add_test(
+    NAME meter_ballistics
+    COMMAND sawstar_meter_tests
+  )
+
+
+  add_executable(
+    sawstar_display_tests
+    tests/display_state.cpp
+  )
+
+  target_include_directories(
+    sawstar_display_tests
+    PRIVATE
+      src
+  )
+
+  target_compile_features(
+    sawstar_display_tests
+    PRIVATE
+      cxx_std_17
+  )
+
+  add_test(
+    NAME display_timing
+    COMMAND sawstar_display_tests
+  )
+
+
+  add_executable(
+    sawstar_scope_tests
+    tests/scope.cpp
+  )
+
+  target_include_directories(
+    sawstar_scope_tests
+    PRIVATE
+      src
+  )
+
+  target_compile_features(
+    sawstar_scope_tests
+    PRIVATE
+      cxx_std_17
+  )
+
+  target_link_libraries(
+    sawstar_scope_tests
+    PRIVATE
+      Threads::Threads
+  )
+
+  add_test(
+    NAME realtime_scope
+    COMMAND sawstar_scope_tests
+  )
+
+
+  add_executable(
+    sawstar_preset_reliability
+    tests/preset_reliability.cpp
+  )
+
+  target_link_libraries(
+    sawstar_preset_reliability
+    PRIVATE
+      SAWSTAR::Foundation
+      Threads::Threads
+  )
+
+  add_test(
+    NAME preset_reliability
+    COMMAND sawstar_preset_reliability
+  )
+
+
+  add_executable(
+    sawstar_sub_tests
+    tests/sub_oscillator.cpp
+  )
+
+  target_link_libraries(
+    sawstar_sub_tests
+    PRIVATE
+      SAWSTAR::Foundation
+  )
+
+  add_test(
+    NAME sub_waveform_transitions
+    COMMAND sawstar_sub_tests
+  )
+
+
+  add_executable(
+    sawstar_library_tests
+    tests/preset_library.cpp
+  )
+
+  target_link_libraries(
+    sawstar_library_tests
+    PRIVATE
+      SAWSTAR::Foundation
+  )
+
+  add_test(
+    NAME preset_library_import
+    COMMAND sawstar_library_tests
+  )
+
+
+  add_executable(
+    sawstar_user_preset_tests
+    tests/user_presets.cpp
+  )
+
+  target_link_libraries(
+    sawstar_user_preset_tests
+    PRIVATE
+      SAWSTAR::Foundation
+      Threads::Threads
+  )
+
+  add_test(
+    NAME user_preset_files
+    COMMAND sawstar_user_preset_tests
+  )
+
+
+  add_executable(
+    sawstar_state_tests
+    tests/state.cpp
+  )
+
+  target_link_libraries(
+    sawstar_state_tests
+    PRIVATE
+      SAWSTAR::Foundation
+  )
+
+  add_test(
+    NAME state_compatibility
+    COMMAND sawstar_state_tests
+  )
+
+
+  add_executable(
+    sawstar_state_roundtrip_tests
+    tests/state_roundtrip.cpp
+  )
+
+  target_link_libraries(
+    sawstar_state_roundtrip_tests
+    PRIVATE
+      SAWSTAR::Foundation
+  )
+
+  add_test(
+    NAME state_roundtrip
+    COMMAND sawstar_state_roundtrip_tests
+  )
+
+
+  add_executable(
+    sawstar_parameter_tests
+    tests/parameters.cpp
+  )
+
+  target_link_libraries(
+    sawstar_parameter_tests
+    PRIVATE
+      SAWSTAR::Foundation
+  )
+
+  add_test(
+    NAME parameter_contract
+    COMMAND sawstar_parameter_tests
+  )
+
+endif()
+
+# ---------------------------------------------------------------------------
+# DaisySP primitives and audio engine
+# ---------------------------------------------------------------------------
 
 if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
-  set(_daisy "${CMAKE_CURRENT_SOURCE_DIR}/third_party/DaisySP")
+
+  set(
+    _daisy
+    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/DaisySP"
+  )
+
   if(NOT EXISTS "${_daisy}/Source/Synthesis/oscillator.cpp")
-    message(FATAL_ERROR
-      "DaisySP is missing. Run: git submodule update --init third_party/DaisySP")
+    message(
+      FATAL_ERROR
+      "DaisySP is missing. Run: git submodule update --init third_party/DaisySP"
+    )
   endif()
+
   # Deliberately avoid the omnibus header and optional DaisySP-LGPL sources.
-  add_library(sawstar_daisy_primitives STATIC
-    "${_daisy}/Source/Synthesis/oscillator.cpp"
-    "${_daisy}/Source/Control/adsr.cpp")
-  target_include_directories(sawstar_daisy_primitives SYSTEM PUBLIC
-    "${_daisy}/Source"
-    PRIVATE "${_daisy}/Source/Synthesis" "${_daisy}/Source/Control"
-            "${_daisy}/Source/Utility")
-  target_compile_features(sawstar_daisy_primitives PUBLIC cxx_std_17)
+  add_library(
+    sawstar_daisy_primitives
+    STATIC
+      "${_daisy}/Source/Synthesis/oscillator.cpp"
+      "${_daisy}/Source/Control/adsr.cpp"
+  )
+
+  target_include_directories(
+    sawstar_daisy_primitives
+    SYSTEM
+    PUBLIC
+      "${_daisy}/Source"
+    PRIVATE
+      "${_daisy}/Source/Synthesis"
+      "${_daisy}/Source/Control"
+      "${_daisy}/Source/Utility"
+  )
+
+  target_compile_features(
+    sawstar_daisy_primitives
+    PUBLIC
+      cxx_std_17
+  )
+
   if(MSVC)
     # DaisySP ADSR uses M_E; MSVC exposes it only with this opt-in.
-    target_compile_definitions(sawstar_daisy_primitives PRIVATE _USE_MATH_DEFINES)
+    target_compile_definitions(
+      sawstar_daisy_primitives
+      PRIVATE
+        _USE_MATH_DEFINES
+    )
   endif()
-  set_target_properties(sawstar_daisy_primitives PROPERTIES
-    CXX_EXTENSIONS OFF POSITION_INDEPENDENT_CODE ON)
-  add_library(sawstar_engine STATIC src/engine/Synth.cpp src/dsp/SevenSaw.cpp src/dsp/LowPass.cpp)
-  target_link_libraries(sawstar_engine PUBLIC sawstar_foundation sawstar_daisy_primitives)
-  set_target_properties(sawstar_engine PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+  set_target_properties(
+    sawstar_daisy_primitives
+    PROPERTIES
+      CXX_EXTENSIONS OFF
+      POSITION_INDEPENDENT_CODE ON
+  )
+
+
+  add_library(
+    sawstar_engine
+    STATIC
+      src/engine/Synth.cpp
+      src/dsp/SevenSaw.cpp
+      src/dsp/LowPass.cpp
+  )
+
+  target_link_libraries(
+    sawstar_engine
+    PUBLIC
+      sawstar_foundation
+      sawstar_daisy_primitives
+  )
+
+  set_target_properties(
+    sawstar_engine
+    PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+  )
+
   if(MSVC)
-    target_compile_options(sawstar_engine PRIVATE /W4 /permissive-)
+    target_compile_options(
+      sawstar_engine
+      PRIVATE
+        /W4
+        /permissive-
+    )
   else()
-    target_compile_options(sawstar_engine PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(
+      sawstar_engine
+      PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+    )
   endif()
+
+# ---------------------------------------------------------------------------
+# Audio engine and DSP tests
+# ---------------------------------------------------------------------------
+
   if(BUILD_TESTING)
-    add_executable(sawstar_idle_start_tests tests/idle_start.cpp)
-    target_link_libraries(sawstar_idle_start_tests PRIVATE sawstar_engine)
-    add_test(NAME idle_voice_start COMMAND sawstar_idle_start_tests)
-    add_executable(sawstar_dsp_safety_tests tests/dsp_safety.cpp)
-    add_executable(sawstar_reset_lifecycle_tests tests/reset_lifecycle.cpp)
-    target_link_libraries(sawstar_reset_lifecycle_tests PRIVATE sawstar_engine)
-    add_test(NAME reset_lifecycle COMMAND sawstar_reset_lifecycle_tests)
-    target_link_libraries(sawstar_dsp_safety_tests PRIVATE sawstar_engine)
-    add_test(NAME dsp_safety COMMAND sawstar_dsp_safety_tests)
-    add_executable(sawstar_overlap_tests tests/overlapping_notes.cpp)
-    target_link_libraries(sawstar_overlap_tests PRIVATE sawstar_engine)
-    add_test(NAME overlapping_notes COMMAND sawstar_overlap_tests)
-    add_executable(sawstar_engine_audit tests/engine_audit.cpp)
-    target_link_libraries(sawstar_engine_audit PRIVATE sawstar_engine)
-    add_test(NAME engine_audit COMMAND sawstar_engine_audit)
-    add_executable(sawstar_parameter_transition_tests tests/parameter_transitions.cpp)
-    target_link_libraries(sawstar_parameter_transition_tests PRIVATE sawstar_engine)
-    add_test(NAME parameter_transitions COMMAND sawstar_parameter_transition_tests)
-    add_executable(sawstar_voice_transition_tests tests/voice_transitions.cpp)
-    target_link_libraries(sawstar_voice_transition_tests PRIVATE sawstar_engine)
-    add_test(NAME voice_transitions COMMAND sawstar_voice_transition_tests)
-    add_executable(sawstar_source_quality_tests tests/source_quality.cpp)
-    target_link_libraries(sawstar_source_quality_tests PRIVATE sawstar_engine)
-    add_test(NAME source_quality COMMAND sawstar_source_quality_tests)
-    add_executable(sawstar_audio_benchmark tests/audio_benchmark.cpp)
-    target_link_libraries(sawstar_audio_benchmark PRIVATE sawstar_engine)
-    add_executable(sawstar_arp_tests tests/arpeggiator.cpp)
-    target_link_libraries(sawstar_arp_tests PRIVATE sawstar_engine)
-    add_test(NAME arpeggiator COMMAND sawstar_arp_tests)
-    add_executable(sawstar_modulation_tests tests/modulation.cpp)
-    target_link_libraries(sawstar_modulation_tests PRIVATE sawstar_engine)
-    add_test(NAME dual_lfo_modulation COMMAND sawstar_modulation_tests)
-    add_executable(sawstar_short_note_tests tests/short_notes.cpp)
-    target_link_libraries(sawstar_short_note_tests PRIVATE sawstar_engine)
-    add_test(NAME short_note_release COMMAND sawstar_short_note_tests)
-    add_executable(sawstar_noise_tests tests/noise.cpp)
-    target_link_libraries(sawstar_noise_tests PRIVATE sawstar_engine)
-    add_test(NAME noise_sources_color COMMAND sawstar_noise_tests)
-    add_executable(sawstar_mono_tests tests/mono.cpp)
-    target_link_libraries(sawstar_mono_tests PRIVATE sawstar_engine)
-    add_test(NAME mono_legato_glide COMMAND sawstar_mono_tests)
-    add_executable(sawstar_reverb_tests tests/reverb.cpp)
-    target_link_libraries(sawstar_reverb_tests PRIVATE sawstar_engine)
-    add_test(NAME stereo_reverb COMMAND sawstar_reverb_tests)
-    add_executable(sawstar_delay_tests tests/delay.cpp)
-    target_link_libraries(sawstar_delay_tests PRIVATE sawstar_engine)
-    add_test(NAME stereo_delay COMMAND sawstar_delay_tests)
-    add_executable(sawstar_width_tests tests/width.cpp)
-    target_link_libraries(sawstar_width_tests PRIVATE sawstar_engine)
-    add_test(NAME master_width COMMAND sawstar_width_tests)
-    add_executable(sawstar_chorus_tests tests/chorus.cpp)
-    target_link_libraries(sawstar_chorus_tests PRIVATE sawstar_engine)
-    add_test(NAME stereo_chorus COMMAND sawstar_chorus_tests)
-    add_executable(sawstar_lfo_wave_tests tests/lfo_wave.cpp)
-    target_link_libraries(sawstar_lfo_wave_tests PRIVATE sawstar_engine)
-    add_test(NAME lfo_waveforms COMMAND sawstar_lfo_wave_tests)
-    add_executable(sawstar_filter_character_tests tests/filter_character.cpp)
-    target_link_libraries(sawstar_filter_character_tests PRIVATE sawstar_engine)
-    add_test(NAME filter_character COMMAND sawstar_filter_character_tests)
-    add_executable(sawstar_mixer_tests tests/mixer.cpp)
-    target_link_libraries(sawstar_mixer_tests PRIVATE sawstar_engine)
-    add_test(NAME source_mixer COMMAND sawstar_mixer_tests)
-    add_executable(sawstar_output_tests tests/output.cpp)
-    target_link_libraries(sawstar_output_tests PRIVATE sawstar_engine)
-    add_test(NAME output_level COMMAND sawstar_output_tests)
-    add_executable(sawstar_factory_tests tests/factory_presets.cpp)
-    target_link_libraries(sawstar_factory_tests PRIVATE sawstar_engine)
-    add_test(NAME factory_presets COMMAND sawstar_factory_tests)
-    add_executable(sawstar_performance_tests tests/performance.cpp)
-    target_link_libraries(sawstar_performance_tests PRIVATE sawstar_engine)
-    add_test(NAME performance_wheels COMMAND sawstar_performance_tests)
-    add_executable(sawstar_filter_modulation_tests tests/filter_modulation.cpp)
-    target_link_libraries(sawstar_filter_modulation_tests PRIVATE sawstar_engine)
-    add_test(NAME filter_modulation COMMAND sawstar_filter_modulation_tests)
-    add_executable(sawstar_filter_tests tests/filter.cpp)
-    target_link_libraries(sawstar_filter_tests PRIVATE sawstar_engine)
-    add_test(NAME low_pass COMMAND sawstar_filter_tests)
-    add_executable(sawstar_sevensaw_tests tests/sevensaw.cpp)
-    target_link_libraries(sawstar_sevensaw_tests PRIVATE sawstar_engine)
-    add_test(NAME seven_saw COMMAND sawstar_sevensaw_tests)
-    add_executable(sawstar_engine_tests tests/engine.cpp)
-    target_link_libraries(sawstar_engine_tests PRIVATE sawstar_engine)
-    add_test(NAME voice_engine COMMAND sawstar_engine_tests)
-    add_executable(sawstar_dsp_tests tests/daisy_primitives.cpp)
-    target_link_libraries(sawstar_dsp_tests PRIVATE sawstar_daisy_primitives)
-    add_test(NAME daisy_primitives COMMAND sawstar_dsp_tests)
+
+    add_executable(
+      sawstar_idle_start_tests
+      tests/idle_start.cpp
+    )
+
+    target_link_libraries(
+      sawstar_idle_start_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME idle_voice_start
+      COMMAND sawstar_idle_start_tests
+    )
+
+
+    add_executable(
+      sawstar_dsp_safety_tests
+      tests/dsp_safety.cpp
+    )
+
+    target_link_libraries(
+      sawstar_dsp_safety_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME dsp_safety
+      COMMAND sawstar_dsp_safety_tests
+    )
+
+
+    add_executable(
+      sawstar_reset_lifecycle_tests
+      tests/reset_lifecycle.cpp
+    )
+
+    target_link_libraries(
+      sawstar_reset_lifecycle_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME reset_lifecycle
+      COMMAND sawstar_reset_lifecycle_tests
+    )
+
+
+    add_executable(
+      sawstar_overlap_tests
+      tests/overlapping_notes.cpp
+    )
+
+    target_link_libraries(
+      sawstar_overlap_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME overlapping_notes
+      COMMAND sawstar_overlap_tests
+    )
+
+
+    add_executable(
+      sawstar_engine_audit
+      tests/engine_audit.cpp
+    )
+
+    target_link_libraries(
+      sawstar_engine_audit
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME engine_audit
+      COMMAND sawstar_engine_audit
+    )
+
+
+    add_executable(
+      sawstar_parameter_transition_tests
+      tests/parameter_transitions.cpp
+    )
+
+    target_link_libraries(
+      sawstar_parameter_transition_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME parameter_transitions
+      COMMAND sawstar_parameter_transition_tests
+    )
+
+
+    add_executable(
+      sawstar_voice_transition_tests
+      tests/voice_transitions.cpp
+    )
+
+    target_link_libraries(
+      sawstar_voice_transition_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME voice_transitions
+      COMMAND sawstar_voice_transition_tests
+    )
+
+
+    add_executable(
+      sawstar_source_quality_tests
+      tests/source_quality.cpp
+    )
+
+    target_link_libraries(
+      sawstar_source_quality_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME source_quality
+      COMMAND sawstar_source_quality_tests
+    )
+
+
+    # Benchmark executable. It is intentionally not registered with CTest.
+    add_executable(
+      sawstar_audio_benchmark
+      tests/audio_benchmark.cpp
+    )
+
+    target_link_libraries(
+      sawstar_audio_benchmark
+      PRIVATE
+        sawstar_engine
+    )
+
+
+    add_executable(
+      sawstar_arp_tests
+      tests/arpeggiator.cpp
+    )
+
+    target_link_libraries(
+      sawstar_arp_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME arpeggiator
+      COMMAND sawstar_arp_tests
+    )
+
+
+    add_executable(
+      sawstar_modulation_tests
+      tests/modulation.cpp
+    )
+
+    target_link_libraries(
+      sawstar_modulation_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME dual_lfo_modulation
+      COMMAND sawstar_modulation_tests
+    )
+
+
+    add_executable(
+      sawstar_short_note_tests
+      tests/short_notes.cpp
+    )
+
+    target_link_libraries(
+      sawstar_short_note_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME short_note_release
+      COMMAND sawstar_short_note_tests
+    )
+
+
+    add_executable(
+      sawstar_noise_tests
+      tests/noise.cpp
+    )
+
+    target_link_libraries(
+      sawstar_noise_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME noise_sources_color
+      COMMAND sawstar_noise_tests
+    )
+
+
+    add_executable(
+      sawstar_mono_tests
+      tests/mono.cpp
+    )
+
+    target_link_libraries(
+      sawstar_mono_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME mono_legato_glide
+      COMMAND sawstar_mono_tests
+    )
+
+
+    add_executable(
+      sawstar_reverb_tests
+      tests/reverb.cpp
+    )
+
+    target_link_libraries(
+      sawstar_reverb_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME stereo_reverb
+      COMMAND sawstar_reverb_tests
+    )
+
+
+    add_executable(
+      sawstar_delay_tests
+      tests/delay.cpp
+    )
+
+    target_link_libraries(
+      sawstar_delay_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME stereo_delay
+      COMMAND sawstar_delay_tests
+    )
+
+
+    add_executable(
+      sawstar_width_tests
+      tests/width.cpp
+    )
+
+    target_link_libraries(
+      sawstar_width_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME master_width
+      COMMAND sawstar_width_tests
+    )
+
+
+    add_executable(
+      sawstar_chorus_tests
+      tests/chorus.cpp
+    )
+
+    target_link_libraries(
+      sawstar_chorus_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME stereo_chorus
+      COMMAND sawstar_chorus_tests
+    )
+
+
+    add_executable(
+      sawstar_lfo_wave_tests
+      tests/lfo_wave.cpp
+    )
+
+    target_link_libraries(
+      sawstar_lfo_wave_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME lfo_waveforms
+      COMMAND sawstar_lfo_wave_tests
+    )
+
+
+    add_executable(
+      sawstar_filter_character_tests
+      tests/filter_character.cpp
+    )
+
+    target_link_libraries(
+      sawstar_filter_character_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME filter_character
+      COMMAND sawstar_filter_character_tests
+    )
+
+
+    add_executable(
+      sawstar_mixer_tests
+      tests/mixer.cpp
+    )
+
+    target_link_libraries(
+      sawstar_mixer_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME source_mixer
+      COMMAND sawstar_mixer_tests
+    )
+
+
+    add_executable(
+      sawstar_output_tests
+      tests/output.cpp
+    )
+
+    target_link_libraries(
+      sawstar_output_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME output_level
+      COMMAND sawstar_output_tests
+    )
+
+
+    add_executable(
+      sawstar_factory_tests
+      tests/factory_presets.cpp
+    )
+
+    target_link_libraries(
+      sawstar_factory_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME factory_presets
+      COMMAND sawstar_factory_tests
+    )
+
+
+    add_executable(
+      sawstar_performance_tests
+      tests/performance.cpp
+    )
+
+    target_link_libraries(
+      sawstar_performance_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME performance_wheels
+      COMMAND sawstar_performance_tests
+    )
+
+
+    add_executable(
+      sawstar_filter_modulation_tests
+      tests/filter_modulation.cpp
+    )
+
+    target_link_libraries(
+      sawstar_filter_modulation_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME filter_modulation
+      COMMAND sawstar_filter_modulation_tests
+    )
+
+
+    add_executable(
+      sawstar_filter_tests
+      tests/filter.cpp
+    )
+
+    target_link_libraries(
+      sawstar_filter_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME low_pass
+      COMMAND sawstar_filter_tests
+    )
+
+
+    add_executable(
+      sawstar_sevensaw_tests
+      tests/sevensaw.cpp
+    )
+
+    target_link_libraries(
+      sawstar_sevensaw_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME seven_saw
+      COMMAND sawstar_sevensaw_tests
+    )
+
+
+    add_executable(
+      sawstar_engine_tests
+      tests/engine.cpp
+    )
+
+    target_link_libraries(
+      sawstar_engine_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME voice_engine
+      COMMAND sawstar_engine_tests
+    )
+
+
+    add_executable(
+      sawstar_dsp_tests
+      tests/daisy_primitives.cpp
+    )
+
+    target_link_libraries(
+      sawstar_dsp_tests
+      PRIVATE
+        sawstar_daisy_primitives
+    )
+
+    add_test(
+      NAME daisy_primitives
+      COMMAND sawstar_dsp_tests
+    )
+
   endif()
+
 endif()
+
+# ---------------------------------------------------------------------------
+# iPlug2 VST3 plugin
+# ---------------------------------------------------------------------------
 
 if(SAWSTAR_BUILD_PLUGIN)
   add_subdirectory(src/plugin)
 endif()
 
-if(BUILD_TESTING AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN))
-  add_executable(sawstar_torture tests/torture.cpp)
-  target_link_libraries(sawstar_torture PRIVATE sawstar_engine)
-  add_test(NAME torture COMMAND sawstar_torture --steps 1200 --seed 0x53415753544152)
-  set_tests_properties(torture PROPERTIES LABELS "stress" TIMEOUT 180)
-  add_test(NAME torture_reject_negative COMMAND sawstar_torture --steps -1)
-  add_test(NAME torture_reject_suffix COMMAND sawstar_torture --steps 1200junk)
-  add_test(NAME torture_reject_excess COMMAND sawstar_torture --steps 1000001)
-  set_tests_properties(torture_reject_negative torture_reject_suffix torture_reject_excess
-    PROPERTIES WILL_FAIL TRUE TIMEOUT 5 LABELS "stress;cli")
+# ---------------------------------------------------------------------------
+# Stress and torture tests
+# ---------------------------------------------------------------------------
+
+if(
+  BUILD_TESTING
+  AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
+)
+
+  add_executable(
+    sawstar_torture
+    tests/torture.cpp
+  )
+
+  target_link_libraries(
+    sawstar_torture
+    PRIVATE
+      sawstar_engine
+  )
+
+  add_test(
+    NAME torture
+    COMMAND sawstar_torture
+      --steps 1200
+      --seed 0x53415753544152
+  )
+
+  set_tests_properties(
+    torture
+    PROPERTIES
+      LABELS "stress"
+      TIMEOUT 180
+  )
+
+
+  add_test(
+    NAME torture_reject_negative
+    COMMAND sawstar_torture --steps -1
+  )
+
+  add_test(
+    NAME torture_reject_suffix
+    COMMAND sawstar_torture --steps 1200junk
+  )
+
+  add_test(
+    NAME torture_reject_excess
+    COMMAND sawstar_torture --steps 1000001
+  )
+
+  set_tests_properties(
+    torture_reject_negative
+    torture_reject_suffix
+    torture_reject_excess
+    PROPERTIES
+      WILL_FAIL TRUE
+      TIMEOUT 5
+      LABELS "stress;cli"
+  )
+
 endif()
