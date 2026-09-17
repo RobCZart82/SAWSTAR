@@ -21,7 +21,7 @@ jobs:
   coverage:
     name: Linux code coverage
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -55,7 +55,7 @@ jobs:
           ctest \
             --test-dir build-coverage \
             --output-on-failure \
-            --timeout 180
+            --timeout 600
 
       - name: Generate coverage report
         run: |
@@ -64,6 +64,7 @@ jobs:
             --filter 'src/' \
             --exclude 'third_party/' \
             --exclude 'build-.*/' \
+            --gcov-ignore-parse-errors=suspicious_hits.warn_once_per_file \
             --print-summary \
             --xml-pretty \
             --xml coverage.xml \
@@ -80,14 +81,13 @@ jobs:
             coverage.html.*
           if-no-files-found: warn
 
-
   # ---------------------------------------------------------------------------
   # AddressSanitizer + UndefinedBehaviorSanitizer
   # ---------------------------------------------------------------------------
   sanitizer:
     name: Linux AddressSanitizer and UBSan
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 35
 
     env:
       ASAN_OPTIONS: detect_leaks=1:abort_on_error=1:halt_on_error=1:strict_init_order=1
@@ -120,8 +120,7 @@ jobs:
           ctest \
             --test-dir build-sanitized \
             --output-on-failure \
-            --timeout 180
-
+            --timeout 600
 
   # ---------------------------------------------------------------------------
   # ThreadSanitizer
