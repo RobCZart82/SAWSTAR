@@ -26,7 +26,7 @@ are available for each target. All packages include English/Hungarian PDF guides
 and license notices. The installers are unsigned; read the installation guide
 before proceeding through platform security prompts.
 
-Development candidate: **1.0.3-rc1**. See [candidate notes](docs/RELEASE_NOTES_1.0.3.md). The stable download above remains 1.0.1.
+Development candidate: **1.0.3-rc2**. See [candidate notes](docs/RELEASE_NOTES_1.0.3.md). The stable download above remains 1.0.1.
 
 ## Features
 

@@ -1,81 +1,74 @@
-# Architecture
+# Architecture — 1.0.3
 
-## Dependency direction
+## Responsibilities
 
-```text
-Host MIDI / automation / state
-             |
-       src/plugin (iPlug2 adapter) <---- src/gui (parameter gestures)
-             |
-       src/engine (SAWSTAR synth + voice manager)
-             |
-       src/dsp (narrow DaisySP adapters, later custom 7-Saw)
+- `src/plugin`: iPlug2 VST3 lifecycle, host parameters/state, output buses and
+  sample-offset MIDI. `ApplyEngineControls` is shared with the engine tests.
+  Zero audio inputs, stereo output with host-output adaptation; no MIDI output.
+- `src/engine`: fixed 16-voice pool, Mono/Legato selection, controllers,
+  modulation, voice rendering, effects, output gain and peak protection.
+- `src/dsp`: oscillator/envelope adapters and SAWSTAR filter/effect code.
+  DaisySP dependencies are pinned; the production engine is tested directly.
+- `src/midi`: arpeggiator and fixed-capacity 1024-event `BlockMidiQueue`.
+- `src/presets`: factory learning metadata and user-preset/favorites file operations.
+- `src/gui`: controls and telemetry. Page changes do not change sound parameters.
 
-src/midi -> timestamped events -> engine
-src/presets -> validated parameter snapshot -> plugin -> engine
-```
+## Voice and signal lifecycle
 
-The foundation currently compiles parameter utilities in `src/plugin` and
-page metadata in `src/gui`. The optional DaisySP target is an integration
-check, not a playable synth. Other folders are reserved responsibilities.
+Poly note-on first finds a voice matching note and channel and retriggers it.
+Otherwise allocation prefers idle voices, then the oldest released voice, then
+the oldest held voice. Repeated note-ons do not automatically allocate separate
+voices. Mono/Legato use physically held-key priority followed by last-note
+priority, with sustain-latched keys as fallback. See [PERFORMANCE.md](PERFORMANCE.md).
 
-## Ownership and interfaces for First Sound
+Each voice mixes OSC1 and OSC2 SevenSaw layers, selectable SUB and noise, then
+passes the mixture through Drive/DC/filter and the amplitude envelope. The
+modulation matrix and filter envelope control voice processing. Global LFO
+amplitude/pan processing precedes the PreFX telemetry point. Chorus, delay and
+reverb precede output width/gain and the documented stereo peak protection.
+Output Volume × Boost is smoothed as a combined gain. See
+[SOURCE_MIXER.md](SOURCE_MIXER.md) for calibration and protection semantics.
 
-- **Plugin adapter:** iPlug2 lifecycle, audio buses, MIDI sample offsets,
-  stable host parameter indices and translation to engine units. Zero inputs,
-  two outputs; MIDI in; no MIDI out or MPE in v0.1.
-- **Engine:** owns a fixed pool of 16 voices, event dispatch, voice summing,
-  gain smoothing and lifecycle reset. No dependency on graphics or host APIs.
-- **Voice manager:** idle voice first, then oldest released voice, then oldest
-  held voice. Repeated note-ons allocate separate voices; note-off releases
-  the oldest still-held voice matching channel and note. Add a short steal
-  fade/crossfade so reassignment does not produce a discontinuity.
-- **Voice:** oscillator phase, amplitude envelope, velocity, gate, note/channel
-  and allocation age. Gate release must finish before returning to the pool.
-- **DSP:** sample-rate-aware wrappers around DaisySP oscillator and ADSR.
-  Use the bandlimited `WAVE_POLYBLEP_SAW`, not the naive saw. Envelope units in
-  the engine are seconds; host display/state uses milliseconds.
-- **MIDI:** bounded event queue, sample offsets relative to each block;
-  velocity-zero note-on is note-off. Process all events at the correct sample.
-  CC123 releases gates; CC120 silences immediately. Sustain pedal and pitch
-  bend behaviour must be implemented and tested before advertising support.
-- **Presets:** versioned state codec and later library/learning metadata.
-  Keep files, parsing and memory allocation outside audio processing.
-- **GUI:** parameter gestures and display only. The selected page is editor
-  state, not a sound parameter; changing a page must not change the sound.
+Oscillator phases and smoothing histories belong to each voice. Idle reuse
+resets stale envelope history. Release-only Mono events sharing a sample are
+resolved before that sample renders; equal-offset MIDI arrival order is otherwise
+preserved. Overflow clears uncertain queued input and invokes all-channel
+All Sound Off recovery including arpeggiator/effect cleanup, preserving bend/mod.
 
-## Real-time rules
+## Host and real-time boundaries
 
-No heap allocation, locks, file/network I/O or logging on the audio thread.
-Prepare voice storage and event capacity before playback. Define overflow
-handling: never drop a note-off silently; request a deterministic all-notes-off
-fallback when the bounded MIDI queue overflows. Clamp and reject invalid
-parameter/sample-rate inputs outside per-sample work. Smooth output gain;
-add further smoothing where discontinuities become audible.
+Storage is prepared before playback. Audio processing must not allocate heap
+storage, access files/network, log, or take file-operation locks. Host adapter
+callbacks must serialize access to the audio-owned MIDI queue. The queue keeps
+future-block events and processes each MIDI event at its sample offset.
 
-Render independent of block size. On reset/sample-rate changes, clear active
-voices and reinitialize DSP. Sum with conservative headroom (initially 1/16
-per voice plus master gain), measure peaks, and do not hide clipping with an
-undocumented limiter. No shared mutable globals between plugin instances.
+Parameter values are read and applied once per audio block. Current tests prove
+MIDI timeline equivalence, not sample-accurate parameter automation or atomic
+multi-parameter preset application. Those are separate future wrapper audits.
+User-file parsing and mutations stay outside sample processing.
 
-## Identity before the first distributed binary
+GUI preset loading currently sends individual parameter gestures to the adapter.
+Host state and standalone presets share the versioned codec; compatibility
+allows older partial states and the optional VST3 bypass trailer. IDs are append
+only. The current state contains 93 parameters. Changing decoding strictness or
+rounding requires explicit compatibility tests, not a silent format migration.
 
-Proposed manufacturer display name: `RobCZart82`; plugin four-character ID:
-`SwSt`; manufacturer ID: `RC82`; reverse-domain identity:
-`io.github.robczart82.sawstar`.
-These identifiers are now compiled into the development shell. Preserve them
-when connecting the engine; changing them can break host projects.
-Do not copy example plugin identifiers or invent vendor contact addresses.
+The scope and meter publish telemetry for the GUI without making audio dependent
+on the editor being open. Current wrapper CPU overhead includes control updates
+and telemetry; the engine-only benchmark does not measure all that overhead.
 
-The source mixer now feeds two independent SevenSaw layers, a sine sub and
-per-voice noise into the filter. Output calibration and the documented stereo
-peak guard are described in [SOURCE_MIXER.md](SOURCE_MIXER.md).
+## Stable identity and intentional boundaries
 
-### Noise extension
+Manufacturer: RobCZart82; plugin ID: SwSt; manufacturer ID: RC82; bundle identity:
+`io.github.robczart82.sawstar`. Preserve these and parameter IDs for old projects.
 
-White retains the original per-voice xorshift stream. Dark retains its original
-1.2 kHz one-pole filter. Pink uses an independent seeded generator with 16
-staggered octave-rate random rows and a full-rate component. All are centered
-mono voice sources, routed through the existing voice filter and Amp ADSR.
-The independent color filter is sample-rate aware, with exact neutral bypass.
-No new dependency or external source code is introduced (SAWSTAR MIT code).
+Shipping targets are Windows x64/ARM64 and macOS Universal. Linux currently runs
+foundation/quality tests, not an advertised Linux VST3 distribution.
+
+RC7 experimental crossfades, automatic pitch smoothing and DC resets are not part
+of this baseline. The closed click/pop investigation does not establish a new
+engine change. Filter oversampling and 32 voices remain separately scoped work.
+
+White/Dark noise preserve their original streams. Pink uses an independent
+seeded generator with staggered octave rows. All remain per-voice mono sources
+feeding the existing voice filter/envelope; no additional dependency is introduced.

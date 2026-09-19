@@ -1,52 +1,64 @@
-# Pitch bend and modulation wheel
+# Performance controls — 1.0.3
 
 Pitch bend uses all 14 MIDI bits: 0 is full down, 8192 is center, 16383 is full
-up. Bend Range defaults to +/-2 semitones and spans 0–24 semitones. A 5 ms
-pitch-ratio smoother affects sounding and new voices without resetting oscillator
-phase or detune smoothing. Note pitch changes remain immediate.
+up. Bend Range defaults to +/-2 semitones and spans 0–24. A 5 ms pitch-ratio
+smoother affects sounding and new voices without resetting oscillator phase or
+detune smoothing. Note selection and the optional Glide are separate controls.
 
-CC1 is a unipolar modulation wheel. Its first destination is filter cutoff:
-wheel/127 * Mod Depth is added to the filter's semitone offset before clamping.
-Depth defaults to +24 semitones and spans 0–48. It uses the filter's 16-sample
-target updates and 10 ms coefficient smoothing. Raise Filter Mix and lower base
-Cutoff to hear it. No vibrato or configurable routing is implemented yet.
+CC1 always contributes wheel/127 × Wheel Depth to filter cutoff in semitones.
+Depth defaults to +24 and spans 0–48. Raise Filter Mix and lower the base cutoff
+to hear this built-in routing. The four-route modulation matrix can additionally
+route the wheel to other destinations; setting those routes Off does not disable
+the built-in cutoff contribution. Set Wheel Depth to zero to disable that part.
+Two LFOs also support pitch modulation, cutoff, amplitude and pan destinations.
 
 Controller values are independent on all 16 MIDI channels. CC121 resets bend,
-modulation and sustain on its channel. CC120 stops sound without resetting bend
-or mod. Engine reset centers bend and clears mod. RPN bend-range negotiation,
-MPE and high-resolution CC1/33 pairing are not implemented.
+modulation and sustain on its channel, using the existing smooth controller
+return. CC120 stops sound without resetting bend or mod. Engine reset centers
+bend and clears mod. RPN bend-range negotiation, MPE and high-resolution CC1/33
+pairing are not implemented.
 
-The fixed bottom strip is shared by MAIN, ADVANCED and PRESETS: compact PITCH
-and MOD wheels at left, the flat keyboard alongside, and the status row beneath.
-UI wheels send MIDI on channel 1; external channel-1 MIDI updates their display.
-Pitch returns to center on mouse release; Mod stays where placed. Double-click
-resets either wheel. These are transient MIDI controllers, not preset parameters.
-Only Bend Range and Mod Depth are saved (appended IDs 17 and 18); old states
-default them to 2 and 24. Current v1 saves hold nineteen records (244 bytes plus
-the VST3 wrapper's four-byte bypass). DAWs should record wheel movements as MIDI.
+## Mono, Legato and live changes
 
-ADVANCED exposes the two depth controls. The shared header preset selector from
-the concept remains a later UI milestone. No placeholder CPU percentage is shown.
+Mono/Legato choose physically held keys before pedal-latched keys, with last-note
+priority within that class. Mono retriggers the envelopes for a new key; Legato
+retains the envelope on overlap. Glide supports Overlap only and Always modes.
+The glide history refers to a pitch that has actually rendered audio.
+Release-only MIDI events at the same sample are resolved before rendering.
 
-Tests measure oscillator frequency at center and both bend endpoints, live range
-changes, new-note bend, controller reset, channel isolation, filter opening,
-extreme controller sweeps and panic silence at 8/44.1/48/96 kHz. State tests
-include seventeen-record migration without changing any prior parameter IDs.
+Retriggered LFOs follow the existing first-key policy. Off→On and On→Off at the
+same sample can differ when one order momentarily releases the last held key.
+The MIDI queue retains equal-offset arrival order. Free-phase LFOs do not reset
+at this boundary. This is covered by `performance_policy`, not silently reordered.
 
-## Validation — 2026-09-06
+Live voice-mode changes release the old phrase and reset held-key bookkeeping;
+new notes use the selected mode. Tests cover lifecycle/release correctness, not
+a promise of inaudible mode changes. No experimental RC7 mode crossfade is used.
 
-Tested build cc99319ce239038dd90491e2465c66b06db4a8b0. macOS run
-34044678365 and Windows run 34044678368 passed Debug/Release checks,
-all eight test executables, and all 47 VST3 validator tests.
+## GUI and state
 
-REAPER 7.79 on macOS loaded the old seventeen-record project with defaults
-of 2 st bend range and 24 st mod depth. The new save contains nineteen records.
-Mouse tests confirmed pitch return, mod latch/reset, and shared strip position
-on MAIN, ADVANCED and PRESETS. The MIDI test item contains a pitch-bend ramp
-on its first note and a CC1 ramp on its second note, followed by controller reset.
-Its 44.1 kHz stereo 24-bit render peaked at -22.56 dBFS, with no clipped samples.
-The separate preview is normalized to -6 dBFS for listening.
+The bottom keyboard and wheels are shared by MAIN, ADVANCED and PRESETS. UI
+wheels send MIDI on channel 1; incoming channel-1 MIDI updates their display.
+Pitch returns to center on release; Mod stays where placed. Double-click resets
+the wheel, but the first click can already send the clicked value. This gesture
+is not an atomic reset and is a separate future interaction-design item.
 
-The packages are unsigned development builds. Manual Windows host testing
-and a physical external MIDI keyboard test remain pending; host MIDI was tested
-using recorded events in REAPER, not physical hardware.
+Wheel positions are transient MIDI controllers; DAWs should record movements
+as MIDI. Bend Range and Wheel Depth are saved parameters, with stable IDs 17/18.
+The current v1 state contains 93 records: 1132 bytes (16-byte header + 93 × 12),
+plus the optional four-byte VST3 bypass trailer. Older supported states retain
+migration defaults. Host parameter automation is currently applied per block;
+MIDI sample-offset/block-equivalence tests do not establish sample-accurate
+parameter automation.
+
+The header includes the quick preset selector. DSP CPU reports plugin render
+time relative to the audio block duration, not whole-computer CPU usage.
+
+## Validation scope
+
+`performance`, `controller_lifecycle`, `glide_history`, `performance_policy`,
+`release_order`, `state_roundtrip` and `block_midi_queue` cover the relevant
+engine/state contracts. GUI gestures, external hardware and host-specific
+behaviour still require actual host acceptance. See
+[the release checklist](RELEASE_1.0.3_CHECKLIST.md) for candidate evidence and
+remaining checks; historical 0.1-era results are not current acceptance.

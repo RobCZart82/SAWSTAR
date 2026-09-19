@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — 1.0.3-rc1
+## Unreleased — 1.0.3-rc2
 
 Includes the unpublished 1.0.2 development work.
 

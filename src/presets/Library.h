@@ -37,7 +37,8 @@ public:
  std::vector<LibraryEntry> entries;std::string warning;
  explicit PresetLibrary(fs::path root):root_(std::move(root)){Refresh();}
  void Refresh(){warning.clear();try{ReloadFavorites();}catch(const std::exception& e){warning=e.what();}entries.clear();int i=0;for(const auto& p:FactoryPresets()){entries.push_back({"factory:"+std::string(p.key),p.name,p.category,p.lesson,{},i++,p.tags});}
-  if(root_.empty())return;try{for(const auto& p:ListUserPresets(root_))entries.push_back({"user:"+p.filename().u8string(),p.stem().u8string(),"User","User sound. The diagram below describes its saved settings.",p,-1});}catch(const std::exception& e){warning=e.what();}}
+  if(root_.empty())return;
+  try{for(const auto& p:ListUserPresets(root_))entries.push_back({"user:"+p.filename().u8string(),p.stem().u8string(),"User","User sound. The diagram below describes its saved settings.",p,-1});}catch(const std::exception& e){warning=e.what();}}
  bool Favorite(const std::string& key)const{return favorites_.count(key)>0;}
  void ToggleFavorite(const std::string& key){favorites_=ChangeFavorite(root_,key);}
  void MoveFavorite(const std::string& oldKey,const std::string& newKey){favorites_=ChangeFavorite(root_,oldKey,&newKey);}
