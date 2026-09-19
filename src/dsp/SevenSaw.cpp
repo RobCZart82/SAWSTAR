@@ -27,7 +27,8 @@ void SevenSaw::SetFreq(float hz) {
   // Retain the MIDI fundamental so a downward bend can bring high notes back
   // below Nyquist. Clamp each oscillator only after applying bend and detune.
   hz_=Safe(hz,0,20000);
-  ratios_=targets_; // MIDI pitch changes immediately; only detune automation is slewed.
+  // MIDI pitch changes immediately; preserve the independently slewed detune.
+  // Idle voices initialize their tuning through SnapToTargets().
   for(size_t i=0;i<saws_.size();++i) saws_[i].SetFreq(std::min(hz_*pitch_*ratios_[i],rate_*0.45f));
 }
 void SevenSaw::SetWaveform(int waveform){waveform_=std::clamp(waveform,0,3);}

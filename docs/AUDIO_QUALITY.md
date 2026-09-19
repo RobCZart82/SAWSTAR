@@ -40,8 +40,12 @@ The six workloads use 1/8/16 voices at 48 kHz, two unison oscillators, sub/noise
 a filter, and either dry or active chorus/delay/reverb. It prints sample peak,
 stereo RMS, DC mean and render time as a percentage of the rendered duration.
 This measures engine throughput with measurement overhead, not REAPER's CPU
-meter or a worst-case real-time scheduling guarantee. Timing is observational;
-there is no machine-dependent pass/fail CPU threshold.
+meter or a worst-case real-time scheduling guarantee. The median comparison
+fails when CPU usage exceeds both +25% relative and +1.0 realtime percentage
+point, when peak or RMS changes by more than 1 dB, or when current absolute
+DC exceeds 0.01 full scale. Non-finite numeric measurements are rejected
+before comparison. Both builds run on the same runner; these checks do not
+establish a universal CPU requirement.
 
 The benchmark does not establish perceptual loudness equality across waveforms,
 noise colors or presets. That balance still needs listening at matched levels.

@@ -14,6 +14,9 @@ def package(bundle_parent, output):
     bundle = Path(bundle_parent) / 'SAWSTAR.vst3'
     if not bundle.is_dir():
         raise ValueError(f'Missing plugin bundle: {bundle}')
+    version = json.loads((root / 'release.json').read_text())['version']
+    if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version):
+        raise ValueError('Invalid release version')
     files = {}
     for p in sorted(bundle.rglob('*')):
         if p.is_symlink():
@@ -26,7 +29,7 @@ def package(bundle_parent, output):
         if p.is_file():
             files['licenses/' + p.relative_to(root / 'third_party/licenses').as_posix()] = p
     for name in ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'docs/INSTALLATION.md',
-                 'docs/RELEASE_NOTES_1.0.0.md', 'docs/SYSTEM_REQUIREMENTS.md', 'docs/manuals/README.md',
+                 f'docs/RELEASE_NOTES_{version}.md', 'docs/SYSTEM_REQUIREMENTS.md', 'docs/manuals/README.md',
                  'docs/manuals/SAWSTAR-User-Manual-EN.pdf',
                  'docs/manuals/SAWSTAR-User-Manual-HU.pdf']:
         p = root / name
@@ -34,7 +37,6 @@ def package(bundle_parent, output):
             raise ValueError(f'Missing distribution document: {name}')
         files[name if name.startswith('docs/manuals/') else p.name] = p
     files['licenses/SAWSTAR-BRANDING-LICENSE.txt'] = root / 'assets/branding/LICENSE.txt'
-    version = json.loads((root / 'release.json').read_text())['version']
     try:
         revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root,
                                            stderr=subprocess.DEVNULL, text=True).strip()

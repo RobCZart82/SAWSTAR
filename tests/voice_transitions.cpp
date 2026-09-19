@@ -3,10 +3,11 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 void check(bool value,const char* why){if(!value){std::cerr<<why<<'\n';std::exit(1);}}
 int main(){for(float sr:{44100.f,48000.f,96000.f}){
  for(bool full:{false,true}){
-  sawstar::Synth s;s.Reset(sr);s.SetParameters(0,1,1,1,10);s.SetOutputBoost(18);
+  auto owner=std::make_unique<sawstar::Synth>();auto& s=*owner;s.Reset(sr);s.SetParameters(0,1,1,1,10);s.SetOutputBoost(18);
   s.Midi(0x90,60,127);
   if(full)for(int ch=1;ch<16;++ch)s.Midi(0x90|ch,60,1);
   float previous=0;for(int i=0;i<int(sr/2)+17;++i)previous=s.Process();

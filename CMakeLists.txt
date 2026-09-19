@@ -1007,3 +1007,18 @@ if(
   )
 
 endif()
+
+if(BUILD_TESTING AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN))
+  foreach(case glide_history release_order idle_voice_reuse output_gain detune_continuity delay_initial_time block_midi_queue engine_controls controller_lifecycle)
+    add_executable(sawstar_${case}_tests tests/${case}.cpp)
+    target_link_libraries(sawstar_${case}_tests PRIVATE sawstar_engine)
+    add_test(NAME ${case} COMMAND sawstar_${case}_tests)
+  endforeach()
+endif()
+
+# Exercise the actual benchmark CSV parser without building its baseline engine.
+if(BUILD_TESTING)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  add_test(NAME benchmark_report
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/benchmark_report.py")
+endif()

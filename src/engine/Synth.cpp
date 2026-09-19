@@ -7,10 +7,10 @@ void Synth::Reset(double rate) {
   initialControlsPending_=true;panicChannels_=0;preFX_={};
   const float sr = SafeSampleRate(rate);
   bend_.fill(8192);mod_.fill(0);bendRatio_.fill(1);bendTarget_.fill(1);
-  sustain_.fill(false);downCounts_.fill(0);heldKeys_=0; age_ = 0; gain_ = 0;
+  sustain_.fill(false);downCounts_.fill(0);heldKeys_=0; age_ = 0; outputGain_ = 0;
   ampSustain_=targetAmpSustain_;
-  monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=false;glideRemaining_=monoOrder_=0;voiceMode_=0;
-  boost_=targetBoost_; protection_=1; width_.Init(sr);
+  monoKeys_.fill(MonoKey{});monoKey_=-1;monoPitchValid_=monoPitchRendered_=false;monoSelectionPending_=false;glideRemaining_=monoOrder_=0;voiceMode_=0;
+  protection_=1; width_.Init(sr);
   protectionRelease_=1.f-std::exp(-1.f/(0.08f*sr));
   smoothing_ = 1.f - std::exp(-1.f / (0.005f * sr));
   matrix_.Init(sr);pressure_.fill(0);smoothPressure_.fill(0);smoothWheel_.fill(0);lfo2_.Init(sr);
@@ -34,12 +34,13 @@ void Synth::SetVoiceMode(int mode,float glideMs,bool overlapOnly) {
     if(voiceMode_!=0&&monoPitchValid_&&voices_[0].note>=0){auto& v=voices_[0];v.fundamental=static_cast<float>(440*std::exp2((monoPitch_-69)/12.));v.osc.SetFreq(v.fundamental);v.osc2.SetFreq(v.fundamental);}
     // A mode change starts a new key phrase; release current sources safely.
     for(auto& v:voices_){if(v.note>=0&&(v.gate||v.gatePending)){v.env.Process(true);v.filterMod.Process(v.note,true);}v.held=v.gate=v.gatePending=false;}
-    monoKeys_.fill(MonoKey{});downCounts_.fill(0);heldKeys_=0;monoKey_=-1;monoPitchValid_=false;glideRemaining_=0;
+    monoKeys_.fill(MonoKey{});downCounts_.fill(0);heldKeys_=0;monoKey_=-1;monoPitchValid_=monoPitchRendered_=false;monoSelectionPending_=false;glideRemaining_=0;
     voiceMode_=mode;
   }
   if(glideMs_==0){monoPitch_=monoTarget_;glideRemaining_=0;}
 }
 void Synth::SelectMono(bool retrigger,bool allowGlide) {
+  monoSelectionPending_=false;
   int selected=-1;
   // Physically held keys take priority over pedal-latched keys, then last-note priority.
   for(int i=0;i<2048;++i){const auto& k=monoKeys_[i];if(!k.held&&!k.latched)continue;
@@ -52,17 +53,20 @@ void Synth::SelectMono(bool retrigger,bool allowGlide) {
   retrigger=retrigger||voiceMode_==1;
   const int note=selected%128,ch=selected/128;
   const bool wasRunning=v.note>=0;
-  const bool slide=monoPitchValid_&&allowGlide&&glideMs_>0;
+  const bool slide=monoPitchValid_&&monoPitchRendered_&&allowGlide&&glideMs_>0;
   monoTarget_=note;
   if(slide){glideRemaining_=std::max<uint64_t>(1,static_cast<uint64_t>(sampleRate_*glideMs_*.001));monoStep_=(monoTarget_-monoPitch_)/glideRemaining_;}
-  else{monoPitch_=monoTarget_;glideRemaining_=0;}
+  else{monoPitch_=monoTarget_;glideRemaining_=0;
+    // A newly snapped pitch has no rendered history, including later phrases.
+    monoPitchRendered_=false;
+  }
   if(!monoPitchValid_)monoVelocity_=monoKeys_[selected].velocity/127.f;
   monoPitchValid_=true;monoKey_=selected;
   // Mono uses a fixed tuning reference; the sample-accurate pitch ratio carries glide.
   if(!wasRunning){v.startPending=true;v.filter.Clear();monoVelocity_=monoKeys_[selected].velocity/127.f;}
   v.note=note;v.channel=ch;v.held=monoKeys_[selected].held;v.gate=true;
   v.velocity=monoKeys_[selected].velocity/127.f;v.fundamental=440;v.osc.SetFreq(440);v.osc2.SetFreq(440);
-  if(retrigger||!wasRunning){v.env.Retrigger(false);v.filterMod.Trigger(!wasRunning);v.gatePending=true;}
+  if(retrigger||!wasRunning){v.env.Retrigger(!wasRunning);v.filterMod.Trigger(!wasRunning);v.gatePending=true;}
 }
 void Synth::MonoMidi(int status,int note,int value) {
   const int channel=status&15,kind=status&240,index=channel*128+note;
@@ -75,18 +79,18 @@ void Synth::MonoMidi(int status,int note,int value) {
     SelectMono(voiceMode_==1||!overlap,!overlapOnly_||overlap);
   }else if(kind==0x80||(kind==0x90&&value==0)){
     auto& key=monoKeys_[index];if(!key.held)return;key.held=false;key.latched=sustain_[channel];
-    SelectMono(false,true);
+    monoSelectionPending_=true;
   }else if(kind==0xb0){
     if(note==121){pressure_[channel]=0;bend_[channel]=8192;mod_[channel]=0;UpdateBend(channel);}
     if(note==64||note==121){sustain_[channel]=note==64&&value>=64;
       if(!sustain_[channel])for(int i=channel*128;i<(channel+1)*128;++i)monoKeys_[i].latched=false;
-      SelectMono(false,true);
+      monoSelectionPending_=true;
     }else if(note==120||note==123){
       for(int i=channel*128;i<(channel+1)*128;++i)monoKeys_[i]=MonoKey{};
       sustain_[channel]=false;
       if(note==120)for(size_t i=1;i<voices_.size();++i)if(voices_[i].channel==channel){voices_[i].note=-1;voices_[i].gate=voices_[i].held=false;}
       if(note==120&&voices_[0].channel==channel){voices_[0].note=-1;voices_[0].gate=voices_[0].held=false;voices_[0].env.Retrigger(true);monoKey_=-1;}
-      SelectMono(false,true);
+      monoSelectionPending_=true;
     }
   }
 }
@@ -188,7 +192,8 @@ void Synth::Midi(int status, int note, int value) {
     if (!chosen) for (auto& v : voices_) if (!v.held && (!chosen || v.age < chosen->age)) chosen = &v;
     if (!chosen) chosen = &*std::min_element(voices_.begin(), voices_.end(), [](const Voice& a, const Voice& b) { return a.age < b.age; });
     auto& v = *chosen;
-    v.splicePending=v.note>=0;
+    const bool wasRunning=v.note>=0;
+    v.splicePending=wasRunning;
     if(!v.splicePending){v.lastSample={};v.correction={};v.spliceRemaining=0;}
     v.filterMod.Trigger(v.note<0);
     if(v.note<0){v.startPending=true;v.filter.Clear();}
@@ -196,7 +201,7 @@ void Synth::Midi(int status, int note, int value) {
     v.velocity = static_cast<float>(value) / 127.f; v.age = ++age_;
     v.fundamental=static_cast<float>(440. * std::pow(2., (note - 69) / 12.));
     v.osc.SetFreq(v.fundamental); v.osc2.SetFreq(v.fundamental);
-    v.env.Retrigger(false);v.gatePending=true;
+    v.env.Retrigger(!wasRunning);v.gatePending=true;
   } else if (kind == 0x80 || (kind == 0x90 && value == 0)) {
     for (auto& v : voices_) if (v.note == note && v.channel == channel) {
       v.held = false; v.gate = sustain_[channel];
@@ -217,9 +222,11 @@ void Synth::Midi(int status, int note, int value) {
   }
 }
 StereoSample Synth::ProcessStereo() {
+  // Resolve releases sharing a sample once; do not retrigger unrendered keys.
+  if(monoSelectionPending_)SelectMono(false,true);
   // Host parameters arrive after Reset. Set the initial level targets once,
   // independent of the previous patch; retain normal smoothing thereafter.
-  if(initialControlsPending_){levels_=targetLevels_;boost_=targetBoost_;gain_=targetGain_;initialControlsPending_=false;}
+  if(initialControlsPending_){levels_=targetLevels_;outputGain_=targetGain_*targetBoost_;initialControlsPending_=false;}
   // Crossfade types with the same 5 ms time constant as the mixer controls.
   // Keep all source histories running so a new selection needs no cold start.
   for(int type=0;type<3;++type){
@@ -279,7 +286,7 @@ StereoSample Synth::ProcessStereo() {
                              one.right*levels_[0]+two.right*levels_[1]+center};
     const auto value=v.filter.Process(mixed);
     float velocity=v.velocity;
-    if(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_){monoVelocity_+=smoothing_*(v.velocity-monoVelocity_);velocity=monoVelocity_;}
+    if(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_){monoPitchRendered_=true;monoVelocity_+=smoothing_*(v.velocity-monoVelocity_);velocity=monoVelocity_;}
     const float routedAmp=1+route[2];
     StereoSample rendered{value.left*env*velocity*routedAmp*std::sqrt(1-route[3]),
                           value.right*env*velocity*routedAmp*std::sqrt(1+route[3])};
@@ -292,13 +299,14 @@ StereoSample Synth::ProcessStereo() {
     v.lastSample=rendered;sum.left+=rendered.left;sum.right+=rendered.right;
     if (!v.gate && !v.env.IsRunning() && v.spliceRemaining==0) v.note = -1;
   }
-  gain_ += smoothing_ * (targetGain_ - gain_);
-  boost_ += smoothing_ * (targetBoost_ - boost_);
+  // Smooth the combined output gain: opposing Volume/Boost changes must
+  // not create a swell by multiplying two independently interpolated gains.
+  outputGain_ += smoothing_ * (targetGain_ * targetBoost_ - outputGain_);
   sum.left*=lfo.amp*std::sqrt(1-lfo.pan);sum.right*=lfo.amp*std::sqrt(1+lfo.pan);
   preFX_=sum;
   sum=reverb_.Process(delay_.Process(chorus_.Process(sum)));
   width_.Process(sum.left,sum.right);
-  const float scale=gain_*boost_/16.f;
+  const float scale=outputGain_/16.f;
   sum.left*=scale; sum.right*=scale;
   // Stereo-linked peak guard: instant attack, 80 ms recovery, zero latency.
   // Apply to every routing combination, including matrix-only pan/amp boosts.

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #include "SAWSTAR.h"
+#include "plugin/EngineControls.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 #include "gui/Controls/Keyboard.h"
@@ -133,7 +134,7 @@ void SAWSTAR::OnReset() {
   mScope.Reset(GetSampleRate());
   mRate.store(static_cast<int>(GetSampleRate()));mMeter.Reset();mCpu.store(0);mVoiceCount.store(0);
   mSynth.Reset(GetSampleRate());mArp.Init(GetSampleRate());mArpReset.store(false);
-  mEventCount = 0; mOverflow = false;mMidiVoiceMode=0;
+  mEvents.Clear();mMidiVoiceMode=0;
   mBend.store(8192);mMod.store(0);
   for (auto& held : mHeld) held.store(false, std::memory_order_relaxed);
 }
@@ -143,72 +144,29 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   const int mode=GetParam(59)->Int();
   if(mArpReset.exchange(false)||mode!=mMidiVoiceMode)mArp.Clear(send);
   mMidiVoiceMode=mode;
-  mArp.Set(GetParam(83)->Int()!=0,GetParam(84)->Int(),GetParam(85)->Int(),GetParam(86)->Value(),GetParam(87)->Int(),GetParam(88)->Value(),GetParam(89)->Int()!=0,GetTempo(),GetTransportIsRunning(),send);
-  mSynth.SetLfo2(GetParam(64)->Value(),GetParam(65)->Value(),GetParam(66)->Int(),GetParam(67)->Int(),GetParam(68)->Int()!=0,GetParam(69)->Int(),GetTempo(),GetParam(70)->Int()!=0);
-  for(int row=0;row<4;++row){const int id=71+row*3;mSynth.SetModulation(row,GetParam(id)->Int(),GetParam(id+1)->Int(),GetParam(id+2)->Value());}
-  mSynth.SetVoiceMode(GetParam(59)->Int(),GetParam(60)->Value(),GetParam(61)->Int()!=0);
-  mSynth.SetParameters(GetParam(0)->Value(), GetParam(1)->Value(), GetParam(2)->Value(),
-                       GetParam(3)->Value(), GetParam(4)->Value());
-  mSynth.SetMixer(GetParam(20)->Value(),GetParam(21)->Value(),GetParam(22)->Value(),GetParam(23)->Value(),
-    GetParam(24)->Int(),GetParam(25)->Int(),GetParam(62)->Int()==0?GetParam(26)->Int():GetParam(62)->Int()-1,GetParam(30)->Int());
-  mSynth.SetNoiseColor(GetParam(63)->Value());
-  mSynth.SetSubWave(GetParam(92)->Int());
-  mSynth.SetWidth(GetParam(90)->Int()!=0,GetParam(91)->Value());
-  mSynth.SetOsc2(GetParam(27)->Value(),GetParam(28)->Value(),GetParam(29)->Value());
-  mSynth.SetOutputBoost(static_cast<float>(GetParam(19)->Value()));
-  mSynth.SetSaw(static_cast<float>(GetParam(5)->Value()), static_cast<float>(GetParam(6)->Value()),
-                static_cast<float>(GetParam(7)->Value()));
-  mSynth.SetReverb(GetParam(54)->Int()!=0,GetParam(55)->Value(),GetParam(56)->Value(),GetParam(57)->Value(),GetParam(58)->Value());
-  mSynth.SetDelay(GetParam(46)->Int()!=0,GetParam(47)->Value(),GetParam(48)->Value(),GetParam(49)->Value(),GetParam(50)->Value(),GetParam(51)->Int()!=0,GetParam(52)->Int()!=0,GetParam(53)->Int(),GetTempo());
-  mSynth.SetChorus(GetParam(42)->Int()!=0,GetParam(43)->Value(),GetParam(44)->Value(),GetParam(45)->Value());
-  mSynth.SetWaveforms(GetParam(33)->Int(),GetParam(34)->Int());
-  mSynth.SetLfo(GetParam(35)->Value(),GetParam(36)->Value(),GetParam(37)->Int(),GetParam(38)->Int(),
-    GetParam(39)->Int()!=0,GetParam(40)->Int(),GetTempo(),GetParam(41)->Int()!=0);
-  mSynth.SetFilterCharacter(static_cast<float>(GetParam(31)->Value()),GetParam(32)->Int());
-  mSynth.SetFilter(static_cast<float>(GetParam(8)->Value()), static_cast<float>(GetParam(9)->Value()),
-                   static_cast<float>(GetParam(10)->Value()),false);
-  mSynth.SetFilterEnvelope(static_cast<float>(GetParam(11)->Value()), static_cast<float>(GetParam(12)->Value()),
-    static_cast<float>(GetParam(13)->Value()), static_cast<float>(GetParam(14)->Value()),
-    static_cast<float>(GetParam(15)->Value()), static_cast<float>(GetParam(16)->Value()));
-  mSynth.SetPerformance(static_cast<float>(GetParam(17)->Value()),static_cast<float>(GetParam(18)->Value()));
-  if (mOverflow) {
-    mArp.Clear(send);
-    for (int ch = 0; ch < 16; ++ch) mSynth.Midi(0xB0 | ch, 120, 0);
-    mEventCount = 0; mOverflow = false;
-  mBend.store(8192);mMod.store(0);
-  }
+  sawstar::ApplyEngineControls(mSynth,mArp,
+    [this](sawstar::ParameterId id){return GetParam(static_cast<int>(id))->Value();},
+    [this](sawstar::ParameterId id){return GetParam(static_cast<int>(id))->Int();},
+    GetTempo(),GetTransportIsRunning());
   const int channels=NOutChansConnected();
-  int event = 0;
-  for (int i = 0; i < frames; ++i) {
-    while (event < mEventCount && mEvents[event].mOffset <= i) {
-      const auto& msg = mEvents[event++];
-      mArp.Midi(msg.mStatus, msg.mData1, msg.mData2,send);
-    }
+  mEvents.Process(frames,[&](const sawstar::BlockMidiEvent& msg){
+    mArp.Midi(msg.status,msg.data1,msg.data2,send);
+  },[&](int i){
     mArp.Process(send);
     const auto value=mSynth.ProcessStereo();
     const auto pre=mSynth.PreFX();mScope.Push((pre.left+pre.right)*.5f);
     peakL=std::max(peakL,std::abs(value.left));peakR=std::max(peakR,std::abs(value.right));
-    if(channels==1) outputs[0][i]=static_cast<sample>((value.left+value.right)*0.5f);
-    else for(int ch=0;ch<channels;++ch) outputs[ch][i]=static_cast<sample>(ch%2?value.right:value.left);
-  }
+    sawstar::WriteHostOutput(value,outputs,channels,i);
+  },[&]{sawstar::RecoverMidiOverflow(mArp,mSynth);});
   mMeter.Publish(peakL,peakR,uint32_t(std::chrono::duration_cast<std::chrono::milliseconds>(started.time_since_epoch()).count()));mVoiceCount.store(mSynth.ActiveVoices());
   if(frames>0){float used=100.f*std::chrono::duration<float>(std::chrono::steady_clock::now()-started).count()*GetSampleRate()/frames;mCpu.store(mCpu.load()*.9f+used*.1f);}
-  for (int i = event; i < mEventCount; ++i) {
-    mEvents[i - event] = mEvents[i]; mEvents[i - event].mOffset -= frames;
-  }
-  mEventCount -= event;
   mBend.store(mSynth.PitchBend(0),std::memory_order_relaxed);
   mMod.store(mSynth.ModWheel(0),std::memory_order_relaxed);
   for (int note = 0; note < 128; ++note)
     mHeld[note].store(mSynth.Held(note), std::memory_order_relaxed);
 }
 void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
-  if (mEventCount == static_cast<int>(mEvents.size())) { mOverflow = true; return; }
-  int pos = mEventCount++;
-  while (pos > 0 && mEvents[pos - 1].mOffset > msg.mOffset) {
-    mEvents[pos] = mEvents[pos - 1]; --pos;
-  }
-  mEvents[pos] = msg;
+  mEvents.Push({msg.mOffset,msg.mStatus,msg.mData1,msg.mData2});
 }
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
