@@ -23,7 +23,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
   for (const auto& spec : sawstar::kParameters) {
     auto* param = GetParam(static_cast<int>(spec.id));
     const auto prefix=spec.key.substr(0,spec.key.find('.'));
-    const char* group=prefix=="amp"?"Amp Envelope":prefix=="filter"?"Filter":prefix=="output"?"Output":prefix=="performance"?"Performance":prefix=="mixer"||prefix=="noise"?"Mixer":prefix=="sub"?"Sub":prefix=="saw"||prefix=="osc1"?"Oscillator 1":prefix=="osc2"?"Oscillator 2":prefix=="lfo"?"LFO 1":prefix=="lfo2"?"LFO 2":prefix=="chorus"?"Chorus":prefix=="delay"?"Delay":prefix=="reverb"?"Reverb":prefix=="arp"?"Arpeggiator":"Modulation";
+    const char* group=prefix=="amp"?"Amp Envelope":prefix=="filter"?"Filter":prefix=="output"?"Output":(prefix=="performance"||prefix=="voice")?"Performance":prefix=="mixer"||prefix=="noise"?"Mixer":prefix=="sub"?"Sub":prefix=="saw"||prefix=="osc1"?"Oscillator 1":prefix=="osc2"?"Oscillator 2":prefix=="lfo"?"LFO 1":prefix=="lfo2"?"LFO 2":prefix=="chorus"?"Chorus":prefix=="delay"?"Delay":prefix=="reverb"?"Reverb":prefix=="arp"?"Arpeggiator":"Modulation";
     const int id=static_cast<int>(spec.id);
     if(id>=71 && id<=82 && (id-71)%3==0)
       param->InitEnum(spec.name.data(),0,6,"",IParam::kFlagsNone,group,"Off","LFO 1","LFO 2","Mod Wheel","Velocity","Aftertouch");

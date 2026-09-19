@@ -24,7 +24,10 @@ public:
  Values Evaluate(const Values& sources)const {
   Values out{};if(!active_)return out;for(int s=0;s<5;++s)for(int t=0;t<5;++t)out[t]+=combined_[s][t]*sources[s];
   out[0]=std::clamp(out[0]*48,-96.f,96.f);out[1]=std::clamp(out[1]*12,-48.f,48.f);
-  for(int i=2;i<5;++i)out[i]=std::clamp(out[i],-1.f,1.f);return out;
+  for(int i=2;i<5;++i) {
+   out[i]=std::clamp(out[i],-1.f,1.f);
+  }
+  return out;
  }
 private:
  bool active_=false,dirty_=false;

@@ -55,7 +55,10 @@ std::string Fold(std::string s) {
   std::string out(count,'\0');WideCharToMultiByte(CP_UTF8,0,norm.data(),n,out.data(),count,nullptr,nullptr);return out;
 #else
   // Non-release platforms retain the historical ASCII search behavior.
-  for(auto& c:s)if(c>='A'&&c<='Z')c=char(c-'A'+'a');return s;
+  for(auto& c:s) {
+    if(c>='A'&&c<='Z')c=char(c-'A'+'a');
+  }
+  return s;
 #endif
 }
 
@@ -210,7 +213,9 @@ void ReplaceFavorites(const fs::path& root,const std::set<std::string>& values){
 #else
       auto n=::write(fd,bytes.data()+pos,bytes.size()-pos);
 #endif
-      if(n<0&&errno==EINTR)continue;if(n<=0)throw std::runtime_error("Cannot write favorites.");pos+=static_cast<size_t>(n);
+      if(n<0&&errno==EINTR)continue;
+      if(n<=0)throw std::runtime_error("Cannot write favorites.");
+      pos+=static_cast<size_t>(n);
     }
 #ifdef _WIN32
     if(::_commit(fd)!=0)throw std::runtime_error("Cannot flush favorites.");
@@ -238,7 +243,10 @@ public:
 };
 }
 ImportReport ImportPresets(const std::vector<fs::path>& files,const fs::path& root,bool allowIdentical){
- if(root.empty())throw std::runtime_error("User preset folder is unavailable.");fs::create_directories(root);PresetMutationLock lock(root/".import");ImportReport report;
+ if(root.empty())throw std::runtime_error("User preset folder is unavailable.");
+ fs::create_directories(root);
+ PresetMutationLock lock(root/".import");
+ ImportReport report;
  for(const auto& p:files)try{
   if(Fold(p.extension().u8string())!=".sawstar"||!ValidPresetName(p.stem().u8string()))throw std::runtime_error("Invalid preset filename.");
   auto values=ReadUserPreset(p);auto target=root/fs::u8path(p.stem().u8string()+".sawstar");
@@ -315,7 +323,8 @@ static std::set<std::string> ReadFavoritesUnlocked(const fs::path& root){
   std::set<std::string> values;if(root.empty())return values;
   const auto path=root/"favorites.txt";std::ifstream in(path);if(!in){if(!fs::exists(path))return values;throw std::runtime_error("Cannot read favorites.");}
   std::string line;while(std::getline(in,line)){if(line.empty())continue;std::istringstream row(line);std::string key;row>>std::ws;if(row.peek()!='"'||!(row>>std::quoted(key)))throw std::runtime_error("Favorites file is damaged; it has been preserved.");row>>std::ws;if(!row.eof())throw std::runtime_error("Favorites file is damaged; it has been preserved.");values.insert(key);}
-  if(in.bad())throw std::runtime_error("Cannot read favorites.");return values;
+  if(in.bad())throw std::runtime_error("Cannot read favorites.");
+  return values;
 }
 std::set<std::string> ReadFavorites(const fs::path& root){
   if(root.empty()||!fs::exists(root/"favorites.txt"))return {};

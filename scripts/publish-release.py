@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Prepare a verified draft from successful builds of this exact commit."""
 import hashlib,json,os,pathlib,subprocess,time,zipfile
+from release_validation import matching_runs, workflows_ready, validate_package
 root=pathlib.Path.cwd();m=json.loads((root/'release.json').read_text())
 if m['candidate']:
  print('Release preparation skipped: development candidate '+m['candidate'])
@@ -11,15 +12,11 @@ notes=root/f'docs/RELEASE_NOTES_{version}.md'
 assert notes.is_file(), 'Version-specific release notes required'
 def gh(*args):return subprocess.check_output(['gh',*args],text=True)
 def api(path):return json.loads(gh('api',path))
-workflows={'build-macos.yml','build-windows.yml'}
 deadline=time.monotonic()+2100
 while True:
  runs=api(f'repos/{repo}/actions/runs?head_sha={sha}&event=push&per_page=100')['workflow_runs']
- selected={}
- for run in runs:
-  name=run['path'].split('/')[-1]
-  if name in workflows and name not in selected:selected[name]=run
- if len(selected)==2 and all(x['status']=='completed' for x in selected.values()):break
+ selected=matching_runs(runs,sha)
+ if workflows_ready(selected):break
  if time.monotonic()>deadline:raise RuntimeError('Build timeout; release not published')
  time.sleep(20)
 assert all(x['conclusion']=='success' for x in selected.values()),'Build failed; release not published'
@@ -37,14 +34,7 @@ for run in selected.values():
   gh('run','download',str(run['id']),'--name',name,'--dir',str(dest))
   platform,archive=expected[name];z=dest/archive
   with zipfile.ZipFile(z) as package:
-   assert package.testzip() is None
-   manifest=json.loads(package.read('PACKAGE-MANIFEST.json'))
-   assert manifest['source_commit']==sha, 'Artifact commit mismatch'
-   assert manifest['version']==version, 'Artifact version mismatch'
-   for entry,digest in manifest['files_sha256'].items():
-    assert hashlib.sha256(package.read(entry)).hexdigest()==digest, 'Artifact file checksum mismatch'
-   assert any(n.endswith('SAWSTAR-User-Manual-EN.pdf') for n in package.namelist())
-   assert any(n.endswith('SAWSTAR-User-Manual-HU.pdf') for n in package.namelist())
+   validate_package(package,sha,version)
   (assets/f'SAWSTAR-{version}-{platform}-Manual.zip').write_bytes(z.read_bytes())
   extensions={'.dmg','.pkg'} if platform.startswith('macOS') else {'.exe'}
   installers=[p for p in dest.rglob('*') if p.suffix in extensions]

@@ -16,6 +16,13 @@ acceptance must use the eventual release build before publication.
 
 ## Verification and maintenance
 
+- Final draft preparation requires matching Windows, macOS and Linux Quality
+  success. Archives reject unlisted, missing, duplicate and unsafe members.
+- Voice Mode and Glide use the Performance host parameter group.
+- Technical architecture/performance notes now describe the current engine.
+- Misleading-indentation warnings in project code are removed without changing
+  processing order or sound behaviour.
+
 - The plugin and engine tests share the production parameter mapping; an
   independent frozen reference checks output equivalence and state roundtrips.
 - The actual fixed-capacity MIDI queue is tested at block boundaries, on overflow,
