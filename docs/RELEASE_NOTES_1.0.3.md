@@ -1,7 +1,8 @@
-# SAWSTAR 1.0.3 — development notes (unreleased)
+# SAWSTAR 1.0.3
 
-This is a development candidate, not a published release. Installer and host
-acceptance must use the eventual release build before publication.
+Release edition: 19 September 2026. This maintenance update includes the
+unpublished 1.0.2 reliability work and preserves the established interface and
+synthesis character.
 
 ## Reliability fixes
 
@@ -36,3 +37,19 @@ not included. No claim is made that all audible Mono transitions are eliminated.
 
 Candidate release preparation now exits successfully without creating a release.
 The 1.0.2 development work is included here; there was no public 1.0.2 release.
+
+## Packages and updating
+
+Windows x64 and native ARM64 installers and manual VST3 ZIPs are supplied
+separately. macOS Universal supports Intel and Apple Silicon, with a DMG/PKG
+installer and a manual VST3 ZIP. Both English and Hungarian PDF manuals are
+included. Linux VST3 distribution is deferred.
+
+Close the DAW before updating and back up projects and user presets. Verify
+the About version after restarting. Installers remain unsigned; macOS is not
+Apple-notarized. Follow [Installation](INSTALLATION.md) for package approval,
+architecture matching and removal. Build targets and tested-system limits are
+listed in [System requirements](SYSTEM_REQUIREMENTS.md).
+
+The release assets include SHA256SUMS.txt. Use the matching checksum for the
+file you downloaded. Factory sounds are embedded; no extra bank is required.

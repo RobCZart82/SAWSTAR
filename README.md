@@ -26,7 +26,7 @@ are available for each target. All packages include English/Hungarian PDF guides
 and license notices. The installers are unsigned; read the installation guide
 before proceeding through platform security prompts.
 
-Development candidate: **1.0.3-rc2**. See [candidate notes](docs/RELEASE_NOTES_1.0.3.md). The stable download above remains 1.0.1.
+**1.0.3 is in final release preparation.** See [1.0.3 notes](docs/RELEASE_NOTES_1.0.3.md). The stable download above remains 1.0.1 until publication.
 
 ## Features
 
@@ -59,9 +59,9 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [English PDF](docs/manuals/SAWSTAR-User-Manual-EN.pdf)
 - [Magyar PDF](docs/manuals/SAWSTAR-User-Manual-HU.pdf)
 - [Factory library](docs/FACTORY_LIBRARY.md)
-- [Changelog](CHANGELOG.md) and [1.0.1 release notes](docs/RELEASE_NOTES_1.0.1.md)
+- [Changelog](CHANGELOG.md) and [1.0.3 release notes](docs/RELEASE_NOTES_1.0.3.md)
 
-The English and Hungarian guides on this branch describe the 1.0.3 development candidate. The screenshots retain their
+The English and Hungarian guides on this branch describe the 1.0.3. The screenshots retain their
 original preview capture labels.
 
 ## Building from source

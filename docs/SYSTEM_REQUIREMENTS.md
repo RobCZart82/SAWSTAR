@@ -31,6 +31,15 @@ measured and are not advertised as tested minima.
 
 ## Acceptance record
 
+For 1.0.3-rc2, platform CI passed Windows x64/ARM64 and both macOS Universal
+slices, including VST3 validation and disposable-runner installation checks.
+REAPER 7.80 legacy-project and five-instance renders matched the prior candidate
+PCM. On 19 September 2026, the project owner also confirmed successful listening
+and editor occlusion/minimize/reopen tests on rc2. This does not establish
+minimum-OS coverage or acceptance in every DAW. Final package checks are recorded
+in [1.0.3 final checks](RELEASE_1.0.3_FINAL_CHECKS.md).
+
+
 The project owner reported successful Windows and macOS 1.0.1 preview installer
 and four-instance DAW testing. Exact minimum-OS coverage was not established.
 Release CI validates Windows x64 and ARM64 separately and both macOS Universal

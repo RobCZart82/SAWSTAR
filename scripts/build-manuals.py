@@ -10,7 +10,11 @@ REPO=Path(__file__).resolve().parents[1]
 ROOT=Path(os.environ.get('SAWSTAR_MANUAL_OUTPUT', str(REPO/'build-manuals')))
 (ROOT/'tmp/pdfs').mkdir(parents=True,exist_ok=True)
 (ROOT/'output/pdf').mkdir(parents=True,exist_ok=True)
-VERSION=json.loads((REPO/'release.json').read_text())['version']
+METADATA=json.loads((REPO/'release.json').read_text())
+VERSION=METADATA['version']
+CANDIDATE=METADATA.get('candidate', '')
+EDITION=METADATA.get('release_date') or os.environ.get('SAWSTAR_MANUAL_DATE', 'development')
+EDITION_LABEL=VERSION + ('-' + CANDIDATE if CANDIDATE else '')
 F=Path(os.environ.get('SAWSTAR_MANUAL_FONTS','/usr/share/fonts/truetype/dejavu'))
 for n,f in [('DV','DejaVuSans.ttf'),('DVB','DejaVuSans-Bold.ttf')]: pdfmetrics.registerFont(TTFont(n,str(F/f)))
 pdfmetrics.registerFontFamily('DV',normal='DV',bold='DVB',italic='DV',boldItalic='DVB')
@@ -25,7 +29,7 @@ for n in ['main','advanced','presets']:
     shutil.copy2(REPO/f'docs/reference/screenshot-{n}.png',ROOT/f'tmp/pdfs/{n}.png')
 EN=[
 ('Start here',[
-('About this guide','SAWSTAR is a VST3 synthesizer for saw leads, pads, plucks and related sounds. This guide describes the 1.0.3 development candidate and its 24 embedded factory presets. Edition: 19 September 2026. Screenshots show the real development GUI; preset counts and library contents can differ.'),
+('About this guide',f'SAWSTAR is a VST3 synthesizer for saw leads, pads, plucks and related sounds. This guide describes SAWSTAR {EDITION_LABEL} and its 24 embedded factory presets. Edition: {EDITION} Screenshots retain the original 1.0.1 preview capture labels; preset counts and library contents can differ.'),
 ('Reading the interface','Names such as MAIN, ADVANCED, PRESETS, Save As and NOISE COLOR are the labels to look for in the plugin. Start with MAIN for sound design; ADVANCED contains performance and deeper controls; PRESETS manages the library and explains saved sounds.'),
 ('Contents','2 Installation and first sound • 3 Navigation and controls • 4 Sound sources and output • 5 Filter, envelopes and scope • 6 Effects • 7 Performance and arpeggiator • 8 LFO and modulation • 9 Preset workflow • 10 Factory library • 11 Sound design recipes • 12 Troubleshooting and support • 13 Performance details')]),
 ('Installation and first sound',[
@@ -33,7 +37,7 @@ EN=[
 ('Install','Close your DAW before replacing the plugin, and keep the previous bundle as a backup. Run the Windows Setup EXE, or open the macOS DMG and run its PKG. Administrator authorization is required. macOS installs to /Library/Audio/Plug-Ins/VST3/; Windows installs to C:\\Program Files\\Common Files\\VST3\\ . Move older user-local Mac copies outside VST3 folders to avoid duplicates. Restart the host and rescan plugins if required. Do not copy only the executable from inside the bundle.'),
 ('Unsigned packages','macOS packages have no Apple Developer ID signature or notarization; Windows installers are not Authenticode signed. Security warnings may appear. Follow the package INSTALLATION guide and approve only the trusted SAWSTAR download. Do not disable system-wide protections.'),
 ('First sound in REAPER','Insert SAWSTAR as an instrument on a track. Click a key on its onscreen keyboard. For an external keyboard, choose the track MIDI input, arm the track and enable input monitoring as appropriate. Check that the track and master are unmuted and routed to your audio device. Select SuperSaw One in the top preset selector and play a few notes.'),
-('Updating safely','Back up user presets and important projects before updating a development build. Check the About build information after restarting the DAW: an open host may retain the old plugin. Factory presets are embedded and need no separate bank installation.')]),
+('Updating safely','Back up user presets and important projects before updating the plugin. Check the About build information after restarting the DAW: an open host may retain the old plugin. Factory presets are embedded and need no separate bank installation.')]),
 ('Navigation and controls',[
 ('Three views, one instrument','MAIN, ADVANCED and PRESETS share the top preset selector and the bottom keyboard, wheels and status strip. Switching views does not load a different sound. The preset selector and its arrows change the loaded preset. The gear menu provides interface scaling, the downloads link and About; OK closes About.'),
 ('Editing a sound','Drag knobs and faders to change values. Use the value-entry field where available for an exact number; confirm the entry with Enter. Dropdown controls choose an option. The blue active state distinguishes enabled switches from their darker inactive state. Changing a control affects the sound immediately; save the sound if you want to keep it.'),
@@ -90,7 +94,7 @@ EN=[
 ('Project and credits','SAWSTAR: Simple Synth - Big Sound. The Sounds of Trance. Created by Gyuricza Róbert / RobCZart82. Project, source and issue reporting: https://github.com/RobCZart82/SAWSTAR . The project license and third-party notices are supplied in the repository. See the release notes for download packages and supported configurations.')])]
 HU=[
 ('Kezdjük itt',[
-('Az útmutatóról','A SAWSTAR VST3 szintetizátor saw lead, pad, pluck és rokon hangszínek készítésére. Ez az útmutató az 1.0.3 fejlesztési jelöltet és annak 24 beépített factory presetjét ismerteti. Kiadás: 2026. szeptember 19. A képek a valódi fejlesztői GUI-t mutatják; a presetek száma és a könyvtár tartalma eltérhet.'),
+('Az útmutatóról',f'A SAWSTAR VST3 szintetizátor saw lead, pad, pluck és rokon hangszínek készítésére. Ez az útmutató a SAWSTAR {EDITION_LABEL} változatot és annak 24 beépített factory presetjét ismerteti. Kiadás: {EDITION} A képeken megmaradtak az eredeti 1.0.1 előzetes felvételi címkék; a presetek száma és a könyvtár tartalma eltérhet.'),
 ('A felület olvasása','A MAIN, ADVANCED, PRESETS, Save As és NOISE COLOR neveket a programban is így találod. A MAIN a hangkészítésé, az ADVANCED a részletesebb és előadási beállításoké, a PRESETS pedig a hangszínkönyvtáré és a mentett hangok magyarázatáé.'),
 ('Tartalom','2 Telepítés és első hang • 3 Nézetek és kezelőszervek • 4 Hangforrások és kimenet • 5 Szűrő, burkolók és scope • 6 Effektek • 7 Előadás és arpeggiator • 8 LFO és moduláció • 9 Presetek kezelése • 10 Factory könyvtár • 11 Hangkészítési gyakorlatok • 12 Hibaelhárítás és támogatás • 13 Játék és vezérlők')]),
 ('Telepítés és első hang',[
@@ -98,7 +102,7 @@ HU=[
 ('Telepítés','A csere előtt zárd be a DAW-ot, és őrizd meg az előző plugint. Futtasd a Windows Setup EXE-t, vagy a macOS DMG-ben lévő PKG-t. Rendszergazdai jóváhagyás szükséges. Telepítési hely: macOS /Library/Audio/Plug-Ins/VST3/; Windows C:\\Program Files\\Common Files\\VST3\\ . A korábbi felhasználói Mac példányt helyezd a VST3 mappákon kívüli biztonsági másolatba. Indítsd újra a DAW-ot, és szükség esetén indíts plugin-újrakeresést. Ne csak a csomag belsejében lévő programfájlt másold át.'),
 ('Aláírás nélküli csomagok','A macOS csomagon nincs Apple Developer ID aláírás vagy notarizáció; a Windows telepítő sem Authenticode-aláírt. Biztonsági figyelmeztetés megjelenhet. Kövesd a csomag INSTALLATION útmutatóját, és csak a megbízható SAWSTAR letöltést engedélyezd. A rendszer egészének védelmét ne kapcsold ki.'),
 ('Első hang REAPER-ben','Szúrj be egy SAWSTAR hangszert egy sávra. Kattints a plugin zongorabillentyűjére. Külső billentyűzethez válaszd ki a sáv MIDI bemenetét, élesítsd a sávot, és szükség szerint kapcsold be a bemenet hallgatását. A sáv és a master ne legyen némítva, és legyen megfelelő hangkimenet. A felső presetválasztóban töltsd be a SuperSaw One hangot, majd játssz néhány hangot.'),
-('Frissítés','Fejlesztői frissítés előtt mentsd el a user preseteket és a fontos projekteket. Újraindítás után az About buildadataival ellenőrizd a verziót: a nyitva maradt DAW a régi plugint tarthatja memóriában. A factory presetek be vannak építve, nem igényelnek külön banktelepítést.')]),
+('Frissítés','Frissítés előtt mentsd el a user preseteket és a fontos projekteket. Újraindítás után az About buildadataival ellenőrizd a verziót: a nyitva maradt DAW a régi plugint tarthatja memóriában. A factory presetek be vannak építve, nem igényelnek külön banktelepítést.')]),
 ('Nézetek és kezelőszervek',[
 ('Három nézet, egy hangszer','A MAIN, ADVANCED és PRESETS közös felső presetválasztót és alsó billentyűzetet, kerekeket, állapotsort használ. A nézetváltás nem tölt be másik hangot. A felső presetválasztó és nyilai viszont hangszínt váltanak. A fogaskerék menüjében méretezés, letöltési hivatkozás és About található; az About ablakot az OK zárja be.'),
 ('Értékek módosítása','A potmétereket és fadereket húzással állíthatod. Ahol elérhető, az értékmezőben pontos számot adhatsz meg; Enterrel fogadd el. A lenyíló mezők lehetőségeket választanak. A bekapcsolt állapot kék, a kikapcsolt sötétebb. A változás azonnal hat a hangra; menteni kell, ha később is meg akarod tartani.'),
@@ -170,7 +174,7 @@ HU.append(('Játék és vezérlők',[
 
 def footer(c,d):
  c.setStrokeColor(colors.HexColor('#b8d4e1'));c.line(45,42,550,42)
- c.setFont('DV',8);c.setFillColor(colors.HexColor('#526573'));c.drawString(45,28,f'SAWSTAR | {VERSION} development / fejlesztési | 2026.09.19.');c.drawRightString(550,28,str(d.page))
+ c.setFont('DV',8);c.setFillColor(colors.HexColor('#526573'));c.drawString(45,28,f'SAWSTAR | {EDITION_LABEL} | {EDITION}');c.drawRightString(550,28,str(d.page))
 def build(lang,pages):
  out=ROOT/f'output/pdf/SAWSTAR-User-Manual-{lang}.pdf'
  doc=SimpleDocTemplate(str(out),pagesize=(595.28,841.89),rightMargin=45,leftMargin=45,topMargin=43,bottomMargin=58,title='SAWSTAR '+('User Manual' if lang=='EN' else 'Használati útmutató'),author='SAWSTAR / Gyuricza Róbert')

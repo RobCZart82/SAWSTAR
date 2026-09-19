@@ -1,4 +1,4 @@
-# 1.0.3 final checks — rc2
+# 1.0.3 final checks
 
 Baseline: main 2b37bb1. Branch: codex/release-103-final-checks.
 The user authorized development through publication, conditional on successful
@@ -14,13 +14,25 @@ validation and their listening acceptance of the final candidate.
   changing expressions or execution order.
 - Update PERFORMANCE/ARCHITECTURE and retain original synthesis character.
 
-## Remaining acceptance before finalization
+## Candidate acceptance completed
 
-- Full local and platform CI on this commit, actual VST3 validation.
-- Candidate host smoke/old-project comparison and extended editor occlusion.
-- User listening on the candidate; do not reuse 1.0.1 acceptance.
-- Final About capture, final metadata/manuals, clean final installers and hashes.
-- Only then merge/final tag/verified release draft and publication.
+- rc2 source: `0a6c21fd7813698baecbb0fb87ea06279256dfba`; merged main:
+  `79a0bfc082c29c2f9d034ac9a037ba6d0e11a534` (same source tree).
+- Local Release and ASan/UBSan: 54/54 each; real VST3 validator: 47/47.
+- Windows x64/ARM64 and macOS Universal CI, installer checks and Linux Quality
+  passed. Matching merged-main workflows also passed.
+- Copied legacy project and five-instance REAPER demo rendered bit-identically
+  to rc1. Private project/audio/license files are not distributed.
+- On 19 September 2026 the owner confirmed rc2 listening plus editor
+  occlusion/minimize/reopen acceptance. This is current-candidate feedback.
+
+## Final publication gates
+
+- Final metadata, English/Hungarian manuals and installation documentation.
+- Four real screenshots from the final build, including About.
+- Successful exact-commit platform/Quality CI, final installers and hashes.
+- Verify the complete draft before publishing. Publication is authorized by
+  the owner when these checks are satisfied; no DSP or GUI-layout changes.
 
 ## Deduplicated audit backlog (not silent 1.0.3 changes)
 
