@@ -37,14 +37,14 @@ REAPER 7.80 legacy-project and five-instance renders matched the prior candidate
 PCM. On 19 September 2026, the project owner also confirmed successful listening
 and editor occlusion/minimize/reopen tests on rc2. This does not establish
 minimum-OS coverage or acceptance in every DAW. Final package checks are recorded
-in [1.0.3 final checks](RELEASE_1.0.3_FINAL_CHECKS.md).
+in [1.0.3 final checks](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RELEASE_1.0.3_FINAL_CHECKS.md).
 
 
 The project owner reported successful Windows and macOS 1.0.1 preview installer
 and four-instance DAW testing. Exact minimum-OS coverage was not established.
 Release CI validates Windows x64 and ARM64 separately and both macOS Universal
 slices, including disposable-runner installer checks. See the
-[1.0.1 review](RELEASE_AUDIT_1.0.1.md) for evidence and its limits.
+[1.0.1 review](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RELEASE_AUDIT_1.0.1.md) for evidence and its limits.
 
 Minimum supported OS versions may be published only after testing the final
 package on the corresponding minimum system. CI success on a newer OS does not
