@@ -56,3 +56,16 @@ validation and their listening acceptance of the final candidate.
 
 The click/pop investigation stays closed. Controller/LFO ordering, protected
 CLIP semantics, mode articulation and key tracking retain their documented policy.
+
+## Published release verification
+
+- Published `v1.0.3` from `57dbee9ad0f71700617f0c1a00e2fe0161455744`.
+- All 17 final PR checks and all 10 merged-main checks passed.
+- Windows x64/ARM64 and both macOS Universal slices passed 47 VST3 validator
+  checks; installer tests passed, with both updated PDF manuals included.
+- Draft preparation verified archive member hashes and exact source identity.
+- Eight uploaded assets: three manual ZIPs, two Windows installers, macOS DMG
+  and PKG, plus SHA256SUMS.txt. The checksum-list digest matches the list
+  reconstructed from GitHub asset digests.
+- CPU benchmark collection was balanced with warm-up and eight alternating
+  pairs after inconsistent shared-runner timings; original limits were retained.
