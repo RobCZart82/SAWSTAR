@@ -47,9 +47,9 @@ included. Linux VST3 distribution is deferred.
 
 Close the DAW before updating and back up projects and user presets. Verify
 the About version after restarting. Installers remain unsigned; macOS is not
-Apple-notarized. Follow [Installation](INSTALLATION.md) for package approval,
+Apple-notarized. Follow [Installation](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/INSTALLATION.md) for package approval,
 architecture matching and removal. Build targets and tested-system limits are
-listed in [System requirements](SYSTEM_REQUIREMENTS.md).
+listed in [System requirements](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/SYSTEM_REQUIREMENTS.md).
 
 The release assets include SHA256SUMS.txt. Use the matching checksum for the
 file you downloaded. Factory sounds are embedded; no extra bank is required.
