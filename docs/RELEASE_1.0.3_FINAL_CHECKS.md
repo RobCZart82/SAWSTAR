@@ -29,7 +29,8 @@ validation and their listening acceptance of the final candidate.
 ## Final publication gates
 
 - Final metadata, English/Hungarian manuals and installation documentation.
-- Four real screenshots from the final build, including About.
+- Completed: four owner-supplied 1.0.3 screenshots, including About, captured
+  from build `8040390`; incorporated into the repository and bilingual manuals.
 - Successful exact-commit platform/Quality CI, final installers and hashes.
 - Verify the complete draft before publishing. Publication is authorized by
   the owner when these checks are satisfied; no DSP or GUI-layout changes.
