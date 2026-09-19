@@ -13,7 +13,7 @@ public:
  void Init(float sr){
   sr_=std::isfinite(sr)?std::clamp(sr,8000.f,384000.f):44100.f;
   for(auto& b:buffer_)b.assign(static_cast<size_t>(sr_*2)+2,0);
-  write_=valid_=0;low_[0]=low_[1]=0;enabled_=false;
+  write_=valid_=0;low_[0]=low_[1]=0;enabled_=false;initialTimePending_=true;
   mix_=targetMix_=0;feedback_=targetFeedback_=.3f;mode_=targetMode_=0;
   time_=targetTime_=.35f*sr_;tone_=targetTone_=1-std::exp(-6.28318530718f*6000/sr_);
   smooth_=1-std::exp(-1/(.02f*sr_));
@@ -33,6 +33,9 @@ public:
  float TimeSeconds()const{return static_cast<float>(targetTime_/sr_);}
  StereoSample Process(StereoSample in){
   if(buffer_[0].empty())return in;
+  // Parameters arrive after Init. Use the final setup time on the first sample;
+  // preserve normal time automation smoothing once processing has begun.
+  if(initialTimePending_){time_=targetTime_;initialTimePending_=false;}
   mix_+=smooth_*(targetMix_-mix_);if(targetMix_==0&&mix_<1.e-7f)mix_=0;
   feedback_+=smooth_*(targetFeedback_-feedback_);mode_+=smooth_*(targetMode_-mode_);
   time_+=smooth_*(targetTime_-time_);tone_+=smooth_*(targetTone_-tone_);
@@ -56,7 +59,7 @@ private:
   return a*(1-fraction)+b*fraction;
  }
  std::vector<float> buffer_[2];size_t write_=0,valid_=0;
- bool enabled_=false;float sr_=44100,smooth_=.001f,low_[2]{};
+ bool enabled_=false,initialTimePending_=true;float sr_=44100,smooth_=.001f,low_[2]{};
  float mix_=0,targetMix_=0,feedback_=.3f,targetFeedback_=.3f,mode_=0,targetMode_=0;
  double time_=15435,targetTime_=15435;
  float tone_=.5f,targetTone_=.5f;

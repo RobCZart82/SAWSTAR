@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — 1.0.2-rc8, character-preserving baseline
+
+- Resume from released 1.0.1; exclude experimental Mono crossfades and filter-start preparation.
+- Fix unrendered same-sample chord pitches becoming glide origins.
+- Reset the amplitude envelope only when allocating a genuinely idle voice.
+- Resolve same-sample Mono releases once before audio processing.
+- Retain Windows test-stack fixes. See docs/CHARACTER_PRESERVING_BASELINE.md.
+
 ## 1.0.1 - 2026-09-12
 
 - Refine meter ballistics, CLIP display, keyboard glow, scales and typography.

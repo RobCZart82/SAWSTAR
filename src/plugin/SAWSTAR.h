@@ -3,6 +3,7 @@
 #include "IPlug_include_in_plug_hdr.h"
 #include "engine/Synth.h"
 #include "midi/Arpeggiator.h"
+#include "midi/BlockMidiQueue.h"
 #include <atomic>
 #include "visual/Scope.h"
 #include "visual/Meter.h"
@@ -24,10 +25,8 @@ private:
 #if IPLUG_DSP
   sawstar::Synth mSynth;
   sawstar::Arpeggiator mArp;
-  std::array<iplug::IMidiMsg, 1024> mEvents{};
-  int mEventCount = 0;
+  sawstar::BlockMidiQueue mEvents;
   int mMidiVoiceMode = 0;
-  bool mOverflow = false;
   std::array<std::atomic<bool>, 128> mHeld{};
   std::array<bool, 128> mDisplayed{};
 #endif
