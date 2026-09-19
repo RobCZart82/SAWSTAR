@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased — 1.0.2-rc8, character-preserving baseline
+## Unreleased — 1.0.3-rc1
+
+Includes the unpublished 1.0.2 development work.
+
+- Candidate release preparation skips cleanly without creating a release.
+- Fix combined Volume/Boost smoothing, detune continuity and initial Delay time.
+- Share and verify production MIDI scheduling and parameter mapping.
+- Reject non-finite benchmark data and package version-specific release notes.
 
 - Resume from released 1.0.1; exclude experimental Mono crossfades and filter-start preparation.
 - Fix unrendered same-sample chord pitches becoming glide origins.
