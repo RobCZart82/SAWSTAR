@@ -13,7 +13,7 @@ import zipfile
 root = pathlib.Path(__file__).resolve().parents[1]
 base = "0873064487e02b2e1da49b42d0fd12ca83e11ec7"
 
-REPEATS = 3
+REPEATS = 8
 
 # A CPU regression fails only when it exceeds BOTH limits:
 # more than +25% relative and more than +1.0 realtime percentage point.
@@ -107,6 +107,25 @@ def median_report(reports):
     return result
 
 
+def collect_reports(binaries, repeats=REPEATS):
+    """Warm both executables, then balance measurement order across pairs."""
+    if repeats < 2 or repeats % 2:
+        raise ValueError("Use a positive even number of measurement pairs")
+    labels = ("baseline", "current")
+    # Validate warm-up output too; invalid audio must never be silently ignored.
+    for label in labels:
+        parse_report(run(str(binaries[label])))
+    reports = {label: [] for label in labels}
+    for repeat in range(repeats):
+        order = labels if repeat % 2 == 0 else labels[::-1]
+        for label in order:
+            output = run(str(binaries[label]))
+            print(f"{label},repeat={repeat + 1}", flush=True)
+            print(output, flush=True)
+            reports[label].append(parse_report(output))
+    return reports
+
+
 def main():
     with tempfile.TemporaryDirectory(prefix="sawstar-benchmark-") as temp:
         source = pathlib.Path(temp) / "baseline"
@@ -162,31 +181,10 @@ def main():
             "2",
         )
 
-        runs = {
-            "baseline": [],
-            "current": [],
-        }
-
-        for repeat in range(REPEATS):
-            for label, folder in (
-                ("baseline", build),
-                ("current", root / "build"),
-            ):
-                output = run(str(executable(folder)))
-
-                print(
-                    f"{label},repeat={repeat + 1}",
-                    flush=True,
-                )
-
-                print(
-                    output,
-                    flush=True,
-                )
-
-                runs[label].append(
-                    parse_report(output)
-                )
+        runs = collect_reports({
+            "baseline": executable(build),
+            "current": executable(root / "build"),
+        })
 
         baseline = median_report(
             runs["baseline"]

@@ -1,9 +1,11 @@
 # Changelog
 
-## Unreleased — 1.0.3-rc2
+## 1.0.3 - 2026-09-19
 
 Includes the unpublished 1.0.2 development work.
 
+- Require successful matching platform and Quality checks, verified package contents and both manuals before preparing a release.
+- Correct Voice Mode/Glide host grouping and refresh technical documentation.
 - Candidate release preparation skips cleanly without creating a release.
 - Fix combined Volume/Boost smoothing, detune continuity and initial Delay time.
 - Share and verify production MIDI scheduling and parameter mapping.

@@ -13,8 +13,8 @@ clear signal flow and a preset browser that explains saved sounds.
 
 ![SAWSTAR PRESETS](docs/reference/screenshot-presets.png)
 
-*Real screenshots captured from the SAWSTAR 1.0.1 preview in REAPER, supplied by
-Gyuricza Róbert. Capture labels are retained; the final release preserves this layout.*
+*Real SAWSTAR 1.0.3 screenshots captured in REAPER, supplied by Gyuricza Róbert
+(build `8040390`). The displayed preset count includes user-library entries alongside 24 factory presets.*
 
 ## Download
 
@@ -26,7 +26,7 @@ are available for each target. All packages include English/Hungarian PDF guides
 and license notices. The installers are unsigned; read the installation guide
 before proceeding through platform security prompts.
 
-Development candidate: **1.0.3-rc2**. See [candidate notes](docs/RELEASE_NOTES_1.0.3.md). The stable download above remains 1.0.1.
+**1.0.3 is in final release preparation.** See [1.0.3 notes](docs/RELEASE_NOTES_1.0.3.md). The stable download above remains 1.0.1 until publication.
 
 ## Features
 
@@ -59,10 +59,9 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [English PDF](docs/manuals/SAWSTAR-User-Manual-EN.pdf)
 - [Magyar PDF](docs/manuals/SAWSTAR-User-Manual-HU.pdf)
 - [Factory library](docs/FACTORY_LIBRARY.md)
-- [Changelog](CHANGELOG.md) and [1.0.1 release notes](docs/RELEASE_NOTES_1.0.1.md)
+- [Changelog](CHANGELOG.md) and [1.0.3 release notes](docs/RELEASE_NOTES_1.0.3.md)
 
-The English and Hungarian guides on this branch describe the 1.0.3 development candidate. The screenshots retain their
-original preview capture labels.
+The English and Hungarian guides describe SAWSTAR 1.0.3 and include the supplied 1.0.3 screenshots.
 
 ## Building from source
 
@@ -75,7 +74,7 @@ Historical implementation notes are indexed by the [development history](docs/DE
 
 ![SAWSTAR About](docs/reference/screenshot-about.png)
 
-*Actual 1.0.1 Pre Release About window, build `b53772f`.*
+*Actual SAWSTAR 1.0.3 About window, capture build `8040390`.*
 
 ## License
 

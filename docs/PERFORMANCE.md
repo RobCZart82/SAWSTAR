@@ -62,3 +62,11 @@ engine/state contracts. GUI gestures, external hardware and host-specific
 behaviour still require actual host acceptance. See
 [the release checklist](RELEASE_1.0.3_CHECKLIST.md) for candidate evidence and
 remaining checks; historical 0.1-era results are not current acceptance.
+
+## Shared-runner benchmark repeatability
+
+The release comparison warms both executables before collecting eight pairs of
+measurements, alternating baseline/current order. It compares median reports
+with the existing +25% and +1 realtime-percentage-point CPU limits. The workload,
+audio-level and DC checks are unchanged; invalid warm-up reports also fail.
+This reduces startup and ordering bias but does not eliminate shared-runner noise.

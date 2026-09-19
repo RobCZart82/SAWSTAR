@@ -1,4 +1,9 @@
-# 1.0.3 candidate preparation
+# 1.0.3 candidate preparation (historical work package)
+
+Status: rc1/rc2 work is complete. Current acceptance and publication gates are
+tracked in [final checks](RELEASE_1.0.3_FINAL_CHECKS.md). The owner authorized
+final preparation/publication and accepted rc2 listening/editor behavior on
+19 September 2026. The original milestone scope below is retained for history.
 
 Development branch: `codex/release-103-preparation`, based on main `91e372a`.
 No merge, final tag or public release is part of this work package.
