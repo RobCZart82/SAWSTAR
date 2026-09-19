@@ -2,7 +2,9 @@
 """Prepare a verified draft from successful builds of this exact commit."""
 import hashlib,json,os,pathlib,subprocess,time,zipfile
 root=pathlib.Path.cwd();m=json.loads((root/'release.json').read_text())
-if m['candidate']:raise SystemExit('Candidate: no public release')
+if m['candidate']:
+ print('Release preparation skipped: development candidate '+m['candidate'])
+ raise SystemExit(0)
 version=m['version'];sha=os.environ['RELEASE_SHA'];repo=os.environ['GH_REPO'];tag='v'+version
 assert m.get('release_date'), 'Final release date required'
 notes=root/f'docs/RELEASE_NOTES_{version}.md'
