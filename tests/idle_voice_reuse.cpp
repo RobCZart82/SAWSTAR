@@ -24,7 +24,7 @@ int main(){
    s->SetVoiceMode(0,0,true);s->SetParameters(-6,attack,20,.8,500);
    auto reference=std::make_unique<Synth>(*s);
    s->Midi(0x90,69,127);
-   daisysp::Adsr expected;expected.Init(sr);expected.SetAttackTime(attack*.001f);
+   sawstar::Adsr expected;expected.Init(sr);expected.SetAttackTime(attack*.001f);
    // Pre-FX difference removes the other fading voices. The new source is
    // one unit-amplitude saw/sine, so it cannot exceed its fresh ADSR value.
    for(int i=0;i<64;++i){s->ProcessStereo();reference->ProcessStereo();

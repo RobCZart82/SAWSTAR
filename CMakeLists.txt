@@ -1032,6 +1032,7 @@ endif()
 if(BUILD_TESTING AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN))
   add_executable(sawstar_editor_midi_tracker_tests tests/editor_midi_tracker.cpp)
   target_include_directories(sawstar_editor_midi_tracker_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  target_compile_features(sawstar_editor_midi_tracker_tests PRIVATE cxx_std_17)
   add_test(NAME editor_midi_overflow_recovery COMMAND sawstar_editor_midi_tracker_tests)
 
   foreach(case glide_history release_order idle_voice_reuse output_gain detune_continuity delay_initial_time block_midi_queue engine_controls controller_lifecycle performance_policy)
