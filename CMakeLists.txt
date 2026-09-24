@@ -9,6 +9,11 @@ file(READ
   SAWSTAR_METADATA
 )
 
+set_property(
+  DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/release.json"
+)
+
 string(JSON SAWSTAR_VERSION
   GET "${SAWSTAR_METADATA}" version
 )
@@ -932,6 +937,22 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     add_test(
       NAME daisy_primitives
       COMMAND sawstar_dsp_tests
+    )
+
+    add_executable(
+      sawstar_daisy_adsr_convergence_tests
+      tests/daisy_adsr_convergence.cpp
+    )
+
+    target_link_libraries(
+      sawstar_daisy_adsr_convergence_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME daisy_adsr_long_time_convergence
+      COMMAND sawstar_daisy_adsr_convergence_tests
     )
 
   endif()

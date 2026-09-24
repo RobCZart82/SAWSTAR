@@ -59,6 +59,7 @@ jobs:
 
       - name: Generate coverage report
         run: |
+          mkdir -p coverage
           gcovr \
             --root . \
             --filter 'src/' \
@@ -69,7 +70,8 @@ jobs:
             --print-summary \
             --xml-pretty \
             --xml coverage.xml \
-            --html-details coverage.html
+            --html-details coverage/index.html
+          python3 scripts/check-coverage-html.py coverage
 
       - name: Upload coverage reports
         if: always()
@@ -78,8 +80,7 @@ jobs:
           name: linux-coverage-report
           path: |
             coverage.xml
-            coverage.html
-            coverage.html.*
+            coverage/
           if-no-files-found: warn
 
   # ---------------------------------------------------------------------------

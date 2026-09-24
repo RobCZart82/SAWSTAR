@@ -28,28 +28,35 @@ def package(bundle_parent, output):
     for p in sorted((root / 'third_party/licenses').rglob('*')):
         if p.is_file():
             files['licenses/' + p.relative_to(root / 'third_party/licenses').as_posix()] = p
-    for name in ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'docs/INSTALLATION.md',
+    for name in ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'docs/THIRD_PARTY.md', 'docs/INSTALLATION.md',
                  f'docs/RELEASE_NOTES_{version}.md', 'docs/SYSTEM_REQUIREMENTS.md', 'docs/manuals/README.md',
                  'docs/manuals/SAWSTAR-User-Manual-EN.pdf',
                  'docs/manuals/SAWSTAR-User-Manual-HU.pdf']:
         p = root / name
         if not p.is_file():
             raise ValueError(f'Missing distribution document: {name}')
-        files[name if name.startswith('docs/manuals/') else p.name] = p
+        files[name if name.startswith('docs/') else p.name] = p
     files['licenses/SAWSTAR-BRANDING-LICENSE.txt'] = root / 'assets/branding/LICENSE.txt'
+    packaged_notice = (root / 'THIRD_PARTY_NOTICES.md').read_text(encoding='utf-8')
+    packaged_notice = packaged_notice.replace('third_party/licenses/', 'licenses/')
+    notice_bytes = packaged_notice.encode('utf-8')
     try:
         revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root,
                                            stderr=subprocess.DEVNULL, text=True).strip()
     except (OSError, subprocess.CalledProcessError):
         revision = 'unavailable'
-    hashes = {name: hashlib.sha256(p.read_bytes()).hexdigest() for name, p in files.items()}
+    hashes = {name: hashlib.sha256(notice_bytes if name == 'THIRD_PARTY_NOTICES.md' else p.read_bytes()).hexdigest()
+              for name, p in files.items()}
     manifest = {'version': version, 'source_commit': revision,
                 'note': 'Source version; verify binary About metadata before publication.',
                 'files_sha256': hashes}
     output = Path(output)
     with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:
         for name, p in files.items():
-            archive.write(p, name)
+            if name == 'THIRD_PARTY_NOTICES.md':
+                archive.writestr(name, notice_bytes)
+            else:
+                archive.write(p, name)
         archive.writestr('PACKAGE-MANIFEST.json', json.dumps(manifest, indent=2) + '\n')
     digest = hashlib.sha256(output.read_bytes()).hexdigest()
     output.with_suffix(output.suffix + '.sha256').write_text(f'{digest}  {output.name}\n')

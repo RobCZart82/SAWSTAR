@@ -37,6 +37,12 @@ auto root=fs::temp_directory_path()/("sawstar-reliable-"+std::to_string(std::chr
  auto child=fork();check(child>=0,"failure-test fork failed");if(child==0){signal(SIGXFSZ,SIG_IGN);rlimit limit{64,64};if(setrlimit(RLIMIT_FSIZE,&limit)!=0)_exit(2);try{ChangeFavorite(root/"library",std::string(1000,'x'));_exit(3);}catch(...){_exit(0);}}
  int status=0;waitpid(child,&status,0);check(WIFEXITED(status)&&WEXITSTATUS(status)==0&&readBytes()==before,"failed write damaged previous favorites");
 #endif
+ auto readFavoritesBytes=[&]{std::ifstream f(root/"library"/"favorites.txt",std::ios::binary);return std::string((std::istreambuf_iterator<char>(f)),{});};
+ auto favoritesBefore=readFavoritesBytes();bool newlineRejected=false;
+ try{ChangeFavorite(root/"library",std::string("external:/tmp/preset\nname.sawstar"));}
+ catch(...){newlineRejected=true;}
+ check(newlineRejected&&readFavoritesBytes()==favoritesBefore,
+       "line-break favorite key was accepted or changed the existing file");
  auto file=root/"library"/"favorites.txt";{std::ofstream out(file);out<<"\"broken";}
  bool rejected=false;try{ChangeFavorite(root/"library","new");}catch(...){rejected=true;}check(rejected,"malformed favorites overwritten");std::ifstream in(file);std::string preserved((std::istreambuf_iterator<char>(in)),{});check(preserved=="\"broken","damaged file not preserved");in.close();
  PresetLibrary damaged(root/"library");check(!damaged.warning.empty(),"read failure not surfaced");

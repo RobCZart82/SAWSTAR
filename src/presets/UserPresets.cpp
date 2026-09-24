@@ -333,6 +333,11 @@ std::set<std::string> ReadFavorites(const fs::path& root){
 }
 std::set<std::string> ChangeFavorite(const fs::path& root,const std::string& key,const std::string* moveTo){
   if(root.empty())throw std::runtime_error("User folder unavailable.");
+  // Favorites are stored as one quoted key per line. std::quoted escapes
+  // quotes and backslashes, but leaves literal line endings untouched.
+  const auto hasLineBreak=[](const std::string& value){return value.find_first_of("\r\n")!=std::string::npos;};
+  if(hasLineBreak(key)||(moveTo&&hasLineBreak(*moveTo)))
+    throw std::runtime_error("Preset paths containing line breaks cannot be favorites.");
   // No filesystem work or locking on the audio callback.
   static std::mutex mutex;std::lock_guard<std::mutex> local(mutex);
   fs::create_directories(root);FavoritesLock lock(root/"favorites.lock");auto next=ReadFavoritesUnlocked(root);
