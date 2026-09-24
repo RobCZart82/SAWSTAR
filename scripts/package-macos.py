@@ -18,8 +18,12 @@ with tempfile.TemporaryDirectory() as temp:
  t=pathlib.Path(temp);payload=t/'payload';dest=payload/'Library/Audio/Plug-Ins/VST3/SAWSTAR.vst3'
  shutil.copytree(a.bundle,dest)
  docs=payload/'Library/Application Support/SAWSTAR/Documentation';docs.mkdir(parents=True)
- for name in ['LICENSE','THIRD_PARTY_NOTICES.md','docs/INSTALLATION.md','docs/SYSTEM_REQUIREMENTS.md']:
-  shutil.copy2(root/name,docs/pathlib.Path(name).name)
+ for name in ['LICENSE','THIRD_PARTY_NOTICES.md','docs/THIRD_PARTY.md','docs/INSTALLATION.md',
+              f'docs/RELEASE_NOTES_{version}.md','docs/SYSTEM_REQUIREMENTS.md']:
+  if name=='THIRD_PARTY_NOTICES.md':
+   notice=(root/name).read_text(encoding='utf-8').replace('third_party/licenses/','licenses/')
+   (docs/pathlib.Path(name).name).write_text(notice,encoding='utf-8')
+  else:shutil.copy2(root/name,docs/pathlib.Path(name).name)
  shutil.copytree(root/'docs/manuals',docs/'manuals');shutil.copytree(root/'third_party/licenses',docs/'licenses')
  shutil.copy2(root/'assets/branding/LICENSE.txt',docs/'licenses/SAWSTAR-BRANDING-LICENSE.txt')
  if all(credentials):run('codesign','--force','--options','runtime','--timestamp','--sign',a.application_identity,dest)

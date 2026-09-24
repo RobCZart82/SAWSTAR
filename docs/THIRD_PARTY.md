@@ -5,7 +5,7 @@ DSP translation units, including the development shell dependency selection docu
 
 | Component | Exact commit | License | Foundation use |
 | --------- | ------------ | ------- | -------------- |
-| iPlug2 | `d54f69050f517e43b941d88c2a170f0a840b9ee4` | zlib-style; individual dependencies retain licenses | Pinned submodule; compiled by the VST3 shell |
+| iPlug2 | `d54f69050f517e43b941d88c2a170f0a840b9ee4` | zlib-style; individual dependencies retain licenses | Pinned submodule; build applies the documented editor-MIDI overflow recovery patch |
 | DaisySP | `599511b740f8f3a9b8db72a0642aa45b8a23c3a3` | MIT core | Optional oscillator + ADSR integration check |
 | DaisySP-LGPL | Not initialized or linked | LGPL extension | Excluded |
 | VST3 SDK | `3cdf9ca5d1f5b1b21e0a86832aa4abe55607bd96` | MIT | Development shell; details below |
@@ -48,6 +48,10 @@ versions may have different terms. No trademark/logo permission or signing crede
 Change submodule gitlinks and this table together in a reviewed commit. Examine
 license and source diffs, run both platform workflows, and update bundled
 notices. Initialize named submodules only; avoid `--recursive` for DaisySP.
+The build-time iPlug2 source patch is applied by `scripts/patch-iplug2-midi-overflow.py`;
+it adds an editor-MIDI overflow callback and SAWSTAR releases only editor-held
+notes when Note On/Off queue entries are lost. It does not change iPlug2's
+license or the handling of host-originated MIDI events.
 
 ## VST3 development shell dependency selection
 

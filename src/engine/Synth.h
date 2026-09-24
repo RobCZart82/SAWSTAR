@@ -12,7 +12,7 @@
 #include "dsp/Effects/Width.h"
 #include "dsp/LowPass.h"
 #include "dsp/FilterModulation.h"
-#include "Control/adsr.h"
+#include "dsp/Adsr.h"
 #include <array>
 #include <algorithm>
 #include <cstdint>
@@ -63,7 +63,7 @@ private:
     float noiseLow=0;
     LowPass filter;
     FilterModulation filterMod;
-    daisysp::Adsr env;
+    Adsr env;
     int note = -1, channel = 0;
     bool held = false, gate = false, gatePending = false;
     float velocity = 0;

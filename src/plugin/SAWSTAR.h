@@ -4,6 +4,7 @@
 #include "engine/Synth.h"
 #include "midi/Arpeggiator.h"
 #include "midi/BlockMidiQueue.h"
+#include "midi/EditorMidiTracker.h"
 #include <atomic>
 #include "visual/Scope.h"
 #include "visual/Meter.h"
@@ -20,12 +21,15 @@ public:
   void OnIdle() override;
   void ProcessBlock(iplug::sample** inputs, iplug::sample** outputs, int frames) override;
   void ProcessMidiMsg(const iplug::IMidiMsg& msg) override;
+  void ProcessMidiMsgFromEditor(const iplug::IMidiMsg& msg) override;
+  void OnMidiMsgFromEditorOverflow() override;
 #endif
 private:
 #if IPLUG_DSP
   sawstar::Synth mSynth;
   sawstar::Arpeggiator mArp;
   sawstar::BlockMidiQueue mEvents;
+  sawstar::EditorMidiTracker mEditorMidiTracker;
   int mMidiVoiceMode = 0;
   std::array<std::atomic<bool>, 128> mHeld{};
   std::array<bool, 128> mDisplayed{};

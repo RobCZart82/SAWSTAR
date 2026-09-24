@@ -18,6 +18,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from release_validation import matching_runs, workflows_ready, validate_package
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'scripts/publish-release.py'
+ROOT = Path(__file__).resolve().parents[1]
+
+class InstallerPackageLayout(unittest.TestCase):
+    def test_windows_installer_reads_document_paths_from_package_layout(self):
+        installer = (ROOT / 'packaging/windows/SAWSTAR.iss').read_text(encoding='utf-8')
+        package_script = (ROOT / 'scripts/package-plugin.py').read_text(encoding='utf-8')
+        self.assertIn('"{#Stage}\\docs\\INSTALLATION.md"', installer)
+        self.assertIn('"{#Stage}\\docs\\SYSTEM_REQUIREMENTS.md"', installer)
+        self.assertIn("'docs/INSTALLATION.md'", package_script)
+        self.assertIn("'docs/SYSTEM_REQUIREMENTS.md'", package_script)
 
 class ReleaseGuard(unittest.TestCase):
     def run_guard(self, candidate):
@@ -97,8 +107,19 @@ class FinalReleaseValidation(unittest.TestCase):
 
     def archive(self, mutation=None):
         files = {'SAWSTAR.vst3/Contents/plugin': b'binary',
-                 'docs/manuals/SAWSTAR-User-Manual-EN.pdf': b'english',
-                 'docs/manuals/SAWSTAR-User-Manual-HU.pdf': b'hungarian'}
+                 'LICENSE': b'mit', 'THIRD_PARTY_NOTICES.md': b'notices',
+                 'docs/THIRD_PARTY.md': b'dependency review',
+                 'docs/INSTALLATION.md': b'install',
+                 'docs/RELEASE_NOTES_1.0.3.md': b'release notes',
+                 'docs/SYSTEM_REQUIREMENTS.md': b'requirements',
+                 'docs/manuals/README.md': b'manual index',
+                 'docs/manuals/SAWSTAR-User-Manual-EN.pdf': b'%PDF-1.4\nEnglish',
+                 'docs/manuals/SAWSTAR-User-Manual-HU.pdf': b'%PDF-1.4\nHungarian'}
+        licenses = Path(__file__).resolve().parents[1] / 'third_party/licenses'
+        for item in licenses.rglob('*'):
+            if item.is_file():
+                files['licenses/' + item.relative_to(licenses).as_posix()] = b'notice'
+        files['licenses/SAWSTAR-BRANDING-LICENSE.txt'] = b'branding license'
         manifest = dict(source_commit='expected', version='1.0.3',
                         files_sha256={k: hashlib.sha256(v).hexdigest() for k, v in files.items()})
         entries = list(files.items())
@@ -142,11 +163,22 @@ class FinalReleaseValidation(unittest.TestCase):
 
     def test_missing_manual_not_excused_by_matching_manifest(self):
         def remove(entries, manifest):
-            name, _ = entries.pop()
+            name = 'docs/manuals/SAWSTAR-User-Manual-HU.pdf'
+            entries[:] = [item for item in entries if item[0] != name]
             del manifest['files_sha256'][name]
         with self.archive(remove) as z:
             with self.assertRaises(ValueError):
                 validate_package(z, 'expected', '1.0.3')
+
+    def test_rejects_missing_plugin_or_license(self):
+        for missing in ('SAWSTAR.vst3/Contents/plugin', 'licenses/DaisySP-LICENSE.txt'):
+            def remove(entries, manifest):
+                index = next(i for i, pair in enumerate(entries) if pair[0] == missing)
+                name, _ = entries.pop(index)
+                del manifest['files_sha256'][name]
+            with self.subTest(missing=missing), self.archive(remove) as z:
+                with self.assertRaises(ValueError):
+                    validate_package(z, 'expected', '1.0.3')
 
 if __name__ == '__main__':
     unittest.main()

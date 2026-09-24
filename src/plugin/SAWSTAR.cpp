@@ -134,7 +134,7 @@ void SAWSTAR::OnReset() {
   mScope.Reset(GetSampleRate());
   mRate.store(static_cast<int>(GetSampleRate()));mMeter.Reset();mCpu.store(0);mVoiceCount.store(0);
   mSynth.Reset(GetSampleRate());mArp.Init(GetSampleRate());mArpReset.store(false);
-  mEvents.Clear();mMidiVoiceMode=0;
+  mEvents.Clear();mEditorMidiTracker=sawstar::EditorMidiTracker{};mMidiVoiceMode=0;
   mBend.store(8192);mMod.store(0);
   for (auto& held : mHeld) held.store(false, std::memory_order_relaxed);
 }
@@ -167,6 +167,15 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
 }
 void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
   mEvents.Push({msg.mOffset,msg.mStatus,msg.mData1,msg.mData2});
+}
+void SAWSTAR::ProcessMidiMsgFromEditor(const IMidiMsg& msg) {
+  mEditorMidiTracker.Observe(static_cast<uint8_t>(msg.mStatus),msg.NoteNumber(),msg.Velocity());
+  ProcessMidiMsg(msg);
+}
+void SAWSTAR::OnMidiMsgFromEditorOverflow() {
+  mEditorMidiTracker.ReleaseAll([this](int channel,int note) {
+    IMidiMsg msg;msg.MakeNoteOffMsg(note,0,channel);ProcessMidiMsg(msg);
+  });
 }
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR

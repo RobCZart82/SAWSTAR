@@ -2,6 +2,7 @@
 """Fetch only the pinned iPlug2 and MIT VST3 SDK components needed by SAWSTAR."""
 from pathlib import Path
 import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SDK_COMMIT = "3cdf9ca5d1f5b1b21e0a86832aa4abe55607bd96"
@@ -11,6 +12,12 @@ def git(*args, cwd=ROOT):
     return subprocess.check_output(["git", *args], cwd=cwd, text=True).strip()
 
 git("submodule", "update", "--init", "third_party/iPlug2", "third_party/DaisySP")
+subprocess.run(
+    [sys.executable, str(ROOT / "scripts/patch-iplug2-midi-overflow.py"),
+     str(ROOT / "third_party/iPlug2")],
+    cwd=ROOT,
+    check=True,
+)
 if not (SDK / ".git").exists():
     # iPlug2 ships an instruction-only placeholder here. Replace only that
     # exact tracked file; refuse to overwrite a user-supplied SDK directory.

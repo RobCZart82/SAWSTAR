@@ -1,6 +1,7 @@
 """Pure validation shared by the release publisher and offline regression tests."""
 import hashlib
 import json
+from pathlib import Path
 from pathlib import PurePosixPath
 
 REQUIRED_WORKFLOWS = frozenset(('build-macos.yml', 'build-windows.yml', 'quality.yml'))
@@ -56,7 +57,35 @@ def validate_package(package, sha, version):
     for name, digest in files.items():
         if hashlib.sha256(package.read(name)).hexdigest() != digest:
             raise ValueError('Artifact file checksum mismatch: ' + name)
+    bundle_prefix = 'SAWSTAR.vst3/Contents/'
+    bundle_files = [name for name in files if name.startswith(bundle_prefix)]
+    if not bundle_files or not any(package.getinfo(name).file_size for name in bundle_files):
+        raise ValueError('Missing non-empty SAWSTAR VST3 bundle')
+    required_docs = {
+        'LICENSE',
+        'THIRD_PARTY_NOTICES.md',
+        'docs/THIRD_PARTY.md',
+        'docs/INSTALLATION.md',
+        f'docs/RELEASE_NOTES_{version}.md',
+        'docs/SYSTEM_REQUIREMENTS.md',
+        'docs/manuals/README.md',
+    }
+    missing_docs = required_docs - set(files)
+    if missing_docs:
+        raise ValueError('Missing required distribution documents: ' + ', '.join(sorted(missing_docs)))
     for language in ('EN', 'HU'):
-        if f'docs/manuals/SAWSTAR-User-Manual-{language}.pdf' not in files:
+        manual = f'docs/manuals/SAWSTAR-User-Manual-{language}.pdf'
+        if manual not in files:
             raise ValueError('Missing user manual: ' + language)
+        if not package.read(manual).startswith(b'%PDF-'):
+            raise ValueError('Invalid user manual PDF: ' + language)
+    licenses_dir = Path(__file__).resolve().parents[1] / 'third_party' / 'licenses'
+    expected_licenses = {
+        'licenses/' + item.relative_to(licenses_dir).as_posix()
+        for item in licenses_dir.rglob('*') if item.is_file()
+    }
+    expected_licenses.add('licenses/SAWSTAR-BRANDING-LICENSE.txt')
+    missing_licenses = expected_licenses - set(files)
+    if missing_licenses:
+        raise ValueError('Missing required license notices: ' + ', '.join(sorted(missing_licenses)))
     return manifest

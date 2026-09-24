@@ -9,6 +9,11 @@ file(READ
   SAWSTAR_METADATA
 )
 
+set_property(
+  DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/release.json"
+)
+
 string(JSON SAWSTAR_VERSION
   GET "${SAWSTAR_METADATA}" version
 )
@@ -934,6 +939,22 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
       COMMAND sawstar_dsp_tests
     )
 
+    add_executable(
+      sawstar_daisy_adsr_convergence_tests
+      tests/daisy_adsr_convergence.cpp
+    )
+
+    target_link_libraries(
+      sawstar_daisy_adsr_convergence_tests
+      PRIVATE
+        sawstar_engine
+    )
+
+    add_test(
+      NAME daisy_adsr_long_time_convergence
+      COMMAND sawstar_daisy_adsr_convergence_tests
+    )
+
   endif()
 
 endif()
@@ -1009,6 +1030,11 @@ if(
 endif()
 
 if(BUILD_TESTING AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN))
+  add_executable(sawstar_editor_midi_tracker_tests tests/editor_midi_tracker.cpp)
+  target_include_directories(sawstar_editor_midi_tracker_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  target_compile_features(sawstar_editor_midi_tracker_tests PRIVATE cxx_std_17)
+  add_test(NAME editor_midi_overflow_recovery COMMAND sawstar_editor_midi_tracker_tests)
+
   foreach(case glide_history release_order idle_voice_reuse output_gain detune_continuity delay_initial_time block_midi_queue engine_controls controller_lifecycle performance_policy)
     add_executable(sawstar_${case}_tests tests/${case}.cpp)
     target_link_libraries(sawstar_${case}_tests PRIVATE sawstar_engine)
@@ -1019,6 +1045,8 @@ endif()
 # Exercise the actual benchmark CSV parser without building its baseline engine.
 if(BUILD_TESTING)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  add_test(NAME iplug2_midi_patch
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/iplug2_midi_patch.py")
   add_test(NAME release_guard
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/release_guard.py")
   add_test(NAME benchmark_report

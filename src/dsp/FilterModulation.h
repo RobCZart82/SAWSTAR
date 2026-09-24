@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "dsp/Safety.h"
-#include "Control/adsr.h"
+#include "dsp/Adsr.h"
 #include <algorithm>
 #include <cmath>
 
@@ -31,7 +31,7 @@ public:
   }
 private:
   static float Safe(float x,float lo,float hi){return std::isfinite(x)?std::clamp(x,lo,hi):lo;}
-  daisysp::Adsr env_;
+  Adsr env_;
   float base_=12000,amount_=0,tracking_=0,limit_=20000,cutoff_=12000;
   int tick_=0;
 };
