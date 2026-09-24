@@ -12,7 +12,7 @@ PATCHES = (
         b"  void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }\n"
         b"\n"
         b"  // SAWSTAR patch: audio-thread callbacks for editor MIDI queue recovery.\n"
-        b"  virtual void OnMidiMsgFromEditor(const IMidiMsg&) {}\n"
+        b"  virtual void ProcessMidiMsgFromEditor(const IMidiMsg&) {}\n"
         b"  virtual void OnMidiMsgFromEditorOverflow() {}\n",
     ),
     (
@@ -43,7 +43,7 @@ PATCHES = (
         b"  while (editorQueue.Pop(msg))\n"
         b"  {\n"
         b"    ProcessMidiMsg(msg);\n"
-        b"    mPlug.OnMidiMsgFromEditor(msg);\n"
+        b"    mPlug.ProcessMidiMsgFromEditor(msg);\n"
         b"  }\n"
         b"\n"
         b"  if (mMidiMsgFromEditorOverflow.exchange(false, std::memory_order_acq_rel))\n"
