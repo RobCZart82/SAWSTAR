@@ -42,8 +42,8 @@ Source: "{#Stage}\docs\manuals\*"; DestDir: "{app}\manuals"; Flags: ignoreversio
 Source: "{#Stage}\licenses\*"; DestDir: "{app}\licenses"; Flags: ignoreversion recursesubdirs
 Source: "{#Stage}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Stage}\THIRD_PARTY_NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#Stage}\INSTALLATION.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#Stage}\SYSTEM_REQUIREMENTS.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#Stage}\docs\INSTALLATION.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#Stage}\docs\SYSTEM_REQUIREMENTS.md"; DestDir: "{app}"; Flags: ignoreversion
 [Icons]
 Name: "{group}\User Manual - English"; Filename: "{app}\manuals\SAWSTAR-User-Manual-EN.pdf"
 Name: "{group}\Használati útmutató - Magyar"; Filename: "{app}\manuals\SAWSTAR-User-Manual-HU.pdf"

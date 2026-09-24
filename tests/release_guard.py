@@ -18,6 +18,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from release_validation import matching_runs, workflows_ready, validate_package
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'scripts/publish-release.py'
+ROOT = Path(__file__).resolve().parents[1]
+
+class InstallerPackageLayout(unittest.TestCase):
+    def test_windows_installer_reads_document_paths_from_package_layout(self):
+        installer = (ROOT / 'packaging/windows/SAWSTAR.iss').read_text(encoding='utf-8')
+        package_script = (ROOT / 'scripts/package-plugin.py').read_text(encoding='utf-8')
+        self.assertIn('"{#Stage}\\docs\\INSTALLATION.md"', installer)
+        self.assertIn('"{#Stage}\\docs\\SYSTEM_REQUIREMENTS.md"', installer)
+        self.assertIn("'docs/INSTALLATION.md'", package_script)
+        self.assertIn("'docs/SYSTEM_REQUIREMENTS.md'", package_script)
 
 class ReleaseGuard(unittest.TestCase):
     def run_guard(self, candidate):
