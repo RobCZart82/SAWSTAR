@@ -8,7 +8,7 @@ import sys
 PATCHES = (
     (
         "IPlug/IPlugAPIBase.h",
-        b"  void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }\n",
+        b"  void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }",
         b"  void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }\n"
         b"\n"
         b"  // SAWSTAR patch: audio-thread callbacks for editor MIDI queue recovery.\n"
@@ -67,17 +67,25 @@ def apply(root):
     for relative, original, replacement in PATCHES:
         path = root / relative
         source = path.read_bytes()
-        if replacement in source:
+        # Windows checkouts may use CRLF even though the pinned source and
+        # patch contexts are written with LF. Match while preserving checkout
+        # line endings so the patch remains byte-local and repeatable.
+        newline = b"\r\n" if b"\r\n" in source else b"\n"
+        original_for_file = original.replace(b"\n", newline)
+        replacement_for_file = replacement.replace(b"\n", newline)
+        if replacement_for_file in source:
             continue
-        if source.count(original) != 1:
+        if source.count(original_for_file) != 1:
             raise RuntimeError(
                 f"Pinned iPlug2 source does not match expected patch context: {relative}"
             )
-        path.write_bytes(source.replace(original, replacement, 1))
+        path.write_bytes(source.replace(original_for_file, replacement_for_file, 1))
 
     # Fail closed on partial or drifted application.
     for relative, _, replacement in PATCHES:
-        if replacement not in (root / relative).read_bytes():
+        source = (root / relative).read_bytes()
+        newline = b"\r\n" if b"\r\n" in source else b"\n"
+        if replacement.replace(b"\n", newline) not in source:
             raise RuntimeError(f"iPlug2 patch was not fully applied: {relative}")
 
 
