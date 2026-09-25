@@ -3,7 +3,7 @@
 #include <array>
 #include <cstddef>
 namespace sawstar {
-struct BlockMidiEvent { int offset=0,status=0,data1=0,data2=0; };
+struct BlockMidiEvent { int offset=0,status=0,data1=0,data2=0; bool fromEditor=false; };
 // Audio-thread-owned, fixed-capacity queue. Equal offsets retain arrival order.
 // Host callbacks must be serialized by the adapter; this is not a UI-thread FIFO.
 class BlockMidiQueue {

@@ -26,6 +26,10 @@ void boundaries(){
  received.clear();run(0);check(panics==1&&q.Size()==0&&received.empty(),"overflow must panic and discard whole burst even on zero block");
  run(1);check(panics==1,"overflow recovery repeats");
  q.Push({0,144,2,1});run(1);check(received.size()==1,"queue does not recover");
+ BlockMidiQueue tagged;bool sawEditorEvent=false;
+ tagged.Push({0,144,60,100,true});
+ tagged.Process(1,[&](const auto& e){sawEditorEvent=e.fromEditor;},[](int){},[]{});
+ check(sawEditorEvent,"editor MIDI origin tag was lost in the audio queue");
 }
 std::vector<StereoSample> render(int block,float sr,int mode){
  auto s=std::make_unique<Synth>();s->Reset(sr);s->SetParameters(-12,1,10,.7,10);s->SetVoiceMode(mode,0,true);

@@ -8,31 +8,31 @@ import sys
 PATCHES = (
     (
         "IPlug/IPlugAPIBase.h",
+        b"#include <cstdint>\n",
+        b"#include <cstdint>\n#include <atomic>\n",
+    ),
+    (
+        "IPlug/IPlugAPIBase.h",
         b"  void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }",
-        b"  void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }\n"
+        b"  void DeferMidiMsg(const IMidiMsg& msg) override {\n"
+        b"    if (!mMidiMsgsFromEditor.Push(msg) &&\n"
+        b"        (msg.StatusMsg() == IMidiMsg::kNoteOn || msg.StatusMsg() == IMidiMsg::kNoteOff))\n"
+        b"      mMidiMsgFromEditorOverflow.store(true, std::memory_order_release);\n"
+        b"  }\n"
         b"\n"
-        b"  // SAWSTAR patch: audio-thread callbacks for editor MIDI queue recovery.\n"
-        b"  virtual void ProcessMidiMsgFromEditor(const IMidiMsg&) {}\n"
-        b"  virtual void OnMidiMsgFromEditorOverflow() {}\n",
+        b"  // The default preserves normal delivery for plugs without a custom route.\n"
+        b"  // Return true only when the plug-in queued/handled this message itself.\n"
+        b"  virtual bool ProcessMidiMsgFromEditor(const IMidiMsg&) { return false; }\n"
+        b"  virtual void OnMidiMsgFromEditorOverflow() {}\n"
+        b"  bool TakeMidiMsgFromEditorOverflow() noexcept {\n"
+        b"    return mMidiMsgFromEditorOverflow.exchange(false, std::memory_order_acq_rel);\n"
+        b"  }",
     ),
     (
-        "IPlug/VST3/IPlugVST3_ProcessorBase.h",
-        b'#include "IPlugVST3_Defs.h"\n',
-        b'#include "IPlugVST3_Defs.h"\n\n#include <atomic>\n',
-    ),
-    (
-        "IPlug/VST3/IPlugVST3_ProcessorBase.h",
-        b"  IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug);\n",
-        b"  IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug);\n"
-        b"  void SignalMidiMsgFromEditorOverflow() noexcept {\n"
-        b"    mMidiMsgFromEditorOverflow.store(true, std::memory_order_release);\n"
-        b"  }\n",
-    ),
-    (
-        "IPlug/VST3/IPlugVST3_ProcessorBase.h",
-        b"  bool mSidechainActive = false;\n",
-        b"  bool mSidechainActive = false;\n"
-        b"  std::atomic<bool> mMidiMsgFromEditorOverflow{false};\n",
+        "IPlug/IPlugAPIBase.h",
+        b"  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages generated in the editor by clicking keyboard UI etc",
+        b"  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages generated in the editor by clicking keyboard UI etc\n"
+        b"  std::atomic<bool> mMidiMsgFromEditorOverflow{false};",
     ),
     (
         "IPlug/VST3/IPlugVST3_ProcessorBase.cpp",
@@ -42,22 +42,12 @@ PATCHES = (
         b"  }\n",
         b"  while (editorQueue.Pop(msg))\n"
         b"  {\n"
-        b"    ProcessMidiMsg(msg);\n"
-        b"    mPlug.ProcessMidiMsgFromEditor(msg);\n"
+        b"    if (!mPlug.ProcessMidiMsgFromEditor(msg))\n"
+        b"      ProcessMidiMsg(msg);\n"
         b"  }\n"
         b"\n"
-        b"  if (mMidiMsgFromEditorOverflow.exchange(false, std::memory_order_acq_rel))\n"
+        b"  if (mPlug.TakeMidiMsgFromEditorOverflow())\n"
         b"    mPlug.OnMidiMsgFromEditorOverflow();\n",
-    ),
-    (
-        "IPlug/VST3/IPlugVST3_Processor.cpp",
-        b"        mMidiMsgsFromEditor.Push(msg);\n"
-        b"        return kResultOk;\n",
-        b"        // SAWSTAR patch: preserve a recovery signal if a note edge is dropped.\n"
-        b"        if (!mMidiMsgsFromEditor.Push(msg) &&\n"
-        b"            (msg.StatusMsg() == IMidiMsg::kNoteOn || msg.StatusMsg() == IMidiMsg::kNoteOff))\n"
-        b"          SignalMidiMsgFromEditorOverflow();\n"
-        b"        return kResultOk;\n",
     ),
 )
 

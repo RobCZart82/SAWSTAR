@@ -45,5 +45,24 @@ int main() {
     std::cerr << "A released key was emitted again during recovery.\n";
     return 1;
   }
+
+  tracker.Observe(0x90, 64, 100); // Old editor press.
+  tracker.Observe(0x90, 64, 100);
+  tracker.Observe(0xb0, 123, 0); // Host All Notes Off invalidates old channel state.
+  // A fresh host press after the reset is intentionally not observed as GUI input.
+  int staleReleases = 0;
+  tracker.ReleaseAll([&](int, int) { ++staleReleases; });
+  if (staleReleases != 0) {
+    std::cerr << "A channel reset left stale editor ownership for later recovery.\n";
+    return 1;
+  }
+
+  tracker.Observe(0x90, 65, 100);
+  tracker.Clear(); // Internal ARP/mode reset invalidates every tracked channel.
+  tracker.ReleaseAll([&](int, int) { ++staleReleases; });
+  if (staleReleases != 0) {
+    std::cerr << "A global reset left stale editor ownership for later recovery.\n";
+    return 1;
+  }
   return 0;
 }

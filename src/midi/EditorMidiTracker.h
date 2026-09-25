@@ -24,7 +24,17 @@ public:
       if (count != std::numeric_limits<std::uint32_t>::max()) ++count;
     } else if (kind == 0x8 || (kind == 0x9 && velocity == 0)) {
       if (count > 0) --count;
+    } else if (kind == 0xb && (note == 120 || note == 123)) {
+      ClearChannel(channel);
     }
+  }
+
+  void ClearChannel(int channel) noexcept {
+    if (channel >= 0 && channel < ChannelCount) heldCounts_[channel].fill(0);
+  }
+
+  void Clear() noexcept {
+    for (auto& channel : heldCounts_) channel.fill(0);
   }
 
   template <class Release>

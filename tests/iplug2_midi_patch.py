@@ -31,4 +31,13 @@ with tempfile.TemporaryDirectory() as directory:
         if replacement not in second[relative]:
             raise SystemExit(f"Patch result missing expected change: {relative}")
 
+    api = second["IPlug/IPlugAPIBase.h"]
+    consumer = second["IPlug/VST3/IPlugVST3_ProcessorBase.cpp"]
+    if b"if (!mMidiMsgsFromEditor.Push(msg)" not in api or b"memory_order_release" not in api:
+        raise SystemExit("The actual editor queue producer does not report dropped note edges.")
+    if b"if (!mPlug.ProcessMidiMsgFromEditor(msg))\n      ProcessMidiMsg(msg);" not in consumer:
+        raise SystemExit("The VST3 consumer does not deliver editor MIDI exactly once.")
+    if any(relative.endswith("IPlugVST3_Processor.cpp") for relative, _, _ in patch.PATCHES):
+        raise SystemExit("The overflow signal must not target the unused distributed VST3 producer.")
+
 print("iPlug2 MIDI overflow patch applies cleanly and is idempotent.")
