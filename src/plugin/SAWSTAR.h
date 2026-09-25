@@ -21,7 +21,7 @@ public:
   void OnIdle() override;
   void ProcessBlock(iplug::sample** inputs, iplug::sample** outputs, int frames) override;
   void ProcessMidiMsg(const iplug::IMidiMsg& msg) override;
-  void ProcessMidiMsgFromEditor(const iplug::IMidiMsg& msg) override;
+  bool ProcessMidiMsgFromEditor(const iplug::IMidiMsg& msg) override;
   void OnMidiMsgFromEditorOverflow() override;
 #endif
 private:

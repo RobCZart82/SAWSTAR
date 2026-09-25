@@ -142,7 +142,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   const auto started=std::chrono::steady_clock::now();float peakL=0,peakR=0;
   auto send=[this](int status,int note,int value){mSynth.Midi(status,note,value);};
   const int mode=GetParam(59)->Int();
-  if(mArpReset.exchange(false)||mode!=mMidiVoiceMode)mArp.Clear(send);
+  if(mArpReset.exchange(false)||mode!=mMidiVoiceMode){mArp.Clear(send);mEditorMidiTracker.Clear();}
   mMidiVoiceMode=mode;
   sawstar::ApplyEngineControls(mSynth,mArp,
     [this](sawstar::ParameterId id){return GetParam(static_cast<int>(id))->Value();},
@@ -150,6 +150,9 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     GetTempo(),GetTransportIsRunning());
   const int channels=NOutChansConnected();
   mEvents.Process(frames,[&](const sawstar::BlockMidiEvent& msg){
+    if(msg.fromEditor || ((msg.status & 0xf0) == 0xb0 &&
+                          (msg.data1 == 120 || msg.data1 == 123)))
+      mEditorMidiTracker.Observe(static_cast<uint8_t>(msg.status),msg.data1,msg.data2);
     mArp.Midi(msg.status,msg.data1,msg.data2,send);
   },[&](int i){
     mArp.Process(send);
@@ -157,7 +160,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     const auto pre=mSynth.PreFX();mScope.Push((pre.left+pre.right)*.5f);
     peakL=std::max(peakL,std::abs(value.left));peakR=std::max(peakR,std::abs(value.right));
     sawstar::WriteHostOutput(value,outputs,channels,i);
-  },[&]{sawstar::RecoverMidiOverflow(mArp,mSynth);});
+  },[&]{mEditorMidiTracker.Clear();sawstar::RecoverMidiOverflow(mArp,mSynth);});
   mMeter.Publish(peakL,peakR,uint32_t(std::chrono::duration_cast<std::chrono::milliseconds>(started.time_since_epoch()).count()));mVoiceCount.store(mSynth.ActiveVoices());
   if(frames>0){float used=100.f*std::chrono::duration<float>(std::chrono::steady_clock::now()-started).count()*GetSampleRate()/frames;mCpu.store(mCpu.load()*.9f+used*.1f);}
   mBend.store(mSynth.PitchBend(0),std::memory_order_relaxed);
@@ -168,9 +171,9 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
 void SAWSTAR::ProcessMidiMsg(const IMidiMsg& msg) {
   mEvents.Push({msg.mOffset,msg.mStatus,msg.mData1,msg.mData2});
 }
-void SAWSTAR::ProcessMidiMsgFromEditor(const IMidiMsg& msg) {
-  mEditorMidiTracker.Observe(static_cast<uint8_t>(msg.mStatus),msg.NoteNumber(),msg.Velocity());
-  ProcessMidiMsg(msg);
+bool SAWSTAR::ProcessMidiMsgFromEditor(const IMidiMsg& msg) {
+  mEvents.Push({msg.mOffset,msg.mStatus,msg.mData1,msg.mData2,true});
+  return true;
 }
 void SAWSTAR::OnMidiMsgFromEditorOverflow() {
   mEditorMidiTracker.ReleaseAll([this](int channel,int note) {
