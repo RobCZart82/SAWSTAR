@@ -18,6 +18,10 @@
 using namespace iplug;
 using namespace igraphics;
 
+namespace {
+constexpr std::size_t kEditorMidiRecoveryBudget = 16;
+}
+
 SAWSTAR::SAWSTAR(const InstanceInfo& info)
 : Plugin(info, MakeConfig(static_cast<int>(sawstar::kParameters.size()), 1)) {
   for (const auto& spec : sawstar::kParameters) {
@@ -148,6 +152,9 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     [this](sawstar::ParameterId id){return GetParam(static_cast<int>(id))->Value();},
     [this](sawstar::ParameterId id){return GetParam(static_cast<int>(id))->Int();},
     GetTempo(),GetTransportIsRunning());
+  if(frames>0)mEditorMidiTracker.ReleaseSome(kEditorMidiRecoveryBudget,[&](int channel,int note){
+    mArp.Midi(0x80|channel,note,0,send);
+  });
   const int channels=NOutChansConnected();
   mEvents.Process(frames,[&](const sawstar::BlockMidiEvent& msg){
     if(msg.fromEditor || ((msg.status & 0xf0) == 0xb0 &&
@@ -176,9 +183,7 @@ bool SAWSTAR::ProcessMidiMsgFromEditor(const IMidiMsg& msg) {
   return true;
 }
 void SAWSTAR::OnMidiMsgFromEditorOverflow() {
-  mEditorMidiTracker.ReleaseAll([this](int channel,int note) {
-    IMidiMsg msg;msg.MakeNoteOffMsg(note,0,channel);ProcessMidiMsg(msg);
-  });
+  mEditorMidiTracker.BeginRecovery();
 }
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR

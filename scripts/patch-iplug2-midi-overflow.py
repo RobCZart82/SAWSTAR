@@ -17,13 +17,16 @@ PATCHES = (
         b"  void DeferMidiMsg(const IMidiMsg& msg) override {\n"
         b"    if (!mMidiMsgsFromEditor.Push(msg) &&\n"
         b"        (msg.StatusMsg() == IMidiMsg::kNoteOn || msg.StatusMsg() == IMidiMsg::kNoteOff))\n"
-        b"      mMidiMsgFromEditorOverflow.store(true, std::memory_order_release);\n"
+        b"      SignalMidiMsgFromEditorOverflow();\n"
         b"  }\n"
         b"\n"
         b"  // The default preserves normal delivery for plugs without a custom route.\n"
         b"  // Return true only when the plug-in queued/handled this message itself.\n"
         b"  virtual bool ProcessMidiMsgFromEditor(const IMidiMsg&) { return false; }\n"
         b"  virtual void OnMidiMsgFromEditorOverflow() {}\n"
+        b"  void SignalMidiMsgFromEditorOverflow() noexcept {\n"
+        b"    mMidiMsgFromEditorOverflow.store(true, std::memory_order_release);\n"
+        b"  }\n"
         b"  bool TakeMidiMsgFromEditorOverflow() noexcept {\n"
         b"    return mMidiMsgFromEditorOverflow.exchange(false, std::memory_order_acq_rel);\n"
         b"  }",
@@ -44,10 +47,21 @@ PATCHES = (
         b"  {\n"
         b"    if (!mPlug.ProcessMidiMsgFromEditor(msg))\n"
         b"      ProcessMidiMsg(msg);\n"
-        b"  }\n"
+        b"  }\n",
+    ),
+    (
+        "IPlug/VST3/IPlugVST3_ProcessorBase.cpp",
+        b"  ProcessAudio(data, setup, ins, outs);\n",
+        b"  ProcessAudio(data, setup, ins, outs);\n"
         b"\n"
-        b"  if (mPlug.TakeMidiMsgFromEditorOverflow())\n"
-        b"    mPlug.OnMidiMsgFromEditorOverflow();\n",
+        b"  // Run recovery after this block has accounted for every accepted editor event.\n"
+        b"  if (fromEditor.WasEmpty() && mPlug.TakeMidiMsgFromEditorOverflow())\n"
+        b"  {\n"
+        b"    if (fromEditor.WasEmpty())\n"
+        b"      mPlug.OnMidiMsgFromEditorOverflow();\n"
+        b"    else\n"
+        b"      mPlug.SignalMidiMsgFromEditorOverflow();\n"
+        b"  }\n",
     ),
 )
 
