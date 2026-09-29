@@ -157,9 +157,15 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   });
   const int channels=NOutChansConnected();
   mEvents.Process(frames,[&](const sawstar::BlockMidiEvent& msg){
-    if(msg.fromEditor || ((msg.status & 0xf0) == 0xb0 &&
-                          (msg.data1 == 120 || msg.data1 == 123)))
-      mEditorMidiTracker.Observe(static_cast<uint8_t>(msg.status),msg.data1,msg.data2);
+    if (msg.fromEditor) {
+      if (mEditorMidiTracker.Observe(static_cast<uint8_t>(msg.status),
+                                     msg.data1, msg.data2))
+        return;
+    } else if ((msg.status & 0xf0) == 0xb0 &&
+               (msg.data1 == 120 || msg.data1 == 123)) {
+      mEditorMidiTracker.Observe(static_cast<uint8_t>(msg.status),
+                                 msg.data1, msg.data2);
+    }
     mArp.Midi(msg.status,msg.data1,msg.data2,send);
   },[&](int i){
     mArp.Process(send);

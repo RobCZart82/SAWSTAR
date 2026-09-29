@@ -89,9 +89,19 @@ public:
         return 0.f;
       case Attack: {
         if (!attackHighPrecision_) {
-          float value = static_cast<float>(level_);
-          value += static_cast<float>(attackCoefficient_) * (attackTarget_ - value);
-          level_ = value;
+          const float previous = static_cast<float>(level_);
+          float value = previous + static_cast<float>(attackCoefficient_) *
+                                      (attackTarget_ - previous);
+          if (value == previous && attackCoefficient_ > 0.0 &&
+              attackTarget_ != previous) {
+            // Keep legacy float steps until they stop advancing; then retain
+            // sub-float increments so high sample rates still converge.
+            level_ += attackCoefficient_ *
+                      (static_cast<double>(attackTarget_) - level_);
+            value = static_cast<float>(level_);
+          } else {
+            level_ = value;
+          }
           if (value > 1.f) {
             level_ = 1.0;
             value = 1.f;
@@ -114,9 +124,17 @@ public:
         const bool highPrecision = segment_ == Decay
             ? decayHighPrecision_ : releaseHighPrecision_;
         if (!highPrecision) {
-          float value = static_cast<float>(level_);
-          value += static_cast<float>(coefficient) * (target - value);
-          level_ = value;
+          const float previous = static_cast<float>(level_);
+          float value = previous + static_cast<float>(coefficient) *
+                                   (target - previous);
+          if (value == previous && coefficient > 0.0 && target != previous) {
+            // Preserve the established float response except where rounding
+            // would freeze the envelope indefinitely.
+            level_ += coefficient * (static_cast<double>(target) - level_);
+            value = static_cast<float>(level_);
+          } else {
+            level_ = value;
+          }
           if (value < 0.f) {
             level_ = 0.0;
             value = 0.f;

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #include "midi/EditorMidiTracker.h"
+#include "engine/Synth.h"
 
 #include <iostream>
 #include <utility>
@@ -100,6 +101,34 @@ int main() {
   tracker.ReleaseSome(16, [&](int, int note) { epochReleases += note == 68; });
   if (epochReleases != 1 || tracker.PendingReleaseCount() != 0) {
     std::cerr << "Recovery did not preserve the new press after resolving the old one.\n";
+    return 1;
+  }
+
+  // The audio thread can emit the synthetic Note Off before the physical GUI
+  // release arrives. That later release must not free a same-pitch host note.
+  sawstar::Synth synth;
+  synth.Reset(44100.0);
+  sawstar::EditorMidiTracker ownership;
+  synth.Midi(0x90, 60, 100); // Host press.
+  synth.Midi(0x90, 60, 100); // Editor press on the same channel and pitch.
+  ownership.Observe(0x90, 60, 100);
+  ownership.BeginRecovery();
+  ownership.ReleaseSome(1, [&](int channel, int note) {
+    synth.Midi(0x80 | channel, note, 0);
+  });
+  if (!synth.Held(60)) {
+    std::cerr << "Synthetic editor recovery released the host-held same note.\n";
+    return 1;
+  }
+  const bool consumeLateEditorOff = ownership.Observe(0x80, 60, 0);
+  if (!consumeLateEditorOff) synth.Midi(0x80, 60, 0);
+  if (!consumeLateEditorOff || !synth.Held(60)) {
+    std::cerr << "Late editor Note Off was not consumed after recovery.\n";
+    return 1;
+  }
+  synth.Midi(0x80, 60, 0); // The host's own release remains effective.
+  if (synth.Held(60)) {
+    std::cerr << "Host Note Off failed after editor recovery.\n";
     return 1;
   }
   return 0;

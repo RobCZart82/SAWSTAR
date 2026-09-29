@@ -16,14 +16,25 @@ public:
   static constexpr int ChannelCount = 16;
   static constexpr int NoteCount = 128;
 
-  void Observe(std::uint8_t status, int note, int velocity) noexcept {
-    if (note < 0 || note >= NoteCount) return;
+  // Returns true when a physical editor Note Off matches an already-emitted
+  // recovery Note Off. The caller must consume that stale edge instead of
+  // forwarding it to the shared synth/arp note counter.
+  bool Observe(std::uint8_t status, int note, int velocity) noexcept {
+    if (note < 0 || note >= NoteCount) return false;
     const int kind = status >> 4;
     const int channel = status & 0x0f;
     if (kind == 0x9 && velocity > 0) {
       auto& count = heldCounts_[channel][note];
+      // A new press proves any unmatched physical release from the preceding
+      // recovery epoch is stale (editor MIDI preserves FIFO ordering).
+      recoveryOffCredits_[channel][note] = 0;
       if (count != std::numeric_limits<std::uint32_t>::max()) ++count;
     } else if (kind == 0x8 || (kind == 0x9 && velocity == 0)) {
+      auto& released = recoveryOffCredits_[channel][note];
+      if (released > 0) {
+        --released;
+        return true;
+      }
       // A later physical release first satisfies the oldest overflow debt.
       auto& pending = recoveryCounts_[channel][note];
       if (pending > 0) --pending;
@@ -31,18 +42,21 @@ public:
     } else if (kind == 0xb && (note == 120 || note == 123)) {
       ClearChannel(channel);
     }
+    return false;
   }
 
   void ClearChannel(int channel) noexcept {
     if (channel >= 0 && channel < ChannelCount) {
       heldCounts_[channel].fill(0);
       recoveryCounts_[channel].fill(0);
+      recoveryOffCredits_[channel].fill(0);
     }
   }
 
   void Clear() noexcept {
     for (auto& channel : heldCounts_) channel.fill(0);
     for (auto& channel : recoveryCounts_) channel.fill(0);
+    for (auto& channel : recoveryOffCredits_) channel.fill(0);
   }
 
   // Snapshot the notes known at the end of the overflowing process call.
@@ -71,6 +85,8 @@ public:
         while (pending > 0 && sent < budget) {
           --pending;
           ++sent;
+          auto& released = recoveryOffCredits_[channel][note];
+          if (released != std::numeric_limits<std::uint32_t>::max()) ++released;
           release(channel, note);
         }
       }
@@ -90,6 +106,9 @@ private:
   // each, including recovery after an editor-to-audio queue overflow.
   std::array<std::array<std::uint32_t, NoteCount>, ChannelCount> heldCounts_{};
   std::array<std::array<std::uint32_t, NoteCount>, ChannelCount> recoveryCounts_{};
+  // Synthetic releases have already reached the synth. Consume the matching
+  // later GUI releases so they cannot decrement a same-pitch host-held note.
+  std::array<std::array<std::uint32_t, NoteCount>, ChannelCount> recoveryOffCredits_{};
 };
 
 } // namespace sawstar

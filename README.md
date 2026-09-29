@@ -60,6 +60,7 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Magyar PDF](docs/manuals/SAWSTAR-User-Manual-HU.pdf)
 - [Factory library](docs/FACTORY_LIBRARY.md)
 - [Changelog](CHANGELOG.md) and [1.0.3 release notes](docs/RELEASE_NOTES_1.0.3.md)
+- [Post-1.0.3 development roadmap](docs/DEVELOPMENT_ROADMAP_POST_1.0.3.md)
 
 The English and Hungarian guides describe SAWSTAR 1.0.3 and include the supplied 1.0.3 screenshots.
 
