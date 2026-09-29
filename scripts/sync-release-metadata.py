@@ -5,7 +5,8 @@ p=argparse.ArgumentParser();p.add_argument('--check',action='store_true');args=p
 root=pathlib.Path(__file__).resolve().parents[1]
 m=json.loads((root/'release.json').read_text());version=m['version']
 if not re.fullmatch(r'\d+\.\d+\.\d+',version):raise ValueError('Invalid version')
-if not re.fullmatch(r'(rc\d+)?',m['candidate']):raise ValueError('Invalid candidate')
+if not re.fullmatch(r'(dev|rc\d+)?',m['candidate']):raise ValueError('Invalid candidate')
+if m['candidate'] and m.get('release_date'):raise ValueError('Development/candidate builds must not carry a release date')
 major,minor,patch=map(int,version.split('.'))
 if max(major,minor,patch)>255:raise ValueError('Version exceeds framework byte fields')
 config=root/'src/plugin/config.h';s=config.read_text()

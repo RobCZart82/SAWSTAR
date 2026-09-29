@@ -1,18 +1,19 @@
 # SAWSTAR — összevont fejlesztési terv a v1.0.3 után
 
-**Frissítve:** 2026-09-26  
+**Frissítve:** 2026-09-29
 **Kiinduló kiadás:** v1.0.3, tag `57dbee9`  
 **Auditált főág:** `4d80ba948415327f18c6a138524e649dea509816`  
 **Cél:** a megbízhatósági hibák rendezett javítása, majd mérésalapú motor- és termékfejlesztés; a következő kiadás előtt teljes ellenőrzéssel.
 
 Ez a dokumentum egyesíti a v1.0.3 utáni fejlesztési irányt és a 2026-09-26-i mélyaudit hasznos, aktuális megállapításait. A vizsgált audit főága hat commitnyira van a kiadott tagtől; a PR #22 már beolvadt. A 57/57 CTest és a coverage-adatok az audit jelentésében szereplő főági eredmények, nem e dokumentum önálló újrafuttatásai.
 
-## 2026-09-29 — helyi fejlesztési állapot
+## 2026-09-29 — fejlesztési állapot
 
-- A MIDI recovery utáni késői GUI Note Off ugyanazon a csatornán/hangon tartott hosthangot elengedő esete regressziós teszttel reprodukálva és lokálisan javítva. A host Note Off továbbra is megfelelően elengedi a hangot.
-- Az 1 másodperces ADSR-határ 192/384 kHz-es float-akkumulációs megakadása célzott teszttel reprodukálva és lokálisan javítva. A meglévő rövid ADSR karakterteszt tolerancián belül maradt.
-- A teljes helyi foundation suite 57/57 sikeres. A VST3 plugin build, a platformos Actions és a REAPER hostteszt még hátravan; e két javítás ezért még nem tekintendő kiadási vagy főági javításnak.
-- A vezérlő-overflow, close/reset lifecycle, VST3 tail és verziómetaadat témák változatlanul nyitva maradnak. A close/reset esetekhez előbb valós hostreprodukció szükséges.
+- PR #23 beolvadt: `6ec866f`. A MIDI recovery utáni késői editor Note Off és a nagy mintavételi frekvencián megakadó ADSR javítása a main része. A merge commit macOS, Windows és Code quality Actions futása sikeres.
+- A következő ág a fejlesztői build egyértelmű azonosítását javítja: `release.json` candidate=`dev`, üres release_date. Az About és a fejléc `1.0.3 dev` / `Build` jelölést kap; az installer fájlnév `-dev` végződést. A numerikus hostverzió 1.0.3 marad, a következő kiadás száma nincs eldöntve.
+- A CMake buildmeta hét fejlesztői/RC/kiadási és hibás-metaadat esetben ellenőrzött; a release guard külön teszteli a `dev` publikálás kihagyását. A platformos plugin buildet az új PR Actions ellenőrzése végzi.
+- A vezérlő-overflow és close/reset lifecycle nyitott: a keretsorban elveszett CC1/pitch bend utolsó értékét a jelenlegi note-only overflow callback nem állítja helyre. Olyan átadási megoldás kell, amely a későbbi hostüzenetet sem írja felül egy régi editorértékkel. A close/reset esetekhez valós hostreprodukció szükséges.
+- A VST3 tail jelentés és a további P2 feladatok nyitva maradnak. A lezárt click/pop kutatást ez a munka nem nyitja újra.
 
 ## Fejlesztési alapelvek
 

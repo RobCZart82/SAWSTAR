@@ -42,9 +42,11 @@ class ReleaseGuard(unittest.TestCase):
             return result
 
     def test_candidate_is_successful_skip(self):
-        result = self.run_guard('rc1')
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('skipped', result.stdout)
+        for candidate in ('dev', 'rc1'):
+            with self.subTest(candidate=candidate):
+                result = self.run_guard(candidate)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn('skipped', result.stdout)
 
     def test_final_missing_release_context_still_fails(self):
         self.assertNotEqual(self.run_guard('').returncode, 0)
