@@ -82,3 +82,15 @@ Historical implementation notes are indexed by the [development history](docs/DE
 Original SAWSTAR code: [MIT](LICENSE). External components retain their own
 terms; see [Third-party notices](THIRD_PARTY_NOTICES.md). Creator branding has
 separate treatment and is not granted for unrestricted reuse by the code license.
+
+### Development builds after v1.0.3
+
+The main branch currently uses `candidate: "dev"` and an empty `release_date` in
+`release.json`. These builds display **1.0.3 dev / Build** and use a `-dev`
+installer filename suffix. The host-facing numeric version remains 1.0.3; use
+the About commit ID to identify a build. The published v1.0.3 remains available
+on Releases. Development builds are skipped by the release publisher.
+
+For an RC, set `candidate` to `rcN` and leave the date empty. A final release
+requires an empty candidate and a release date, plus the release validation
+gates. Choose the next version explicitly when preparing that release.

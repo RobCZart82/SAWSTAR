@@ -1048,6 +1048,8 @@ if(BUILD_TESTING)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
   add_test(NAME iplug2_midi_patch
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/iplug2_midi_patch.py")
+  add_test(NAME build_display_metadata
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/build_display_metadata.py" "${CMAKE_COMMAND}")
   add_test(NAME release_guard
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/release_guard.py")
   add_test(NAME benchmark_report
