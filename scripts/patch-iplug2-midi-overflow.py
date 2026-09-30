@@ -65,7 +65,8 @@ PATCHES = (
         b"  ProcessAudio(data, setup, ins, outs);\n"
         b"\n"
         b"  // Run recovery after this block has accounted for every accepted editor event.\n"
-        b"  if (fromEditor.WasEmpty() && mPlug.TakeMidiMsgFromEditorOverflow())\n"
+        b"  if (data.numSamples > 0 && !GetBypassed() &&\n"
+        b"      fromEditor.WasEmpty() && mPlug.TakeMidiMsgFromEditorOverflow())\n"
         b"  {\n"
         b"    if (fromEditor.WasEmpty())\n"
         b"      mPlug.OnMidiMsgFromEditorOverflow();\n"
@@ -94,6 +95,14 @@ def apply(root):
             start = replacement.index(b"  // Consumer-side reset only;")
             end = replacement.index(b"  // The default preserves", start)
             previous = replacement[:start] + replacement[end:]
+            previous = previous.replace(b"\n", newline)
+            if source.count(previous) == 1:
+                path.write_bytes(source.replace(previous, replacement_for_file, 1))
+                continue
+        if b"data.numSamples > 0 && !GetBypassed()" in replacement:
+            previous = replacement.replace(
+                b"if (data.numSamples > 0 && !GetBypassed() &&\n      fromEditor.WasEmpty()",
+                b"if (fromEditor.WasEmpty()")
             previous = previous.replace(b"\n", newline)
             if source.count(previous) == 1:
                 path.write_bytes(source.replace(previous, replacement_for_file, 1))
