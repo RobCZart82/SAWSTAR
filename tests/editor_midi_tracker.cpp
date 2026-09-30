@@ -131,5 +131,34 @@ int main() {
     std::cerr << "Host Note Off failed after editor recovery.\n";
     return 1;
   }
+  // A reset/channel panic discards editor ownership. A later GUI release
+  // must not consume a new host press, even when no recovery credit remains.
+  for (int mode : {0, 1, 2}) for (int channel : {0, 15})
+    for (int note : {0, 60, 127}) for (int releaseKind : {0x80, 0x90}) {
+      synth.Reset(48000.0);
+      synth.SetVoiceMode(mode, 0.f, true);
+      ownership.Clear();
+      ownership.Observe(0x90 | channel, note, 100);
+      ownership.Clear(); // Same ownership boundary as OnReset.
+      synth.Midi(0x90 | channel, note, 100); // Fresh host note.
+      for (int duplicate = 0; duplicate < 2; ++duplicate) {
+        const bool consumed = ownership.Observe(releaseKind | channel, note, 0);
+        if (!consumed) synth.Midi(releaseKind | channel, note, 0);
+        if (!consumed || !synth.Held(note)) {
+          std::cerr << "Unowned editor release stopped a post-reset host note.\n";
+          return 1;
+        }
+      }
+      // A new editor gesture still releases exactly its own contribution.
+      ownership.Observe(0x90 | channel, note, 100);
+      synth.Midi(0x90 | channel, note, 100);
+      if (ownership.Observe(releaseKind | channel, note, 0)) {
+        std::cerr << "A valid editor release was swallowed.\n"; return 1;
+      }
+      synth.Midi(releaseKind | channel, note, 0);
+      if (!synth.Held(note)) return 1;
+      synth.Midi(0x80 | channel, note, 0);
+      if (synth.Held(note)) return 1;
+    }
   return 0;
 }

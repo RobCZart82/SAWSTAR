@@ -95,6 +95,20 @@ Manual host acceptance remains: drag/release PITCH and reset MOD while playing
 host MIDI and automating the same controls; verify the documented priority,
 then test project reset and editor reopen.
 
+### Editor releases after reset (development)
+
+The editor ownership tracker consumes Note Off (including Note On with zero
+velocity) when it has no matching held/recovery editor press. Previously a late
+GUI release after reset could decrement a fresh host-held note on the same MIDI
+channel and pitch. Duplicate/unmatched releases now have no synth/ARP effect;
+valid editor releases still consume exactly one editor contribution.
+
+The regression fails on the previous tracker and passes with the guard in Poly,
+Mono and Legato, channels 1/16, notes 0/60/127 and both release encodings. It also
+checks duplicate releases, a fresh editor gesture and the host's own final
+release. ASan/UBSan passed locally. This covers ownership after a reset boundary;
+it does not establish full GUI-close/deactivation behavior or replace host tests.
+
 ### Closing the editor during a keyboard gesture (development)
 
 `OnUIClose` now completes the virtual keyboard's active mouse gesture before
