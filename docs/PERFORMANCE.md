@@ -94,3 +94,22 @@ The editor_wheel_mailbox regression covers burst coalescing, all 16 channels,
 Manual host acceptance remains: drag/release PITCH and reset MOD while playing
 host MIDI and automating the same controls; verify the documented priority,
 then test project reset and editor reopen.
+
+### Closing the editor during a keyboard gesture (development)
+
+`OnUIClose` now completes the virtual keyboard's active mouse gesture before
+its controls are destroyed. It uses the existing `OnMouseUp` path, which emits
+one matching editor Note Off and clears the touched-key state. Host-highlighted
+keys are not iterated or released, and a keyboard without a mouse-held key does
+nothing. Pending Note On/Off ordering and overflow recovery remain on the normal
+editor MIDI path. No global panic or audio-thread mutation is issued from UI.
+
+Code inspection: iPlug2's `IGEditorDelegate::CloseWindow` invokes `OnUIClose`
+before destroying graphics; `ReleaseMouseCapture` only clears capture state.
+The hook makes release explicit instead of relying on platform mouse-exit events.
+This is a lifecycle hardening change; real host reproduction/acceptance remains
+pending. In REAPER verify: close while mouse holds a GUI key; reopen; repeat
+while a host note holds the same pitch; close with host-only notes highlighted;
+close without a gesture; repeat while audio is suspended and then resume.
+With sustain or ARP HOLD enabled, normal musical latch semantics still apply.
+Host deactivation and reset are separate boundaries.
