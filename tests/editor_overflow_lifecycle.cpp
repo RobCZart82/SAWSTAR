@@ -58,8 +58,10 @@ struct Fixture {
  }
 };
 int main(){
+ // Fixtures include ARP/queue/tracker fixed arrays. Keep them off Windows
+ // default 1 MiB thread stack; production plugin instances are heap-owned.
  for(bool bypass : {false,true}){
-  Fixture f;f.push(0x90,60,100);
+  auto fixture=std::make_unique<Fixture>();auto& f=*fixture;f.push(0x90,60,100);
   for(int i=0;i<31;++i)f.push(0xb0,7,0);
   f.push(0x80,60,0); // dropped from full upstream FIFO
   f.bypass=bypass;
@@ -75,7 +77,8 @@ int main(){
  }
  // Opted-in synth policy: MIDI and DSP advance while output is muted.
  for(bool arpOn : {false,true}) {
-  Fixture f,reference;f.mPlug.processBypass=true;reference.mPlug.processBypass=true;
+  auto fixture=std::make_unique<Fixture>();auto baseline=std::make_unique<Fixture>();
+  auto& f=*fixture;auto& reference=*baseline;f.mPlug.processBypass=true;reference.mPlug.processBypass=true;
   f.enableArp(arpOn);reference.enableArp(arpOn);
   auto both=[&](int s,int n,int v,int offset=0){f.host(s,n,v,offset);reference.host(s,n,v,offset);};
   both(0x90,60,100);f.process(128);reference.process(128);
@@ -95,7 +98,7 @@ int main(){
   check(f.synth->ActiveVoices()==0,"Bypass lifecycle left active voices");
  }
  // Editor overflow during bypass must preserve a same-note host contribution.
- Fixture f;f.mPlug.processBypass=true;f.bypass=true;
+ auto fixture=std::make_unique<Fixture>();auto& f=*fixture;f.mPlug.processBypass=true;f.bypass=true;
  f.host(0x90,60,100);f.push(0x90,60,100);
  for(int i=0;i<31;++i)f.push(0xb0,7,0);
  f.push(0x80,60,0);f.process(64);f.process(64);
