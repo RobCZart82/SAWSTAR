@@ -94,3 +94,15 @@ esetekben nem marad régi MIDI a sorban, a kimenet néma, és a tesztelt visszat
 bitazonos a folyamatos referenciafeldolgozással. ASan/UBSan és a pontos pinned
 upstream forráson végzett patch/idempotencia próba sikeres. Natív hostelfogadás,
 valódi deaktiválás és jövőbeli editor-offsetek továbbra is külön feladatok.
+
+## Aktuális lezárások és következő javítás
+
+#27–#30 mainben (`0bc9799`); a main Windows, macOS és Code quality workflow-ja
+sikeres. A keyboard/PITCH close kiegészítés a MOD latching és host-visszajelzési
+kontrollokat is tartalmazza. A fentebb szereplő PR-függő státuszok az ellenőrzés
+korábbi fázisát írják le.
+
+A következő célzott ág a nulla tail-bejelentést javítja. A véges, maximális
+paraméterekre alapozott jelentés, a soros lánc mérési feltételei és a hostoldali
+korlátok a [VST3 tail-szerződésben](VST3_TAIL_CONTRACT.md) szerepelnek.
+Natív hostelfogadást ez a javítás sem helyettesít.
