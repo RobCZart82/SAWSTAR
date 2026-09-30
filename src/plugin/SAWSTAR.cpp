@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #include "SAWSTAR.h"
 #include "plugin/EngineControls.h"
+#include "plugin/TailContract.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 #include "gui/Controls/Keyboard.h"
@@ -24,6 +25,9 @@ constexpr std::size_t kEditorMidiRecoveryBudget = 16;
 
 SAWSTAR::SAWSTAR(const InstanceInfo& info)
 : Plugin(info, MakeConfig(static_cast<int>(sawstar::kParameters.size()), 1)) {
+#if IPLUG_DSP
+  SetTailSize(sawstar::TailSamples(44100.));
+#endif
   for (const auto& spec : sawstar::kParameters) {
     auto* param = GetParam(static_cast<int>(spec.id));
     const auto prefix=spec.key.substr(0,spec.key.find('.'));
@@ -155,6 +159,7 @@ void SAWSTAR::DeferMidiMsg(const IMidiMsg& msg) {
     Plugin::DeferMidiMsg(msg);
 }
 void SAWSTAR::OnReset() {
+  SetTailSize(sawstar::TailSamples(GetSampleRate()));
   DiscardPendingMidiFromEditor();
   mScope.Reset(GetSampleRate());
   mRate.store(static_cast<int>(GetSampleRate()));mMeter.Reset();mCpu.store(0);mVoiceCount.store(0);

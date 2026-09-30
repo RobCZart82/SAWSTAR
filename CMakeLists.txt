@@ -1056,6 +1056,21 @@ if(BUILD_TESTING AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN))
   target_include_directories(sawstar_editor_wheel_gesture_tests BEFORE PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests/gui_stubs")
   add_test(NAME editor_wheel_gesture COMMAND sawstar_editor_wheel_gesture_tests)
 
+  execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tail_report_hook.py"
+    "${CMAKE_CURRENT_BINARY_DIR}/tail_report_hook.inc" RESULT_VARIABLE tail_hook_result)
+  if(NOT tail_hook_result EQUAL 0)
+    message(FATAL_ERROR "Cannot extract the production host tail report")
+  endif()
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS tests/tail_report_hook.py src/plugin/SAWSTAR.cpp)
+  add_executable(sawstar_tail_contract_tests tests/tail_contract.cpp)
+  target_link_libraries(sawstar_tail_contract_tests PRIVATE sawstar_engine)
+  target_include_directories(sawstar_tail_contract_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  option(SAWSTAR_EXTENDED_TAIL_TESTS "Run complete tail residual renders in Debug tests" OFF)
+  target_compile_definitions(sawstar_tail_contract_tests PRIVATE
+    "$<$<OR:$<BOOL:${SAWSTAR_EXTENDED_TAIL_TESTS}>,$<NOT:$<CONFIG:Debug>>>:SAWSTAR_EXTENDED_TAIL_RENDER>")
+  add_test(NAME tail_contract COMMAND sawstar_tail_contract_tests)
+  set_tests_properties(tail_contract PROPERTIES LABELS "tail;render")
+
   foreach(case glide_history release_order idle_voice_reuse output_gain detune_continuity delay_initial_time block_midi_queue engine_controls controller_lifecycle performance_policy)
     add_executable(sawstar_${case}_tests tests/${case}.cpp)
     target_link_libraries(sawstar_${case}_tests PRIVATE sawstar_engine)
