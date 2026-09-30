@@ -70,7 +70,69 @@ void recovery(){
  for(int i=0;i<1000;++i){arp.Process(send);auto x=s->ProcessStereo();energy+=x.left*x.left;}
  check(energy>0,"overflow prevents new notes");
 }
-int main(){boundaries();recovery();
+// The plugin's own audio-thread queue can overflow independently of the iPlug2
+// editor FIFO. Preserve the last controller state by MIDI time, across sources.
+void controllerOverflow(){
+ auto s=std::make_unique<Synth>();s->Reset(48000);
+ BlockMidiQueue q;int panics=0,clock=0;
+ auto run=[&](int frames){q.Process(frames,[&](auto e){s->Midi(e.status,e.data1,e.data2);},
+  [&](int){++clock;},[&]{++panics;});};
+ s->Midi(0xe0,0,96);s->Midi(0xb0,1,90);
+ for(int i=0;i<1024;++i)q.Push({0,0x90,60,100});
+ // These final wheel returns were previously dropped along with the burst.
+ q.Push({0,0xe0,0,64,true});q.Push({0,0xb0,1,0,true});run(1);
+ check(panics==1&&s->PitchBend(0)==8192&&s->ModWheel(0)==0,"overflow lost final wheel return");
+
+ // Host and editor both affect the same controller: sample offset is primary,
+ // and equal offsets retain arrival order. Never replay an older editor value
+ // over a newer host value.
+ q.Push({7,0xb0,1,77,false});
+ for(int i=0;i<1023;++i)q.Push({0,0x90,60,100});
+ q.Push({3,0xb0,1,12,true});run(7);
+ check(s->ModWheel(0)==0,"future controller applied before its sample");run(1);
+ check(s->ModWheel(0)==77,"older editor controller overwrote future host value");
+ for(int i=0;i<1024;++i)q.Push({0,0x90,60,100});
+ q.Push({0,0xb0,1,23,true});q.Push({0,0xb0,1,42,false});run(1);
+ check(s->ModWheel(0)==42,"same-offset host winner lost");
+ for(int i=0;i<1024;++i)q.Push({0,0x90,60,100});
+ q.Push({0,0xb0,1,42,false});q.Push({0,0xb0,1,23,true});run(1);
+ check(s->ModWheel(0)==23,"same-offset editor winner lost");
+
+ // Reset All Controllers is ordered alongside both wheels and remains local
+ // to its channel. Exercise both reset-before-wheel and wheel-before-reset.
+ for(int i=0;i<1024;++i)q.Push({0,0x90,60,100});
+ for(int ch=0;ch<16;++ch){
+  q.Push({0,0xe0|ch,127,127,true});q.Push({0,0xb0|ch,1,127,true});
+  q.Push({0,0xb0|ch,121,0,false});
+  if(ch%2)q.Push({0,0xb0|ch,1,31,false});
+ }
+ run(0);check(q.Size()<=48,"controller recovery exceeded bounded capacity");
+ run(1);
+ for(int ch=0;ch<16;++ch){
+  check(s->PitchBend(ch)==8192,"controller reset failed to center bend");
+  check(s->ModWheel(ch)==(ch%2?31:0),"controller reset ordering failed");
+ }
+ check(q.Size()==0,"controller recovery left stale messages");
+ // Origin tags and reset/wheel ordering survive reconstruction, including
+ // reverse offset arrival and a large burst after the initial overflow.
+ std::vector<BlockMidiEvent> delivered;
+ for(int i=0;i<1024;++i)q.Push({0,0x90,60,100});
+ q.Push({4,0xb1,121,0,false});q.Push({4,0xb1,1,51,true});
+ q.Push({9,0xe1,0,64,false});
+ for(int i=0;i<10000;++i)q.Push({-1,0xe1,127,127,true});
+ q.Process(10,[&](auto e){delivered.push_back(e);},[](int){},[]{});
+ check(delivered.size()==3,"large overflow burst was not coalesced");
+ check(delivered[0].data1==121&&!delivered[0].fromEditor&&
+       delivered[1].data1==1&&delivered[1].fromEditor&&
+       delivered[2].offset==9&&!delivered[2].fromEditor,
+       "overflow reordered reset or lost controller origin");
+
+ // Explicit reset must also discard overflow controller snapshots.
+ for(int i=0;i<1025;++i)q.Push({0,0x90,60,100});
+ q.Push({0,0xb0,1,99,true});q.Clear();run(1);
+ check(s->ModWheel(0)==0,"Clear replayed a stale overflow controller");
+}
+int main(){boundaries();recovery();controllerOverflow();
  for(float sr:{44100.f,48000.f,96000.f})for(int mode:{0,1,2}){
   auto ref=render(1,sr,mode);
   for(int block:{0,32,64,512,2048}){auto out=render(block,sr,mode);

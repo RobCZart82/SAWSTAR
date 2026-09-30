@@ -1,6 +1,6 @@
 # SAWSTAR — összevont fejlesztési terv a v1.0.3 után
 
-**Frissítve:** 2026-09-29
+**Frissítve:** 2026-09-30
 **Kiinduló kiadás:** v1.0.3, tag `57dbee9`  
 **Auditált főág:** `4d80ba948415327f18c6a138524e649dea509816`  
 **Cél:** a megbízhatósági hibák rendezett javítása, majd mérésalapú motor- és termékfejlesztés; a következő kiadás előtt teljes ellenőrzéssel.
@@ -14,6 +14,14 @@ Ez a dokumentum egyesíti a v1.0.3 utáni fejlesztési irányt és a 2026-09-26-
 - A CMake buildmeta hét fejlesztői/RC/kiadási és hibás-metaadat esetben ellenőrzött; a release guard külön teszteli a `dev` publikálás kihagyását. A platformos plugin buildet az új PR Actions ellenőrzése végzi.
 - A vezérlő-overflow és close/reset lifecycle nyitott: a keretsorban elveszett CC1/pitch bend utolsó értékét a jelenlegi note-only overflow callback nem állítja helyre. Olyan átadási megoldás kell, amely a későbbi hostüzenetet sem írja felül egy régi editorértékkel. A close/reset esetekhez valós hostreprodukció szükséges.
 - A VST3 tail jelentés és a további P2 feladatok nyitva maradnak. A lezárt click/pop kutatást ez a munka nem nyitja újra.
+
+## 2026-09-30 — controller overflow részjavítás
+
+- PR #24 beolvadt (`1be4986`): a fejlesztői verziójelölés a main része.
+- A SAWSTAR `BlockMidiQueue` saját audiószálas sorában reprodukáltuk az elvesző végső pitch bend/CC1-visszaállítást. A régi kód a regresszión elbukik; a javítás megtartja a csatornánkénti utolsó bend, CC1 és CC121 eseményt, időponttal és forrásjelöléssel.
+- Túlcsorduláskor a bizonytalan hangüzenetekre megmarad a meglévő panic. Legfeljebb 48 vezérlőesemény kerül vissza a sorba, eredeti időzítéssel. Azonos MIDI-időpontnál az érkezési sorrend dönt, különböző időpontnál a későbbi esemény; így régebbi editorérték nem írja felül a későbbi hostértéket.
+- Ez kivételes helyreállítás: a köztes vezérlőmozgásokat összevonja. Normál, nem túlcsorduló feldolgozás változatlan. A tesztek a visszaállítást, a 16 csatornát, CC121 sorrendet, jövőbeli offsetet, forrásjelölést és explicit Clear-t lefedik.
+- **Továbbra is nyitott:** az iPlug2 upstream editor FIFO-ban már elveszett vezérlőüzenet nem jut el ehhez a sorhoz. Ehhez külön, producer–consumer átadási javítás kell; a mostani eredmény nem zárja le a teljes editor-overflow témát. REAPER hostelfogadás szintén hátravan.
 
 ## Fejlesztési alapelvek
 
