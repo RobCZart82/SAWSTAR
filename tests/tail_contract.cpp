@@ -33,10 +33,11 @@ void chain(float rate, bool pingPong, bool changed, bool completeTail = true) {
   delay.Set(true, 100, changed ? 350 : 2000, 85, 200, pingPong, false, 0, 120);
   reverb.Set(true, 100, changed ? 0 : 100, changed ? .2f : 10, 500);
   const int warm = static_cast<int>(4 * rate);
-  // Full residual coverage always runs at 8 kHz. Debug also exercises 44.1 kHz
-  // through the entire maximum envelope release, without repeating another
-  // 17 million FX samples under MSVC's checked, unoptimized STL.
+  // Debug exercises the complete maximum envelope release at both rates.
+  // Release and extended sanitizer/coverage builds additionally measure the
+  // residual after all 380 seconds. A smoke run is not a residual proof.
   const int end = completeTail ? sawstar::TailSamples(rate) : static_cast<int>(48 * rate);
+  std::cout << "Starting FX chain, " << rate << " Hz, full-tail=" << completeTail << std::endl;
   float latePeak = 0, tenSecondPeak = 0;
   double lateEnergy = 0; int lateCount = 0;
   for (int i = -warm; i < end + static_cast<int>(rate); ++i) {
@@ -65,13 +66,18 @@ void chain(float rate, bool pingPong, bool changed, bool completeTail = true) {
     check(latePeak < 1.e-6f && std::sqrt(lateEnergy / (2 * lateCount)) < 1.e-6,
           "Actual FX residual exceeds reported finite tail budget");
   else
-    check(latePeak > 1.e-6f, "High-rate smoke fixture has no continuing FX history");
+    check(latePeak > 1.e-6f, "FX smoke fixture has no continuing history");
   std::cout << rate << " Hz, ping-pong=" << pingPong << ", changed=" << changed
-            << ", full-tail=" << completeTail << ": late peak=" << latePeak << '\n';
+            << ", full-tail=" << completeTail << ": late peak=" << latePeak << std::endl;
 }
 
 int main() {
   using namespace sawstar;
+#if defined(SAWSTAR_EXTENDED_TAIL_RENDER)
+  constexpr bool completeTail = true;
+#else
+  constexpr bool completeTail = false;
+#endif
   // If parameter limits change, the independently reviewed budget must change.
   check(kParameters[size_t(ParameterId::AmpRelease)].maximum == 10000 &&
         kParameters[size_t(ParameterId::DelayTime)].maximum == 2000 &&
@@ -110,7 +116,11 @@ int main() {
   synth->Midi(0xb0, 64, 0);
   for (int note = 48; note < 64; ++note) synth->Midi(0x80, note, 0);
   float peakAfterBudget = 0;
-  const int budget = TailSamples(8000);
+  // Keep a short 16-voice Debug prefix: the full 10-second time-constant
+  // release renders over 80 million oscillators before the voices become idle.
+  // Maximum envelope convergence is independently checked in every FX chain.
+  const int budget = completeTail ? TailSamples(8000) : 2 * 8000;
+  std::cout << "Starting 16-voice engine, full-tail=" << completeTail << std::endl;
   for (int i = 0; i < budget + 8000; ++i) {
     const auto y = synth->ProcessStereo();
     check(std::isfinite(y.left) && std::isfinite(y.right), "Non-finite full-engine tail");
@@ -118,13 +128,15 @@ int main() {
     if (i >= budget) peakAfterBudget = std::max(peakAfterBudget,
         std::max(std::abs(y.left), std::abs(y.right)));
   }
-  check(synth->ActiveVoices() == 0, "Max-release chord exceeds source-tail allowance");
-  check(peakAfterBudget < 1.e-6f, "Full-engine tail exceeds advertised budget");
-  std::cout << "16-voice full engine: late peak=" << peakAfterBudget << '\n';
-  chain(8000, false, false); chain(8000, true, true);
-#if defined(SAWSTAR_EXTENDED_TAIL_RENDER)
-  chain(44100, true, false);
-#else
-  chain(44100, true, false, false);
-#endif
+  if (completeTail) {
+    check(synth->ActiveVoices() == 0, "Max-release chord exceeds source-tail allowance");
+    check(peakAfterBudget < 1.e-6f, "Full-engine tail exceeds advertised budget");
+  } else {
+    check(synth->ActiveVoices() == 16, "Short engine smoke lost a max-release voice");
+    check(peakAfterBudget > 1.e-6f, "Engine smoke fixture has no continuing FX history");
+  }
+  std::cout << "16-voice engine: late peak=" << peakAfterBudget << std::endl;
+  chain(8000, false, false, completeTail);
+  chain(8000, true, true, completeTail);
+  chain(44100, true, false, completeTail);
 }
