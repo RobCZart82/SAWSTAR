@@ -1036,6 +1036,10 @@ if(BUILD_TESTING AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN))
   target_compile_features(sawstar_editor_midi_tracker_tests PRIVATE cxx_std_17)
   add_test(NAME editor_midi_tracker_counts_and_resets COMMAND sawstar_editor_midi_tracker_tests)
 
+  add_executable(sawstar_editor_wheel_mailbox_tests tests/editor_wheel_mailbox.cpp)
+  target_link_libraries(sawstar_editor_wheel_mailbox_tests PRIVATE sawstar_engine Threads::Threads)
+  add_test(NAME editor_wheel_mailbox COMMAND sawstar_editor_wheel_mailbox_tests)
+
   foreach(case glide_history release_order idle_voice_reuse output_gain detune_continuity delay_initial_time block_midi_queue engine_controls controller_lifecycle performance_policy)
     add_executable(sawstar_${case}_tests tests/${case}.cpp)
     target_link_libraries(sawstar_${case}_tests PRIVATE sawstar_engine)

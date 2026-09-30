@@ -134,10 +134,15 @@ void SAWSTAR::SyncRestoredPreset() {
 }
 #endif
 #if IPLUG_DSP
+void SAWSTAR::DeferMidiMsg(const IMidiMsg& msg) {
+  if (!mEditorWheels.Publish(msg.mStatus, msg.mData1, msg.mData2, msg.mOffset))
+    Plugin::DeferMidiMsg(msg);
+}
 void SAWSTAR::OnReset() {
   mScope.Reset(GetSampleRate());
   mRate.store(static_cast<int>(GetSampleRate()));mMeter.Reset();mCpu.store(0);mVoiceCount.store(0);
   mSynth.Reset(GetSampleRate());mArp.Init(GetSampleRate());mArpReset.store(false);
+  mEditorWheels.Clear();
   mEvents.Clear();mEditorMidiTracker=sawstar::EditorMidiTracker{};mMidiVoiceMode=0;
   mBend.store(8192);mMod.store(0);
   for (auto& held : mHeld) held.store(false, std::memory_order_relaxed);
@@ -155,6 +160,10 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   if(frames>0)mEditorMidiTracker.ReleaseSome(kEditorMidiRecoveryBudget,[&](int channel,int note){
     mArp.Midi(0x80|channel,note,0,send);
   });
+  // Apply each newly published UI wheel once, before sample-zero host MIDI.
+  // Host automation wins ties and future host offsets keep their timing. A
+  // zero-frame call leaves gestures pending for the next real audio block.
+  if(frames>0)mEditorWheels.Drain(send);
   const int channels=NOutChansConnected();
   mEvents.Process(frames,[&](const sawstar::BlockMidiEvent& msg){
     if (msg.fromEditor) {

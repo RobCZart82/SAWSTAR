@@ -5,6 +5,7 @@
 #include "midi/Arpeggiator.h"
 #include "midi/BlockMidiQueue.h"
 #include "midi/EditorMidiTracker.h"
+#include "midi/EditorWheelMailbox.h"
 #include <atomic>
 #include "visual/Scope.h"
 #include "visual/Meter.h"
@@ -17,6 +18,7 @@ public:
   int UnserializeState(const iplug::IByteChunk& chunk, int startPos) override;
   explicit SAWSTAR(const iplug::InstanceInfo& info);
 #if IPLUG_DSP
+  void DeferMidiMsg(const iplug::IMidiMsg& msg) override;
   void OnReset() override;
   void OnIdle() override;
   void ProcessBlock(iplug::sample** inputs, iplug::sample** outputs, int frames) override;
@@ -30,6 +32,7 @@ private:
   sawstar::Arpeggiator mArp;
   sawstar::BlockMidiQueue mEvents;
   sawstar::EditorMidiTracker mEditorMidiTracker;
+  sawstar::EditorWheelMailbox mEditorWheels;
   int mMidiVoiceMode = 0;
   std::array<std::atomic<bool>, 128> mHeld{};
   std::array<bool, 128> mDisplayed{};
