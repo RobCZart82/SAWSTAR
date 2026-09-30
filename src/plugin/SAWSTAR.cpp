@@ -133,6 +133,22 @@ void SAWSTAR::SyncRestoredPreset() {
   }
 }
 #endif
+#if IPLUG_EDITOR
+void SAWSTAR::OnUIClose() {
+  // iPlug calls this before destroying the controls. Release only the key
+  // owned by the mouse gesture, not the host notes highlighted on the keyboard.
+  // The normal editor FIFO preserves a pending Note On -> Note Off sequence;
+  // existing overflow recovery handles a release that cannot be enqueued.
+  if (auto* ui = GetUI()) {
+    for (int i = 0; i < ui->NControls(); ++i)
+      if (auto* keyboard = dynamic_cast<sawstar::gui::Keyboard*>(ui->GetControl(i)))
+        keyboard->OnMouseUp(0, 0, IMouseMod{});
+      else if (auto* wheel = dynamic_cast<sawstar::gui::PerformanceWheel*>(ui->GetControl(i)))
+        wheel->EndGesture();
+  }
+  Plugin::OnUIClose();
+}
+#endif
 #if IPLUG_DSP
 void SAWSTAR::DeferMidiMsg(const IMidiMsg& msg) {
   if (!mEditorWheels.Publish(msg.mStatus, msg.mData1, msg.mData2, msg.mOffset))

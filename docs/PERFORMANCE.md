@@ -131,3 +131,37 @@ editor overflow with a same-note host press, silent outputs and bit-identical
 post-bypass audio versus continuous processing in these cases. Restoring the old
 adapter branch fails with stale queued MIDI. ASan/UBSan passes. This is not a
 native VST3 host test; REAPER bypass acceptance remains pending.
+
+### Closing the editor during a keyboard gesture (development)
+
+`OnUIClose` now completes the virtual keyboard's active mouse gesture before
+its controls are destroyed. It uses the existing `OnMouseUp` path, which emits
+one matching editor Note Off and clears the touched-key state. Host-highlighted
+keys are not iterated or released, and a keyboard without a mouse-held key does
+nothing. Pending Note On/Off ordering and overflow recovery remain on the normal
+editor MIDI path. No global panic or audio-thread mutation is issued from UI.
+
+Code inspection: iPlug2's `IGEditorDelegate::CloseWindow` invokes `OnUIClose`
+before destroying graphics; `ReleaseMouseCapture` only clears capture state.
+The hook makes release explicit instead of relying on platform mouse-exit events.
+This is a lifecycle hardening change; real host reproduction/acceptance remains
+pending. In REAPER verify: close while mouse holds a GUI key; reopen; repeat
+while a host note holds the same pitch; close with host-only notes highlighted;
+close without a gesture; repeat while audio is suspended and then resume.
+With sustain or ARP HOLD enabled, normal musical latch semantics still apply.
+Host deactivation and reset are separate boundaries.
+
+The close hook also ends active performance-wheel gestures. PITCH springs to
+center only if the GUI mouse gesture owns a pending release; MOD remains latched.
+Mouse-up, close and touch-cancel share an idempotent EndGesture. MIDI feedback
+only updates display and never starts ownership, so closing an idle editor does
+not reset a host bend. During an active GUI pitch gesture its release publishes
+center just like normal mouse-up; the existing sample-zero host-priority rule
+still applies. This is not a claim that an active GUI gesture cannot intentionally
+supersede an earlier host value.
+
+The wheel regression compiles the production control against a minimal graphics
+shell and exercises close, cancellation, duplicate release, feedback-only input,
+MOD latch and mailbox center delivery. ASan/UBSan passes; disabling cleanup makes
+the regression fail. Native hit-testing/window dispatch still requires REAPER
+acceptance. The shell is isolated to the test target.

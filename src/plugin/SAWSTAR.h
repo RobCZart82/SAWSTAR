@@ -17,6 +17,9 @@ public:
   bool SerializeState(iplug::IByteChunk& chunk) const override;
   int UnserializeState(const iplug::IByteChunk& chunk, int startPos) override;
   explicit SAWSTAR(const iplug::InstanceInfo& info);
+#if IPLUG_EDITOR
+  void OnUIClose() override;
+#endif
 #if IPLUG_DSP
   void DeferMidiMsg(const iplug::IMidiMsg& msg) override;
   bool ProcessAudioWhileBypassed() const override { return true; }
