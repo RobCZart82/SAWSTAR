@@ -32,6 +32,14 @@ Ez a dokumentum egyesíti a v1.0.3 utáni fejlesztési irányt és a 2026-09-26-
 - Célzott teszt ellenőrzi a 100000-es burstöt, 16 csatornát, közép/nulla visszaállítást, host-sorrendet, resetet és párhuzamos producer/consumer működést; a ThreadSanitizer CI-be is bekerül. Platform build és kézi REAPER-elfogadás szükséges.
 - Következő nyitott tételek: close/deactivation/reset hostreprodukció; VST3 tail; preset/fájlrendszer és automatizálás P2 audit. A kattogáskutatás lezárt marad.
 
+## 2026-09-30 — reset előtti editor-események
+
+- PR #25 és #26 mainben (`dce55cc`), mindhárom főági workflow sikeres.
+- A reset eddig a saját blokk-MIDI-sort ürítette, az iPlug2 upstream editor FIFO-ját nem. Így a reset előtt várakozó editor-esemény újra bekerülhetett a frissen visszaállított motorba.
+- A javítás a reset elején a consumer oldalon eldobja az upstream sor pillanatnyi elemszámának megfelelő régi üzeneteket. Nincs korlátlan drain; a snapshot után érkező üzenetek megmaradnak. A resetet a hostnak az audio-feldolgozással sorosítva kell hívnia, ahogyan a meglévő motorreset is megköveteli.
+- A production patchből kinyert metódus regressziója üres/teli sort, új bemenetet és drain közbeni producer-hozzáadást ellenőriz; a no-op negatív kontroll elbukik. Az elérhető iPlug2 valódi SPSC sorával is külön teszt fut. A korábbi framework patch helyben frissíthető.
+- Ez nem teljes lifecycle-javítás: GUI close/deactivation, resetet követő késői fizikai Note Off és valós REAPER-elfogadás továbbra is külön ellenőrzendő. A VST3 tail feladat szintén nyitott.
+
 ## Fejlesztési alapelvek
 
 - A kiadott v1.0.3 viselkedése az alap. Paraméterazonosítók, régi presetek, projekt-visszatöltés és hangkarakter csak célzott teszttel és indokolt változtatással módosulhat.
