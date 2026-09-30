@@ -109,6 +109,29 @@ checks duplicate releases, a fresh editor gesture and the host's own final
 release. ASan/UBSan passed locally. This covers ownership after a reset boundary;
 it does not establish full GUI-close/deactivation behavior or replace host tests.
 
+### VST3 bypass policy (development)
+
+SAWSTAR opts into continued processing during VST3 parameter bypass. MIDI,
+ARP, envelopes, oscillators and FX advance on their normal timeline; only the
+host audio output and peak meter are muted. Un-bypass does not replay queued
+notes or reset the instrument. Bypass therefore does not suspend DSP CPU usage.
+Hosts that stop process calls entirely (deactivation/offline/suspension) are a
+separate lifecycle, not covered by this policy.
+
+The pinned adapter default stays unchanged for other plugins. SAWSTAR overrides
+ProcessAudioWhileBypassed and silences every connected output sample with the
+shared output helper. Overflow recovery is eligible after positive bypassed
+blocks only for opted-in plugins whose processor actually ran. Zero-frame calls
+continue to defer recovery.
+
+The headless lifecycle test compiles the adapter's actual branch condition and
+post-audio callback with the real queue, tracker, ARP, Synth and output helper.
+It checks pre/during/post-bypass notes, sample offsets, sustain, ARP on/off,
+editor overflow with a same-note host press, silent outputs and bit-identical
+post-bypass audio versus continuous processing in these cases. Restoring the old
+adapter branch fails with stale queued MIDI. ASan/UBSan passes. This is not a
+native VST3 host test; REAPER bypass acceptance remains pending.
+
 ### Closing the editor during a keyboard gesture (development)
 
 `OnUIClose` now completes the virtual keyboard's active mouse gesture before

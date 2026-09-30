@@ -36,10 +36,20 @@ with tempfile.TemporaryDirectory() as directory:
     upgraded = api_path.read_bytes()
     start = upgraded.index(b"  // Consumer-side reset only;")
     end = upgraded.index(b"  // The default preserves", start)
-    api_path.write_bytes(upgraded[:start] + upgraded[end:])
+    api_path.write_bytes((upgraded[:start] + upgraded[end:]).replace(
+        b"  virtual bool ProcessAudioWhileBypassed() const { return false; }\n", b""))
     patch.apply(fixture)
     if api_path.read_bytes() != upgraded:
         raise SystemExit("Previous patch could not be upgraded exactly.")
+
+    consumer_path = fixture / "IPlug/VST3/IPlugVST3_ProcessorBase.cpp"
+    new_consumer = consumer_path.read_bytes()
+    consumer_path.write_bytes(new_consumer.replace(
+        b"if (data.numSamples > 0 && (!GetBypassed() || mPlug.ProcessAudioWhileBypassed()) &&\n      fromEditor.WasEmpty()",
+        b"if (fromEditor.WasEmpty()"))
+    patch.apply(fixture)
+    if consumer_path.read_bytes() != new_consumer:
+        raise SystemExit("Previous consumer patch did not upgrade exactly.")
 
     api = second["IPlug/IPlugAPIBase.h"]
     consumer = second["IPlug/VST3/IPlugVST3_ProcessorBase.cpp"]
@@ -52,7 +62,7 @@ with tempfile.TemporaryDirectory() as directory:
     audio = consumer.find(b"ProcessAudio(data, setup, ins, outs);")
     recovery = consumer.find(b"TakeMidiMsgFromEditorOverflow()")
     if (audio < 0 or recovery < audio or
-        b"if (fromEditor.WasEmpty() && mPlug.TakeMidiMsgFromEditorOverflow())" not in consumer or
+        b"if (data.numSamples > 0 && (!GetBypassed() || mPlug.ProcessAudioWhileBypassed()) &&\n      fromEditor.WasEmpty() && mPlug.TakeMidiMsgFromEditorOverflow())" not in consumer or
         b"else\n      mPlug.SignalMidiMsgFromEditorOverflow();" not in consumer):
         raise SystemExit("Editor recovery must wait until accepted editor events have been processed.")
 

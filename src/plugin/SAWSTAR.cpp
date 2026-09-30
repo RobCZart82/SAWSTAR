@@ -182,6 +182,7 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   // zero-frame call leaves gestures pending for the next real audio block.
   if(frames>0)mEditorWheels.Drain(send);
   const int channels=NOutChansConnected();
+  const bool bypassed=GetBypassed();
   mEvents.Process(frames,[&](const sawstar::BlockMidiEvent& msg){
     if (msg.fromEditor) {
       if (mEditorMidiTracker.Observe(static_cast<uint8_t>(msg.status),
@@ -197,8 +198,8 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
     mArp.Process(send);
     const auto value=mSynth.ProcessStereo();
     const auto pre=mSynth.PreFX();mScope.Push((pre.left+pre.right)*.5f);
-    peakL=std::max(peakL,std::abs(value.left));peakR=std::max(peakR,std::abs(value.right));
-    sawstar::WriteHostOutput(value,outputs,channels,i);
+    if(!bypassed){peakL=std::max(peakL,std::abs(value.left));peakR=std::max(peakR,std::abs(value.right));}
+    sawstar::WriteHostOutput(value,outputs,channels,i,bypassed);
   },[&]{mEditorMidiTracker.Clear();sawstar::RecoverMidiOverflow(mArp,mSynth);});
   mMeter.Publish(peakL,peakR,uint32_t(std::chrono::duration_cast<std::chrono::milliseconds>(started.time_since_epoch()).count()));mVoiceCount.store(mSynth.ActiveVoices());
   if(frames>0){float used=100.f*std::chrono::duration<float>(std::chrono::steady_clock::now()-started).count()*GetSampleRate()/frames;mCpu.store(mCpu.load()*.9f+used*.1f);}

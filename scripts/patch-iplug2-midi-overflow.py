@@ -34,6 +34,7 @@ PATCHES = (
         b"  // Return true only when the plug-in queued/handled this message itself.\n"
         b"  virtual bool ProcessMidiMsgFromEditor(const IMidiMsg&) { return false; }\n"
         b"  virtual void OnMidiMsgFromEditorOverflow() {}\n"
+        b"  virtual bool ProcessAudioWhileBypassed() const { return false; }\n"
         b"  void SignalMidiMsgFromEditorOverflow() noexcept {\n"
         b"    mMidiMsgFromEditorOverflow.store(true, std::memory_order_release);\n"
         b"  }\n"
@@ -61,11 +62,17 @@ PATCHES = (
     ),
     (
         "IPlug/VST3/IPlugVST3_ProcessorBase.cpp",
+        b"    if (GetBypassed())\n",
+        b"    if (GetBypassed() && !mPlug.ProcessAudioWhileBypassed())\n",
+    ),
+    (
+        "IPlug/VST3/IPlugVST3_ProcessorBase.cpp",
         b"  ProcessAudio(data, setup, ins, outs);\n",
         b"  ProcessAudio(data, setup, ins, outs);\n"
         b"\n"
         b"  // Run recovery after this block has accounted for every accepted editor event.\n"
-        b"  if (fromEditor.WasEmpty() && mPlug.TakeMidiMsgFromEditorOverflow())\n"
+        b"  if (data.numSamples > 0 && (!GetBypassed() || mPlug.ProcessAudioWhileBypassed()) &&\n"
+        b"      fromEditor.WasEmpty() && mPlug.TakeMidiMsgFromEditorOverflow())\n"
         b"  {\n"
         b"    if (fromEditor.WasEmpty())\n"
         b"      mPlug.OnMidiMsgFromEditorOverflow();\n"
@@ -89,15 +96,29 @@ def apply(root):
         replacement_for_file = replacement.replace(b"\n", newline)
         if replacement_for_file in source:
             continue
-        # Upgrade the previous pinned patch without requiring a fresh checkout.
+        # Accept only exact known previous patch versions (never fuzzy edits).
+        predecessors = []
         if b"void DiscardPendingMidiFromEditor()" in replacement:
-            start = replacement.index(b"  // Consumer-side reset only;")
-            end = replacement.index(b"  // The default preserves", start)
-            previous = replacement[:start] + replacement[end:]
+            no_bypass_hook = replacement.replace(
+                b"  virtual bool ProcessAudioWhileBypassed() const { return false; }\n", b"")
+            start = no_bypass_hook.index(b"  // Consumer-side reset only;")
+            end = no_bypass_hook.index(b"  // The default preserves", start)
+            predecessors = [no_bypass_hook, no_bypass_hook[:start] + no_bypass_hook[end:]]
+        if b"data.numSamples > 0 &&" in replacement:
+            old_guard = replacement.replace(
+                b"(!GetBypassed() || mPlug.ProcessAudioWhileBypassed())", b"!GetBypassed()")
+            predecessors = [old_guard, old_guard.replace(
+                b"if (data.numSamples > 0 && !GetBypassed() &&\n      fromEditor.WasEmpty()",
+                b"if (fromEditor.WasEmpty()")]
+        upgraded = False
+        for previous in predecessors:
             previous = previous.replace(b"\n", newline)
             if source.count(previous) == 1:
                 path.write_bytes(source.replace(previous, replacement_for_file, 1))
-                continue
+                upgraded = True
+                break
+        if upgraded:
+            continue
         if source.count(original_for_file) != 1:
             raise RuntimeError(
                 f"Pinned iPlug2 source does not match expected patch context: {relative}"
