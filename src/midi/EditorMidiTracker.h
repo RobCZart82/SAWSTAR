@@ -16,9 +16,9 @@ public:
   static constexpr int ChannelCount = 16;
   static constexpr int NoteCount = 128;
 
-  // Returns true when a physical editor Note Off matches an already-emitted
-  // recovery Note Off. The caller must consume that stale edge instead of
-  // forwarding it to the shared synth/arp note counter.
+  // Returns true for a release without an outstanding editor press (including
+  // an already-emitted recovery Note Off). Never forward such an edge to the
+  // shared synth/arp counter: it may belong exclusively to host-held notes.
   bool Observe(std::uint8_t status, int note, int velocity) noexcept {
     if (note < 0 || note >= NoteCount) return false;
     const int kind = status >> 4;
@@ -39,6 +39,7 @@ public:
       auto& pending = recoveryCounts_[channel][note];
       if (pending > 0) --pending;
       else if (heldCounts_[channel][note] > 0) --heldCounts_[channel][note];
+      else return true; // Reset, duplicate or unmatched editor release.
     } else if (kind == 0xb && (note == 120 || note == 123)) {
       ClearChannel(channel);
     }
