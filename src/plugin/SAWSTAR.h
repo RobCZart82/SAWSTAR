@@ -19,6 +19,7 @@ public:
   explicit SAWSTAR(const iplug::InstanceInfo& info);
 #if IPLUG_DSP
   void DeferMidiMsg(const iplug::IMidiMsg& msg) override;
+  bool ProcessAudioWhileBypassed() const override { return true; }
   void OnReset() override;
   void OnIdle() override;
   void ProcessBlock(iplug::sample** inputs, iplug::sample** outputs, int frames) override;

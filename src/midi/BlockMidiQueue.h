@@ -78,7 +78,8 @@ template<class Arp,class Synth> void RecoverMidiOverflow(Arp& arp,Synth& synth){
  for(int ch=0;ch<16;++ch)synth.Midi(0xb0|ch,120,0);
 }
 template<class Value,class Sample>
-void WriteHostOutput(const Value& value,Sample** outputs,int channels,int frame){
+void WriteHostOutput(const Value& value,Sample** outputs,int channels,int frame,bool muted=false){
+ if(muted){for(int ch=0;ch<channels;++ch)outputs[ch][frame]=Sample(0);return;}
  if(channels==1)outputs[0][frame]=static_cast<Sample>((value.left+value.right)*.5f);
  else for(int ch=0;ch<channels;++ch)outputs[ch][frame]=static_cast<Sample>(ch%2?value.right:value.left);
 }

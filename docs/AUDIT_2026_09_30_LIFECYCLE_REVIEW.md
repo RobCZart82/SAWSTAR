@@ -80,3 +80,17 @@ blokk önmagában nem bizonyít minden ilyen esemény feldolgozását.
 7. P2: reset epoch, diszkrét kanonizálás, strict import, preset-tranzakció,
    automatizálás blokkfüggése, natív adapter harness.
 8. Profilozás, filesystem és csak ezután külön hangminőségi fejlesztés.
+
+## Folytatás — bypass javításjelölt
+
+A #30 köre kibővült a bypass MIDI-életciklusával. A SAWSTAR instrument policy:
+a motor tovább fut, a hostkimenet néma; az adapter ehhez külön, alapból kikapcsolt
+opt-in hookot kapott. A callback ezért pozitív bypassolt blokk után is végezhet
+recoveryt, ha valóban futott a plugin feldolgozása. A fenti „bypass visszajátszása
+megmarad” állítás a kezdeti, csak zero-frame javításra vonatkozott.
+
+Az új teszt a régi bypass-ággal elbukik; a javított ággal ARP/sustain/host-editor
+esetekben nem marad régi MIDI a sorban, a kimenet néma, és a tesztelt visszatérés
+bitazonos a folyamatos referenciafeldolgozással. ASan/UBSan és a pontos pinned
+upstream forráson végzett patch/idempotencia próba sikeres. Natív hostelfogadás,
+valódi deaktiválás és jövőbeli editor-offsetek továbbra is külön feladatok.
