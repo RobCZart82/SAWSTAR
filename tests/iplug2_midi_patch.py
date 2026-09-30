@@ -31,6 +31,16 @@ with tempfile.TemporaryDirectory() as directory:
         if replacement not in second[relative]:
             raise SystemExit(f"Patch result missing expected change: {relative}")
 
+    # Existing developer checkouts may already contain the earlier patch.
+    api_path = fixture / "IPlug/IPlugAPIBase.h"
+    upgraded = api_path.read_bytes()
+    start = upgraded.index(b"  // Consumer-side reset only;")
+    end = upgraded.index(b"  // The default preserves", start)
+    api_path.write_bytes(upgraded[:start] + upgraded[end:])
+    patch.apply(fixture)
+    if api_path.read_bytes() != upgraded:
+        raise SystemExit("Previous patch could not be upgraded exactly.")
+
     api = second["IPlug/IPlugAPIBase.h"]
     consumer = second["IPlug/VST3/IPlugVST3_ProcessorBase.cpp"]
     if b"if (!mMidiMsgsFromEditor.Push(msg)" not in api or b"SignalMidiMsgFromEditorOverflow();" not in api:

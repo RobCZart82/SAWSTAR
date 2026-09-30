@@ -1050,6 +1050,25 @@ endif()
 # Exercise the actual benchmark CSV parser without building its baseline engine.
 if(BUILD_TESTING)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/editor_reset_hook.py"
+    "${CMAKE_CURRENT_BINARY_DIR}/editor_reset_hook.inc" RESULT_VARIABLE reset_hook_result)
+  if(NOT reset_hook_result EQUAL 0)
+    message(FATAL_ERROR "Cannot extract/verify the production editor reset hook")
+  endif()
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    scripts/patch-iplug2-midi-overflow.py tests/editor_reset_hook.py src/plugin/SAWSTAR.cpp)
+  add_executable(sawstar_editor_reset_tests tests/editor_reset.cpp)
+  target_include_directories(sawstar_editor_reset_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  target_compile_features(sawstar_editor_reset_tests PRIVATE cxx_std_17)
+  add_test(NAME editor_reset_queue COMMAND sawstar_editor_reset_tests)
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/iPlug2/IPlug/IPlugQueue.h")
+    add_executable(sawstar_editor_reset_iplug_tests tests/editor_reset_iplug.cpp)
+    target_compile_features(sawstar_editor_reset_iplug_tests PRIVATE cxx_std_17)
+    target_include_directories(sawstar_editor_reset_iplug_tests PRIVATE
+      "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/third_party/iPlug2/IPlug"
+      "${CMAKE_CURRENT_SOURCE_DIR}/third_party/iPlug2/WDL")
+    add_test(NAME editor_reset_iplug_queue COMMAND sawstar_editor_reset_iplug_tests)
+  endif()
   add_test(NAME iplug2_midi_patch
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/iplug2_midi_patch.py")
   add_test(NAME build_display_metadata
