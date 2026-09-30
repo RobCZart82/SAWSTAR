@@ -143,6 +143,8 @@ void SAWSTAR::OnUIClose() {
     for (int i = 0; i < ui->NControls(); ++i)
       if (auto* keyboard = dynamic_cast<sawstar::gui::Keyboard*>(ui->GetControl(i)))
         keyboard->OnMouseUp(0, 0, IMouseMod{});
+      else if (auto* wheel = dynamic_cast<sawstar::gui::PerformanceWheel*>(ui->GetControl(i)))
+        wheel->EndGesture();
   }
   Plugin::OnUIClose();
 }

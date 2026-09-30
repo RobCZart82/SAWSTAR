@@ -113,3 +113,18 @@ while a host note holds the same pitch; close with host-only notes highlighted;
 close without a gesture; repeat while audio is suspended and then resume.
 With sustain or ARP HOLD enabled, normal musical latch semantics still apply.
 Host deactivation and reset are separate boundaries.
+
+The close hook also ends active performance-wheel gestures. PITCH springs to
+center only if the GUI mouse gesture owns a pending release; MOD remains latched.
+Mouse-up, close and touch-cancel share an idempotent EndGesture. MIDI feedback
+only updates display and never starts ownership, so closing an idle editor does
+not reset a host bend. During an active GUI pitch gesture its release publishes
+center just like normal mouse-up; the existing sample-zero host-priority rule
+still applies. This is not a claim that an active GUI gesture cannot intentionally
+supersede an earlier host value.
+
+The wheel regression compiles the production control against a minimal graphics
+shell and exercises close, cancellation, duplicate release, feedback-only input,
+MOD latch and mailbox center delivery. ASan/UBSan passes; disabling cleanup makes
+the regression fail. Native hit-testing/window dispatch still requires REAPER
+acceptance. The shell is isolated to the test target.
