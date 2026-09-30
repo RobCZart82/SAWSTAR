@@ -61,6 +61,19 @@ and pedal are released, voices become idle, and final stereo peak is measured.
 Local Release and ASan/UBSan pass. These are headless tests. Platform plugin
 builds and VST3 validator run in CI. Native REAPER render acceptance is pending.
 
+The complete 380-second residual renders for the full Synth and both FX fixtures
+run in every configuration at 8 kHz. Release/RelWithDebInfo additionally repeats
+the full FX tail at 44.1 kHz. The sanitizer CI also enables
+`SAWSTAR_EXTENDED_TAIL_TESTS=ON` to keep this full-rate residual check. Debug runs
+44.1 kHz through the complete maximum envelope release and checks that FX history
+continues afterwards. All configurations keep the full host-rate conversion
+checks. This avoids repeating 17 million unoptimized high-rate FX samples in
+Windows Debug; no DSP samples are skipped in the complete residual fixtures.
+Windows foundation CTest uses two workers for independent tests with isolated
+temporary roots. The CPU benchmark remains a separate, sequential step. The
+15-minute job limit is unchanged; individual tests now have an explicit
+600-second fallback timeout instead of relying solely on workflow cancellation.
+
 ## Native release acceptance
 
 1. Query the built VST3 tail at 44.1/48/96 kHz and after a sample-rate change.

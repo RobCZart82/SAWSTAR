@@ -1065,6 +1065,9 @@ if(BUILD_TESTING AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN))
   add_executable(sawstar_tail_contract_tests tests/tail_contract.cpp)
   target_link_libraries(sawstar_tail_contract_tests PRIVATE sawstar_engine)
   target_include_directories(sawstar_tail_contract_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  option(SAWSTAR_EXTENDED_TAIL_TESTS "Repeat the complete high-rate tail render in Debug tests" OFF)
+  target_compile_definitions(sawstar_tail_contract_tests PRIVATE
+    "$<$<OR:$<BOOL:${SAWSTAR_EXTENDED_TAIL_TESTS}>,$<NOT:$<CONFIG:Debug>>>:SAWSTAR_EXTENDED_TAIL_RENDER>")
   add_test(NAME tail_contract COMMAND sawstar_tail_contract_tests)
 
   foreach(case glide_history release_order idle_voice_reuse output_gain detune_continuity delay_initial_time block_midi_queue engine_controls controller_lifecycle performance_policy)
