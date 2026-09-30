@@ -18,9 +18,15 @@ public:
     float y=r.B-3-static_cast<float>(GetValue())*(r.H()-6);
     g.FillRect(IColor(255,54,170,226),IRECT(r.L+2,y-1,r.R-2,y+1));
   }
-  void OnMouseDown(float,float y,const iplug::igraphics::IMouseMod&) override { Move(y); }
+  void OnMouseDown(float,float y,const iplug::igraphics::IMouseMod&) override { gestureActive_=true; Move(y); }
   void OnMouseDrag(float,float y,float,float,const iplug::igraphics::IMouseMod&) override { Move(y); }
-  void OnMouseUp(float,float,const iplug::igraphics::IMouseMod&) override { if(pitch_)Send(.5); }
+  void OnMouseUp(float,float,const iplug::igraphics::IMouseMod&) override { EndGesture(); }
+  void OnTouchCancelled(float,float,const iplug::igraphics::IMouseMod&) override { EndGesture(); }
+  void EndGesture() {
+    if (!gestureActive_) return;
+    gestureActive_=false;
+    if(pitch_)Send(.5);
+  }
   void OnMouseDblClick(float,float,const iplug::igraphics::IMouseMod&) override { Send(pitch_?.5:0); }
   void OnMidi(const iplug::IMidiMsg& msg) override {
     if((msg.mStatus&15)!=0)return;
@@ -43,5 +49,6 @@ private:
     msg.mOffset=0;GetDelegate()->SendMidiMsgFromUI(msg);
   }
   bool pitch_;
+  bool gestureActive_=false; // UI ownership, never inferred from incoming MIDI.
 };
 }
