@@ -70,3 +70,27 @@ measurements, alternating baseline/current order. It compares median reports
 with the existing +25% and +1 realtime-percentage-point CPU limits. The workload,
 audio-level and DC checks are unchanged; invalid warm-up reports also fail.
 This reduces startup and ordering bias but does not eliminate shared-runner noise.
+
+## Development: editor wheel delivery
+
+Mouse gestures on the GUI PITCH/MOD wheels (offset zero) publish the latest
+value into a fixed, lock-free mailbox before iPlug2's finite editor MIDI FIFO.
+The audio thread consumes each pending wheel value once at the start of a
+nonempty block. Multiple GUI gestures between blocks coalesce to the last
+value, including a pitch return to center or a modulation reset to zero.
+There is no recurring replay of the GUI's displayed wheel state.
+
+Host MIDI is processed after these GUI updates at its original offsets. At
+sample zero, host control/reset wins over a simultaneous GUI gesture; a later
+host event still takes effect at its own sample. This deliberately gives host
+automation priority within the block. Editor notes, sustain, other messages
+and nonzero-offset editor MIDI retain the existing FIFO path. This policy is
+for GUI audition wheels, not a general replacement for timestamped MIDI.
+Audio reset clears pending wheel updates. GUI feedback/repainting does not
+publish wheel gestures. DSP smoothing and the layout are unchanged.
+
+The editor_wheel_mailbox regression covers burst coalescing, all 16 channels,
+14-bit values, reset, host ordering, and concurrent publication/consumption.
+Manual host acceptance remains: drag/release PITCH and reset MOD while playing
+host MIDI and automating the same controls; verify the documented priority,
+then test project reset and editor reopen.

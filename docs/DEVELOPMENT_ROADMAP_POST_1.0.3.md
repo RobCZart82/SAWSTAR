@@ -1,6 +1,6 @@
 # SAWSTAR — összevont fejlesztési terv a v1.0.3 után
 
-**Frissítve:** 2026-09-29
+**Frissítve:** 2026-09-30
 **Kiinduló kiadás:** v1.0.3, tag `57dbee9`  
 **Auditált főág:** `4d80ba948415327f18c6a138524e649dea509816`  
 **Cél:** a megbízhatósági hibák rendezett javítása, majd mérésalapú motor- és termékfejlesztés; a következő kiadás előtt teljes ellenőrzéssel.
@@ -14,6 +14,15 @@ Ez a dokumentum egyesíti a v1.0.3 utáni fejlesztési irányt és a 2026-09-26-
 - A CMake buildmeta hét fejlesztői/RC/kiadási és hibás-metaadat esetben ellenőrzött; a release guard külön teszteli a `dev` publikálás kihagyását. A platformos plugin buildet az új PR Actions ellenőrzése végzi.
 - A vezérlő-overflow és close/reset lifecycle nyitott: a keretsorban elveszett CC1/pitch bend utolsó értékét a jelenlegi note-only overflow callback nem állítja helyre. Olyan átadási megoldás kell, amely a későbbi hostüzenetet sem írja felül egy régi editorértékkel. A close/reset esetekhez valós hostreprodukció szükséges.
 - A VST3 tail jelentés és a további P2 feladatok nyitva maradnak. A lezárt click/pop kutatást ez a munka nem nyitja újra.
+
+## 2026-09-30 — editor kerékátadás
+
+- PR #24 már mainben (`1be4986`); PR #25 a saját audiószálas MIDI-sor controller-helyreállítását javítja, külön ellenőrzés alatt.
+- Az új editor-kerék javítás a GUI offset=0 pitch bend/CC1 eseményeit az iPlug2 sor előtt egy fix méretű atomi átadóba irányítja. A legutolsó érték a következő nem üres blokk elején egyszer kerül alkalmazásra. A sor telítődése így nem dobhatja el a GUI kerék végső visszaállítását.
+- Dokumentált együttélési szabály: a blokk host MIDI-eseményei ezután, saját offsetjüknél futnak, tehát sample=0 ütközésnél a host nyer. A több GUI-mozdulat blokkhatárok között összevonódik; a host automatizálása nem.
+- Az editor note/sustain és más, illetve nem nulla offsetű üzenetek továbbra is a FIFO-n mennek. Ez a GUI-kerekek konkrét hibájának megoldása, nem minden upstream MIDI-vesztés általános kezelése.
+- Célzott teszt ellenőrzi a 100000-es burstöt, 16 csatornát, közép/nulla visszaállítást, host-sorrendet, resetet és párhuzamos producer/consumer működést; a ThreadSanitizer CI-be is bekerül. Platform build és kézi REAPER-elfogadás szükséges.
+- Következő nyitott tételek: close/deactivation/reset hostreprodukció; VST3 tail; preset/fájlrendszer és automatizálás P2 audit. A kattogáskutatás lezárt marad.
 
 ## Fejlesztési alapelvek
 
