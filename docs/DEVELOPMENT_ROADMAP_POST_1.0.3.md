@@ -15,9 +15,17 @@ Ez a dokumentum egyesíti a v1.0.3 utáni fejlesztési irányt és a 2026-09-26-
 - A vezérlő-overflow és close/reset lifecycle nyitott: a keretsorban elveszett CC1/pitch bend utolsó értékét a jelenlegi note-only overflow callback nem állítja helyre. Olyan átadási megoldás kell, amely a későbbi hostüzenetet sem írja felül egy régi editorértékkel. A close/reset esetekhez valós hostreprodukció szükséges.
 - A VST3 tail jelentés és a további P2 feladatok nyitva maradnak. A lezárt click/pop kutatást ez a munka nem nyitja újra.
 
+## 2026-09-30 — controller overflow részjavítás
+
+- PR #24 beolvadt (`1be4986`): a fejlesztői verziójelölés a main része.
+- A SAWSTAR `BlockMidiQueue` saját audiószálas sorában reprodukáltuk az elvesző végső pitch bend/CC1-visszaállítást. A régi kód a regresszión elbukik; a javítás megtartja a csatornánkénti utolsó bend, CC1 és CC121 eseményt, időponttal és forrásjelöléssel.
+- Túlcsorduláskor a bizonytalan hangüzenetekre megmarad a meglévő panic. Legfeljebb 48 vezérlőesemény kerül vissza a sorba, eredeti időzítéssel. Azonos MIDI-időpontnál az érkezési sorrend dönt, különböző időpontnál a későbbi esemény; így régebbi editorérték nem írja felül a későbbi hostértéket.
+- Ez kivételes helyreállítás: a köztes vezérlőmozgásokat összevonja. Normál, nem túlcsorduló feldolgozás változatlan. A tesztek a visszaállítást, a 16 csatornát, CC121 sorrendet, jövőbeli offsetet, forrásjelölést és explicit Clear-t lefedik.
+- Az iPlug2 upstream editor FIFO külön hibaforrás; ennek GUI-kerék javítását a következő szakaszban leírt PR #26 kezeli. REAPER hostelfogadás hátravan.
+
 ## 2026-09-30 — editor kerékátadás
 
-- PR #24 már mainben (`1be4986`); PR #25 a saját audiószálas MIDI-sor controller-helyreállítását javítja, külön ellenőrzés alatt.
+- PR #24 már mainben (`1be4986`); PR #25 beolvadt (`8e7562d`): a saját audiószálas MIDI-sor controller-helyreállítása a main része.
 - Az új editor-kerék javítás a GUI offset=0 pitch bend/CC1 eseményeit az iPlug2 sor előtt egy fix méretű atomi átadóba irányítja. A legutolsó érték a következő nem üres blokk elején egyszer kerül alkalmazásra. A sor telítődése így nem dobhatja el a GUI kerék végső visszaállítását.
 - Dokumentált együttélési szabály: a blokk host MIDI-eseményei ezután, saját offsetjüknél futnak, tehát sample=0 ütközésnél a host nyer. A több GUI-mozdulat blokkhatárok között összevonódik; a host automatizálása nem.
 - Az editor note/sustain és más, illetve nem nulla offsetű üzenetek továbbra is a FIFO-n mennek. Ez a GUI-kerekek konkrét hibájának megoldása, nem minden upstream MIDI-vesztés általános kezelése.
