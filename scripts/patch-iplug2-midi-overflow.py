@@ -20,6 +20,16 @@ PATCHES = (
         b"      SignalMidiMsgFromEditorOverflow();\n"
         b"  }\n"
         b"\n"
+        b"  // Consumer-side reset only; host reset must be serialized with audio.\n"
+        b"  // Snapshot the count so concurrent GUI input cannot extend this loop.\n"
+        b"  void DiscardPendingMidiFromEditor() {\n"
+        b"    TakeMidiMsgFromEditorOverflow();\n"
+        b"    const auto pending = mMidiMsgsFromEditor.ElementsAvailable();\n"
+        b"    IMidiMsg discarded;\n"
+        b"    for (size_t i = 0; i < pending; ++i)\n"
+        b"      if (!mMidiMsgsFromEditor.Pop(discarded)) break;\n"
+        b"  }\n"
+        b"\n"
         b"  // The default preserves normal delivery for plugs without a custom route.\n"
         b"  // Return true only when the plug-in queued/handled this message itself.\n"
         b"  virtual bool ProcessMidiMsgFromEditor(const IMidiMsg&) { return false; }\n"
@@ -79,6 +89,15 @@ def apply(root):
         replacement_for_file = replacement.replace(b"\n", newline)
         if replacement_for_file in source:
             continue
+        # Upgrade the previous pinned patch without requiring a fresh checkout.
+        if b"void DiscardPendingMidiFromEditor()" in replacement:
+            start = replacement.index(b"  // Consumer-side reset only;")
+            end = replacement.index(b"  // The default preserves", start)
+            previous = replacement[:start] + replacement[end:]
+            previous = previous.replace(b"\n", newline)
+            if source.count(previous) == 1:
+                path.write_bytes(source.replace(previous, replacement_for_file, 1))
+                continue
         if source.count(original_for_file) != 1:
             raise RuntimeError(
                 f"Pinned iPlug2 source does not match expected patch context: {relative}"

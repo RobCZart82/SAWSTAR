@@ -153,6 +153,7 @@ void SAWSTAR::DeferMidiMsg(const IMidiMsg& msg) {
     Plugin::DeferMidiMsg(msg);
 }
 void SAWSTAR::OnReset() {
+  DiscardPendingMidiFromEditor();
   mScope.Reset(GetSampleRate());
   mRate.store(static_cast<int>(GetSampleRate()));mMeter.Reset();mCpu.store(0);mVoiceCount.store(0);
   mSynth.Reset(GetSampleRate());mArp.Init(GetSampleRate());mArpReset.store(false);
