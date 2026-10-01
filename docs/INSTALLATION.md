@@ -1,16 +1,16 @@
-# Installing SAWSTAR 1.0.3 / Telepítés
+# Installing SAWSTAR 1.0.4 / Telepítés
 
 Download the matching package from [SAWSTAR Releases](https://github.com/RobCZart82/SAWSTAR/releases).
 Recommended: the matching installer. Optional: a manual-install ZIP.
 Back up projects and user presets and close the DAW before updating.
 
-This guide accompanies 1.0.3. Previously published packages remain unchanged;
+This guide accompanies 1.0.4. Previously published packages remain unchanged;
 use the instructions and checksums supplied with your selected version.
 
 A [SAWSTAR kiadások](https://github.com/RobCZart82/SAWSTAR/releases) oldalán:
 elsősorban a megfelelő telepítőt válaszd; kézi telepítéshez ZIP is elérhető.
 Frissítés előtt zárd be a DAW-ot, és mentsd a projektjeidet, saját presetjeidet.
-Ez az útmutató az 1.0.3 változathoz tartozik. A korábban kiadott csomagok
+Ez az útmutató az 1.0.4 változathoz tartozik. A korábban kiadott csomagok
 változatlanok; a választott verzió útmutatóját és ellenőrzőösszegeit használd.
 
 ## Windows
@@ -54,7 +54,7 @@ User library: macOS `~/Library/Application Support/SAWSTAR/Presets`; Windows
 `%APPDATA%\SAWSTAR\Presets`. Factory presets are built in.
 
 See [System requirements](SYSTEM_REQUIREMENTS.md) for target versus tested OS support.
-The English and Hungarian PDFs describe 1.0.3; image captions identify their capture version.
+The English and Hungarian PDFs describe 1.0.4; image captions identify their capture version.
 
 ## macOS: downloaded package blocked
 

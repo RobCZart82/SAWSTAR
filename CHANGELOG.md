@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.4 - unreleased (rc1)
+## 1.0.4 - 2026-10-01
 
 - Fix editor/host note ownership during overflow recovery, reset and editor close.
 - Preserve final pitch/mod controller targets when MIDI queues overflow.

@@ -74,11 +74,19 @@ A `v1.0.4` tag és kiadás a végleges commitra mutasson; korábbi release-t nem
 
 ## Jelenlegi státusz
 
-- #23–#32 mainben, legutóbbi main platform és Quality CI sikeres.
-- #33 mainben (`645a994`): strict file-dekóder; régi betöltőn bukó regresszió,
-  helyi Release 67/67, célzott ASan/UBSan 7/7 és PR CI 17/17 sikeres.
-- 1.0.4-rc1 metaadatok és kiadási jegyzet elkészültek a külön kiadási ágon.
-  Az EN/HU kézikönyv 14/14 oldala renderelve és vizuálisan ellenőrizve;
-  teljes helyi Release tesztsor 67/67 sikeres.
-- RC platformcsomagok, natív elfogadás és végleges publikálás: hátravan.
-- Nincs még 1.0.4 tag vagy nyilvános kiadás.
+- #23–#34 mainben; az RC main `3225747` teljes Windows/macOS/Quality CI-je zöld.
+- Helyi Release 67/67, célzott ASan/UBSan 7/7, natív macOS VST3 validator 47/47.
+- Mindhárom RC platformcsomag pontos commitja, verziója, architektúrája,
+  manifesztje, licencei és hash-ei ellenőrizve; CI installer/uninstaller sikeres.
+- Három main REAPER-render PCM-bitazonos a tesztelt ág RC-renderjével.
+  A 385 s explicit FX-render utolsó 30 s-a néma. Ez egy kontrollpreset;
+  nem bizonyít minden presetet vagy a host automatikus tail-hozzáfűzését.
+- A tulajdonos 2026-10-01-én macOS-en és Windows-on kipróbálta a jelöltet:
+  nem hallott és nem tapasztalt hibát. Ez felhasználói elfogadás, nem minden
+  lifecycle-kombináció külön dokumentált natív regressziója. A célzott
+  lifecycle-esetek automatikus regresszióval/CI-vel fedettek; részletes
+  platformonkénti kézi jegyzőkönyv és host tail-trimming vizsgálat maradék
+  tesztkorlátként megmarad, új hiba esetén célzottan újravizsgálandó.
+- Végleges 1.0.4 metaadat és dátum: 2026-10-01. EN/HU kézikönyv frissítve.
+- A végleges commit CI-je, ellenőrzött draft és publikálás a kiadási workflow
+  következő kapuja; az RC CI önmagában nem helyettesíti a végleges CI-t.

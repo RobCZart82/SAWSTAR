@@ -18,7 +18,7 @@ clear signal flow and a preset browser that explains saved sounds.
 
 ## Download
 
-Download **SAWSTAR 1.0.3** from [GitHub Releases](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.3).
+Download **SAWSTAR 1.0.4** from [GitHub Releases](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.4).
 
 **Recommended installers:** Windows x64 / ARM64 Setup EXE, or macOS Universal
 DMG containing the PKG installer. **Manual installation:** separate VST3 ZIPs
@@ -26,7 +26,7 @@ are available for each target. All packages include English/Hungarian PDF guides
 and license notices. The installers are unsigned; read the installation guide
 before proceeding through platform security prompts.
 
-See the [1.0.3 release notes](docs/RELEASE_NOTES_1.0.3.md) for fixes, package details and updating instructions.
+See the [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md) for fixes, package details and updating instructions.
 
 ## Features
 
@@ -59,10 +59,10 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [English PDF](docs/manuals/SAWSTAR-User-Manual-EN.pdf)
 - [Magyar PDF](docs/manuals/SAWSTAR-User-Manual-HU.pdf)
 - [Factory library](docs/FACTORY_LIBRARY.md)
-- [Changelog](CHANGELOG.md) and [1.0.3 release notes](docs/RELEASE_NOTES_1.0.3.md)
+- [Changelog](CHANGELOG.md) and [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md)
 - [Post-1.0.3 development roadmap](docs/DEVELOPMENT_ROADMAP_POST_1.0.3.md)
 
-The English and Hungarian guides describe SAWSTAR 1.0.3 and include the supplied 1.0.3 screenshots.
+The English and Hungarian guides describe SAWSTAR 1.0.4 and include the supplied 1.0.3 screenshots.
 
 ## Building from source
 
@@ -83,15 +83,13 @@ Original SAWSTAR code: [MIT](LICENSE). External components retain their own
 terms; see [Third-party notices](THIRD_PARTY_NOTICES.md). Creator branding has
 separate treatment and is not granted for unrestricted reuse by the code license.
 
-### 1.0.4 release candidate
+### 1.0.4 maintenance release
 
-This branch prepares **1.0.4-rc1**, with `candidate: "rc1"` and an empty
-`release_date` in `release.json`. The host-facing numeric version is 1.0.4;
-the candidate and About commit ID identify the actual build. The published
-v1.0.3 remains available on Releases. Candidate builds do not create a public
-release. See [1.0.4 changes](docs/RELEASE_NOTES_1.0.4.md) and
-[acceptance gates](docs/RELEASE_1.0.4_CHECKLIST.md).
+The 2026-10-01 release includes MIDI/editor lifecycle, envelope precision,
+VST3 tail and preset-validation fixes. Parameter IDs, state compatibility and
+GUI layout remain unchanged. See [1.0.4 changes](docs/RELEASE_NOTES_1.0.4.md)
+and [release validation](docs/RELEASE_1.0.4_CHECKLIST.md).
 
-For an RC, set `candidate` to `rcN` and leave the date empty. A final release
-requires an empty candidate and a release date, plus the release validation
-gates. No 1.0.4 final tag or release has been published yet.
+For future RC builds, set `candidate` to `rcN` and leave the release date empty.
+Final packages require an empty candidate, an actual date and successful
+checks of the exact release commit.
