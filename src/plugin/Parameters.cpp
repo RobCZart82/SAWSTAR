@@ -10,7 +10,8 @@ const ParameterSpec* FindParameter(std::uint32_t id) noexcept {
   return nullptr;
 }
 double Sanitize(const ParameterSpec& spec, double value) noexcept {
-  return std::isfinite(value) ? std::clamp(value, spec.minimum, spec.maximum) : spec.initial;
+  const double bounded = std::isfinite(value) ? std::clamp(value, spec.minimum, spec.maximum) : spec.initial;
+  return spec.discrete ? std::round(bounded) : bounded;
 }
 double Normalize(const ParameterSpec& spec, double physical) noexcept {
   const auto value = Sanitize(spec, physical);
@@ -23,6 +24,7 @@ double Denormalize(const ParameterSpec& spec, double normalized) noexcept {
   const auto value = std::clamp(normalized, 0., 1.);
   if (spec.mapping == Mapping::Logarithmic)
     return spec.minimum * std::pow(spec.maximum / spec.minimum, value);
-  return spec.minimum + value * (spec.maximum - spec.minimum);
+  const double physical = spec.minimum + value * (spec.maximum - spec.minimum);
+  return spec.discrete ? Sanitize(spec, physical) : physical;
 }
 } // namespace sawstar

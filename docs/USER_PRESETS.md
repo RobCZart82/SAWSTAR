@@ -60,11 +60,16 @@ reports an error and requests a smaller selection.
 - Windows: %APPDATA%/SAWSTAR/Presets
 
 The existing versioned binary sound-state format is unchanged. User filenames
-allow up to 80 UTF-8 bytes with path/control characters excluded; OS restrictions
+allow up to 80 Unicode characters with path/control characters excluded; OS restrictions
 also apply. File reads validate the state before applying any parameters. File I/O
 is done on editor actions, not the audio thread. The native macOS importer uses
 NSOpenPanel with multiple selection; Windows uses the multi-select common dialog.
 No third-party dependencies were added.
+
+Enum and integer settings loaded from a file are rounded to the same values the
+plugin applies. Continuous controls keep their precision. Loading a file with a
+fractional enum no longer marks the sound as edited without a user change.
+See the [parameter/state contract](PARAMETERS.md) for the rounding policy.
 
 DAW project state embeds all sound parameters. It does not depend on a preset file
 and does not preserve the external filename association; reload from the library

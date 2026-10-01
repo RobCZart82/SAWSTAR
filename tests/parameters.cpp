@@ -30,7 +30,14 @@ int main() {
     check(Denormalize(spec, std::numeric_limits<double>::infinity()) == spec.initial, "infinity fallback");
     for (int i = 0; i <= 100; ++i) {
       const auto normalized = i / 100.;
-      check(near(Normalize(spec, Denormalize(spec, normalized)), normalized), "automation round trip");
+      const auto physical = Denormalize(spec, normalized);
+      if (spec.discrete) {
+        check(physical == std::round(physical), "discrete physical value must be integral");
+        check(Denormalize(spec, Normalize(spec, physical)) == physical,
+              "discrete automation stabilizes on the physical lattice");
+      } else {
+        check(near(Normalize(spec, physical), normalized), "continuous automation round trip");
+      }
     }
   }
   check(near(Denormalize(kParameters[1], 0.5), 100.), "time midpoint must be geometric");

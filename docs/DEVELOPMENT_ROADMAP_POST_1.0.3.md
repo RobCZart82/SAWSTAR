@@ -1,20 +1,21 @@
 # SAWSTAR — összevont fejlesztési terv a v1.0.3 után
 
-**Frissítve:** 2026-09-30
+**Frissítve:** 2026-10-01
 **Kiinduló kiadás:** v1.0.3, tag `57dbee9`  
 **Auditált főág:** `4d80ba948415327f18c6a138524e649dea509816`  
-**Legutóbb ellenőrzött main:** `0bc9799` (2026-09-30; macOS, Windows és Code quality sikeres)
+**Legutóbb ellenőrzött main:** `2f724c0` (#31; macOS, Windows és Code quality sikeres)
 **Cél:** a megbízhatósági hibák rendezett javítása, majd mérésalapú motor- és termékfejlesztés; a következő kiadás előtt teljes ellenőrzéssel.
 
 Ez a dokumentum egyesíti a v1.0.3 utáni fejlesztési irányt és a 2026-09-26-i mélyaudit hasznos, aktuális megállapításait. A vizsgált audit főága hat commitnyira van a kiadott tagtől; a PR #22 már beolvadt. A 57/57 CTest és a coverage-adatok az audit jelentésében szereplő főági eredmények, nem e dokumentum önálló újrafuttatásai.
 
-## 2026-09-30 — aktuális összegzés és következő feladat
+## 2026-10-01 — aktuális összegzés és következő feladat
 
 - #27–#30 mainben: reset előtti upstream editor FIFO ürítés; saját editorhang nélküli késői felengedés elnyelése; keyboard és aktív PITCH-gesztus befejezése editorbezáráskor; zero-frame overflow-jelzés megőrzése; bypass alatti MIDI/DSP továbbfuttatása némított hostkimenettel. MOD továbbra is latching.
 - A #30 Windows-tesztjének túl nagy veremfoglalását külön javítottuk; a végső PR és a `0bc9799` main minden CI-workflow-ja sikeres. A natív REAPER close/reset/bypass/deactivation elfogadás továbbra is kiadási kapu.
-- Következő célzott javítás: a nulla VST3 tail-bejelentés. A fejlesztési ág 380 másodperces, véges maximumot jelent a konstruktorban és minden mintavételifrekvencia-resetnél. A maximális paraméterek és a soros effektlánc alapján képzett konzervatív keret nem rövidül le egy korábbi delay/reverb-állapotot megőrző presetváltáskor. Részletek és korlátok: [tail-szerződés](VST3_TAIL_CONTRACT.md).
-- A tail regresszió a valódi envelope/chorus/delay/reverb láncot és a teljes 16-voice motort ellenőrzi; helyi Release és ASan/UBSan sikeres. A hostbejelentés korábbi hiánya a negatív kontrollon elbukik. Platform-CI és natív offline render még szükséges; a hangjel feldolgozása nem változik.
-- Következő P2 munkák: reset-határ szemantikája a wheel mailboxban; diszkrét presetértékek kanonizálása; strict presetimport a kompatibilis host-state dekódertől külön; presetváltási koherencia és automatizálás blokkfüggése. Ezek előtt az érintett formátumok és állapotgépek regressziói készüljenek el.
+- #31 mainben (`2f724c0`): a korábbi nulla VST3 tail-bejelentés helyett 380 másodperces, véges maximum jelenik meg a konstruktorban és minden mintavételifrekvencia-resetnél. A korábbi FX-előzmény miatt nem rövidül le rögtön presetváltáskor. A PR 17/17 ellenőrzése és a main három workflow-ja sikeres; natív offline render elfogadás még szükséges. Részletek és korlátok: [tail-szerződés](VST3_TAIL_CONTRACT.md).
+- A tail regresszió a valódi envelope/chorus/delay/reverb láncot és a teljes 16-voice motort ellenőrzi. A teljes lecsengés Release, sanitizer és coverage alatt fut; Debugban célzott, rövid motorpróba és teljes burkolólecsengéses FX-próba marad. A hangjel feldolgozása nem változott.
+- Következő célzott P2 javítás: a törtszámos enum/egész presetértékek egységesítése a tényleges iPlug2 regisztrációval. A régi kód `VoiceMode=1.5` értéket mentett, a plugin 2-t alkalmazott, ezért a frissen betöltött preset azonnal módosítottnak látszhatott. A javítás csak a valóban diszkrét értékeket kerekíti, negatív félértéknél is a framework szabályával; a folytonos vezérlők pontossága megmarad. Azonosítók és wire format nem változnak.
+- A wheel mailbox Publish/Clear átfedése memória-szinten biztonságos; az epoch bevezetése külön reset-policy döntést és reprodukciót igényel. Ez jelenleg specifikációs nyitott kérdés, nem igazolt új adatverseny. Ezután strict presetimport a kompatibilis host-state dekódertől külön; presetváltási koherencia és automatizálás blokkfüggése következik.
 - Profilozás, fájlrendszer, filterminőség, bővíthető presetbrowser és 32 voice továbbra is későbbi, külön munkacsomag. Új kiadás vagy Linux plugin ebből a körből nem készül.
 
 ## 2026-09-29 — fejlesztési állapot
@@ -121,7 +122,7 @@ Rögzítsük a cél commitot és a kiadott v1.0.3 tagot; minden javítás külö
 
 ### 4. P1 — VST3 tail jelentés és offline render
 
-**Státusz:** a következő fejlesztési ág; a véges maximum és mérési feltételek a [tail-szerződésben](VST3_TAIL_CONTRACT.md) szerepelnek.
+**Státusz:** #31-ben mainbe került; platform-CI sikeres, natív hostelfogadás hátravan. A véges maximum és mérési feltételek a [tail-szerződésben](VST3_TAIL_CONTRACT.md) szerepelnek.
 
 **Indok:** a plugin nulla tailt jelenthet a hostnak, miközben a burkoló, delay és reverb hangot adhat a MIDI leállása után.
 
