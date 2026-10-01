@@ -31,6 +31,16 @@ measured and are not advertised as tested minima.
 
 ## Acceptance record
 
+For 1.0.4-rc1, Windows x64/ARM64 and macOS Universal CI, VST3 validation and
+installer checks passed. On 1 October 2026 the owner reported successful use
+on macOS and Windows with no audible or observed problems. Native macOS REAPER
+7.81 renders were made with the verified main binary; their PCM matched the
+previously tested RC. This general acceptance does not establish minimum OS,
+all DAWs, every lifecycle combination or native Windows ARM64 host coverage.
+See the [1.0.4 release checklist](RELEASE_1.0.4_CHECKLIST.md) for test limits and
+final-commit packaging gates.
+
+
 For 1.0.3-rc2, platform CI passed Windows x64/ARM64 and both macOS Universal
 slices, including VST3 validation and disposable-runner installation checks.
 REAPER 7.80 legacy-project and five-instance renders matched the prior candidate
