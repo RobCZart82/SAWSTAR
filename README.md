@@ -83,14 +83,15 @@ Original SAWSTAR code: [MIT](LICENSE). External components retain their own
 terms; see [Third-party notices](THIRD_PARTY_NOTICES.md). Creator branding has
 separate treatment and is not granted for unrestricted reuse by the code license.
 
-### Development builds after v1.0.3
+### 1.0.4 release candidate
 
-The main branch currently uses `candidate: "dev"` and an empty `release_date` in
-`release.json`. These builds display **1.0.3 dev / Build** and use a `-dev`
-installer filename suffix. The host-facing numeric version remains 1.0.3; use
-the About commit ID to identify a build. The published v1.0.3 remains available
-on Releases. Development builds are skipped by the release publisher.
+This branch prepares **1.0.4-rc1**, with `candidate: "rc1"` and an empty
+`release_date` in `release.json`. The host-facing numeric version is 1.0.4;
+the candidate and About commit ID identify the actual build. The published
+v1.0.3 remains available on Releases. Candidate builds do not create a public
+release. See [1.0.4 changes](docs/RELEASE_NOTES_1.0.4.md) and
+[acceptance gates](docs/RELEASE_1.0.4_CHECKLIST.md).
 
 For an RC, set `candidate` to `rcN` and leave the date empty. A final release
 requires an empty candidate and a release date, plus the release validation
-gates. Choose the next version explicitly when preparing that release.
+gates. No 1.0.4 final tag or release has been published yet.

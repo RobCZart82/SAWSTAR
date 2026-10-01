@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.4 - unreleased (rc1)
+
+- Fix editor/host note ownership during overflow recovery, reset and editor close.
+- Preserve final pitch/mod controller targets when MIDI queues overflow.
+- Keep the synth MIDI/DSP timeline running during bypass while the host output is muted; retain overflow recovery across zero-frame calls.
+- Complete long ADSR segments when float precision would otherwise stall.
+- Report a conservative finite VST3 tail for the serial envelope/effect chain.
+- Canonicalize enum/integer preset values to avoid false modified markers.
+- Reject malformed standalone preset files without narrowing legacy DAW state compatibility.
+- Identify development and RC builds clearly and refresh both user manuals.
+
+No experimental click/pop treatment, filter-character change, additional voices or Linux plugin is included.
+
 ## 1.0.3 - 2026-09-19
 
 Includes the unpublished 1.0.2 development work.
