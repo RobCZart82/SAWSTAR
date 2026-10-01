@@ -16,7 +16,7 @@ A v1.0.3 utáni, célzottan tesztelt javítások kerülnek a kiadásba:
 - #30: zero-frame overflow és bypass MIDI/DSP életciklus.
 - #31: véges VST3 tail-bejelentés a teljes soros FX-láncra.
 - #32: diszkrét presetértékek kanonizálása, téves dirty-marker megszüntetése.
-- Új javítás: szigorú standalone presetimport, változatlan host-state migrációval.
+- #33: szigorú standalone presetimport, változatlan host-state migrációval.
 
 A paraméterazonosítók, plug-in identity, wire format, GUI elrendezés és alapvető
 hangkarakter megmaradnak. Filterkarakter, automatikus pitch smoothing, 32 voice,
@@ -75,6 +75,10 @@ A `v1.0.4` tag és kiadás a végleges commitra mutasson; korábbi release-t nem
 ## Jelenlegi státusz
 
 - #23–#32 mainben, legutóbbi main platform és Quality CI sikeres.
-- Strict file-dekóder: fejlesztési ág; regresszió és CI/merge előkészítés alatt.
-- 1.0.4 metadata, RC, kézikönyvek, natív elfogadás és publikálás: hátravan.
+- #33 mainben (`645a994`): strict file-dekóder; régi betöltőn bukó regresszió,
+  helyi Release 67/67, célzott ASan/UBSan 7/7 és PR CI 17/17 sikeres.
+- 1.0.4-rc1 metaadatok és kiadási jegyzet elkészültek a külön kiadási ágon.
+  Az EN/HU kézikönyv 14/14 oldala renderelve és vizuálisan ellenőrizve;
+  teljes helyi Release tesztsor 67/67 sikeres.
+- RC platformcsomagok, natív elfogadás és végleges publikálás: hátravan.
 - Nincs még 1.0.4 tag vagy nyilvános kiadás.
