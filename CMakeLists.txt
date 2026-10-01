@@ -328,6 +328,10 @@ if(BUILD_TESTING)
     COMMAND sawstar_state_roundtrip_tests
   )
 
+  add_executable(sawstar_preset_canonicalization_tests tests/preset_canonicalization.cpp)
+  target_link_libraries(sawstar_preset_canonicalization_tests PRIVATE SAWSTAR::Foundation)
+  add_test(NAME preset_discrete_canonicalization COMMAND sawstar_preset_canonicalization_tests)
+
 
   add_executable(
     sawstar_parameter_tests
@@ -1081,6 +1085,17 @@ endif()
 # Exercise the actual benchmark CSV parser without building its baseline engine.
 if(BUILD_TESTING)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/parameter_registration_hook.py"
+    "${CMAKE_CURRENT_BINARY_DIR}/parameter_registration_hook.inc" RESULT_VARIABLE registration_hook_result)
+  if(NOT registration_hook_result EQUAL 0)
+    message(FATAL_ERROR "Cannot extract the production parameter registration")
+  endif()
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    tests/parameter_registration_hook.py src/plugin/SAWSTAR.cpp)
+  add_executable(sawstar_parameter_registration_tests tests/parameter_registration.cpp)
+  target_link_libraries(sawstar_parameter_registration_tests PRIVATE SAWSTAR::Foundation)
+  target_include_directories(sawstar_parameter_registration_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  add_test(NAME parameter_registration_contract COMMAND sawstar_parameter_registration_tests)
   execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/editor_reset_hook.py"
     "${CMAKE_CURRENT_BINARY_DIR}/editor_reset_hook.inc" RESULT_VARIABLE reset_hook_result)
   if(NOT reset_hook_result EQUAL 0)

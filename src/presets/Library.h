@@ -23,6 +23,7 @@ inline UserPresetSelection SavePresetSelection(fs::path path,const Snapshot& val
  if(!PresetExtension(path)||!ValidPresetName(path.stem().u8string()))throw std::runtime_error("Use a valid preset name and .sawstar extension.");
  SaveUserPreset(path,values);
  UserPresetSelection result;result.path=path;result.name=path.stem().u8string();result.saved=values;result.active=true;result.status="Saved "+result.name;
+ for(size_t i=0;i<result.saved.size();++i)result.saved[i]=Sanitize(kParameters[i],result.saved[i]);
  try{if(path.parent_path()!=root){auto report=ImportPresets({path},root,true);if(report.imported)result.path=root/fs::u8path(path.stem().u8string()+".sawstar");else result.status="Saved externally; library copy skipped. "+report.Summary();}}
  catch(const std::exception&){result.status="Saved externally; library copy could not be created.";}
  return result;

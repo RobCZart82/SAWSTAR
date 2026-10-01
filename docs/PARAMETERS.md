@@ -45,8 +45,8 @@ use iPlug2 ShapeExp, matching the logarithmic contract.
 
 `State.h/.cpp` encodes `SAWSTAR\0` (8 bytes), a little-endian u32 version (1),
 a little-endian u32 payload length, then records of u32 parameter ID + IEEE-754
-little-endian float64 physical value. Up to 64 records are accepted. The current
-payload is 504 bytes; the total state is 520 bytes. Old seventeen-record v1
+little-endian float64 physical value. Up to 256 records are accepted. The current
+93-parameter payload is 1116 bytes; the total state is 1132 bytes. Old seventeen-record v1
 states (220 bytes) default IDs 17–18. Old eleven-record v1
 states (148 bytes) default IDs 11–18. Old eight-record v1
 states (112 bytes) remain supported and default IDs 8–18. Old five-record v1 states
@@ -56,6 +56,14 @@ states (112 bytes) remain supported and default IDs 8–18. Old five-record v1 s
 Decode into a temporary snapshot. Bad magic/version, truncated lengths,
 duplicate known IDs and non-finite known values fail without changing parameters.
 Missing known IDs use defaults (except historical Level Boost = 0 dB), unknown IDs are skipped, finite values clamp.
+The 41 enum/integer parameters are explicitly marked `discrete` in the parameter
+specification and round to the nearest physical integer, with halfway values
+away from zero, matching iPlug2's existing unit-step constraint. For example,
+`voice.mode=1.5` becomes 2 and `osc2.octave=-0.5` becomes -1. Encoding, decoding
+and physical/normalized conversion agree on this value; continuous parameters
+keep their fractional precision. A previously noncanonical user preset therefore
+does not acquire a modified marker just because the framework applied it.
+The wire version, record IDs and registered host parameter types are unchanged.
 The plugin then applies the validated snapshot using the framework parameter
 lock and reset hooks. Live oscillator/envelope state is deliberately not saved.
 
@@ -71,6 +79,13 @@ length, bad version/magic/length, duplicate IDs, NaN, unknown IDs and bypass
 trailers. Automation DSP tests change all five parameters at block sizes
 1/32/512/2048 and sample rates 44.1/48/96 kHz. This does not claim sample-accurate
 parameter automation: parameters are sampled once per block; output is smoothed.
+
+`parameter_registration_contract` compiles the real constructor's registration
+loop with a registration recorder and checks all 93 ranges/defaults/mappings and
+discrete flags against the specification. Its constraint model uses the pinned
+iPlug2 rounding rule; it is not a native plugin-host test. The raw fractional
+file regression also checks halfway boundaries, clean/edited selection state,
+file save/load agreement and the optional host bypass trailer.
 
 ## Source mixer extension
 
