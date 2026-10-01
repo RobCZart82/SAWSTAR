@@ -28,7 +28,7 @@ bool ValidPresetName(const std::string& name);
 inline bool PresetExtension(const fs::path& p){return Fold(p.extension().u8string())==".sawstar";}
 inline Snapshot ReadUserPreset(const fs::path& path){
  std::ifstream in(path,std::ios::binary|std::ios::ate);if(!in)throw std::runtime_error("Cannot open preset.");auto size=in.tellg();if(size<=0||size>4096)throw std::runtime_error("Invalid preset size.");
- std::vector<uint8_t> bytes(static_cast<size_t>(size));in.seekg(0);if(!in.read(reinterpret_cast<char*>(bytes.data()),size))throw std::runtime_error("Cannot read preset.");Snapshot result{};if(!DecodeState(bytes.data(),bytes.size(),result))throw std::runtime_error("Not a supported SAWSTAR preset.");return result;
+ std::vector<uint8_t> bytes(static_cast<size_t>(size));in.seekg(0);if(!in.read(reinterpret_cast<char*>(bytes.data()),size))throw std::runtime_error("Cannot read preset.");Snapshot result{};if(!DecodePresetFile(bytes.data(),bytes.size(),result))throw std::runtime_error("Not a supported SAWSTAR preset.");return result;
 }
 // Exclusive creation also protects against other plugin instances saving at once.
 void SaveUserPreset(const fs::path& path,const Snapshot& values);

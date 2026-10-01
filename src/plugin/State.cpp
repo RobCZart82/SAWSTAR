@@ -72,4 +72,15 @@ size_t DecodeState(const uint8_t* data, size_t size, Snapshot& output) {
   }
   output=values; return consumed;
 }
+size_t DecodePresetFile(const uint8_t* data, size_t size, Snapshot& output) {
+  if (!data || size < 28 || !std::equal(magic.begin(), magic.end(), data)) return 0;
+  const size_t payload = static_cast<size_t>(Read(data + 12, 4));
+  if (payload > 256 * 12 || payload % 12 || payload != size - 16) return 0;
+  // Future records may accompany a known sound, but cannot stand in for one.
+  bool known = false;
+  for (size_t pos = 16; pos < size; pos += 12)
+    if (FindParameter(static_cast<uint32_t>(Read(data + pos, 4)))) known = true;
+  if (!known) return 0;
+  return DecodeState(data, size, output);
+}
 }
