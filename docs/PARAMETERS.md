@@ -74,6 +74,15 @@ Host parameter IDs, mappings and automation lanes are unchanged. Load Init
 uses the same parameter defaults via host gestures; its audio values serialize
 through the same state codec when the host saves.
 
+`DecodePresetFile` applies a stricter policy to standalone `.sawstar` files:
+versioned header, at least one known record, exact declared length and no host
+trailer or headerless fallback. Non-empty old versioned partial files keep the
+same migration defaults; known records may coexist with unknown future IDs.
+`DecodeState` retains all existing host-state compatibility. Both reject invalid
+known values and leave the caller's snapshot untouched on failure. The file
+loader and importer use the strict entry point; state restoration uses the
+compatible one. This is a validation policy change, not a wire-format migration.
+
 Automated tests include legacy byte fixtures, roundtrip, each truncated v1
 length, bad version/magic/length, duplicate IDs, NaN, unknown IDs and bypass
 trailers. Automation DSP tests change all five parameters at block sizes

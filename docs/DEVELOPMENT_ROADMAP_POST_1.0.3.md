@@ -3,7 +3,8 @@
 **Frissítve:** 2026-10-01
 **Kiinduló kiadás:** v1.0.3, tag `57dbee9`  
 **Auditált főág:** `4d80ba948415327f18c6a138524e649dea509816`  
-**Legutóbb ellenőrzött main:** `2f724c0` (#31; macOS, Windows és Code quality sikeres)
+**Legutóbb ellenőrzött main:** `45f11dc` (#32; macOS, Windows és Code quality sikeres)
+**Következő kiadás:** v1.0.4; a tulajdonos 2026-10-01-én engedélyezte az előkészítést és publikálást a kiadási kapuk teljesítése után. Részletes sorrend: [1.0.4 checklist](RELEASE_1.0.4_CHECKLIST.md).
 **Cél:** a megbízhatósági hibák rendezett javítása, majd mérésalapú motor- és termékfejlesztés; a következő kiadás előtt teljes ellenőrzéssel.
 
 Ez a dokumentum egyesíti a v1.0.3 utáni fejlesztési irányt és a 2026-09-26-i mélyaudit hasznos, aktuális megállapításait. A vizsgált audit főága hat commitnyira van a kiadott tagtől; a PR #22 már beolvadt. A 57/57 CTest és a coverage-adatok az audit jelentésében szereplő főági eredmények, nem e dokumentum önálló újrafuttatásai.
@@ -14,9 +15,10 @@ Ez a dokumentum egyesíti a v1.0.3 utáni fejlesztési irányt és a 2026-09-26-
 - A #30 Windows-tesztjének túl nagy veremfoglalását külön javítottuk; a végső PR és a `0bc9799` main minden CI-workflow-ja sikeres. A natív REAPER close/reset/bypass/deactivation elfogadás továbbra is kiadási kapu.
 - #31 mainben (`2f724c0`): a korábbi nulla VST3 tail-bejelentés helyett 380 másodperces, véges maximum jelenik meg a konstruktorban és minden mintavételifrekvencia-resetnél. A korábbi FX-előzmény miatt nem rövidül le rögtön presetváltáskor. A PR 17/17 ellenőrzése és a main három workflow-ja sikeres; natív offline render elfogadás még szükséges. Részletek és korlátok: [tail-szerződés](VST3_TAIL_CONTRACT.md).
 - A tail regresszió a valódi envelope/chorus/delay/reverb láncot és a teljes 16-voice motort ellenőrzi. A teljes lecsengés Release, sanitizer és coverage alatt fut; Debugban célzott, rövid motorpróba és teljes burkolólecsengéses FX-próba marad. A hangjel feldolgozása nem változott.
-- Következő célzott P2 javítás: a törtszámos enum/egész presetértékek egységesítése a tényleges iPlug2 regisztrációval. A régi kód `VoiceMode=1.5` értéket mentett, a plugin 2-t alkalmazott, ezért a frissen betöltött preset azonnal módosítottnak látszhatott. A javítás csak a valóban diszkrét értékeket kerekíti, negatív félértéknél is a framework szabályával; a folytonos vezérlők pontossága megmarad. Azonosítók és wire format nem változnak.
+- #32 mainben: a törtszámos enum/egész presetértékek egységesítése a tényleges iPlug2 regisztrációval. A régi kód `VoiceMode=1.5` értéket mentett, a plugin 2-t alkalmazott, ezért a frissen betöltött preset azonnal módosítottnak látszhatott. A javítás csak a valóban diszkrét értékeket kerekíti, negatív félértéknél is a framework szabályával; a folytonos vezérlők pontossága megmarad. Azonosítók és wire format nem változnak. A main három workflow-ja sikeres.
+- Következő célzott javítás: strict presetfájl-dekóder. A jelenlegi main egy 40 darab ASCII A-betűből álló fájlt is hangszínként fogad el; ezt a tényleges fájlbetöltővel reprodukáltuk. Az új fájlpolicy verziózott, nem üres, legalább egy ismert paramétert tartalmazó, pontos hosszúságú fájlt követel. A régi verziózott részleges presetek és ismert mellett jövőbeli rekordok megmaradnak; a fejléc nélküli legacy és +4 byte wrapper trailer kizárólag host-state kompatibilitás. A fejlesztési ág regressziója külön ellenőrzi az import és a változatlan hostállapot útvonalát; a CI és merge még hátravan.
 - A wheel mailbox Publish/Clear átfedése memória-szinten biztonságos; az epoch bevezetése külön reset-policy döntést és reprodukciót igényel. Ez jelenleg specifikációs nyitott kérdés, nem igazolt új adatverseny. Ezután strict presetimport a kompatibilis host-state dekódertől külön; presetváltási koherencia és automatizálás blokkfüggése következik.
-- Profilozás, fájlrendszer, filterminőség, bővíthető presetbrowser és 32 voice továbbra is későbbi, külön munkacsomag. Új kiadás vagy Linux plugin ebből a körből nem készül.
+- Profilozás, további fájlrendszer-policy, filterminőség, bővíthető presetbrowser és 32 voice későbbi, külön munkacsomag. Az 1.0.4 stabilitási kiadás; Linux plugin továbbra is elhalasztva.
 
 ## 2026-09-29 — fejlesztési állapot
 

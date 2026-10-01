@@ -48,8 +48,11 @@ multi-parameter preset application. Those are separate future wrapper audits.
 User-file parsing and mutations stay outside sample processing.
 
 GUI preset loading currently sends individual parameter gestures to the adapter.
-Host state and standalone presets share the versioned codec; compatibility
-allows older partial states and the optional VST3 bypass trailer. IDs are append
+Host state and standalone presets share the versioned codec with separate decode
+policies. Host compatibility allows older partial states, headerless legacy and
+the optional VST3 bypass trailer. Standalone files require a non-empty versioned
+payload with a known parameter and no trailing bytes. Old versioned partial files
+remain supported. IDs are append
 only. The current state contains 93 parameters. Changing decoding strictness or
 rounding requires explicit compatibility tests, not a silent format migration.
 

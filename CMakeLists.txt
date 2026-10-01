@@ -332,6 +332,10 @@ if(BUILD_TESTING)
   target_link_libraries(sawstar_preset_canonicalization_tests PRIVATE SAWSTAR::Foundation)
   add_test(NAME preset_discrete_canonicalization COMMAND sawstar_preset_canonicalization_tests)
 
+  add_executable(sawstar_strict_preset_tests tests/strict_preset_files.cpp)
+  target_link_libraries(sawstar_strict_preset_tests PRIVATE SAWSTAR::Foundation)
+  add_test(NAME strict_preset_files COMMAND sawstar_strict_preset_tests)
+
 
   add_executable(
     sawstar_parameter_tests

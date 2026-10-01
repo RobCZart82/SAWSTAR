@@ -66,6 +66,14 @@ is done on editor actions, not the audio thread. The native macOS importer uses
 NSOpenPanel with multiple selection; Windows uses the multi-select common dialog.
 No third-party dependencies were added.
 
+Standalone files must contain the versioned `SAWSTAR` header, a non-empty
+payload with at least one recognized parameter, and exactly the declared bytes.
+Empty/unknown-only payloads, headerless data and trailing bytes are rejected.
+Older versioned partial presets and future records alongside known parameters
+remain supported. Legacy headerless state and the VST3 bypass trailer are only
+accepted when restoring DAW project state, not importing files. This separates
+file validation from host migration without changing the saved format.
+
 Enum and integer settings loaded from a file are rounded to the same values the
 plugin applies. Continuous controls keep their precision. Loading a file with a
 fractional enum no longer marks the sound as edited without a user change.
