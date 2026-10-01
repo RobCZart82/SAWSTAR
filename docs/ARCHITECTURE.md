@@ -1,4 +1,4 @@
-# Architecture — 1.0.4 candidate
+# Architecture — 1.0.4
 
 ## Responsibilities
 

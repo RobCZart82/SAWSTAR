@@ -1,8 +1,8 @@
 # SAWSTAR 1.0.4
 
-Status: rc1, not yet published. This maintenance candidate collects the tested
-reliability fixes made after v1.0.3. The final release requires the acceptance
-and package checks in [the release checklist](RELEASE_1.0.4_CHECKLIST.md).
+Release date: 2026-10-01. This maintenance release collects the tested
+reliability fixes made after v1.0.3. The owner accepted the 1.0.4-rc1 candidate
+on macOS and Windows without audible or observed problems.
 
 ## MIDI and host lifecycle
 
@@ -42,12 +42,11 @@ layout and synthesis character are preserved. This update does not introduce
 experimental Mono click/pop treatments, a new filter, 32 voices, Linux VST3,
 sample-accurate parameter automation or atomic multi-parameter preset loading.
 
-The planned final packages are Windows x64/ARM64 installers and manual VST3 ZIPs,
+Packages are Windows x64/ARM64 installers and manual VST3 ZIPs,
 and macOS Universal DMG/PKG and manual VST3 ZIP, with English/Hungarian manuals.
-RC builds are candidates and are not the public final release.
 
 Close the DAW before updating, back up projects/user presets, and check the
 actual About version and commit after reopening. Packages remain unsigned and
 macOS is not notarized. See [Installation](INSTALLATION.md) and
 [System requirements](SYSTEM_REQUIREMENTS.md). Previous public releases remain
-available; none are overwritten by this preparation.
+available; none are overwritten by this release.
