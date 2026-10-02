@@ -1,8 +1,13 @@
 # SAWSTAR 1.0.4
 
-Release date: 2026-10-01. This maintenance release collects the tested
-reliability fixes made after v1.0.3. The owner accepted the 1.0.4-rc1 candidate
-on macOS and Windows without audible or observed problems.
+Status: **unpublished draft**, updated 2026-10-02. The current public Latest
+release is v1.0.3. The 2026-10-01 date in the current build metadata is not a
+publication date; confirm the final date when the verified draft is published.
+
+This maintenance release collects reliability fixes made after v1.0.3. The
+owner accepted the earlier 1.0.4-rc1 candidate on macOS and Windows without
+audible or observed problems. That acceptance does not verify the later
+changes below; check the refreshed draft's About commit during final testing.
 
 ## MIDI and host lifecycle
 
@@ -18,6 +23,13 @@ on macOS and Windows without audible or observed problems.
   accepted MIDI has reached the tracker in a real audio block.
 - Bypass continues MIDI and engine processing while muting the host output,
   avoiding stale queued events being replayed after unbypass.
+
+- ARP transport stop also clears editor note ownership, preventing a late GUI
+  release from stopping a fresh host note of the same pitch.
+- Every VST3 MIDI-controller parameter point keeps its original sample offset,
+  including sustain transitions, pitch bend and channel aftertouch. Ordinary
+  parameter automation retains its existing last-value policy.
+- Accepted editor MIDI is processed at sample zero, including overflow recovery.
 
 ## Envelopes, tail and presets
 
@@ -35,6 +47,21 @@ on macOS and Windows without audible or observed problems.
   versioned partial presets remain supported; legacy DAW project state and
   its optional VST3 bypass trailer retain their existing compatibility.
 
+- Batch import indexes existing names and exact settings once under the shared
+  mutation lock, instead of repeatedly scanning and decoding the library.
+  Failed saves do not poison the index; existing names remain protected.
+  Import remains synchronous, with no persistent cache or background worker.
+
+## Draft verification and publication
+
+Draft refresh requires successful Windows, macOS and Quality push workflows
+for the exact source commit, all three platform packages, matching manifests,
+manuals and license notices. It updates only unpublished drafts and refuses to
+move an existing tag or overwrite a public release. An interrupted refresh is
+marked incomplete and must not be published. Do not publish manually while
+refresh is running. Review the final commit, assets/checksums and native REAPER
+results before the separate publication step.
+
 ## Compatibility and packages
 
 Parameter IDs, plugin identity and state wire version are unchanged. The GUI
@@ -50,3 +77,4 @@ actual About version and commit after reopening. Packages remain unsigned and
 macOS is not notarized. See [Installation](INSTALLATION.md) and
 [System requirements](SYSTEM_REQUIREMENTS.md). Previous public releases remain
 available; none are overwritten by this release.
+

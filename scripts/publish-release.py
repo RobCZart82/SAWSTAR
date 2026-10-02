@@ -2,6 +2,7 @@
 """Prepare a verified draft from successful builds of this exact commit."""
 import hashlib,json,os,pathlib,subprocess,time,zipfile
 from release_validation import matching_runs, workflows_ready, validate_package
+from release_draft import write_verified_draft
 root=pathlib.Path.cwd();m=json.loads((root/'release.json').read_text())
 if m['candidate']:
  print('Release preparation skipped: development candidate '+m['candidate'])
@@ -46,9 +47,7 @@ for run in selected.values():
 assert found==set(expected),'Incomplete platform coverage'
 checks=''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in sorted(assets.iterdir()))
 (assets/'SHA256SUMS.txt').write_text(checks)
-# A draft keeps partial uploads private; existing releases are never overwritten.
-gh('release','create',tag,'--target',sha,'--draft','--title',f'SAWSTAR {version}','--notes-file',str(notes))
-gh('release','upload',tag,*[str(p) for p in sorted(assets.iterdir())])
-release=json.loads(gh('release','view',tag,'--json','assets'))
-assert {a['name']:a['size'] for a in release['assets']}=={p.name:p.stat().st_size for p in assets.iterdir()}
+# An unpublished draft may be refreshed; public releases and existing tags
+# pointing elsewhere are protected. Partial uploads stay visibly unverified.
+write_verified_draft(gh,repo,tag,sha,notes,assets)
 print(f'Verified draft ready for final review: {tag}. Publication is a separate explicit step.')

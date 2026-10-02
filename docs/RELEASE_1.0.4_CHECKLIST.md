@@ -1,8 +1,9 @@
 # SAWSTAR 1.0.4 — kiadási terv és elfogadási kapuk
 
-Frissítve: 2026-10-01. Kiinduló main: `45f11dc` (#32), mindhárom main
-workflow sikeres. A tulajdonos engedélyezte a javítást és az 1.0.4 publikálását;
-a zöld PR-ek mainbe olvaszthatók. Ez az engedély nem helyettesíti a teszteredményeket.
+Frissítve: 2026-10-02. A cél a még nem publikált 1.0.4 draft frissítése a
+#36 és #37 javításaival. A zöld PR-ek mainbe olvaszthatók; a draft-előkészítés
+nem publikálás. A korábbi teszt és felhasználói elfogadás konkrét buildre
+vonatkozott, nem helyettesíti a friss csomagok ellenőrzését.
 
 ## 1. Stabilitási scope
 
@@ -17,6 +18,8 @@ A v1.0.3 utáni, célzottan tesztelt javítások kerülnek a kiadásba:
 - #31: véges VST3 tail-bejelentés a teljes soros FX-láncra.
 - #32: diszkrét presetértékek kanonizálása, téves dirty-marker megszüntetése.
 - #33: szigorú standalone presetimport, változatlan host-state migrációval.
+- #36: ARP stop/editor ownership, minden VST3 MIDI-kontrollerpont offsetje és editor overflow.
+- #37: batch presetimport indexelése, pontos duplikációval és sikertelen mentés utáni helyreállítással.
 
 A paraméterazonosítók, plug-in identity, wire format, GUI elrendezés és alapvető
 hangkarakter megmaradnak. Filterkarakter, automatikus pitch smoothing, 32 voice,
@@ -72,7 +75,25 @@ A kiadási workflow ellenőrzött draftot készít; a teljes assetlista, hash-ek
 platformok, licencfájlok és verzió ellenőrzése után a draft publikálható.
 A `v1.0.4` tag és kiadás a végleges commitra mutasson; korábbi release-t nem írunk felül.
 
-## Jelenlegi státusz
+## Aktuális draft-frissítési kapuk
+
+- A workflow a kiadási script/jegyzetek változására is indul; manuálisan a
+  `Prepare verified release draft` workflow indítható a `main` ágon.
+- Minden frissítés a saját main commitjának három sikeres push-workflow-ját és
+  csomagjait használja. Egy PR zöld CI-je nem helyettesíti ezt.
+- Meglévő, nem publikált draft frissíthető; nyilvános release nem írható felül,
+  eltérő commitra mutató meglévő tag nem mozgatható.
+- Upload előtt a draft ideiglenesen „refresh in progress” jelölést kap; a végső
+  cím/jegyzet csak egyező célcommit, assetlista, méret és elérhető API-hash után
+  kerül vissza. Uploadhiba után a draft hiányos lehet; nem publikálható.
+- A frissítés alatt ne történjen kézi publikálás. Az ellenőrzött frissítés végén
+  nézzük meg a telepítőket, hash-eket, About commitot és a natív REAPER-eseteket.
+- Publikáláskor a tényleges dátum, release/tag, Latest, README letöltési szöveg és
+  csomag/About verzió egyezzen. A README `/releases/latest` linkje a nyilvános
+  kiadáshoz vezet; az 1.0.4 addig kifejezetten draftként szerepel.
+- A 2026-10-01 metaadatdátum a korábbi build része; nem publikálási bizonyíték.
+
+## Korábbi build ellenőrzései — történeti eredmények
 
 - #23–#34 mainben; az RC main `3225747` teljes Windows/macOS/Quality CI-je zöld.
 - Helyi Release 67/67, célzott ASan/UBSan 7/7, natív macOS VST3 validator 47/47.
@@ -90,3 +111,4 @@ A `v1.0.4` tag és kiadás a végleges commitra mutasson; korábbi release-t nem
 - Végleges 1.0.4 metaadat és dátum: 2026-10-01. EN/HU kézikönyv frissítve.
 - A végleges commit CI-je, ellenőrzött draft és publikálás a kiadási workflow
   következő kapuja; az RC CI önmagában nem helyettesíti a végleges CI-t.
+

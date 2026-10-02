@@ -16,9 +16,103 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from release_validation import matching_runs, workflows_ready, validate_package
+from release_draft import write_verified_draft
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'scripts/publish-release.py'
 ROOT = Path(__file__).resolve().parents[1]
+
+class DraftRefresh(unittest.TestCase):
+    def exercise(self, release=None, refs=None, tags=None, fault=None):
+        self.calls = []
+        self.current = release
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            assets = root / 'assets'
+            assets.mkdir()
+            (assets / 'package.zip').write_bytes(b'new package')
+            (assets / 'SHA256SUMS.txt').write_bytes(b'checksums')
+            notes = root / 'notes.md'
+            notes.write_text('final notes')
+            def gh(*args):
+                self.calls.append(args)
+                if args[0] == 'api':
+                    endpoint = args[1]
+                    if '/releases?' in endpoint:
+                        self.assertEqual(args[2:], ('--paginate', '--slurp'))
+                        # The matching draft can be beyond the first page.
+                        return json.dumps([[], [self.current] if self.current else []])
+                    if '/git/matching-refs/' in endpoint:
+                        return json.dumps(refs or [])
+                    if '/git/tags/' in endpoint:
+                        return json.dumps({'object': tags[endpoint.rsplit('/', 1)[1]]})
+                    self.fail('Unexpected API: ' + endpoint)
+                self.assertEqual(args[0], 'release')
+                self.assertNotIn('delete', args)
+                if args[1] in ('create', 'edit'):
+                    self.assertIn('--draft', args)
+                    self.assertEqual(args[args.index('--target') + 1], 'expected')
+                    if self.current is None:
+                        self.current = dict(id=9, draft=True, tag_name='v1.0.4', assets=[])
+                    self.current['target_commitish'] = 'expected'
+                    self.current['name'] = args[args.index('--title') + 1]
+                elif args[1] == 'upload':
+                    if fault == 'upload':
+                        raise RuntimeError('upload failed')
+                    self.current['assets'] = [dict(name=p.name, size=p.stat().st_size,
+                        digest='sha256:' + hashlib.sha256(p.read_bytes()).hexdigest())
+                        for p in sorted(assets.iterdir())]
+                    if fault == 'missing':
+                        self.current['assets'].pop()
+                    if fault == 'checksum':
+                        self.current['assets'][0]['digest'] = 'sha256:wrong'
+                    if fault == 'target':
+                        self.current['target_commitish'] = 'other'
+                    if fault == 'published':
+                        self.current['draft'] = False
+                else:
+                    self.fail('Unexpected mutation: ' + repr(args))
+                return ''
+            write_verified_draft(gh, 'owner/repo', 'v1.0.4', 'expected', notes, assets)
+
+    def draft(self, **overrides):
+        return dict(dict(id=9, draft=True, tag_name='v1.0.4', target_commitish='old',
+                         assets=[dict(name='package.zip', size=3)]), **overrides)
+
+    def test_create_and_refresh_are_private_and_finish_only_after_verification(self):
+        for existing in (None, self.draft()):
+            with self.subTest(existing=existing):
+                self.exercise(existing)
+                mutations = [c for c in self.calls if c[0] == 'release']
+                self.assertEqual(mutations[0][1], 'edit' if existing else 'create')
+                self.assertIn('in progress', mutations[0][mutations[0].index('--title') + 1])
+                self.assertEqual('--clobber' in mutations[1], bool(existing))
+                self.assertIn('--notes-file', mutations[-1])
+                self.assertEqual(self.current['name'], 'SAWSTAR 1.0.4')
+
+    def test_public_release_and_unknown_assets_are_untouched(self):
+        for release in (self.draft(draft=False), self.draft(assets=[dict(name='unknown.exe', size=1)])):
+            with self.subTest(release=release), self.assertRaises(ValueError):
+                self.exercise(release)
+            self.assertFalse(any(c[0] == 'release' for c in self.calls))
+
+    def test_stale_lightweight_and_annotated_tags_are_untouched(self):
+        for obj, tags in ((dict(type='commit', sha='old'), None),
+                          (dict(type='tag', sha='annotation'), {'annotation': dict(type='commit', sha='old')})):
+            with self.subTest(obj=obj), self.assertRaises(ValueError):
+                self.exercise(self.draft(), [dict(ref='refs/tags/v1.0.4', object=obj)], tags)
+            self.assertFalse(any(c[0] == 'release' for c in self.calls))
+
+    def test_matching_annotated_tag_and_prefix_neighbor_are_allowed(self):
+        self.exercise(self.draft(), [dict(ref='refs/tags/v1.0.4-rc1', object=dict(type='commit', sha='other')),
+            dict(ref='refs/tags/v1.0.4', object=dict(type='tag', sha='annotation'))],
+            {'annotation': dict(type='commit', sha='expected')})
+
+    def test_upload_failure_and_bad_remote_verification_cannot_finish(self):
+        for fault in ('upload', 'missing', 'checksum', 'target', 'published'):
+            with self.subTest(fault=fault), self.assertRaises((RuntimeError, ValueError)):
+                self.exercise(self.draft(), fault=fault)
+            self.assertFalse(any('--notes-file' in c for c in self.calls))
+            self.assertIn('in progress', self.current['name'])
 
 class InstallerPackageLayout(unittest.TestCase):
     def test_windows_installer_reads_document_paths_from_package_layout(self):
