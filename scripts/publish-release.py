@@ -2,7 +2,7 @@
 """Prepare a verified draft from successful builds of this exact commit."""
 import hashlib,json,os,pathlib,subprocess,time,zipfile
 from release_validation import matching_runs, workflows_ready, validate_package
-from release_draft import write_verified_draft
+from release_draft import release_for_tag, write_verified_draft
 root=pathlib.Path.cwd();m=json.loads((root/'release.json').read_text())
 if m['candidate']:
  print('Release preparation skipped: development candidate '+m['candidate'])
@@ -13,6 +13,13 @@ notes=root/f'docs/RELEASE_NOTES_{version}.md'
 assert notes.is_file(), 'Version-specific release notes required'
 def gh(*args):return subprocess.check_output(['gh',*args],text=True)
 def api(path):return json.loads(gh('api',path))
+# Main documentation may change after publication. A published version is an
+# intentional no-op here; the mutation guard below still rejects replacement
+# if a draft is published concurrently during preparation. API errors fail closed.
+existing=release_for_tag(gh,repo,tag)
+if existing is not None and not existing['draft']:
+ print(f'Release preparation skipped: {tag} is already published; no assets or tags changed')
+ raise SystemExit(0)
 deadline=time.monotonic()+2100
 while True:
  runs=api(f'repos/{repo}/actions/runs?head_sha={sha}&event=push&per_page=100')['workflow_runs']

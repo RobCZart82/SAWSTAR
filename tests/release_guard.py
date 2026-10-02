@@ -142,6 +142,44 @@ class ReleaseGuard(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertIn('skipped', result.stdout)
 
+    def test_already_published_skips_before_builds_and_mutations(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / 'release.json').write_text(json.dumps(dict(
+                version='1.0.4', candidate='', release_date='2026-10-01')))
+            (root / 'docs').mkdir()
+            (root / 'docs/RELEASE_NOTES_1.0.4.md').write_text('notes')
+            def fake_gh(args, **kwargs):
+                self.assertEqual(args, ['gh', 'api',
+                    'repos/owner/repo/releases?per_page=100', '--paginate', '--slurp'])
+                return json.dumps([[], [dict(tag_name='v1.0.4', draft=False)]])
+            with patch('pathlib.Path.cwd', return_value=root), patch.dict(
+                    os.environ, {'RELEASE_SHA': 'new-documentation', 'GH_REPO': 'owner/repo'}), patch(
+                    'subprocess.check_output', side_effect=fake_gh) as api, patch(
+                    'time.sleep', side_effect=AssertionError('must not wait')), patch(
+                    'sys.stdout', new_callable=io.StringIO) as out:
+                with self.assertRaises(SystemExit) as stopped:
+                    runpy.run_path(str(SCRIPT), run_name='__main__')
+                self.assertEqual(stopped.exception.code, 0)
+                self.assertIn('already published', out.getvalue())
+                self.assertEqual(api.call_count, 1)
+            self.assertFalse((root / 'release-assets').exists())
+            self.assertFalse((root / 'downloaded').exists())
+
+    def test_release_preflight_api_error_is_not_successful_skip(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / 'release.json').write_text(json.dumps(dict(
+                version='1.0.4', candidate='', release_date='2026-10-01')))
+            (root / 'docs').mkdir()
+            (root / 'docs/RELEASE_NOTES_1.0.4.md').write_text('notes')
+            with patch('pathlib.Path.cwd', return_value=root), patch.dict(
+                    os.environ, {'RELEASE_SHA': 'expected', 'GH_REPO': 'owner/repo'}), patch(
+                    'subprocess.check_output', side_effect=subprocess.CalledProcessError(1, 'gh')):
+                with self.assertRaises(subprocess.CalledProcessError):
+                    runpy.run_path(str(SCRIPT), run_name='__main__')
+            self.assertFalse((root / 'release-assets').exists())
+
     def test_final_missing_release_context_still_fails(self):
         self.assertNotEqual(self.run_guard('').returncode, 0)
 
@@ -185,6 +223,8 @@ class FinalReleaseValidation(unittest.TestCase):
                 runs[-1]['conclusion'] = 'failure'
             def fake_gh(args, **kwargs):
                 self.assertEqual(args[:2], ['gh', 'api'])
+                if '/releases?per_page=100' in args[2]:
+                    return json.dumps([[]])
                 self.assertIn('/actions/runs?head_sha=expected&event=push', args[2])
                 return json.dumps({'workflow_runs': runs})
             with tempfile.TemporaryDirectory() as folder:
