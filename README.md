@@ -67,6 +67,7 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Changelog](CHANGELOG.md) and [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md)
 - [1.0.4 publication plan and remaining test gates](docs/RELEASE_1.0.4_CHECKLIST.md)
 - [Current development and release preparation plan](docs/DEVELOPMENT_PLAN_POST_1.0.4.md)
+- [Repository review and release readiness, 2026-10-02](docs/REPOSITORY_REVIEW_2026_10_02.md)
 
 The English and Hungarian guides describe SAWSTAR 1.0.4 and include the supplied 1.0.3 screenshots.
 

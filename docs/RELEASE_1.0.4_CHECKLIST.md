@@ -23,6 +23,21 @@ A korábbi buildazonosító és a `release.json` 2026.10.01. dátuma nem publik�
 A terv/dokumentáció későbbi commitja önmagában nem módosítja az itt rögzített csomagok forrását.
 A végleges csomagoknak azonban a végleges kiadási commitra kell épülniük.
 
+### A terv utolsó forrásellenőrzése
+
+A 2026-10-02-i új ellenőrzés a `2d3fd73527ecdad27028792d898b37b2d4bf28de`
+mainre vonatkozik. A Windows, macOS és Quality futások sikeresek; a helyi
+foundation/engine CTest 70/70, a Linux ASan/UBSan és coverage 69/69, a TSan
+5/5 sikeres. A draft mind a nyolc assetje ismét letöltve és ellenőrizve;
+a hét kiadási fájl checksumja egyezik, a három manuális csomag validációja sikeres.
+Ez nem új natív REAPER-elfogadás, ezért a kézi próbák státuszát nem változtatja meg.
+
+Részletes bizonyítékok és korlátok:
+[ellenőrzési jelentés](REPOSITORY_REVIEW_2026_10_02.md).
+A későbbi fejlesztési témák sorrendje a
+[fejlesztési tervben](DEVELOPMENT_PLAN_POST_1.0.4.md) szerepel; a publikálás
+végrehajtási feltételeinek elsődleges helye továbbra is ez a checklist.
+
 ## 2. Hátralévő feladatok és felelősség
 
 | Sorrend | Feladat | Felelős | Elkészülési feltétel | Státusz |

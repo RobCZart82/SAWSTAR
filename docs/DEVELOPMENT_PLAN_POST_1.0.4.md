@@ -1,6 +1,6 @@
 # SAWSTAR — fejlesztés az 1.0.4 draft kiadásig és utána
 
-Frissítve: 2026-10-02. Kiinduló main: `8e4c18e1de08f6b3018cb859c90b8186ffabddce`.
+Frissítve: 2026-10-02. Ellenőrzött main: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
 A main Windows, macOS és Code quality workflow-ja sikeres. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
@@ -16,6 +16,30 @@ a végleges csomagkör és a dátum/Latest egyeztetése egy helyen szerepel:
 [terv a drafttól a publikálásig](RELEASE_1.0.4_CHECKLIST.md).
 Ez a kiadási végrehajtás elsődleges terve; az alábbi további fejlesztési témák
 csak igazolt kiadást blokkoló regresszió esetén válnak az 1.0.4 előfeltételévé.
+
+## A publikálásig következő mérföldkövek
+
+A 2026-10-02-i ellenőrzésben a helyi tesztsor 70/70, a main ASan/UBSan és
+coverage tesztsora 69/69, a TSan tesztsora 5/5 sikeres. A Windows és macOS
+build is zöld. Az átnézett új változtatásokban nem igazoltunk új kiadást blokkoló
+regressziót. A vizsgálat hatóköre és korlátai a
+[repository-ellenőrzési jelentésben](REPOSITORY_REVIEW_2026_10_02.md) szerepelnek.
+
+| Mérföldkő | Feladat | Teljesülési feltétel |
+|---|---|---|
+| 1. Friss csomag elfogadása | A `1a6a5f2` draft Windows és macOS natív próbája, különösen az új MIDI/ARP és import útvonalakon. | Buildazonosítóval rögzített eredmény; a kiadási checklist N01–N16 eseteinek státusza ismert. |
+| 2. Esetleges regresszió javítása | Csak reprodukált kiadási hiba javítása, célzott regresszióval. | Javított eset és meglévő tesztek sikeresek; GUI, DSP-karakter és kompatibilitás megmarad. Ha nincs hiba, ez a lépés nem igényel új kódot. |
+| 3. Végleges kiadási tartalom | Tényleges publikálási dátum, changelog, release notes, README és kézikönyvek egyeztetése. | A végleges tag dokumentációja nem állítja tartósan, hogy az 1.0.4 még draft; verzió és dátum minden csomagban egyezik. |
+| 4. Végleges build és ellenőrzés | Pontos PR-head és merge utáni main CI; draft újraépítése ugyanabból a végleges commitból. | Windows, macOS és Quality sikeres; 8 asset, checksumok, manifestek, licenszek és kézikönyvek ellenőrzöttek. |
+| 5. Publikálás | Végleges csomag About/build és telepítési próba, majd a draft publikálása. | Tag, forrás és csomag eredete egyezik; nyilvános Latest és letöltések ellenőrizve. |
+| 6. Kiadás utáni fejlesztés | A lent felsorolt P2 témák reprodukciója és profilozása, külön PR-ekben. | Minden változásnak saját követelménye és bizonyító tesztje van; új hangkarakter külön kiadási döntés. |
+
+A korábbi RC felhasználói próbája elfogadott, de az új `1a6a5f2` csomag
+elfogadása külön rögzítendő. A main utolsó #39 változása csak dokumentáció;
+a jelenlegi draft és main közötti eltérés ezért nem új DSP-kódeltérés.
+A végleges kiadási körben ettől függetlenül egyező commitból készüljön a tag
+és minden csomag. A jelenlegi `2026.10.01.` előkészítési dátumot nem szabad
+ellenőrzés nélkül a tényleges publikálás dátumaként kezelni.
 
 ## Elkészült munkacsomag: presetimport
 
@@ -82,9 +106,10 @@ Teljes hangállapot átadását csak a következő szerződéssel szabad bevezet
 5. Determinisztikus interleaving-harness igazolja a részleges állapotot, majd a
    kiválasztott javítást. A meglévő állapotformátum és parameter ID-k megmaradnak.
 
-## Következő sorrend
+## Kiadás utáni sorrend
 
-1. Importindex regressziói, platform-CI, sanitizer és mérés.
+1. Az importindex funkcionális regressziói és platform-CI elkészültek; a további
+   teljesítményvizsgálat külön, kiadás utáni profilozás.
 2. Import/mentés GUI-késésének profilozása; háttérmunka csak megmaradó késés esetén,
    megszakítással és az editor élettartamát tiszteletben tartó eredményátadással.
 3. Presetkoherencia reprodukció és a fenti sorrendi szerződés.
@@ -93,6 +118,28 @@ Teljes hangállapot átadását csak a következő szerződéssel szabad bevezet
 6. A hagyományos paraméterautomatizálás blokkfüggésének mérése. A #36 MIDI-pontjavítása
    nem vezette be a hagyományos paraméterek sample-accurate automatizálását.
 7. Wrapper/motor profilozás; hangkarakter-változtatás csak külön mérés és döntés után.
+
+### További nyitott kérdések és termékfejlesztés
+
+- A wheel Publish/Clear reset-határhoz előbb egyértelmű eseménysorrendi szabály
+  és reprodukció kell. A jelenlegi atomi átadás TSan-safe; az epoch hiánya
+  önmagában nem bizonyított adatverseny.
+- A további tesztmunka a valódi VST3/editor életciklus állapotkombinációira
+  összpontosítson. A coverage százalék növelése önmagában nem elfogadási cél.
+- A queue legrosszabb rendezési esete és a blokkonkénti teljes vezérlőátadás
+  mérendő; audio-oldali optimalizálás csak igazolt költség alapján indokolt.
+- A stabilitási feladatok után a prémium filter legyen az első hangminőségi
+  munkacsomag: jelenlegi filter referencia, cutoff/rezonancia sweep, több
+  mintavételi frekvencia, szintillesztett hallásos A/B és CPU-mérés. A régi
+  presetek hangját nem szabad észrevétlenül megváltoztatni; kompatibilitási
+  döntés szükséges az új karakter bevezetése előtt.
+- A gyors presetlista ABC-sorrendje és kategóriák szerinti böngészése külön
+  használhatósági feladat. Új cutoff-központú factory presetek csak a filter
+  végleges viselkedésére készüljenek.
+- A 32 voice előbb CPU- és voice-stealing mérés legyen, ne automatikus minőségi
+  ígéret: a nagyobb polifónia önmagában nem vastagít egyetlen hangot.
+- Linux plugin halasztott. A lezárt click/pop kutatás nem kerül vissza az aktív
+  hibajavítási listára új bizonyíték és külön döntés nélkül.
 
 Natív REAPER-mátrix: host/editor azonos hang, overflow, késői release, ARP HOLD,
 sustain, stop/start, editor close, bypass, deaktiválás, reset, presetváltás és
