@@ -276,6 +276,14 @@ if(BUILD_TESTING)
     COMMAND sawstar_library_tests
   )
 
+  add_executable(sawstar_preset_import_index_tests tests/preset_import_index.cpp)
+  target_link_libraries(sawstar_preset_import_index_tests PRIVATE SAWSTAR::Foundation)
+  add_test(NAME preset_import_index COMMAND sawstar_preset_import_index_tests)
+
+  # Manual filesystem benchmark; timing thresholds do not belong in CTest.
+  add_executable(sawstar_preset_import_benchmark tests/preset_import_benchmark.cpp)
+  target_link_libraries(sawstar_preset_import_benchmark PRIVATE SAWSTAR::Foundation)
+
 
   add_executable(
     sawstar_user_preset_tests

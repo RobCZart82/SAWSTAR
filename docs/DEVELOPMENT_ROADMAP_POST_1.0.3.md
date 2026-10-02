@@ -1,5 +1,9 @@
 # SAWSTAR — összevont fejlesztési terv a v1.0.3 után
 
+**Aktuális terv:** [Fejlesztés az 1.0.4 után](DEVELOPMENT_PLAN_POST_1.0.4.md),
+2026-10-02; #36 mainben. Az alábbi dátumozott összegzések a korábbi vizsgálatok
+és az 1.0.4 előkészítésének történeti állapotát őrzik.
+
 **Frissítve:** 2026-10-01
 **Kiinduló kiadás:** v1.0.3, tag `57dbee9`  
 **Auditált főág:** `4d80ba948415327f18c6a138524e649dea509816`  

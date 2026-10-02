@@ -16,6 +16,9 @@ struct ImportReport {
  std::string Summary()const{return std::to_string(imported)+" imported, "+std::to_string(skipped)+" skipped, "+std::to_string(failed)+" failed.";}
 };
 // Serialized with Save, Rename, Overwrite and Archive, including collision checks.
+// Names/settings are indexed for this batch under the shared mutation lock.
+// Writers outside this coordination must not modify the library during import;
+// exclusive creation still prevents overwriting an externally created target.
 ImportReport ImportPresets(const std::vector<fs::path>& files,const fs::path& root,bool allowIdentical=false);
 // A successful external save remains active even if its managed copy fails.
 inline UserPresetSelection SavePresetSelection(fs::path path,const Snapshot& values,const fs::path& root){
