@@ -16,3 +16,8 @@ Path(sys.argv[1]).write_text(replacement[start:end] + '\n')
 source = (root / 'src/plugin/SAWSTAR.cpp').read_text()
 reset = source.split('void SAWSTAR::OnReset() {', 1)[1].split('void SAWSTAR::ProcessBlock', 1)[0]
 assert reset.index('DiscardPendingMidiFromEditor();') < reset.index('mSynth.Reset(')
+# Transport-induced ARP clears must invalidate editor ownership before recovery.
+block = source.split('void SAWSTAR::ProcessBlock(', 1)[1].split('void SAWSTAR::ProcessMidiMsg(', 1)[0]
+assert 'if(sawstar::ApplyEngineControls(mSynth,mArp,' in block
+assert 'GetTempo(),GetTransportIsRunning()))mEditorMidiTracker.Clear();' in block
+assert block.index('GetTransportIsRunning()))mEditorMidiTracker.Clear();') < block.index('mEditorMidiTracker.ReleaseSome(')

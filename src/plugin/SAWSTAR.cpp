@@ -175,10 +175,10 @@ void SAWSTAR::ProcessBlock(sample**, sample** outputs, int frames) {
   const int mode=GetParam(59)->Int();
   if(mArpReset.exchange(false)||mode!=mMidiVoiceMode){mArp.Clear(send);mEditorMidiTracker.Clear();}
   mMidiVoiceMode=mode;
-  sawstar::ApplyEngineControls(mSynth,mArp,
+  if(sawstar::ApplyEngineControls(mSynth,mArp,
     [this](sawstar::ParameterId id){return GetParam(static_cast<int>(id))->Value();},
     [this](sawstar::ParameterId id){return GetParam(static_cast<int>(id))->Int();},
-    GetTempo(),GetTransportIsRunning());
+    GetTempo(),GetTransportIsRunning()))mEditorMidiTracker.Clear();
   if(frames>0)mEditorMidiTracker.ReleaseSome(kEditorMidiRecoveryBudget,[&](int channel,int note){
     mArp.Midi(0x80|channel,note,0,send);
   });

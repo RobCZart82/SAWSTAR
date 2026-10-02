@@ -117,13 +117,14 @@ void controllerOverflow(){
  // reverse offset arrival and a large burst after the initial overflow.
  std::vector<BlockMidiEvent> delivered;
  for(int i=0;i<1024;++i)q.Push({0,0x90,60,100});
- q.Push({4,0xb1,121,0,false});q.Push({4,0xb1,1,51,true});
+ // Editor offset normalizes to zero; this reset shares its effective offset.
+ q.Push({0,0xb1,121,0,false});q.Push({4,0xb1,1,51,true});
  q.Push({9,0xe1,0,64,false});
  for(int i=0;i<10000;++i)q.Push({-1,0xe1,127,127,true});
  q.Process(10,[&](auto e){delivered.push_back(e);},[](int){},[]{});
  check(delivered.size()==3,"large overflow burst was not coalesced");
  check(delivered[0].data1==121&&!delivered[0].fromEditor&&
-       delivered[1].data1==1&&delivered[1].fromEditor&&
+       delivered[1].data1==1&&delivered[1].fromEditor&&delivered[1].offset==0&&
        delivered[2].offset==9&&!delivered[2].fromEditor,
        "overflow reordered reset or lost controller origin");
 

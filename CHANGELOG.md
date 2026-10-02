@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Synchronize editor note ownership when ARP transport stop clears its roots, so a later GUI release cannot stop a fresh host note of the same pitch.
+- Deliver every VST3 MIDI-controller parameter point with its original sample offset, including sustain edges, pitch bend and channel aftertouch.
+- Process accepted editor MIDI at sample zero so upstream overflow recovery cannot miss an editor onset deferred into a future block.
+
 ## 1.0.4 - 2026-10-01
 
 - Fix editor/host note ownership during overflow recovery, reset and editor close.

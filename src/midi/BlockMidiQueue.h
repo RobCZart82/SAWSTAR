@@ -13,7 +13,9 @@ public:
  static constexpr std::size_t Capacity=1024;
  void Clear() noexcept {count_=0;overflow_=false;controllerOrder_=0;controllers_={};}
  void Push(BlockMidiEvent event) noexcept {
-  if(event.offset<0)event.offset=0;
+  // Editor gestures are immediate FIFO events, never future host automation.
+  // Recovery after a rendered block must see every accepted editor Note On.
+  if(event.fromEditor||event.offset<0)event.offset=0;
   if(overflow_){RememberController(event);return;}
   if(count_==Capacity){
    overflow_=true;

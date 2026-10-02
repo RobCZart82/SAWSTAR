@@ -66,4 +66,22 @@ with tempfile.TemporaryDirectory() as directory:
         b"else\n      mPlug.SignalMidiMsgFromEditorOverflow();" not in consumer):
         raise SystemExit("Editor recovery must wait until accepted editor events have been processed.")
 
-print("iPlug2 MIDI overflow patch applies cleanly and is idempotent.")
+    # Full-method host-controller patch must also match Windows checkouts.
+    crlf = fixture / "crlf"
+    for relative, original, _ in patch.PATCHES:
+        path = crlf / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("ab") as stream:
+            stream.write(original.replace(b"\n", b"\r\n"))
+    patch.apply(crlf)
+    first_crlf = {relative: (crlf / relative).read_bytes()
+                  for relative, _, _ in patch.PATCHES}
+    patch.apply(crlf)
+    for relative, _, replacement in patch.PATCHES:
+        source = (crlf / relative).read_bytes()
+        if (source != first_crlf[relative] or
+            replacement.replace(b"\n", b"\r\n") not in source or
+            b"\n" in source.replace(b"\r\n", b"")):
+            raise SystemExit(f"CRLF patch was not byte-local/idempotent: {relative}")
+
+print("iPlug2 MIDI patch applies cleanly and is idempotent for LF and CRLF.")
