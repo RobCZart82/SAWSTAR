@@ -11,6 +11,7 @@
 #include <cstring>
 #include <cerrno>
 #include <fcntl.h>
+#include <map>
 #include <sys/stat.h>
 #ifdef _WIN32
 #include <io.h>
@@ -62,8 +63,10 @@ std::string Fold(std::string s) {
 #endif
 }
 
-static void SaveUserPresetUnlocked(const fs::path& path,const Snapshot& values) {
-  if(fs::exists(path.parent_path()))for(const auto& entry:ListUserPresets(path.parent_path()))
+// Import may reuse a checked name index while holding PresetMutationLock.
+// Exclusive file creation remains mandatory even when the directory scan is skipped.
+static void SaveUserPresetUnlocked(const fs::path& path,const Snapshot& values,bool checkLibraryNames=true) {
+  if(checkLibraryNames&&fs::exists(path.parent_path()))for(const auto& entry:ListUserPresets(path.parent_path()))
     if(Fold(entry.filename().u8string())==Fold(path.filename().u8string()))throw std::runtime_error("That name already exists. Choose a new name.");
   const auto bytes=EncodeState(values);
   if(!path.parent_path().empty())fs::create_directories(path.parent_path());
@@ -247,14 +250,45 @@ ImportReport ImportPresets(const std::vector<fs::path>& files,const fs::path& ro
  fs::create_directories(root);
  PresetMutationLock lock(root/".import");
  ImportReport report;
+ std::vector<fs::path> existing;
+ std::set<std::string> names;
+ std::map<Snapshot,std::string> sounds;
+ bool namesReady=false;
+ std::size_t nextExisting=0;
  for(const auto& p:files)try{
   if(Fold(p.extension().u8string())!=".sawstar"||!ValidPresetName(p.stem().u8string()))throw std::runtime_error("Invalid preset filename.");
   auto values=ReadUserPreset(p);auto target=root/fs::u8path(p.stem().u8string()+".sawstar");
-  // Case-insensitive collision policy is consistent on macOS and Windows.
-  bool collision=false;for(const auto& entry:ListUserPresets(root))if(Fold(entry.filename().u8string())==Fold(target.filename().u8string())){collision=true;break;}
-  if(collision){++report.skipped;report.details.push_back(p.filename().u8string()+": already in library; not overwritten.");continue;}
-  if(!allowIdentical){std::string match;for(const auto& entry:ListUserPresets(root)){try{if(ReadUserPreset(entry)==values){match=entry.stem().u8string();break;}}catch(const std::exception&){/* A damaged existing file must not block valid imports. */}}if(!match.empty()){++report.skipped;report.duplicates.push_back(p);report.details.push_back(p.filename().u8string()+": same settings as "+match);continue;}}
-  SaveUserPresetUnlocked(target,values);++report.imported;
+  // All cooperating preset mutations share this lock. Build the batch index
+  // lazily so empty/invalid imports do not scan or decode the user library.
+  if(!namesReady){
+   names.clear();existing=ListUserPresets(root);
+   for(const auto& entry:existing)names.insert(Fold(entry.filename().u8string()));
+   namesReady=true;
+  }
+  const auto key=Fold(target.filename().u8string());
+  if(names.count(key)){++report.skipped;report.details.push_back(p.filename().u8string()+": already in library; not overwritten.");continue;}
+  if(!allowIdentical){
+   auto match=sounds.find(values);
+   // Retain early-out for a single duplicate import. Later inputs resume this
+   // sorted scan; each existing preset is decoded at most once per batch.
+   while(match==sounds.end()&&nextExisting<existing.size()){
+    const auto& entry=existing[nextExisting];Snapshot sound;
+    try{sound=ReadUserPreset(entry);}
+    catch(const std::exception&){++nextExisting;continue;}
+    sounds.emplace(sound,entry.stem().u8string()); // First sorted matching name wins.
+    ++nextExisting;match=sounds.find(values);
+   }
+   if(match!=sounds.end()){++report.skipped;report.duplicates.push_back(p);report.details.push_back(p.filename().u8string()+": same settings as "+match->second);continue;}
+  }
+  // Prepare allocations before committing the file. Roll back on failed
+  // exclusive creation/write so later inputs never deduplicate against a failed save.
+  const auto name=names.insert(key).first;
+  auto sound=sounds.end();bool insertedSound=false;
+  try{
+   if(!allowIdentical){const auto inserted=sounds.emplace(values,p.stem().u8string());sound=inserted.first;insertedSound=inserted.second;}
+   SaveUserPresetUnlocked(target,values,false);
+  }catch(...){names.erase(name);if(insertedSound)sounds.erase(sound);throw;}
+  ++report.imported;
  }catch(const std::exception& e){++report.failed;report.details.push_back(p.filename().u8string()+": "+e.what());}
  return report;
 }
