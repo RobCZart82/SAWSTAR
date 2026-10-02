@@ -7,11 +7,15 @@ az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpon
 
 ## Kiadás előtti aktuális munkacsomag
 
-Az 1.0.4 még draft, a nyilvános Latest 1.0.3. A #36 és #37 mainben van.
-Most a meglévő draft frissíthető kiadási útját és a valós nyilvános verziót
-jelző README-t készítjük el. A friss csomagok csak saját pontos main commitjuk
-zöld CI-je és csomagellenőrzése után kerülhetnek a draftba. Ez nem publikálás.
-Az aktuális kapukat a [kiadási checklist](RELEASE_1.0.4_CHECKLIST.md) rögzíti.
+Az 1.0.4 draft a #38 után ténylegesen frissült: forrása
+`1a6a5f2fc13d9b85a4f0ad4afcb191e4f84ddf38`, mind a 8 asset ellenőrzött.
+A PR 17/17 és a main 11/11 ellenőrzése sikeres. Nyilvános Latest továbbra is 1.0.3.
+
+A publikálásig hátralévő lépések, a natív REAPER-mátrix, a blokkoló hibák,
+a végleges csomagkör és a dátum/Latest egyeztetése egy helyen szerepel:
+[terv a drafttól a publikálásig](RELEASE_1.0.4_CHECKLIST.md).
+Ez a kiadási végrehajtás elsődleges terve; az alábbi további fejlesztési témák
+csak igazolt kiadást blokkoló regresszió esetén válnak az 1.0.4 előfeltételévé.
 
 ## Elkészült munkacsomag: presetimport
 
