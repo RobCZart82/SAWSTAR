@@ -1,11 +1,23 @@
-# SAWSTAR — fejlesztés az 1.0.4 draft kiadásig és utána
+# SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
 Frissítve: 2026-10-02. Ellenőrzött main: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
 A main Windows, macOS és Code quality workflow-ja sikeres. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
 
-## Kiadás előtti aktuális munkacsomag
+## Aktuális kiadási státusz
+
+Az 1.0.4 2026-10-02-án megjelent a tulajdonos kifejezett publikálási döntése
+alapján, és a GitHub Latest kiadása. A csomagok változatlan forrása `1a6a5f2`.
+A publikálási ellenőrzések, a builddátum eltérése és a nem dokumentált teljes
+friss natív mátrix korlátja a [kiadási jegyzőkönyvben](RELEASE_1.0.4_CHECKLIST.md)
+szerepel. A további aktív munkát a kiadás utáni sorrend vezeti; új reprodukált
+kritikus hiba ezt a sorrendet megelőzi.
+
+Az alábbi kiadás előtti összegzés és mérföldkövek történeti tervként maradnak
+meg; nem jelentik, hogy az 1.0.4 továbbra is draft.
+
+## Kiadás előtti munkacsomag történeti állapota
 
 Az 1.0.4 draft a #38 után ténylegesen frissült: forrása
 `1a6a5f2fc13d9b85a4f0ad4afcb191e4f84ddf38`, mind a 8 asset ellenőrzött.
