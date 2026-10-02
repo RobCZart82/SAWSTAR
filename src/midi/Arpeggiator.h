@@ -16,7 +16,8 @@ public:
   for(int ch=0;ch<16;++ch){send(0xb0|ch,64,0);send(0xb0|ch,123,0);}
   keys_={};pedal_={};count_=physical_=0;active_=-1;phase_=0;step_=0;fresh_=true;
  }
- template<class Send> void Set(bool on,int mode,int division,float gate,int octaves,float swing,bool hold,double bpm,bool running,Send send){
+ // True only when transport stop discards all key ownership.
+ template<class Send> bool Set(bool on,int mode,int division,float gate,int octaves,float swing,bool hold,double bpm,bool running,Send send){
   const int m=std::clamp(mode,0,4),o=std::clamp(octaves,1,4);
   if(on!=on_){
    Stop(send);for(int ch=0;ch<16;++ch){send(0xb0|ch,64,0);send(0xb0|ch,123,0);}
@@ -29,10 +30,12 @@ public:
   bpm_=std::isfinite(bpm)&&bpm>0?std::clamp(bpm,1.,1000.):120;
   if(hold_&&!hold)for(int i=0;i<2048;++i)if(!keys_[i].down&&!pedal_[i/128])keys_[i].latched=false;
   hold_=hold;
-  if(on_&&running_&&!running)Clear(send);
+  const bool cleared=on_&&running_&&!running;
+  if(cleared)Clear(send);
   running_=running;
   if(rebuild||on_!=wasOn_){Rebuild();wasOn_=on_;}
   if(!count_)Stop(send);
+  return cleared;
  }
  template<class Send> void Midi(int status,int note,int value,Send send){
   if(note<0||note>127||value<0||value>127)return;

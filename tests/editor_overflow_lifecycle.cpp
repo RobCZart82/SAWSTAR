@@ -106,5 +106,24 @@ int main(){
  check(f.events.Size()==0,"Bypass recovery queued stale events");
  f.host(0x80,60,0);f.process(48000);
  check(!f.synth->Held(60)&&f.synth->ActiveVoices()==0,"Host release during bypass was lost");
+ // Future editor offsets must be immediate before the post-audio snapshot.
+ // Host offsets retain their sample scheduling and same-note ownership.
+ for(bool arpOn:{false,true}){
+  auto future=std::make_unique<Fixture>();auto& g=*future;g.enableArp(arpOn);
+  g.host(0x90,64,100,128);
+  g.fromEditor.events.push_back({4096,0x90,64,100,true});
+  g.mPlug.SignalMidiMsgFromEditorOverflow(); // Corresponding editor Off lost.
+  g.process(0);check(g.mPlug.overflow,"Zero block acknowledged future editor MIDI");
+  g.process(64);
+  check(g.mPlug.tracker.PendingReleaseCount()==1,"Editor onset missed overflow snapshot");
+  check(g.events.Size()==1,"Editor onset remained future or host offset was consumed early");
+  g.process(64);check(g.mPlug.tracker.PendingReleaseCount()==0,"Editor recovery failed to drain");
+  g.process(64);
+  check(g.synth->Held(64),"Future host root was stolen by editor recovery");
+  g.fromEditor.events.push_back({2048,0x80,64,0,true});g.process(64);
+  check(g.synth->Held(64),"Late physical editor Off stole future host root");
+  g.host(0x80,64,0);g.process(48000);
+  check(!g.synth->Held(64)&&g.synth->ActiveVoices()==0,"Future-offset lifecycle stranded a voice");
+ }
  std::cout<<"Overflow deferral and opt-in silent bypass lifecycle pass.\n";
 }
