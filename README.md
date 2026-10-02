@@ -18,7 +18,11 @@ clear signal flow and a preset browser that explains saved sounds.
 
 ## Download
 
-Download **SAWSTAR 1.0.4** from [GitHub Releases](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.4).
+Download the **latest published SAWSTAR release** from [GitHub Releases](https://github.com/RobCZart82/SAWSTAR/releases/latest).
+The version marked **Latest** there is the public download version.
+
+**SAWSTAR 1.0.4 is being prepared as an unpublished draft.** Its source and
+documentation on `main` can be newer than the packages available publicly.
 
 **Recommended installers:** Windows x64 / ARM64 Setup EXE, or macOS Universal
 DMG containing the PKG installer. **Manual installation:** separate VST3 ZIPs
@@ -26,7 +30,8 @@ are available for each target. All packages include English/Hungarian PDF guides
 and license notices. The installers are unsigned; read the installation guide
 before proceeding through platform security prompts.
 
-See the [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md) for fixes, package details and updating instructions.
+See the [published 1.0.3 release notes](docs/RELEASE_NOTES_1.0.3.md) for the current public packages,
+and the [draft 1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md) for the upcoming update.
 
 ## Features
 
@@ -60,7 +65,7 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Magyar PDF](docs/manuals/SAWSTAR-User-Manual-HU.pdf)
 - [Factory library](docs/FACTORY_LIBRARY.md)
 - [Changelog](CHANGELOG.md) and [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md)
-- [Post-1.0.3 development roadmap](docs/DEVELOPMENT_ROADMAP_POST_1.0.3.md)
+- [Current development and release preparation plan](docs/DEVELOPMENT_PLAN_POST_1.0.4.md)
 
 The English and Hungarian guides describe SAWSTAR 1.0.4 and include the supplied 1.0.3 screenshots.
 
@@ -83,13 +88,16 @@ Original SAWSTAR code: [MIT](LICENSE). External components retain their own
 terms; see [Third-party notices](THIRD_PARTY_NOTICES.md). Creator branding has
 separate treatment and is not granted for unrestricted reuse by the code license.
 
-### 1.0.4 maintenance release
+### Upcoming 1.0.4 maintenance release — draft
 
-The 2026-10-01 release includes MIDI/editor lifecycle, envelope precision,
+The unpublished draft includes MIDI/editor lifecycle, envelope precision,
 VST3 tail and preset-validation fixes. Parameter IDs, state compatibility and
 GUI layout remain unchanged. See [1.0.4 changes](docs/RELEASE_NOTES_1.0.4.md)
 and [release validation](docs/RELEASE_1.0.4_CHECKLIST.md).
 
 For future RC builds, set `candidate` to `rcN` and leave the release date empty.
 Final packages require an empty candidate, an actual date and successful
-checks of the exact release commit.
+checks of the exact release commit. At publication, confirm that the release,
+Latest designation, package/About versions and public download text agree.
+A build-metadata date is not evidence that a release has been published.
+

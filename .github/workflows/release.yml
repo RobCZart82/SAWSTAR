@@ -1,8 +1,15 @@
 name: Prepare verified release draft
 on:
+  workflow_dispatch:
   push:
     branches: [main]
-    paths: [release.json]
+    paths:
+      - release.json
+      - .github/workflows/release.yml
+      - scripts/publish-release.py
+      - scripts/release_draft.py
+      - scripts/release_validation.py
+      - docs/RELEASE_NOTES_*.md
 permissions:
   contents: write
   actions: read
@@ -11,6 +18,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:

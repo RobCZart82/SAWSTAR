@@ -1,11 +1,19 @@
-# SAWSTAR — fejlesztési terv az 1.0.4 után
+# SAWSTAR — fejlesztés az 1.0.4 draft kiadásig és utána
 
 Frissítve: 2026-10-02. Kiinduló main: `8e4c18e1de08f6b3018cb859c90b8186ffabddce`.
 A main Windows, macOS és Code quality workflow-ja sikeres. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
 
-## Aktuális munkacsomag: presetimport
+## Kiadás előtti aktuális munkacsomag
+
+Az 1.0.4 még draft, a nyilvános Latest 1.0.3. A #36 és #37 mainben van.
+Most a meglévő draft frissíthető kiadási útját és a valós nyilvános verziót
+jelző README-t készítjük el. A friss csomagok csak saját pontos main commitjuk
+zöld CI-je és csomagellenőrzése után kerülhetnek a draftba. Ez nem publikálás.
+Az aktuális kapukat a [kiadási checklist](RELEASE_1.0.4_CHECKLIST.md) rögzíti.
+
+## Elkészült munkacsomag: presetimport
 
 Az importot a GUI közvetlenül hívja. A korábbi implementáció minden új fájlnál
 újra listázta a könyvtárat, a duplikációkereséshez újraolvasta a preseteket,
@@ -91,3 +99,4 @@ A következő release verzióját és RC-jét a tényleges kiadási kör rögzí
 Minden PR pontos headje legyen zöld; publikálás előtt a végleges commit,
 csomagok, natív elfogadás és dokumentáció kapui is teljesüljenek.
 Filterkarakter, 32 voice és a lezárt click/pop kutatás külön munkacsomag marad.
+
