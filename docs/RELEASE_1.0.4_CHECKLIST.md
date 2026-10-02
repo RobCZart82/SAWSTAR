@@ -121,7 +121,8 @@ futtatni; korábbi más build PASS eredményét nem szabad átírni új SHA-ra.
 - [ ] Changelog: az 1.0.4-be kerülő Unreleased tételek összevezetve a kiadási fejezettel; nincs kettős vagy kihagyott scope.
 - [ ] Release notes, buildmeta, macOS plist/config, kézikönyvek és csomagok dátum/verzió állításai egyeznek.
 - [ ] Módosított EN/HU PDF-eket újrageneráltuk és vizuálisan ellenőriztük; a régi képernyőképek továbbra is tényleges verziójukkal vannak jelölve.
-- [ ] A README publikálás előtt továbbra is draftként jelöl; a publikálás utáni README-szöveg elő van készítve. A csomagolt release notes már végleges, semleges státuszú legyen: ne állítson idő előtt megtörtént publikálást, és ne maradjon benne később téves „unpublished” állítás.
+- [ ] A végleges, tagelendő commit README-je már kiadás előtt és után is igaz, semleges szöveget tartalmaz: a forrás verziója 1.0.4, a nyilvános letöltés a `/releases/latest` linken ellenőrizhető. Ne maradjon benne „1.0.4 unpublished” vagy „1.0.3 current public” állítás; és ne állítsa idő előtt, hogy 1.0.4 már publikált. A tagelt README-t és a GitHub forrásarchívumait egy későbbi main-only módosítás nem javítja ki.
+- [ ] A csomagolt release notes már végleges, semleges státuszú legyen: ne állítson idő előtt megtörtént publikálást, és ne maradjon benne később téves „unpublished” állítás. A jelenlegi draft-státuszszövegek eltávolítása a végleges commit része.
 - [ ] A végleges PR pontos headje zöld, a merge commit saját Windows/macOS/Quality push-futásai is sikeresek.
 - [ ] A végleges commit draft workflow-ja sikeres; a csomagmanifestek source_commit mezője és a draft target ugyanaz a teljes SHA.
 - [ ] A végleges build rövid natív próbája megismételve, About SHA ellenőrizve. Ha csak metadata változott, a korábbi teljes mátrix hivatkozható az eltérés felsorolásával, de a végleges csomag smoke-ja nem hagyható el.
@@ -152,8 +153,8 @@ Csak az előző kapuk teljesülése után:
 
 1. A végleges release-scope, dátum, teljes SHA és tesztjegyzőkönyv rögzítése; a draft frissítése közben ne publikáljunk kézzel.
 2. A draft publikálása normál 1.0.4 release-ként, nem prerelease-ként, kifejezett **Latest** jelöléssel.
-3. A v1.0.4 tag tényleges commitjának feloldása és összevetése a manifest/source SHA-val; draft=false, prerelease=false ellenőrzése.
-4. A README előkészített publikált szövegének aktiválása: a draft-jelölés és az 1.0.3 „current public” megfogalmazás megszüntetése, 1.0.4 Latest link/verzió ellenőrzése. A csomagolt release notes a véglegesítéskor már elkészült; ne módosítsuk utólag a publikált csomagokat. Notes-változás publikálás előtt új csomagkört igényel; a notes/script trigger publikált tag után szándékosan blokkol, ezért státuszváltásra a README-t használjuk.
+3. A v1.0.4 tag tényleges commitjának feloldása és összevetése a manifest/source SHA-val; draft=false, prerelease=false ellenőrzése. A tagelt README és a GitHub által generált source ZIP/tarball verzió- és státuszszövege is helyes legyen.
+4. A semleges, már végleges commitban rögzített README letöltési linkjének ellenőrzése: `/releases/latest` valóban 1.0.4-re mutat. Opcionális „megjelent” bejelentés utána kerülhet a mainre, de ez nem helyettesíti a tagelt README helyességét. A csomagolt release notes már a véglegesítéskor elkészült; publikált csomagot nem módosítunk. Notes-változás publikálás előtt új csomagkört igényel; publikált tagra a draft-frissítő szándékosan blokkol.
 5. Nyilvános ellenőrzés bejelentkezés nélkül: repository Releases/Latest, README, `/releases/latest`, tag-oldal, a 8 asset és a dátum/verzió egyezése.
 6. A nyilvános Windows/macOS csomagok újbóli letöltése és hash-ellenőrzése; legalább egy telepítési/REAPER smoke platformonként a rendelkezésre álló gépeken.
 7. Kiadási jegyzőkönyv lezárása: SHA, workflow-linkek, asset/hash-lista, natív eredmények, elfogadott korlátok és publikálási időpont.
