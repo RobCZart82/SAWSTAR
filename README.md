@@ -21,8 +21,9 @@ clear signal flow and a preset browser that explains saved sounds.
 Download the **latest published SAWSTAR release** from [GitHub Releases](https://github.com/RobCZart82/SAWSTAR/releases/latest).
 The version marked **Latest** there is the public download version.
 
-**SAWSTAR 1.0.4 is being prepared as an unpublished draft.** Its source and
-documentation on `main` can be newer than the packages available publicly.
+**SAWSTAR 1.0.4 is published.** Download the verified Windows and macOS packages
+from [the 1.0.4 release](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.4).
+Later development on `main` may differ from the released packages.
 
 **Recommended installers:** Windows x64 / ARM64 Setup EXE, or macOS Universal
 DMG containing the PKG installer. **Manual installation:** separate VST3 ZIPs
@@ -30,8 +31,7 @@ are available for each target. All packages include English/Hungarian PDF guides
 and license notices. The installers are unsigned; read the installation guide
 before proceeding through platform security prompts.
 
-See the [published 1.0.3 release notes](docs/RELEASE_NOTES_1.0.3.md) for the current public packages,
-and the [draft 1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md) for the upcoming update.
+See the [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md) for the current public packages.
 
 ## Features
 

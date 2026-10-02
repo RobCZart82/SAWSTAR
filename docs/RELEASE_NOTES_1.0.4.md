@@ -1,13 +1,9 @@
 # SAWSTAR 1.0.4
 
-Status: **unpublished draft**, updated 2026-10-02. The current public Latest
-release is v1.0.3. The 2026-10-01 date in the current build metadata is not a
-publication date; confirm the final date when the verified draft is published.
+Published: 2026-10-02. Source commit: `1a6a5f2fc13d9b85a4f0ad4afcb191e4f84ddf38`.
+The packaged UI/build metadata date is 2026-10-01; it identifies the prepared build, not the publication day.
 
-This maintenance release collects reliability fixes made after v1.0.3. The
-owner accepted the earlier 1.0.4-rc1 candidate on macOS and Windows without
-audible or observed problems. That acceptance does not verify the later
-changes below; check the refreshed draft's About commit during final testing.
+This maintenance release collects reliability fixes made after v1.0.3.
 
 ## MIDI and host lifecycle
 
@@ -52,15 +48,11 @@ changes below; check the refreshed draft's About commit during final testing.
   Failed saves do not poison the index; existing names remain protected.
   Import remains synchronous, with no persistent cache or background worker.
 
-## Draft verification and publication
+## Build verification
 
-Draft refresh requires successful Windows, macOS and Quality push workflows
-for the exact source commit, all three platform packages, matching manifests,
-manuals and license notices. It updates only unpublished drafts and refuses to
-move an existing tag or overwrite a public release. An interrupted refresh is
-marked incomplete and must not be published. Do not publish manually while
-refresh is running. Review the final commit, assets/checksums and native REAPER
-results before the separate publication step.
+The Windows, macOS and Quality workflows succeeded for the exact package source
+commit. All three platform ZIPs passed manifest, file-list, manual and license
+validation; all seven release payloads match SHA256SUMS.txt.
 
 ## Compatibility and packages
 
@@ -74,7 +66,7 @@ and macOS Universal DMG/PKG and manual VST3 ZIP, with English/Hungarian manuals.
 
 Close the DAW before updating, back up projects/user presets, and check the
 actual About version and commit after reopening. Packages remain unsigned and
-macOS is not notarized. See [Installation](INSTALLATION.md) and
-[System requirements](SYSTEM_REQUIREMENTS.md). Previous public releases remain
+macOS is not notarized. See [Installation](https://github.com/RobCZart82/SAWSTAR/blob/v1.0.4/docs/INSTALLATION.md) and
+[System requirements](https://github.com/RobCZart82/SAWSTAR/blob/v1.0.4/docs/SYSTEM_REQUIREMENTS.md). Previous public releases remain
 available; none are overwritten by this release.
 

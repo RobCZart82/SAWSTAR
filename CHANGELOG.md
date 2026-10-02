@@ -2,14 +2,16 @@
 
 ## Unreleased
 
+No further changes recorded.
+
+## 1.0.4 - 2026-10-02
+
 - Refresh an existing unpublished release draft from verified exact-commit packages; protect public releases and existing tags and mark interrupted refreshes incomplete.
-- Link the README to the actual public Latest download and label 1.0.4 as an unpublished draft.
+- Link the README to the actual public Latest download.
 - Index batch preset imports once under the library mutation lock, reducing repeated directory scans and preset reads while preserving filename collisions, exact duplicate checks and failed-save recovery.
 - Synchronize editor note ownership when ARP transport stop clears its roots, so a later GUI release cannot stop a fresh host note of the same pitch.
 - Deliver every VST3 MIDI-controller parameter point with its original sample offset, including sustain edges, pitch bend and channel aftertouch.
 - Process accepted editor MIDI at sample zero so upstream overflow recovery cannot miss an editor onset deferred into a future block.
-
-## 1.0.4 - unpublished draft (build metadata: 2026-10-01)
 
 - Fix editor/host note ownership during overflow recovery, reset and editor close.
 - Preserve final pitch/mod controller targets when MIDI queues overflow.

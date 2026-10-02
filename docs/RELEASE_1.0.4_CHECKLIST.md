@@ -1,8 +1,35 @@
-# SAWSTAR 1.0.4 — terv a drafttól a publikálásig
+# SAWSTAR 1.0.4 — kiadási terv és publikálási eredmény
 
 Frissítve: 2026-10-02. Ez az 1.0.4 publikálásának közös, végrehajtható terve.
 A táblákban a „nyitott” ténylegesen hátralévő feladat; nem feltételezett hiba.
 Új eredménynél a konkrét buildet és a bizonyítékot kell rögzíteni, majd a státuszt frissíteni.
+
+## Publikálási eredmény 2026-10-02
+
+Az 1.0.4 a tulajdonos kifejezett „a draft kiadható, publikáld” döntése alapján
+2026-10-02 18:35:10 UTC-kor nyilvánossá vált, normál Latest kiadásként.
+[Nyilvános release](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.4).
+A tag és a nyolc meglévő draft asset forrása változatlan:
+`1a6a5f2fc13d9b85a4f0ad4afcb191e4f84ddf38`.
+A csomagok builddátuma 2026.10.01.; ez nem a publikálás dátuma.
+
+Publikálás előtt ismét ellenőriztük a nyolc API asset-digestet, a hét payload
+checksumját, a három ZIP produkciós validációját és a pontos forráscommit sikeres
+Windows/macOS/Quality futásait. Nem futott draft-frissítés. Publikálás után a
+Latest, a draft=false/prerelease=false, a tag SHA és a bejelentkezés nélküli
+SHA256SUMS letöltés egyezése ellenőrzött.
+
+A teljes friss natív N01–N16 mátrixhoz nem érkezett új, esetenkénti jegyzőkönyv;
+a korábbi RC-próba és a tulajdonos publikálási döntése külön bizonyíték.
+A kiadott csomagokat nem építettük újra és nem módosítottuk. A bennük és a
+változatlan tag dokumentációjában maradt draft-státuszú szövegek történeti
+előkészítési leírások; a publikálási dátum és aktuális státusz a GitHub release
+oldalán szerepel. A main dokumentációja ezt a publikálás utáni frissítést kapja.
+A további natív próbák eredményét csak tényleges végrehajtás után szabad PASS-ra jelölni.
+
+Az alábbi checklist a publikálás előtti tervet és annak nem utólag átírt
+ellenőrzési feltételeit őrzi. A következő kiadásnál a végleges, csomagolt és
+tagelt státuszszövegek rendezése továbbra is kiadási feltétel.
 
 ## 1. Ellenőrzött kiinduló állapot
 
