@@ -15,7 +15,8 @@ int main(){
    const bool cleared=ApplyEngineControls(rig->synth,rig->arp,
     [&](ParameterId id){return values[size_t(id)];},
     [&](ParameterId id){return int(values[size_t(id)]);},120,running);
-   if(cleared)tracker.Clear();return cleared;
+   if(cleared)tracker.Clear();
+   return cleared;
   };
   check(!apply(true),"Starting transport discarded ownership");
   for(int channel:{0,15}){
@@ -28,7 +29,10 @@ int main(){
   check(apply(false)==enabled,"Transport clear report does not match ARP policy");
   if(enabled)check(tracker.PendingReleaseCount()==0,"Stop left recovery debt");
   check(!apply(false),"Repeated stopped blocks discarded fresh input");
-  if(!enabled)continue; // Plain MIDI ownership survives transport stop.
+  if(!enabled){
+   check(tracker.PendingReleaseCount()==4,"Plain MIDI stop discarded editor ownership");
+   continue;
+  }
   for(int channel:{0,15}){
    rig->midi(0x90|channel,60,100); // Fresh host root while stopped.
    check(tracker.Observe(0x80|channel,60,0),"Stale editor release can steal a host root");

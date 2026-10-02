@@ -8,7 +8,7 @@ root = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('patch', root / 'scripts/patch-iplug2-midi-overflow.py')
 patch = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(patch)
-fixture = (root / 'tests/fixtures/iplug2_parameter_changes.inc').read_bytes()
+fixture = (root / 'tests/fixtures/iplug2_parameter_changes.inc').read_bytes().replace(b'\r\n', b'\n')
 method = fixture[fixture.index(b'void IPlugVST3ProcessorBase::ProcessParameterChanges('):].strip()
 
 def patched(source):
