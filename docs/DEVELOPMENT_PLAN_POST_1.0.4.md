@@ -42,6 +42,12 @@ A második optimalizálás helyi, 16 hangos Drive-költsége kb. 21/41/83%
 48/96/192 kHz-en; ez nem a teljes engine CPU-terhelése. A numerikus
 referencia-kontraktus és a hangminta kontrollja sikeres, a teljes motor,
 kis buffer és magas-rátás minőségpolitika még következő kapu.
+A szélesebb spektrális grid 148 érdemben mérhető kontrollja javult.
+A kis-pufferes Drive-próbában 192 kHz-en néhány 32/64 mintás blokk túllépte
+az audioidőt; a magas rátás költségpolicy ezért integrációs előfeltétel.
+A #47 két macOS Release CPU-guardja a korábbi headen sikertelen volt,
+funkcionális tesztbukás nélkül. Friss CI és kontrollált összevetés szükséges;
+a küszöb nem módosul, piros guarddal nincs beolvasztás.
 A production engine hangútja változatlan.
 
 Részletes filterkövetelmények és első eredmények:

@@ -313,3 +313,73 @@ elfogadása. Az oszcillátorok, rezonáns filter, FX és wrapper ezen felül dol
 Következő kapu a teljes frekvenciamenet és aliasenergia szélesebb mérése,
 a kis-bufferes CPU-próba, majd a magas ráták minőség/költség politikája.
 A production engine továbbra sem használja a kutatási osztályokat.
+
+
+## Szélesebb spektrális és kis pufferes kontroll
+
+A `premium_drive_spectral_grid` 160 tónuskontrollt futtat: 44,1/48/96/192 kHz,
+3/5/7/11/13 osztva 32-vel hostfrekvencia, 6/12/20/24 dB Drive, 0,1/0,75
+bemeneti amplitúdó. A 32 mintás koherens periódus beállás után 64 periódus
+átlagából készül. A Nyquist alatt szabályos harmonikusok frekvenciabinjei
+kimaradnak a residual-mérésből. Az ezekkel egybeeső aliasok nem különíthetők
+el; ez nem teljes aliasenergia-mérés vagy általános aliasmentességi bizonyítás.
+A magas rátákon több vizsgált frekvencia az emberi hallási tartomány fölött
+van, ezért ezek numerikus stresszkontrollok, nem hallásos minősítések.
+
+A normál rátájú azonos nonlinearitáshoz viszonyított 148 érdemben mérhető
+kontroll mind javult. A residual energia változása −99,36 és −12,94 dB között;
+a fundamentális energiájához viszonyított változás −99,36 és −12,38 dB között
+volt. Utóbbi külön ellenőrzése kizárja, hogy csak általános kimeneti halkítás
+okozza a javulási mérőszámot, de az interpolátor előtti/utáni gerjesztésváltozás
+és az egybeeső aliaskomponensek elkülönítését nem oldja meg. A regresszió
+mindkét mérőszámban legalább 6 dB javulást kér, ha a régi residual >1e−12.
+A zajpadló közeli többi eset véges kimenete ellenőrzött; ott nem értékelünk
+félrevezető nagy százalékot vagy dB-arányt minőségi javulásként.
+
+A nulla Drive lineáris válasz külön karakterizált. 48 kHz-en: 18 kHz −0,031 dB,
+19,5 kHz −1,13 dB, 21 kHz −7,12 dB, 22,5 kHz −23,24 dB. A magas sáv
+csillapítása a mintavételváltás véges FIR-jének része. A passband/aliasing
+tradeoff az integráció előtt kifejezetten értékelendő.
+
+A `sawstar_premium_drive_benchmark --small-blocks` 16 Drive-példányt,
+20 dB-os beállítással, 32/64/128/256 mintás darabokban mér. A medián összidő
+mellett a három ismétlés leglassabb megfigyelt blokkját is jelenti a blokk
+rendelkezésére álló audioidő százalékában. Ez tartalmazza a mérési overheadet
+és az OS ütemezésének hatását; továbbra sem valódi host/audio-thread teszt.
+
+| Host ráta | Medián tartomány, pufferméretek között | Legrosszabb megfigyelt 32 mintás blokk |
+|---|---:|---:|
+| 48 kHz | 20,34–22,76% | 63,27% |
+| 96 kHz | 40,67–40,88% | 47,26% |
+| 192 kHz | 81,30–82,28% | 154,95% |
+
+192 kHz-en a 64 mintás maximum is 107,75% volt. A helyi próbában tehát
+néhány rövid blokk túllépte a rendelkezésre álló időt, miközben még csak a
+Drive dolgozott. A magas rátás minőség/költség policy és további optimalizálás
+beépítési előfeltétel; ezt nem szabad a medián 83%-os értékkel lezárni.
+
+## Nyitott CI teljesítményellenőrzés
+
+A #47 `59db7de` headjén két macOS Release job CPU-guardja elbukott.
+A 16 hangos, száraz production-engine összevetés 34,23%, illetve 35,36%
+többletet mért a rögzített történeti benchmark-baseline-hoz képest.
+A funkcionális tesztek mindkét jobban sikeresek voltak. A kutatási Drive
+nem része ennek a benchmarknak; a PR nem módosít production engine-forrást.
+Ezért a két mérés önmagában nem bizonyítja, hogy a Drive-kutatás okozta
+az eltérést, de ismétlődő sikertelen guardként nyitva marad.
+
+A küszöb változatlan. Friss head CI és szükség esetén kontrollált main/head
+production benchmark összevetés kell a beolvasztás előtt. A kutatási
+Drive-profilozás sikerét nem tekintjük a sikertelen production CPU-guard
+helyettesítő igazolásának.
+
+
+A helyi production-kontroll ugyanazzal a rögzített baseline-nal, nyolc
+váltakozó sorrendű mérési párral és az eredeti guard-küszöbökkel sikeres lett.
+A jelenlegi helyi Release buildet használtuk (`build-tail-contract`); a script
+forrása és statisztikája nem módosult. A száraz 16 voice többlete +7,57%,
+a többi CPU-különbség +6,01–11,13%. Az audio-szint és DC guardok is sikeresek.
+Ez fontos ellenkontroll, nem a CI-eltérés okának bizonyítása. A friss head
+GitHub CPU-guardjának sikere továbbra is szükséges a beolvasztáshoz.
+A szélesebb munkacsomag teljes helyi CTest eredménye 74/74; az új spektrális
+teszt külön ASan/UBSan alatt is sikeres.
