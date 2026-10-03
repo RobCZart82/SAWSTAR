@@ -48,7 +48,7 @@ with tempfile.TemporaryDirectory() as folder:
             subprocess.run([sys.argv[1], prefix, str(resonance), scene], check=True)
             validate(prefix)
     reference = None
-    for db in (0, 12, 24):
+    for db in (0, 12, 20, 24):
         for mode in ('host', '4x'):
             prefix = str(Path(folder) / f'drive-{db}-{mode}')
             subprocess.run([sys.argv[1], prefix, '50', 'lead', str(db), mode], check=True)

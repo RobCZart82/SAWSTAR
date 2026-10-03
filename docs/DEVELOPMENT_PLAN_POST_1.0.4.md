@@ -1,7 +1,7 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
-Frissítve: 2026-10-02. Ellenőrzött main: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
-A main Windows, macOS és Code quality workflow-ja sikeres. A #36 PR lezárta
+Frissítve: 2026-10-03. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
+Az akkori main Windows, macOS és Code quality workflow-ja sikeres volt. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
 
@@ -32,7 +32,23 @@ A rezonancia-vizsgálat #45 alatt beolvadt (`6c48ac0`): minden CI sikeres.
 A tulajdonos az 50%-os karaktert lead mintán preferálta, pluck és pad mintán
 is kellemesnek hallotta. A külön, négyszeres mintavételű Drive kutatási
 prototípus elkészült; hallásos értékelése, szélesebb aliasing-mérése és
-CPU-profilozása következik. A production engine hangútja változatlan.
+CPU-profilozása következik. A #46 Drive referencia minden CI után beolvadt
+(`cc41769`). A 24 dB tiszta, szélsőséges maximumként elfogadható; a tulajdonos
+szokásos használatra kb. 20 dB-ig tekerne. A 20 dB kontroll és az első,
+referenciával mintánként egyező optimalizálás elkészült. A 16 voice költség
+különösen 96/192 kHz-en még integrációt akadályozó tervezési feladat.
+A 20 dB-os lead mintát a tulajdonos szépen szólónak hallotta.
+A második optimalizálás helyi, 16 hangos Drive-költsége kb. 21/41/83%
+48/96/192 kHz-en; ez nem a teljes engine CPU-terhelése. A numerikus
+referencia-kontraktus és a hangminta kontrollja sikeres, a teljes motor,
+kis buffer és magas-rátás minőségpolitika még következő kapu.
+A szélesebb spektrális grid 148 érdemben mérhető kontrollja javult.
+A kis-pufferes Drive-próbában 192 kHz-en néhány 32/64 mintás blokk túllépte
+az audioidőt; a magas rátás költségpolicy ezért integrációs előfeltétel.
+A #47 két macOS Release CPU-guardja a korábbi headen sikertelen volt,
+funkcionális tesztbukás nélkül. Friss CI és kontrollált összevetés szükséges;
+a küszöb nem módosul, piros guarddal nincs beolvasztás.
+A production engine hangútja változatlan.
 
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).

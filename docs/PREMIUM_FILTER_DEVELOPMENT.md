@@ -184,8 +184,9 @@ A telítés négyszeres belső mintavételen fut. Mindkét mintavételváltásho
 129 tagú, Blackman-ablakos sinc FIR tartozik, 0,1125 ciklus/belső minta
 határfrekvenciával és egységnyi DC-erősítéssel. Az interpolátor négyszeres
 skálázást kap; a decimálás csak a kimeneti szűrés után történik.
-A referencia direkt konvolúciót használ, fix tömbökkel; CPU-optimalizáció
-és 16 voice profilozás még szükséges. A lineáris FIR-lánc késleltetése
+Az eredeti referencia direkt konvolúciót használ, fix tömbökkel.
+Az első optimalizálás és a helyi 16 voice profil eredménye alább szerepel;
+a magas mintavételi ráták és a teljes engine költsége még nyitott. A lineáris FIR-lánc késleltetése
 32 hostminta (48 kHz-en kb. 0,667 ms). A rezonáns filter host rátán marad;
 ez nem a teljes szűrő vagy a rezonáns visszacsatolás túlmintavételezése.
 
@@ -205,7 +206,7 @@ magasabb rátájú referencia külön következő mérési kapu.
 A regresszió az impulzus késleltetését, a nulla Drive késleltetett
 passband-pontosságát, a törlést, a sztereó izolációt, a hibás bemenet utáni
 helyreállást és a gyors Drive-moduláció véges kimenetét is ellenőrzi.
-ASan/UBSan ellenőrzés is tartozik hozzá. A hat Drive-preview (0/12/24 dB,
+ASan/UBSan ellenőrzés is tartozik hozzá. A nyolc Drive-preview (0/12/20/24 dB,
 `host`/`4x`) WAV-kontraktusa, clippingmentessége, konstans RMS-illesztése és
 azonos A referenciája külön tesztelt.
 
@@ -222,3 +223,163 @@ preview A/B fájlok byte-azonosak maradtak. Az új Drive-minták még hallásos
 Következő kapuk: Drive hallásos karakter, szélesebb aliasing-mérés, FIR
 passband/stopband teljes karakterizálás, CPU-optimalizáció és profilozás,
 majd a száraz/wet út, moduláció és kompatibilis engine-integráció terve.
+
+
+## Drive visszajelzés és 20 dB kontroll
+
+A tulajdonos pontosítása szerint a 24 dB-os mintának tiszta, de szélsőséges:
+feszesebb, pulzáló, érdesebb karaktere van. Potmétermaximumként elfogadható,
+de a szokásos használatot körülbelül 20 dB-ig képzeli el. A 24 dB nem
+elutasított vagy bizonyítottan hibás hang. A 0–24 dB tervezett tartomány
+megmarad, 20 dB alatt jól adagolható szabályozással; ezt a GUI-integrációban
+külön kell ellenőrizni. A 20 dB-os lead kontroll elkészült, hallásos értékelése
+még nyitott. Nem állítunk előre elfogadást a 12 vagy 20 dB-os mintára.
+
+A korábbi koherens tónuskontroll 20 dB Drive-nál −34,98 dB csökkenést mért
+a kiválasztott visszahajló komponensben. A teszt mind a négy mintavételi rátán
+és a preview-kontraktus mindkét feldolgozási módban erre az értékre is bővült.
+Ez továbbra sem általános aliasmentességi állítás.
+
+## Első CPU optimalizálás
+
+A `ReferencePremiumDrive.h` megőrzi az eredeti teljes konvolúciós megvalósítást.
+A kutatási `PremiumDrive` az interpoláció ismert nulla mintáit kihagyja, a
+kimeneti konvolúciót pedig csak a decimáláskor megtartott fázisban számolja.
+A kihagyott fázisok előzményeit továbbra is beírja. A szűrőegyütthatók,
+a telítés, a vezérlősimítás és a 32 mintás késleltetés változatlan.
+
+Az első optimalizálás regressziója 10 000 determinisztikus sztereó mintán,
+rátánként, változó Drive, Snap, Clear és hibás bemenet mellett pontos
+mintánkénti egyezést követelt az eredeti referenciával. A második optimalizálás
+numerikus kontraktusa a következő szakaszban szerepel. A 20 dB-os teljes raw és RMS-illesztett WAV is
+byte-azonos az optimalizálás előtti kontrollal.
+
+A `sawstar_premium_drive_benchmark [--reference]` külön Release profilozó
+eszköz; nem időzítésfüggő CI pass/fail teszt. Egy mérés 8192 sztereó mintát
+feldolgozva három ismétlés mediánját jelenti; előtte 256 minta bemelegítés.
+Csak a Drive fut, a source-fixture előre generált; nincs benne oszcillátor,
+rezonáns filter, FX, wrapper vagy valódi host-audio callback.
+A százalék a feldolgozási idő és a modellezett audioidő aránya egy szálon,
+nem a plugin CPU-kijelzője vagy a teljes gép kihasználtsága.
+
+A helyi macOS `clang++ -O3 -DNDEBUG` futás 16 hang és 20 dB Drive mellett:
+
+| Host ráta | Eredeti referencia | Első optimalizált jelölt |
+|---|---:|---:|
+| 48 kHz | 88,27% | 38,20% |
+| 96 kHz | 174,33% | 76,75% |
+| 192 kHz | 351,04% | 152,24% |
+
+Ezek két helyi futás adatai, környezetfüggőek; nem platformfüggetlen
+sebességígéretek. Az első optimalizálás jelentős, de a 192 kHz-es 16 voice
+Drive önmagában is több időt igényel, mint amennyi rendelkezésre állna.
+A 96 kHz-es tartalék szintén kevés a teljes motorhoz. Emiatt további
+hatékonysági/minőségi terv és kis-bufferes teljes engine profil szükséges
+az integráció előtt. A 32 voice továbbra is halasztott.
+
+
+## Második CPU optimalizálás és elfogadott 20 dB minta
+
+A tulajdonos a `04-drive20-B-RMS-matched-LP24.wav` lead mintát szépen
+szólónak hallotta (2026-10-03, 50% rezonancia). Ez e teszteset pozitív
+visszajelzése, nem a teljes Drive-tartomány vagy az integrált plugin elfogadása.
+
+A második optimalizálás tükrözött FIR előzményt használ: a belső tároló
+minden mintát két helyre ír, így az együtthatókhoz tartozó minták folytonos
+memóriából olvashatók. A szorzatösszeg négy független double akkumulátorral
+számolható, ami fast-math nélkül is segíti a vektorizálást. Az együtthatók,
+fel/le mintavételi faktor, nonlinearitás, simítás és késleltetés változatlan.
+A tároló nő, de továbbra is fix méretű; feldolgozás közben nincs új allokáció.
+
+Az összegzés sorrendje eltérhet, ezért a referencia-kontraktus most numerikus
+hibahatárt rögzít: maximum abszolút mintahiba <1e−7 (−140 dBFS), RMS-hiba
+<1e−8 (−160 dBFS) a 10 000 mintás moduláció/reset/hibás bemeneti kontrollban.
+Ez nem bitazonossági ígéret minden platformra vagy tetszőleges gerjesztésre.
+A helyi négy rátás kontrollban a tényleges eltérés nulla volt; a teljes 20 dB-os
+raw és RMS-illesztett WAV mintái is pontosan egyeztek az eredeti referenciával.
+A független aliasing-, passband- és késleltetési tesztek megmaradtak.
+
+Azonos profilozási módszerrel, helyi Release futásban, 16 hang és 20 dB mellett:
+
+| Host ráta | Első optimalizálás | Második optimalizálás |
+|---|---:|---:|
+| 48 kHz | 38,20% | 20,75% |
+| 96 kHz | 76,75% | 41,34% |
+| 192 kHz | 152,24% | 82,60% |
+
+A futások környezetfüggőek. A 192 kHz-es Drive önmagában már a rendelkezésre
+álló időn belül van, de ez nem a teljes engine, kis buffer vagy natív host
+elfogadása. Az oszcillátorok, rezonáns filter, FX és wrapper ezen felül dolgoznak.
+Következő kapu a teljes frekvenciamenet és aliasenergia szélesebb mérése,
+a kis-bufferes CPU-próba, majd a magas ráták minőség/költség politikája.
+A production engine továbbra sem használja a kutatási osztályokat.
+
+
+## Szélesebb spektrális és kis pufferes kontroll
+
+A `premium_drive_spectral_grid` 160 tónuskontrollt futtat: 44,1/48/96/192 kHz,
+3/5/7/11/13 osztva 32-vel hostfrekvencia, 6/12/20/24 dB Drive, 0,1/0,75
+bemeneti amplitúdó. A 32 mintás koherens periódus beállás után 64 periódus
+átlagából készül. A Nyquist alatt szabályos harmonikusok frekvenciabinjei
+kimaradnak a residual-mérésből. Az ezekkel egybeeső aliasok nem különíthetők
+el; ez nem teljes aliasenergia-mérés vagy általános aliasmentességi bizonyítás.
+A magas rátákon több vizsgált frekvencia az emberi hallási tartomány fölött
+van, ezért ezek numerikus stresszkontrollok, nem hallásos minősítések.
+
+A normál rátájú azonos nonlinearitáshoz viszonyított 148 érdemben mérhető
+kontroll mind javult. A residual energia változása −99,36 és −12,94 dB között;
+a fundamentális energiájához viszonyított változás −99,36 és −12,38 dB között
+volt. Utóbbi külön ellenőrzése kizárja, hogy csak általános kimeneti halkítás
+okozza a javulási mérőszámot, de az interpolátor előtti/utáni gerjesztésváltozás
+és az egybeeső aliaskomponensek elkülönítését nem oldja meg. A regresszió
+mindkét mérőszámban legalább 6 dB javulást kér, ha a régi residual >1e−12.
+A zajpadló közeli többi eset véges kimenete ellenőrzött; ott nem értékelünk
+félrevezető nagy százalékot vagy dB-arányt minőségi javulásként.
+
+A nulla Drive lineáris válasz külön karakterizált. 48 kHz-en: 18 kHz −0,031 dB,
+19,5 kHz −1,13 dB, 21 kHz −7,12 dB, 22,5 kHz −23,24 dB. A magas sáv
+csillapítása a mintavételváltás véges FIR-jének része. A passband/aliasing
+tradeoff az integráció előtt kifejezetten értékelendő.
+
+A `sawstar_premium_drive_benchmark --small-blocks` 16 Drive-példányt,
+20 dB-os beállítással, 32/64/128/256 mintás darabokban mér. A medián összidő
+mellett a három ismétlés leglassabb megfigyelt blokkját is jelenti a blokk
+rendelkezésére álló audioidő százalékában. Ez tartalmazza a mérési overheadet
+és az OS ütemezésének hatását; továbbra sem valódi host/audio-thread teszt.
+
+| Host ráta | Medián tartomány, pufferméretek között | Legrosszabb megfigyelt 32 mintás blokk |
+|---|---:|---:|
+| 48 kHz | 20,34–22,76% | 63,27% |
+| 96 kHz | 40,67–40,88% | 47,26% |
+| 192 kHz | 81,30–82,28% | 154,95% |
+
+192 kHz-en a 64 mintás maximum is 107,75% volt. A helyi próbában tehát
+néhány rövid blokk túllépte a rendelkezésre álló időt, miközben még csak a
+Drive dolgozott. A magas rátás minőség/költség policy és további optimalizálás
+beépítési előfeltétel; ezt nem szabad a medián 83%-os értékkel lezárni.
+
+## Nyitott CI teljesítményellenőrzés
+
+A #47 `59db7de` headjén két macOS Release job CPU-guardja elbukott.
+A 16 hangos, száraz production-engine összevetés 34,23%, illetve 35,36%
+többletet mért a rögzített történeti benchmark-baseline-hoz képest.
+A funkcionális tesztek mindkét jobban sikeresek voltak. A kutatási Drive
+nem része ennek a benchmarknak; a PR nem módosít production engine-forrást.
+Ezért a két mérés önmagában nem bizonyítja, hogy a Drive-kutatás okozta
+az eltérést, de ismétlődő sikertelen guardként nyitva marad.
+
+A küszöb változatlan. Friss head CI és szükség esetén kontrollált main/head
+production benchmark összevetés kell a beolvasztás előtt. A kutatási
+Drive-profilozás sikerét nem tekintjük a sikertelen production CPU-guard
+helyettesítő igazolásának.
+
+
+A helyi production-kontroll ugyanazzal a rögzített baseline-nal, nyolc
+váltakozó sorrendű mérési párral és az eredeti guard-küszöbökkel sikeres lett.
+A jelenlegi helyi Release buildet használtuk (`build-tail-contract`); a script
+forrása és statisztikája nem módosult. A száraz 16 voice többlete +7,57%,
+a többi CPU-különbség +6,01–11,13%. Az audio-szint és DC guardok is sikeresek.
+Ez fontos ellenkontroll, nem a CI-eltérés okának bizonyítása. A friss head
+GitHub CPU-guardjának sikere továbbra is szükséges a beolvasztáshoz.
+A szélesebb munkacsomag teljes helyi CTest eredménye 74/74; az új spektrális
+teszt külön ASan/UBSan alatt is sikeres.
