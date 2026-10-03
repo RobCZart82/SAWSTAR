@@ -98,7 +98,59 @@ A korábbi fixture a belső 0–1 tartományban clampelt 60/75 értéket adta á
 az explicit 1/1 ugyanazt az eredményt adja. Az eredeti A és B változatlan PCM-jét
 külön ellenőrizzük, hogy a kontroll ne változtassa meg a már meghallgatott forrást.
 
+## Rezonancia vizsgálat 2026-10-03
+
+A prototípus nem változott; a vizsgálati eszköz és a kontrollok bővültek.
+A választeszt most 25/50/75/100% rezonancián is független analitikus átviteli
+függvényhez hasonlítja a mért szinuszválaszt, hat mintavételi frekvencián.
+A százalék továbbra is a jelölt saját csillapítási skálája, nem a régi filterrel
+azonos Q. A szintek 48 kHz-en, 1000 Hz cutoffnál, beállt állapotban:
+
+| Rezonancia | 100 Hz bemenet gain | 1000 Hz bemenet gain |
+|---|---:|---:|
+| 0% | kb. 0,00 dB | −3,01 dB |
+| 10% | +0,06 dB | −0,48 dB |
+| 30% | +0,12 dB | +4,59 dB |
+| 50% | +0,14 dB | +9,66 dB |
+| 70% | +0,15 dB | +14,72 dB |
+| 90% | +0,15 dB | +19,79 dB |
+| 100% | +0,15 dB | +22,32 dB |
+
+A basszus közel egységnyi átvitellel megmarad; a rezonáns sávban jelentős
+kiemelés lehetséges. Ez nem torzítás vagy hiba bizonyítéka, de a headroom,
+rezonanciaskála, telítés és a későbbi kimeneti szintkezelés tervezési tényezője.
+A táblázat két kiválasztott frekvencia erősítése, nem teljes peak-keresés.
+Automatikus basszusvesztést vagy dinamikus gain-kompressziót nem vezettünk be.
+
+A preview CLI új opcionális argumentumai:
+`OUTPUT_PREFIX [RESONANCE_PERCENT [sustain|lead|pluck|pad]]`.
+Argumentum nélkül a korábbi 30%-os sustain A/B fájl byte-azonos marad.
+A lead egy oktávval feljebb szól; a pluck 0,5 s periódusú, rövid támadású és
+lecsengésű forrás; a pad három azonos súlyú hang és lassabb felfutás.
+Mindegyik közös forrásgerjesztést használ az A és B számára, három másodperces
+nyitott bevezetővel, öt másodperces cutoff sweeppel, 12 s teljes hosszal.
+Ezek külön DSP-gerjesztési minták, nem pluginba integrált factory presetek.
+
+Mindhárom jelenet 10/50/90% rezonanciával készült el: 9 A/B pár, mindhez
+konstans RMS-illesztett B kontroll. A fájlkontraktus-teszt mind a 9 kombinációt
+ellenőrzi: hossz, formátum, véges/clippingmentes jel, állandó gain és RMS-egyezés.
+Hibás/NaN/végtelen/tartományon kívüli rezonancia és ismeretlen jelenet nem ír fájlt.
+A szélső rezonanciák analitikus választesztje és az ASan/UBSan kontroll is
+külön fut; hallásos elfogadás és natív engine-integráció továbbra is következő kapu.
+
 ## Következő megvalósítási lépések
+
+A tulajdonos a hangerőillesztett lead minták közül az 50%-os rezonanciájú
+jelöltet preferálta (2026-10-03, `lead-res50-B-RMS-matched-LP24.wav`).
+Ez a közepes rezonanciakarakter választása a három vizsgált lead mintából,
+nem minden preset vagy a teljes rezonanciatartomány elfogadása. A rezonancia
+továbbra is állítható marad; nem rögzítjük a pluginban 50%-ra.
+
+A következő hallásos kapu a már elkészült `pluck-res50` és `pad-res50`
+konstans RMS-illesztett jelöltje. Ezeken a lecsengés, a rezonáns csengés,
+a cutoff karaktere és a pad teltsége vizsgálandó. A közepes rezonancia
+szélesebb elfogadása után következik a Drive külön minőségi prototípusa.
+Az eddigi lineáris jelölt és a kiadott plugin jelútja változatlan.
 
 1. A tiszta jelölt hallásos és szélesebb gerjesztési kontrollja: lead, pad, pluck,
    basszus; mérhető frekvenciamenet és rezonáns csúcs. Legyen elegendő bevezető.
