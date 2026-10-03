@@ -33,10 +33,11 @@ int main() {
         std::cout << "drive=" << db << ", rate=" << rate << ", folded-third change dB=" << reduction << '\n';
         Require(reduction < (db == 12 ? -60 : -20), "folded third reduction contract (12/20/24 dB)");
       }
-      // Optimized implementation must preserve the full-convolution reference.
+      // Reassociated FIR sums have a bounded numerical error to the full reference.
       PremiumDrive optimized; optimized.Init(rate);
       sawstar::experimental::ReferencePremiumDrive reference; reference.Init(rate);
       uint32_t random = 1;
+      double maxError = 0, squaredError = 0;
       for (int i = 0; i < 10000; ++i) {
         if (i % 101 == 0) { const double db = (i / 101) % 25; optimized.Set(db); reference.Set(db); }
         if (i % 997 == 0) { optimized.SnapToTargets(); reference.SnapToTargets(); }
@@ -45,8 +46,17 @@ int main() {
         for (auto& v : x) { random = random * 1664525u + 1013904223u; v = static_cast<float>((random / 4294967296. - .5) * 1.6); }
         if (i == 3333) x[0] = std::numeric_limits<float>::quiet_NaN();
         if (i == 6666) x[1] = std::numeric_limits<float>::infinity();
-        Require(optimized.Process(x) == reference.Process(x), "polyphase sample equality to full reference");
+        const auto actual = optimized.Process(x), expected = reference.Process(x);
+        for (size_t ch = 0; ch < 2; ++ch) {
+          const double error = static_cast<double>(actual[ch]) - expected[ch];
+          maxError = std::max(maxError, std::abs(error)); squaredError += error * error;
+          Require(std::abs(static_cast<double>(actual[ch]) - expected[ch]) < 1e-7,
+                  "optimized Drive absolute error below -140 dBFS");
+        }
       }
+      std::cout << "rate=" << rate << ", reference max error=" << maxError
+                << ", RMS error=" << std::sqrt(squaredError / 20000) << '\n';
+      Require(squaredError / 20000 < 1e-16, "reference RMS error below -160 dBFS");
       PremiumDrive drive;
       drive.Init(rate);
       double peak = 0; int position = -1;

@@ -248,9 +248,10 @@ kimeneti konvolúciót pedig csak a decimáláskor megtartott fázisban számolj
 A kihagyott fázisok előzményeit továbbra is beírja. A szűrőegyütthatók,
 a telítés, a vezérlősimítás és a 32 mintás késleltetés változatlan.
 
-A regresszió 10 000 determinisztikus sztereó mintán, rátánként, változó Drive,
-Snap, Clear és hibás bemenet mellett pontos mintánkénti egyezést követel
-az eredeti referenciával. A 20 dB-os teljes raw és RMS-illesztett WAV is
+Az első optimalizálás regressziója 10 000 determinisztikus sztereó mintán,
+rátánként, változó Drive, Snap, Clear és hibás bemenet mellett pontos
+mintánkénti egyezést követelt az eredeti referenciával. A második optimalizálás
+numerikus kontraktusa a következő szakaszban szerepel. A 20 dB-os teljes raw és RMS-illesztett WAV is
 byte-azonos az optimalizálás előtti kontrollal.
 
 A `sawstar_premium_drive_benchmark [--reference]` külön Release profilozó
@@ -275,3 +276,40 @@ Drive önmagában is több időt igényel, mint amennyi rendelkezésre állna.
 A 96 kHz-es tartalék szintén kevés a teljes motorhoz. Emiatt további
 hatékonysági/minőségi terv és kis-bufferes teljes engine profil szükséges
 az integráció előtt. A 32 voice továbbra is halasztott.
+
+
+## Második CPU optimalizálás és elfogadott 20 dB minta
+
+A tulajdonos a `04-drive20-B-RMS-matched-LP24.wav` lead mintát szépen
+szólónak hallotta (2026-10-03, 50% rezonancia). Ez e teszteset pozitív
+visszajelzése, nem a teljes Drive-tartomány vagy az integrált plugin elfogadása.
+
+A második optimalizálás tükrözött FIR előzményt használ: a belső tároló
+minden mintát két helyre ír, így az együtthatókhoz tartozó minták folytonos
+memóriából olvashatók. A szorzatösszeg négy független double akkumulátorral
+számolható, ami fast-math nélkül is segíti a vektorizálást. Az együtthatók,
+fel/le mintavételi faktor, nonlinearitás, simítás és késleltetés változatlan.
+A tároló nő, de továbbra is fix méretű; feldolgozás közben nincs új allokáció.
+
+Az összegzés sorrendje eltérhet, ezért a referencia-kontraktus most numerikus
+hibahatárt rögzít: maximum abszolút mintahiba <1e−7 (−140 dBFS), RMS-hiba
+<1e−8 (−160 dBFS) a 10 000 mintás moduláció/reset/hibás bemeneti kontrollban.
+Ez nem bitazonossági ígéret minden platformra vagy tetszőleges gerjesztésre.
+A helyi négy rátás kontrollban a tényleges eltérés nulla volt; a teljes 20 dB-os
+raw és RMS-illesztett WAV mintái is pontosan egyeztek az eredeti referenciával.
+A független aliasing-, passband- és késleltetési tesztek megmaradtak.
+
+Azonos profilozási módszerrel, helyi Release futásban, 16 hang és 20 dB mellett:
+
+| Host ráta | Első optimalizálás | Második optimalizálás |
+|---|---:|---:|
+| 48 kHz | 38,20% | 20,75% |
+| 96 kHz | 76,75% | 41,34% |
+| 192 kHz | 152,24% | 82,60% |
+
+A futások környezetfüggőek. A 192 kHz-es Drive önmagában már a rendelkezésre
+álló időn belül van, de ez nem a teljes engine, kis buffer vagy natív host
+elfogadása. Az oszcillátorok, rezonáns filter, FX és wrapper ezen felül dolgoznak.
+Következő kapu a teljes frekvenciamenet és aliasenergia szélesebb mérése,
+a kis-bufferes CPU-próba, majd a magas ráták minőség/költség politikája.
+A production engine továbbra sem használja a kutatási osztályokat.

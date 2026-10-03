@@ -1,7 +1,7 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
-Frissítve: 2026-10-02. Ellenőrzött main: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
-A main Windows, macOS és Code quality workflow-ja sikeres. A #36 PR lezárta
+Frissítve: 2026-10-03. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
+Az akkori main Windows, macOS és Code quality workflow-ja sikeres volt. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
 
@@ -37,6 +37,11 @@ CPU-profilozása következik. A #46 Drive referencia minden CI után beolvadt
 szokásos használatra kb. 20 dB-ig tekerne. A 20 dB kontroll és az első,
 referenciával mintánként egyező optimalizálás elkészült. A 16 voice költség
 különösen 96/192 kHz-en még integrációt akadályozó tervezési feladat.
+A 20 dB-os lead mintát a tulajdonos szépen szólónak hallotta.
+A második optimalizálás helyi, 16 hangos Drive-költsége kb. 21/41/83%
+48/96/192 kHz-en; ez nem a teljes engine CPU-terhelése. A numerikus
+referencia-kontraktus és a hangminta kontrollja sikeres, a teljes motor,
+kis buffer és magas-rátás minőségpolitika még következő kapu.
 A production engine hangútja változatlan.
 
 Részletes filterkövetelmények és első eredmények:

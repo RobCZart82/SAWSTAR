@@ -43,15 +43,26 @@ public:
     return input;
   }
 private:
-  struct Fir { std::array<double, 256> history{}; unsigned cursor = 0; };
+  struct Fir { std::array<double, 512> history{}; unsigned cursor = 0; };
   double Tick(Fir& fir, double x, bool output, bool sparse) {
-    fir.history[fir.cursor] = x;
+    // Mirrored ring makes the convolution history contiguous without wrapping
+    // each tap. Independent sums enable vectorization without fast-math.
+    fir.history[fir.cursor] = fir.history[fir.cursor + 256] = x;
     double y = 0;
     if (output) {
       const unsigned first = sparse ? (fir.cursor & 3) : 0;
       const unsigned stride = sparse ? 4 : 1;
-      for (unsigned i = first; i < taps_.size(); i += stride)
-        y += taps_[i] * fir.history[(fir.cursor - i) & 255];
+      const double* history = fir.history.data() + fir.cursor + 256;
+      std::array<double, 4> sums{};
+      unsigned i = first;
+      for (; i + 3 * stride < taps_.size(); i += 4 * stride) {
+        for (unsigned lane = 0; lane < 4; ++lane) {
+          const unsigned tap = i + lane * stride;
+          sums[lane] += taps_[tap] * *(history - tap);
+        }
+      }
+      y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
+      for (; i < taps_.size(); i += stride) y += taps_[i] * *(history - i);
     }
     fir.cursor = (fir.cursor + 1) & 255;
     return y;
