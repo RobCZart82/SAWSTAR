@@ -5,6 +5,35 @@ A main Windows, macOS és Code quality workflow-ja sikeres. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
 
+## Aktív prioritás 2026-10-03
+
+A tulajdonos új sorrendje szerint a következő release fő fejlesztési iránya
+**a prémium filter**. A többi felsorolt megbízhatósági és használhatósági téma
+az aktív terv része marad. Csak a 32 voice vizsgálata és a Linux plugin kerül
+biztosan a soron következő release utánra.
+
+1. Filterreferencia és külön kutatási prototípus: cutoff/rezonancia mérés,
+   hosszabb bevezetőjű hangminták, stabilitás több mintavételi frekvencián.
+2. A jelölt hallásos értékelése, rezonancia és telítés tervezése; a nemlineáris
+   részekhez anti-aliasing/túlmintavételezés és CPU-költség külön ellenőrzése.
+3. Kompatibilis engine-integráció: régi preset/projekt a régi karaktert használja;
+   az új karakter kiválasztása és alapértelmezése kifejezett döntés. A prototípus
+   önmagában még nem kerül a plugin jelútjába.
+4. Presetkoherencia reprodukció, import/mentés késésének profilozása,
+   fájlrendszer-megbízhatóság és hagyományos automatizálás blokkfüggésének mérése.
+   A reset/kerék és natív lifecycle kombinációk ugyanitt kapnak célzott tesztet.
+5. Gyors presetlista ABC-sorrendje és kategóriái, majd az elfogadott filterhez
+   cutoff-központú factory presetek. Az új termékfunkciók scope-ja követhető PR-ekben
+   legyen rögzítve; bizonyított kritikus hiba mindig megelőzi a hangminőségi munkát.
+6. Végleges CPU- és kompatibilitási próba, Windows/macOS CI, natív elfogadás,
+   kézikönyvek és új kiadási csomagok. A következő verziószám külön rögzítendő.
+
+Részletes filterkövetelmények és első eredmények:
+[prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
+Az alábbi korábbi sorrend a feladatok technikai háttere; az aktív prioritást
+most ez a szakasz határozza meg. A 32 voice nem kerül be a következő release
+előfeltételei közé, a Linux továbbra is halasztott.
+
 ## Aktuális kiadási státusz
 
 Az 1.0.4 2026-10-02-án megjelent a tulajdonos kifejezett publikálási döntése
