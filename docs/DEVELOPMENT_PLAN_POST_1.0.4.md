@@ -28,6 +28,12 @@ biztosan a soron következő release utánra.
 6. Végleges CPU- és kompatibilitási próba, Windows/macOS CI, natív elfogadás,
    kézikönyvek és új kiadási csomagok. A következő verziószám külön rögzítendő.
 
+A rezonancia-vizsgálat #45 alatt beolvadt (`6c48ac0`): minden CI sikeres.
+A tulajdonos az 50%-os karaktert lead mintán preferálta, pluck és pad mintán
+is kellemesnek hallotta. A külön, négyszeres mintavételű Drive kutatási
+prototípus elkészült; hallásos értékelése, szélesebb aliasing-mérése és
+CPU-profilozása következik. A production engine hangútja változatlan.
+
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
 Az alábbi korábbi sorrend a feladatok technikai háttere; az aktív prioritást
