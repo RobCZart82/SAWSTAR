@@ -786,6 +786,13 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     )
 
 
+    # Research candidate only: not linked into the plugin or Synth signal path.
+    add_executable(sawstar_premium_filter_tests tests/premium_filter.cpp)
+    target_link_libraries(sawstar_premium_filter_tests PRIVATE sawstar_engine)
+    add_test(NAME premium_filter_response COMMAND sawstar_premium_filter_tests)
+    add_executable(sawstar_premium_filter_preview experiments/premium_filter/render.cpp)
+    target_link_libraries(sawstar_premium_filter_preview PRIVATE sawstar_engine)
+
     add_executable(
       sawstar_filter_character_tests
       tests/filter_character.cpp
