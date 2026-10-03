@@ -184,8 +184,9 @@ A telítés négyszeres belső mintavételen fut. Mindkét mintavételváltásho
 129 tagú, Blackman-ablakos sinc FIR tartozik, 0,1125 ciklus/belső minta
 határfrekvenciával és egységnyi DC-erősítéssel. Az interpolátor négyszeres
 skálázást kap; a decimálás csak a kimeneti szűrés után történik.
-A referencia direkt konvolúciót használ, fix tömbökkel; CPU-optimalizáció
-és 16 voice profilozás még szükséges. A lineáris FIR-lánc késleltetése
+Az eredeti referencia direkt konvolúciót használ, fix tömbökkel.
+Az első optimalizálás és a helyi 16 voice profil eredménye alább szerepel;
+a magas mintavételi ráták és a teljes engine költsége még nyitott. A lineáris FIR-lánc késleltetése
 32 hostminta (48 kHz-en kb. 0,667 ms). A rezonáns filter host rátán marad;
 ez nem a teljes szűrő vagy a rezonáns visszacsatolás túlmintavételezése.
 
@@ -205,7 +206,7 @@ magasabb rátájú referencia külön következő mérési kapu.
 A regresszió az impulzus késleltetését, a nulla Drive késleltetett
 passband-pontosságát, a törlést, a sztereó izolációt, a hibás bemenet utáni
 helyreállást és a gyors Drive-moduláció véges kimenetét is ellenőrzi.
-ASan/UBSan ellenőrzés is tartozik hozzá. A hat Drive-preview (0/12/24 dB,
+ASan/UBSan ellenőrzés is tartozik hozzá. A nyolc Drive-preview (0/12/20/24 dB,
 `host`/`4x`) WAV-kontraktusa, clippingmentessége, konstans RMS-illesztése és
 azonos A referenciája külön tesztelt.
 
@@ -222,3 +223,55 @@ preview A/B fájlok byte-azonosak maradtak. Az új Drive-minták még hallásos
 Következő kapuk: Drive hallásos karakter, szélesebb aliasing-mérés, FIR
 passband/stopband teljes karakterizálás, CPU-optimalizáció és profilozás,
 majd a száraz/wet út, moduláció és kompatibilis engine-integráció terve.
+
+
+## Drive visszajelzés és 20 dB kontroll
+
+A tulajdonos pontosítása szerint a 24 dB-os mintának tiszta, de szélsőséges:
+feszesebb, pulzáló, érdesebb karaktere van. Potmétermaximumként elfogadható,
+de a szokásos használatot körülbelül 20 dB-ig képzeli el. A 24 dB nem
+elutasított vagy bizonyítottan hibás hang. A 0–24 dB tervezett tartomány
+megmarad, 20 dB alatt jól adagolható szabályozással; ezt a GUI-integrációban
+külön kell ellenőrizni. A 20 dB-os lead kontroll elkészült, hallásos értékelése
+még nyitott. Nem állítunk előre elfogadást a 12 vagy 20 dB-os mintára.
+
+A korábbi koherens tónuskontroll 20 dB Drive-nál −34,98 dB csökkenést mért
+a kiválasztott visszahajló komponensben. A teszt mind a négy mintavételi rátán
+és a preview-kontraktus mindkét feldolgozási módban erre az értékre is bővült.
+Ez továbbra sem általános aliasmentességi állítás.
+
+## Első CPU optimalizálás
+
+A `ReferencePremiumDrive.h` megőrzi az eredeti teljes konvolúciós megvalósítást.
+A kutatási `PremiumDrive` az interpoláció ismert nulla mintáit kihagyja, a
+kimeneti konvolúciót pedig csak a decimáláskor megtartott fázisban számolja.
+A kihagyott fázisok előzményeit továbbra is beírja. A szűrőegyütthatók,
+a telítés, a vezérlősimítás és a 32 mintás késleltetés változatlan.
+
+A regresszió 10 000 determinisztikus sztereó mintán, rátánként, változó Drive,
+Snap, Clear és hibás bemenet mellett pontos mintánkénti egyezést követel
+az eredeti referenciával. A 20 dB-os teljes raw és RMS-illesztett WAV is
+byte-azonos az optimalizálás előtti kontrollal.
+
+A `sawstar_premium_drive_benchmark [--reference]` külön Release profilozó
+eszköz; nem időzítésfüggő CI pass/fail teszt. Egy mérés 8192 sztereó mintát
+feldolgozva három ismétlés mediánját jelenti; előtte 256 minta bemelegítés.
+Csak a Drive fut, a source-fixture előre generált; nincs benne oszcillátor,
+rezonáns filter, FX, wrapper vagy valódi host-audio callback.
+A százalék a feldolgozási idő és a modellezett audioidő aránya egy szálon,
+nem a plugin CPU-kijelzője vagy a teljes gép kihasználtsága.
+
+A helyi macOS `clang++ -O3 -DNDEBUG` futás 16 hang és 20 dB Drive mellett:
+
+| Host ráta | Eredeti referencia | Első optimalizált jelölt |
+|---|---:|---:|
+| 48 kHz | 88,27% | 38,20% |
+| 96 kHz | 174,33% | 76,75% |
+| 192 kHz | 351,04% | 152,24% |
+
+Ezek két helyi futás adatai, környezetfüggőek; nem platformfüggetlen
+sebességígéretek. Az első optimalizálás jelentős, de a 192 kHz-es 16 voice
+Drive önmagában is több időt igényel, mint amennyi rendelkezésre állna.
+A 96 kHz-es tartalék szintén kevés a teljes motorhoz. Emiatt további
+hatékonysági/minőségi terv és kis-bufferes teljes engine profil szükséges
+az integráció előtt. A 32 voice továbbra is halasztott.

@@ -32,7 +32,12 @@ A rezonancia-vizsgálat #45 alatt beolvadt (`6c48ac0`): minden CI sikeres.
 A tulajdonos az 50%-os karaktert lead mintán preferálta, pluck és pad mintán
 is kellemesnek hallotta. A külön, négyszeres mintavételű Drive kutatási
 prototípus elkészült; hallásos értékelése, szélesebb aliasing-mérése és
-CPU-profilozása következik. A production engine hangútja változatlan.
+CPU-profilozása következik. A #46 Drive referencia minden CI után beolvadt
+(`cc41769`). A 24 dB tiszta, szélsőséges maximumként elfogadható; a tulajdonos
+szokásos használatra kb. 20 dB-ig tekerne. A 20 dB kontroll és az első,
+referenciával mintánként egyező optimalizálás elkészült. A 16 voice költség
+különösen 96/192 kHz-en még integrációt akadályozó tervezési feladat.
+A production engine hangútja változatlan.
 
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
