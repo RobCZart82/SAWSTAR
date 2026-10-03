@@ -35,15 +35,31 @@ void Write(const std::string& path, const std::vector<float>& samples, uint32_t 
 }
 }
 int main(int argc, char** argv) {
-  if (argc != 2) { std::cerr << "Usage: premium_filter_preview OUTPUT_PREFIX\n"; return 1; }
+  if (argc < 2 || argc > 4) { std::cerr << "Usage: premium_filter_preview OUTPUT_PREFIX [RESONANCE_PERCENT [sustain|lead|pluck|pad]]\n"; return 1; }
   try {
+    double resonance = 30;
+    if (argc >= 3) {
+      size_t used = 0;
+      resonance = std::stod(argv[2], &used);
+      if (used != std::strlen(argv[2]) || !std::isfinite(resonance) || resonance < 0 || resonance > 100)
+        throw std::runtime_error("Resonance must be finite and within 0..100");
+    }
+    const std::string scene = argc == 4 ? argv[3] : "sustain";
+    if (scene != "sustain" && scene != "lead" && scene != "pluck" && scene != "pad")
+      throw std::runtime_error("Unknown preview scene");
     constexpr int rate = 48000, count = rate * 12;
     sawstar::SevenSaw source; source.Init(rate);
-    source.SetFreq(130.81278265f); source.SetShape(20, 1, 1); source.SnapToTargets();
-    sawstar::LowPass legacy; legacy.Init(rate); legacy.Set(8000, 30, 100);
+    source.SetFreq(scene == "lead" ? 261.6255653f : 130.81278265f);
+    source.SetShape(20, 1, 1); source.SnapToTargets();
+    std::array<sawstar::SevenSaw, 2> chord;
+    for (size_t i = 0; i < chord.size(); ++i) {
+      chord[i].Init(rate); chord[i].SetFreq(i == 0 ? 164.81377846f : 195.99771799f);
+      chord[i].SetShape(20, 1, 1); chord[i].SnapToTargets();
+    }
+    sawstar::LowPass legacy; legacy.Init(rate); legacy.Set(8000, static_cast<float>(resonance), 100);
     legacy.SetCharacter(0, 1); legacy.SnapToTargets();
     sawstar::experimental::PremiumLowPass candidate; candidate.Init(rate);
-    candidate.Set(8000, 30); candidate.SnapToTargets();
+    candidate.Set(8000, resonance); candidate.SnapToTargets();
     std::vector<float> a, b; a.reserve(count * 2); b.reserve(count * 2);
     double peakA = 0, peakB = 0;
     for (int i = 0; i < count; ++i) {
@@ -51,11 +67,28 @@ int main(int argc, char** argv) {
       // Three seconds to hear the open source before the sweep begins.
       const double position = std::clamp((t - 3) / 5., 0., 1.);
       const double cutoff = 8000 * std::pow(180. / 8000, position);
-      legacy.Set(static_cast<float>(cutoff), 30, 100); candidate.Set(cutoff, 30);
+      legacy.Set(static_cast<float>(cutoff), static_cast<float>(resonance), 100); candidate.Set(cutoff, resonance);
       const double fade = std::min(std::clamp(t / .5, 0., 1.),
                                    std::clamp((12 - t) / .5, 0., 1.));
       const double envelope = fade * fade * (3 - 2 * fade);
-      auto x = source.Process(); x.left *= .06f; x.right *= .06f;
+      auto x = source.Process();
+      if (scene == "pad") {
+        for (auto& oscillator : chord) {
+          const auto note = oscillator.Process(); x.left += note.left; x.right += note.right;
+        }
+        x.left /= 3; x.right /= 3;
+      }
+      double articulation = 1;
+      if (scene == "pluck") {
+        const double age = std::fmod(t, .5);
+        articulation = std::min(1., age / .002) * std::exp(-age / .11)
+                     * std::clamp((.5 - age) / .03, 0., 1.);
+      } else if (scene == "pad") {
+        const double attack = std::clamp(t / 1.5, 0., 1.);
+        articulation = attack * attack * (3 - 2 * attack);
+      }
+      const float sourceGain = static_cast<float>((scene == "sustain" ? .06 : .04) * articulation);
+      x.left *= sourceGain; x.right *= sourceGain;
       const auto old = legacy.Process(x);
       const auto next = candidate.Process({x.left, x.right});
       for (float value : {old.left, old.right}) {

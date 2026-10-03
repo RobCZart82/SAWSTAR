@@ -11,9 +11,9 @@ constexpr double pi = 3.14159265358979323846;
 void Check(bool ok, const char* message) {
   if (!ok) { std::cerr << message << '\n'; std::exit(1); }
 }
-double Gain(double sr, double cutoff, double hz) {
+double Gain(double sr, double cutoff, double hz, double resonance = 0) {
   sawstar::experimental::PremiumLowPass filter;
-  filter.Init(sr); filter.Set(cutoff, 0); filter.SnapToTargets();
+  filter.Init(sr); filter.Set(cutoff, resonance); filter.SnapToTargets();
   double output = 0, input = 0;
   const int count = static_cast<int>(sr);
   for (int n = 0; n < count; ++n) {
@@ -36,6 +36,19 @@ int main() {
       const double measured = Gain(sr, 1000, hz);
       Check(std::abs(measured - ExpectedGain(sr, 1000, hz)) < 2e-5,
             "response must match independent Butterworth transfer function");
+    }
+    // Independent response for both quadratic factors, including resonance.
+    for (double resonance : {25., 50., 75., 100.}) {
+      const double k1 = 1.8477590650225735 * std::pow(.1 / 1.8477590650225735, resonance / 100.);
+      constexpr double k2 = .7653668647301795;
+      for (double hz : {100., 800., 1000., 1400., 3000.}) {
+        const double ratio = std::tan(pi * hz / sr) / std::tan(pi * 1000 / sr);
+        const double squared = (1 - ratio * ratio) * (1 - ratio * ratio);
+        const double expected = 1. / std::sqrt((squared + k1 * k1 * ratio * ratio)
+                                               * (squared + k2 * k2 * ratio * ratio));
+        Check(std::abs(Gain(sr, 1000, hz, resonance) - expected) < 2e-4,
+              "resonant response must match independent transfer function");
+      }
     }
     sawstar::LowPass old; old.Init(static_cast<float>(sr));
     old.Set(1000, 0, 100); old.SetCharacter(0, 1); old.SnapToTargets();
@@ -67,4 +80,8 @@ int main() {
     f.Set(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN());
     Check(std::isfinite(f.Process({.2f, .2f})[0]), "invalid controls recover");
   }
+  std::cout << "resonance_percent,low_100hz_gain_db,cutoff_1000hz_gain_db\n";
+  for (double r : {0., 10., 30., 50., 70., 90., 100.})
+    std::cout << r << ',' << 20 * std::log10(Gain(48000, 1000, 100, r))
+              << ',' << 20 * std::log10(Gain(48000, 1000, 1000, r)) << '\n';
 }

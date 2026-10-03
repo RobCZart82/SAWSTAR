@@ -23,9 +23,7 @@ def read(path):
     return result
 
 
-with tempfile.TemporaryDirectory() as folder:
-    prefix = str(Path(folder) / 'preview')
-    subprocess.run([sys.argv[1], prefix], check=True)
+def validate(prefix):
     a = read(Path(prefix + '-A-legacy-LP24.wav'))
     raw = read(Path(prefix + '-B-candidate-LP24.wav'))
     matched = read(Path(prefix + '-B-RMS-matched-LP24.wav'))
@@ -38,3 +36,20 @@ with tempfile.TemporaryDirectory() as folder:
     gain = math.sqrt(energy_a / energy_raw)
     assert all(abs(out - source * gain) < 1e-7 for source, out in zip(raw, matched))
     assert a[0] == raw[0] == matched[0] == 0
+
+
+with tempfile.TemporaryDirectory() as folder:
+    default = str(Path(folder) / 'default')
+    subprocess.run([sys.argv[1], default], check=True)
+    validate(default)
+    for scene in ('lead', 'pluck', 'pad'):
+        for resonance in (10, 50, 90):
+            prefix = str(Path(folder) / f'{scene}-{resonance}')
+            subprocess.run([sys.argv[1], prefix, str(resonance), scene], check=True)
+            validate(prefix)
+    for index, arguments in enumerate((('nan',), ('inf',), ('-1',), ('101',),
+                                      ('50oops',), ('50', 'unknown'))):
+        prefix = str(Path(folder) / f'bad-{index}')
+        result = subprocess.run([sys.argv[1], prefix, *arguments], capture_output=True)
+        assert result.returncode != 0
+        assert not list(Path(folder).glob(f'bad-{index}*'))
