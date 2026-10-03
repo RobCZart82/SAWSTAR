@@ -148,8 +148,9 @@ továbbra is állítható marad; nem rögzítjük a pluginban 50%-ra.
 
 A következő hallásos kapu a már elkészült `pluck-res50` és `pad-res50`
 konstans RMS-illesztett jelöltje. Ezeken a lecsengés, a rezonáns csengés,
-a cutoff karaktere és a pad teltsége vizsgálandó. A közepes rezonancia
-szélesebb elfogadása után következik a Drive külön minőségi prototípusa.
+a cutoff karaktere és a pad teltsége vizsgálandó. A tulajdonos mindkét mintán kellemesnek hallotta a rezonanciát (2026-10-03).
+A közepes rezonanciakarakter így lead, pluck és pad mintán is pozitív
+visszajelzést kapott; a Drive külön minőségi prototípusa megkezdődött.
 Az eddigi lineáris jelölt és a kiadott plugin jelútja változatlan.
 
 1. A tiszta jelölt hallásos és szélesebb gerjesztési kontrollja: lead, pad, pluck,
@@ -168,3 +169,56 @@ Az eddigi lineáris jelölt és a kiadott plugin jelútja változatlan.
 
 A lezárt click/pop kutatás nem indul újra. A prémium filter új hangminőségi
 fejlesztés; az elfogadott GUI/kompatibilitási követelmények megmaradnak.
+
+
+## Első Drive prototípus 2026-10-03
+
+A `PremiumDrive.h` saját MIT kutatási megvalósítás, a lineáris jelölt előtt.
+A nonlinearitás `tanh(g*x)/g`, ahol g a 0–24 dB bemeneti Drive erősítése.
+A kisjelű erősítés közel egy marad; a telített csúcs szintje csökkenhet.
+Ez nem automatikus hangerőillesztés. Nulla Drive-nál a waveshaper identitás,
+de a fel/le mintavételi FIR-ek továbbra is szűrnek és késleltetnek.
+A tiszta pluginút bitazonosságát ezért ez az osztály önmagában nem biztosítja.
+
+A telítés négyszeres belső mintavételen fut. Mindkét mintavételváltáshoz
+129 tagú, Blackman-ablakos sinc FIR tartozik, 0,1125 ciklus/belső minta
+határfrekvenciával és egységnyi DC-erősítéssel. Az interpolátor négyszeres
+skálázást kap; a decimálás csak a kimeneti szűrés után történik.
+A referencia direkt konvolúciót használ, fix tömbökkel; CPU-optimalizáció
+és 16 voice profilozás még szükséges. A lineáris FIR-lánc késleltetése
+32 hostminta (48 kHz-en kb. 0,667 ms). A rezonáns filter host rátán marad;
+ez nem a teljes szűrő vagy a rezonáns visszacsatolás túlmintavételezése.
+
+A mintavételváltás matematikai háttere:
+[Julius O. Smith, Windowed Sinc Interpolation](https://www.dsprelated.com/freebooks/pasp/Windowed_Sinc_Interpolation.html).
+Nincs átvett külső forráskód vagy új könyvtárfüggőség.
+
+A célzott teszt 44,1/48/96/192 kHz-en 3/16 hostfrekvenciájú,
+0,75 amplitúdójú szinuszt használ (48 kHz-en 9000 Hz). A 7/16 frekvencián
+mért, visszahajló harmadik harmonikus változása a normál rátájú azonos
+waveshaperhez képest: 12 dB Drive-nál −77,24 dB, 24 dB-nél −26,53 dB.
+Ez egy koherens tónus egy kiválasztott spektrális komponense; nem a teljes
+aliasenergia vagy tetszőleges zenei gerjesztés minőségi bizonyítása.
+Erős Drive-nál marad mellékhang; a további frekvencia/amplitúdó-sweep és
+magasabb rátájú referencia külön következő mérési kapu.
+
+A regresszió az impulzus késleltetését, a nulla Drive késleltetett
+passband-pontosságát, a törlést, a sztereó izolációt, a hibás bemenet utáni
+helyreállást és a gyors Drive-moduláció véges kimenetét is ellenőrzi.
+ASan/UBSan ellenőrzés is tartozik hozzá. A hat Drive-preview (0/12/24 dB,
+`host`/`4x`) WAV-kontraktusa, clippingmentessége, konstans RMS-illesztése és
+azonos A referenciája külön tesztelt.
+
+A preview opcionális kiegészítése: `[DRIVE_DB [host|4x]]` a jelenet után.
+Drive-próbában a közös bemenet tízszeres, a közös kimeneti gain 0,15,
+hogy hallható telítés mellett megmaradjon a headroom. Mindegyik A referencia
+Drive nélküli régi LP24; B az új filterrel feldolgozott jel. A normál rátájú
+ágak 32 mintát késnek; a túlmintavételezett B cutoff-idővonala ugyanennyivel
+eltolódik. Az RMS-illesztett B fájlok ugyanahhoz az A referenciához igazodnak,
+0,5–11,5 s között, egyetlen állandó gainnel. Az eltérő Drive-k nélküli korábbi
+preview A/B fájlok byte-azonosak maradtak. Az új Drive-minták még hallásos
+értékelésre várnak; nem jelentik a végleges filtermodell elfogadását.
+
+Következő kapuk: Drive hallásos karakter, szélesebb aliasing-mérés, FIR
+passband/stopband teljes karakterizálás, CPU-optimalizáció és profilozás,
+majd a száraz/wet út, moduláció és kompatibilis engine-integráció terve.

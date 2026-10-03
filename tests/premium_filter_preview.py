@@ -47,8 +47,20 @@ with tempfile.TemporaryDirectory() as folder:
             prefix = str(Path(folder) / f'{scene}-{resonance}')
             subprocess.run([sys.argv[1], prefix, str(resonance), scene], check=True)
             validate(prefix)
+    reference = None
+    for db in (0, 12, 24):
+        for mode in ('host', '4x'):
+            prefix = str(Path(folder) / f'drive-{db}-{mode}')
+            subprocess.run([sys.argv[1], prefix, '50', 'lead', str(db), mode], check=True)
+            validate(prefix)
+            data = Path(prefix + '-A-legacy-LP24.wav').read_bytes()
+            if reference is None:
+                reference = data
+            assert data == reference  # Identical clean A source, gain and aligned delay.
     for index, arguments in enumerate((('nan',), ('inf',), ('-1',), ('101',),
-                                      ('50oops',), ('50', 'unknown'))):
+                                      ('50oops',), ('50', 'unknown'),
+                                      ('50', 'lead', 'nan'), ('50', 'lead', '-1'),
+                                      ('50', 'lead', '25'), ('50', 'lead', '12', 'bad'))):
         prefix = str(Path(folder) / f'bad-{index}')
         result = subprocess.run([sys.argv[1], prefix, *arguments], capture_output=True)
         assert result.returncode != 0
