@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
   try {
     constexpr int rate = 48000, count = rate * 12;
     sawstar::SevenSaw source; source.Init(rate);
-    source.SetFreq(130.81278265f); source.SetShape(20, 60, 75); source.SnapToTargets();
+    source.SetFreq(130.81278265f); source.SetShape(20, 1, 1); source.SnapToTargets();
     sawstar::LowPass legacy; legacy.Init(rate); legacy.Set(8000, 30, 100);
     legacy.SetCharacter(0, 1); legacy.SnapToTargets();
     sawstar::experimental::PremiumLowPass candidate; candidate.Init(rate);
@@ -72,6 +72,24 @@ int main(int argc, char** argv) {
     if (peakA >= 1 || peakB >= 1) throw std::runtime_error("Preview exceeds full scale");
     Write(std::string(argv[1]) + "-A-legacy-LP24.wav", a, rate);
     Write(std::string(argv[1]) + "-B-candidate-LP24.wav", b, rate);
+    // One constant offline gain over the common 0.5..11.5 s listening window.
+    // No compressor, time-varying leveling or modification of either filter.
+    double energyA = 0, energyB = 0;
+    for (size_t i = rate; i < static_cast<size_t>(rate * 23); ++i) {
+      energyA += static_cast<double>(a[i]) * a[i];
+      energyB += static_cast<double>(b[i]) * b[i];
+    }
+    if (energyA <= 0 || energyB <= 0) throw std::runtime_error("Silent RMS reference");
+    const double gain = std::sqrt(energyA / energyB);
+    std::vector<float> matched = b;
+    for (auto& sample : matched) {
+      sample = static_cast<float>(sample * gain);
+      if (!std::isfinite(sample) || std::abs(sample) >= 1)
+        throw std::runtime_error("Matched preview exceeds full scale");
+    }
+    Write(std::string(argv[1]) + "-B-RMS-matched-LP24.wav", matched, rate);
+    std::cout << "B constant RMS-match gain (0.5..11.5 s): " << gain
+              << " / dB: " << 20 * std::log10(gain) << '\n';
     std::cout << "Equal source and gain; no output normalization. Peaks: " << peakA << ", " << peakB << '\n';
   } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

@@ -1063,6 +1063,9 @@ if(BUILD_TESTING AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN))
   target_link_libraries(sawstar_editor_wheel_mailbox_tests PRIVATE sawstar_engine Threads::Threads)
   add_test(NAME editor_wheel_mailbox COMMAND sawstar_editor_wheel_mailbox_tests)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  add_test(NAME premium_filter_preview_contract
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/premium_filter_preview.py"
+      $<TARGET_FILE:sawstar_premium_filter_preview>)
   execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/host_midi_hook.py"
     "${CMAKE_CURRENT_BINARY_DIR}/host_midi_hook.inc" RESULT_VARIABLE host_midi_hook_result)
   if(NOT host_midi_hook_result EQUAL 0)
