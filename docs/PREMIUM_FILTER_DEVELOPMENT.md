@@ -358,7 +358,7 @@ néhány rövid blokk túllépte a rendelkezésre álló időt, miközben még c
 Drive dolgozott. A magas rátás minőség/költség policy és további optimalizálás
 beépítési előfeltétel; ezt nem szabad a medián 83%-os értékkel lezárni.
 
-## Nyitott CI teljesítményellenőrzés
+## Korábbi CI teljesítményellenőrzés – beolvasztási kapu lezárva
 
 A #47 `59db7de` headjén két macOS Release job CPU-guardja elbukott.
 A 16 hangos, száraz production-engine összevetés 34,23%, illetve 35,36%
@@ -366,10 +366,10 @@ többletet mért a rögzített történeti benchmark-baseline-hoz képest.
 A funkcionális tesztek mindkét jobban sikeresek voltak. A kutatási Drive
 nem része ennek a benchmarknak; a PR nem módosít production engine-forrást.
 Ezért a két mérés önmagában nem bizonyítja, hogy a Drive-kutatás okozta
-az eltérést, de ismétlődő sikertelen guardként nyitva marad.
+az eltérést. A korábbi sikertelen futások megmaradnak auditnyomként.
 
-A küszöb változatlan. Friss head CI és szükség esetén kontrollált main/head
-production benchmark összevetés kell a beolvasztás előtt. A kutatási
+A küszöb változatlan. A friss `0c3f4e2` head minden GitHub-ellenőrzése
+sikeres lett; a #47 beolvadt a mainbe (`29a25ac`). A kutatási
 Drive-profilozás sikerét nem tekintjük a sikertelen production CPU-guard
 helyettesítő igazolásának.
 
@@ -380,6 +380,40 @@ A jelenlegi helyi Release buildet használtuk (`build-tail-contract`); a script
 forrása és statisztikája nem módosult. A száraz 16 voice többlete +7,57%,
 a többi CPU-különbség +6,01–11,13%. Az audio-szint és DC guardok is sikeresek.
 Ez fontos ellenkontroll, nem a CI-eltérés okának bizonyítása. A friss head
-GitHub CPU-guardjának sikere továbbra is szükséges a beolvasztáshoz.
+GitHub CPU-guardja is sikeres lett; az eltérés pontos oka ettől még nem bizonyított.
 A szélesebb munkacsomag teljes helyi CTest eredménye 74/74; az új spektrális
 teszt külön ASan/UBSan alatt is sikeres.
+
+## Harmadik optimalizálás – szimmetrikus FIR
+
+A matematikailag szimmetrikus 129 tap együtthatópárjait átlagoljuk az
+inicializáláskor, így a libm kerekítési eltérése nem akadályozza a párosított
+konvolúciót. A decimátor és a páros interpolációs fázisok tükrözött bemeneti
+mintáit összeadjuk, majd közös együtthatóval szorozzuk. A páratlan fázisok
+megtartják a teljes összeget. A FIR hossza, cutoffja, négyszeres mintavétel,
+32 mintás késés és a Drive görbéje változatlan.
+
+A korábbi numerikus toleranciák változatlanok. A determinisztikus random
+kontroll helyben minden rátán nulla float kimeneti eltérést mért; ez nem
+általános bitazonossági ígéret. Új impulzuskontroll ellenőrzi a ring-buffer
+határait, két csatornát és 0/20/24 dB Drive-ot az eredeti teljes FIR ellen.
+
+Helyi Release mérés, csak a Drive, 16 voice és 20 dB:
+
+| Ráta | Korábbi négy részösszeg | Szimmetrikus FIR |
+| --- | ---: | ---: |
+| 48 kHz | 20,75% | 16,89% |
+| 96 kHz | 41,34% | 33,87% |
+| 192 kHz | 82,60% | 66,40% |
+
+A 32/64/128/256 mintás próba mediánja rendre kb. 17/34/67% a három rátán.
+192 kHz-en a 32 mintás legrosszabb mért blokk még 130,58%; a teljes motor
+és natív host költségét ez nem méri. Az integrációhoz szükséges magas rátás
+CPU-tartalék továbbra sem igazolt. Az adatok egy helyi futás eredményei,
+nem garantált platformsebességek. A korábbi spektrális és preview-kontrollok
+sikeresek; a gyártási engine jelútját nem módosítottuk.
+
+A 20 dB-os lead teljes raw és RMS-illesztett renderje az előző optimalizált
+mintával helyben mintánként azonos lett. A négy célzott CTest és a kibővített
+Drive-regresszió külön ASan/UBSan futása sikeres. A platform-CI az új PR
+külön beolvasztási kapuja.
