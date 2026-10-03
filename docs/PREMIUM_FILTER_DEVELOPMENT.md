@@ -140,6 +140,18 @@ külön fut; hallásos elfogadás és natív engine-integráció továbbra is k�
 
 ## Következő megvalósítási lépések
 
+A tulajdonos a hangerőillesztett lead minták közül az 50%-os rezonanciájú
+jelöltet preferálta (2026-10-03, `lead-res50-B-RMS-matched-LP24.wav`).
+Ez a közepes rezonanciakarakter választása a három vizsgált lead mintából,
+nem minden preset vagy a teljes rezonanciatartomány elfogadása. A rezonancia
+továbbra is állítható marad; nem rögzítjük a pluginban 50%-ra.
+
+A következő hallásos kapu a már elkészült `pluck-res50` és `pad-res50`
+konstans RMS-illesztett jelöltje. Ezeken a lecsengés, a rezonáns csengés,
+a cutoff karaktere és a pad teltsége vizsgálandó. A közepes rezonancia
+szélesebb elfogadása után következik a Drive külön minőségi prototípusa.
+Az eddigi lineáris jelölt és a kiadott plugin jelútja változatlan.
+
 1. A tiszta jelölt hallásos és szélesebb gerjesztési kontrollja: lead, pad, pluck,
    basszus; mérhető frekvenciamenet és rezonáns csúcs. Legyen elegendő bevezető.
 2. Rezonancia/gain viselkedés és Drive helye: a telítés nem fedheti el egyszerű
