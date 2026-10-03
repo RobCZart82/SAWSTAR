@@ -3,14 +3,18 @@ import hashlib
 import json
 
 
-def draft_for_tag(gh, repo, tag, sha):
+def release_for_tag(gh, repo, tag):
     pages = json.loads(gh('api', f'repos/{repo}/releases?per_page=100',
                           '--paginate', '--slurp'))
     matches = [release for page in pages for release in page
                if release['tag_name'] == tag]
     if len(matches) > 1:
         raise ValueError('Ambiguous release tag')
-    release = matches[0] if matches else None
+    return matches[0] if matches else None
+
+
+def draft_for_tag(gh, repo, tag, sha):
+    release = release_for_tag(gh, repo, tag)
     if release is not None and not release['draft']:
         raise ValueError('Published releases cannot be replaced')
     # target_commitish does not override an existing tag. Reject a stale tag,
