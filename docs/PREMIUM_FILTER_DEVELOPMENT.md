@@ -81,6 +81,18 @@ jelent azonos érzékelt hangerőt minden pillanatban; a rezonanciaskálák is e
 A mért korrekció 0,644361 (−3,81741 dB). A WAV-formátumot, RMS-egyezést és
 az állandó korrekciót a `premium_filter_preview_contract` teszt ellenőrzi.
 
+A tulajdonos a hangerőillesztett B változatot is jobb minőségűnek hallotta
+(2026-10-03, `02-level-control-B-RMS-matched-LP24.wav`). Az eredeti B és a
+konstans RMS-illesztett B egyaránt pozitív visszajelzést kapott. Ez csökkenti
+az összesített szintkülönbség magyarázó szerepét, de nem bizonyít azonos érzékelt
+hangerőt vagy általános minőségi fölényt minden presetre és rezonanciára.
+
+A tiszta LP24 jelöltet e tesztesetben elfogadott fejlesztési iránynak tekintjük.
+Következő kapu: alacsony/közepes/magas rezonancia, lead/pluck/pad gerjesztés,
+rezonáns csúcs és basszusátvitel mérése, majd megfelelő szintű hallásos kontroll.
+Csak ezután következzen a nemlineáris Drive és anti-aliasing minőségi prototípusa.
+A pluginba történő beépítés és a régi presetek kompatibilitása továbbra is külön feladat.
+
 A forrás 130,8128 Hz, 20 cent detune, teljes unison mix és teljes width.
 A korábbi fixture a belső 0–1 tartományban clampelt 60/75 értéket adta át;
 az explicit 1/1 ugyanazt az eredményt adja. Az eredeti A és B változatlan PCM-jét
