@@ -67,6 +67,37 @@ A két WAV fejlécét, hosszát, csatornaszámát, véges mintáit és clippingm
 programból ellenőriztük. Peak A: 0,052403; B: 0,074782; nincs normalizálás.
 Windows/macOS CI és a hallásos minősítés külön következő ellenőrzés.
 
+## Hallásos visszajelzés és hangerőkontroll
+
+A tulajdonos az első, normalizálás nélküli B mintát jobb minőségűnek hallotta.
+Ez a kutatási irány pozitív visszajelzése, nem végleges plugin-elfogadás.
+A két minta eltérő szintje és rezonanciaskálája miatt külön kontroll következik.
+
+A preview eszköz az eredeti A/B mellé `-B-RMS-matched-LP24.wav` fájlt is ír.
+A B egyetlen állandó gainnel kerül az A 0,5–11,5 másodperces ablakának sztereó
+RMS-szintjére. Nincs kompresszor vagy pillanatról pillanatra változó szintkorrekció:
+a sweep dinamikája és filterkaraktere megmarad. A globális RMS-egyezés nem
+jelent azonos érzékelt hangerőt minden pillanatban; a rezonanciaskálák is eltérnek.
+A mért korrekció 0,644361 (−3,81741 dB). A WAV-formátumot, RMS-egyezést és
+az állandó korrekciót a `premium_filter_preview_contract` teszt ellenőrzi.
+
+A tulajdonos a hangerőillesztett B változatot is jobb minőségűnek hallotta
+(2026-10-03, `02-level-control-B-RMS-matched-LP24.wav`). Az eredeti B és a
+konstans RMS-illesztett B egyaránt pozitív visszajelzést kapott. Ez csökkenti
+az összesített szintkülönbség magyarázó szerepét, de nem bizonyít azonos érzékelt
+hangerőt vagy általános minőségi fölényt minden presetre és rezonanciára.
+
+A tiszta LP24 jelöltet e tesztesetben elfogadott fejlesztési iránynak tekintjük.
+Következő kapu: alacsony/közepes/magas rezonancia, lead/pluck/pad gerjesztés,
+rezonáns csúcs és basszusátvitel mérése, majd megfelelő szintű hallásos kontroll.
+Csak ezután következzen a nemlineáris Drive és anti-aliasing minőségi prototípusa.
+A pluginba történő beépítés és a régi presetek kompatibilitása továbbra is külön feladat.
+
+A forrás 130,8128 Hz, 20 cent detune, teljes unison mix és teljes width.
+A korábbi fixture a belső 0–1 tartományban clampelt 60/75 értéket adta át;
+az explicit 1/1 ugyanazt az eredményt adja. Az eredeti A és B változatlan PCM-jét
+külön ellenőrizzük, hogy a kontroll ne változtassa meg a már meghallgatott forrást.
+
 ## Következő megvalósítási lépések
 
 1. A tiszta jelölt hallásos és szélesebb gerjesztési kontrollja: lead, pad, pluck,
