@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #include "PremiumLowPass.h"
+#include "PremiumDrive.h"
 #include "dsp/LowPass.h"
 #include <algorithm>
 #include <cmath>
@@ -35,7 +36,7 @@ void Write(const std::string& path, const std::vector<float>& samples, uint32_t 
 }
 }
 int main(int argc, char** argv) {
-  if (argc < 2 || argc > 4) { std::cerr << "Usage: premium_filter_preview OUTPUT_PREFIX [RESONANCE_PERCENT [sustain|lead|pluck|pad]]\n"; return 1; }
+  if (argc < 2 || argc > 6) { std::cerr << "Usage: premium_filter_preview OUTPUT_PREFIX [RESONANCE_PERCENT [sustain|lead|pluck|pad [DRIVE_DB [host|4x]]]]\n"; return 1; }
   try {
     double resonance = 30;
     if (argc >= 3) {
@@ -44,9 +45,19 @@ int main(int argc, char** argv) {
       if (used != std::strlen(argv[2]) || !std::isfinite(resonance) || resonance < 0 || resonance > 100)
         throw std::runtime_error("Resonance must be finite and within 0..100");
     }
-    const std::string scene = argc == 4 ? argv[3] : "sustain";
+    const std::string scene = argc >= 4 ? argv[3] : "sustain";
     if (scene != "sustain" && scene != "lead" && scene != "pluck" && scene != "pad")
       throw std::runtime_error("Unknown preview scene");
+    const bool driveFixture = argc >= 5;
+    double driveDb = 0;
+    if (driveFixture) {
+      size_t used = 0; driveDb = std::stod(argv[4], &used);
+      if (used != std::strlen(argv[4]) || !std::isfinite(driveDb) || driveDb < 0 || driveDb > 24)
+        throw std::runtime_error("Drive must be finite and within 0..24 dB");
+    }
+    const std::string driveMode = argc == 6 ? argv[5] : "host";
+    if (driveMode != "host" && driveMode != "4x") throw std::runtime_error("Unknown Drive mode");
+    const bool oversampled = driveFixture && driveMode == "4x";
     constexpr int rate = 48000, count = rate * 12;
     sawstar::SevenSaw source; source.Init(rate);
     source.SetFreq(scene == "lead" ? 261.6255653f : 130.81278265f);
@@ -60,6 +71,10 @@ int main(int argc, char** argv) {
     legacy.SetCharacter(0, 1); legacy.SnapToTargets();
     sawstar::experimental::PremiumLowPass candidate; candidate.Init(rate);
     candidate.Set(8000, resonance); candidate.SnapToTargets();
+    sawstar::experimental::PremiumDrive drive; drive.Init(rate); drive.Set(driveDb); drive.SnapToTargets();
+    const double driveGain = std::pow(10., driveDb / 20);
+    constexpr int latency = sawstar::experimental::PremiumDrive::Latency;
+    std::array<std::array<float, 2>, latency> oldDelay{}, newDelay{};
     std::vector<float> a, b; a.reserve(count * 2); b.reserve(count * 2);
     double peakA = 0, peakB = 0;
     for (int i = 0; i < count; ++i) {
@@ -67,7 +82,10 @@ int main(int argc, char** argv) {
       // Three seconds to hear the open source before the sweep begins.
       const double position = std::clamp((t - 3) / 5., 0., 1.);
       const double cutoff = 8000 * std::pow(180. / 8000, position);
-      legacy.Set(static_cast<float>(cutoff), static_cast<float>(resonance), 100); candidate.Set(cutoff, resonance);
+      legacy.Set(static_cast<float>(cutoff), static_cast<float>(resonance), 100);
+      const double candidateTime = t - (oversampled ? static_cast<double>(latency) / rate : 0);
+      const double candidatePosition = std::clamp((candidateTime - 3) / 5., 0., 1.);
+      candidate.Set(8000 * std::pow(180. / 8000, candidatePosition), resonance);
       const double fade = std::min(std::clamp(t / .5, 0., 1.),
                                    std::clamp((12 - t) / .5, 0., 1.));
       const double envelope = fade * fade * (3 - 2 * fade);
@@ -87,17 +105,28 @@ int main(int argc, char** argv) {
         const double attack = std::clamp(t / 1.5, 0., 1.);
         articulation = attack * attack * (3 - 2 * attack);
       }
-      const float sourceGain = static_cast<float>((scene == "sustain" ? .06 : .04) * articulation);
+      const float sourceGain = static_cast<float>((scene == "sustain" ? .06 : .04) * articulation * (driveFixture ? 10 : 1));
       x.left *= sourceGain; x.right *= sourceGain;
       const auto old = legacy.Process(x);
-      const auto next = candidate.Process({x.left, x.right});
-      for (float value : {old.left, old.right}) {
-        const float y = static_cast<float>(value * envelope);
+      std::array<float, 2> processed{x.left, x.right};
+      if (oversampled) processed = drive.Process(processed);
+      else if (driveFixture && driveDb > 0)
+        for (auto& value : processed) value = static_cast<float>(std::tanh(driveGain * value) / driveGain);
+      auto next = candidate.Process(processed);
+      std::array<float, 2> reference{old.left, old.right};
+      if (driveFixture) {
+        const auto index = static_cast<size_t>(i % latency);
+        const auto delayedOld = oldDelay[index]; oldDelay[index] = reference; reference = delayedOld;
+        if (!oversampled) { const auto delayed = newDelay[index]; newDelay[index] = next; next = delayed; }
+      }
+      const double outputGain = driveFixture ? .15 : 1;
+      for (float value : reference) {
+        const float y = static_cast<float>(value * envelope * outputGain);
         if (!std::isfinite(y)) throw std::runtime_error("Nonfinite legacy output");
         peakA = std::max(peakA, std::abs(static_cast<double>(y))); a.push_back(y);
       }
       for (float value : next) {
-        const float y = static_cast<float>(value * envelope);
+        const float y = static_cast<float>(value * envelope * outputGain);
         if (!std::isfinite(y)) throw std::runtime_error("Nonfinite candidate output");
         peakB = std::max(peakB, std::abs(static_cast<double>(y))); b.push_back(y);
       }
@@ -121,6 +150,8 @@ int main(int argc, char** argv) {
         throw std::runtime_error("Matched preview exceeds full scale");
     }
     Write(std::string(argv[1]) + "-B-RMS-matched-LP24.wav", matched, rate);
+    if (driveFixture) std::cout << "Drive fixture: " << driveDb << " dB, " << driveMode
+      << ", aligned latency=" << latency << " samples; input x10, common output x0.15\n";
     std::cout << "B constant RMS-match gain (0.5..11.5 s): " << gain
               << " / dB: " << 20 * std::log10(gain) << '\n';
     std::cout << "Equal source and gain; no output normalization. Peaks: " << peakA << ", " << peakB << '\n';
