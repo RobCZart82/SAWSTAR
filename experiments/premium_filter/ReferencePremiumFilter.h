@@ -7,10 +7,11 @@
 #include <limits>
 
 namespace sawstar::experimental {
-// Linear four-mode research candidate. Not selected by the shipped engine.
+// Frozen, uncached four-mode oracle from b5e3625 (PR #54).
+// Offline diagnostic only. Keep arithmetic independent of the optimized filter.
 // Independently implemented trapezoidal SVF stages; damping at zero resonance
 // factors the fourth-order Butterworth denominator. No copied library code.
-class PremiumLowPass {
+class ReferencePremiumFilter {
 public:
   void Init(double sampleRate) {
     rate_ = SafeSampleRate(sampleRate);
@@ -24,13 +25,11 @@ public:
   void Set(double cutoff, double resonance) {
     cutoff = FiniteClamp(cutoff, 20., std::min(20000., .45 * rate_), 20.);
     if (cutoff != cutoff_) {
-      controlsMoving_ = true;
       cutoff_ = cutoff;
       targetG_ = std::tan(3.14159265358979323846 * cutoff / rate_);
     }
     resonance = FiniteClamp(resonance, 0., 100., 0.);
     if (resonance != resonance_) {
-      controlsMoving_ = true;
       resonance_ = resonance;
       targetK_ = 1.8477590650225735 * std::pow(.1 / 1.8477590650225735, resonance / 100.);
       targetK12_ = std::sqrt(2.) * std::pow(.1 / std::sqrt(2.), resonance / 100.);
@@ -40,7 +39,6 @@ public:
   void SetMode(int mode) { mode_ = std::clamp(mode, 0, 3); }
   void SnapToTargets() {
     g_ = targetG_; k_ = targetK_; k12_ = targetK12_;
-    UpdateCoefficients(); controlsMoving_ = false;
     weights_ = {}; weights_[mode_] = 1;
   }
   void Clear() {
@@ -48,16 +46,9 @@ public:
     twelve_ = {};
   }
   std::array<float, 2> Process(std::array<float, 2> input) {
-    if (controlsMoving_) {
-      const double previousG = g_, previousK = k_, previousK12 = k12_;
-      g_ += slew_ * (targetG_ - g_);
-      k_ += slew_ * (targetK_ - k_);
-      k12_ += slew_ * (targetK12_ - k12_);
-      // Only stop when the original recurrence no longer changes any value.
-      // No tolerance, quantization or shortened ramp changes the sound.
-      controlsMoving_ = g_ != previousG || k_ != previousK || k12_ != previousK12;
-      UpdateCoefficients();
-    }
+    g_ += slew_ * (targetG_ - g_);
+    k_ += slew_ * (targetK_ - k_);
+    k12_ += slew_ * (targetK12_ - k12_);
     for (size_t i = 0; i < weights_.size(); ++i)
       weights_[i] += slew_ * ((static_cast<int>(i) == mode_ ? 1. : 0.) - weights_[i]);
     for (size_t i = 0; i < weights_.size(); ++i) {
@@ -66,6 +57,10 @@ public:
         weights_[mode_] += weights_[i]; weights_[i] = 0;
       }
     }
+    const double a1 = 1. / (1. + g_ * (g_ + k_));
+    constexpr double k2 = .7653668647301795;
+    const double a2 = 1. / (1. + g_ * (g_ + k2));
+    const double a12 = 1. / (1. + g_ * (g_ + k12_));
     for (size_t ch = 0; ch < input.size(); ++ch) {
       if (!std::isfinite(input[ch])) {
         stages_[ch] = {};
@@ -73,11 +68,11 @@ public:
         input[ch] = 0;
         continue;
       }
-      const double first = Step(input[ch], stages_[ch][0], g_, a1_);
-      const double lp24 = Step(first, stages_[ch][1], g_, a2_);
+      const double first = Step(input[ch], stages_[ch][0], g_, a1);
+      const double lp24 = Step(first, stages_[ch][1], g_, a2);
       // Keep both networks running so mode changes never expose stale state.
       double band = 0;
-      const double low = Step(input[ch], twelve_[ch], g_, a12_, &band);
+      const double low = Step(input[ch], twelve_[ch], g_, a12, &band);
       const double high = input[ch] - k12_ * band - low;
       // Normalize BP at cutoff across Q; resonance narrows its bandwidth.
       const double wet = weights_[0] * low + weights_[1] * lp24
@@ -90,12 +85,6 @@ public:
     return input;
   }
 private:
-  void UpdateCoefficients() {
-    a1_ = 1. / (1. + g_ * (g_ + k_));
-    constexpr double k2 = .7653668647301795;
-    a2_ = 1. / (1. + g_ * (g_ + k2));
-    a12_ = 1. / (1. + g_ * (g_ + k12_));
-  }
   struct State { double band = 0, low = 0; };
   static double Step(double x, State& state, double g, double a, double* bandOut = nullptr) {
     const double band = a * (state.band + g * (x - state.low));
@@ -114,7 +103,5 @@ private:
   double rate_ = 44100, slew_ = 0, cutoff_ = -1, resonance_ = -1;
   double g_ = 1, targetG_ = 1, k_ = 2, targetK_ = 2;
   double k12_ = 2, targetK12_ = 2;
-  bool controlsMoving_ = true;
-  double a1_ = 0, a2_ = 0, a12_ = 0;
 };
 }
