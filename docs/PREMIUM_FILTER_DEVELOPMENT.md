@@ -728,8 +728,82 @@ Drive+filter. A B RMS-illesztése egyetlen konstans az adott A-hoz, nem a négy
 mód egymáshoz igazított érzékelt hangereje; a rezonanciaskálák eltérnek.
 A formátumot, véges/clippingmentes mintákat és állandó RMS-gain kontraktust
 a preview-regresszió ellenőrzi. Az új módok tulajdonosi hallásos minősítése
-még nyitott.
+pozitív: a három fenti RMS-illesztett mintát a tulajdonos szépen szólónak
+hallotta. Ez az 50%-os rezonanciájú, 20 dB Drive-os, 48 kHz-es lead fixture-ek
+visszajelzése, nem a magas rátás jelölt vagy a teljes VST3 elfogadása.
 
 Következő kapu: minden móddal összetett gerjesztés, Drive/mód/moduláció,
 új CPU-profil és magas rátás faktorpolitika. Ezután latency/state/automation
 integráció, factory presetek, natív Windows/macOS elfogadás és kiadás.
+
+
+## Négy mód összetett gerjesztése és modulációja
+
+A #53 mind a 17 CI-ellenőrzése sikeres lett, beolvadt (`8056431`). A korábbi
+összetett gerjesztési grid most mind a négy módra kiterjed: 96 kontroll,
+ugyanazokkal a forrásokkal, rátákkal, 50% rezonanciával és 20/24 dB vagy
+lépcsős Drive célértékekkel. A korábbi korlátok változatlanok: 1% nyers
+jelölt/4x/8x eltérés, 0,5% szűrt jelölt/8x eltérés, 0,1% nyers 4x/8x eltérés.
+Mind teljesült. A szűrt relatív RMS-különbség legnagyobb értékei:
+
+| Mód | Rátafüggő jelölt – 8x | 4x – 8x |
+| --- | ---: | ---: |
+| LP12 | 0,1552% | 0,0076% |
+| LP24 | 0,1557% | 0,0076% |
+| HP12 | 0,4902% | 0,0243% |
+| BP12 | 0,2250% | 0,0112% |
+
+HP12-ben a jelölt közel kerül a diagnosztikai 0,5%-os korláthoz. Ez nem
+izolált alias-energia vagy hallásos minőségi százalék; a korábbi magas
+szinuszos stresszteszt kompromisszuma megmarad. A 176,4/192 kHz-es 2x
+politika nem tekinthető véglegesen elfogadottnak.
+[Nyers kontrollok](../experiments/premium_filter/measurements/2026-10-04-all-mode-complex-controls.csv).
+
+A `premium_engine_modulation` és `premium_rate_engine_modulation` 36-36
+jelenetet ellenőriz: 48/96/192 kHz, négy induló mód, Poly/Mono/Legato.
+Cutoff, 0/50/100% rezonancia és mix, négy mód, 0/20/24 dB Drive váltása
+mellett aktív filter envelope/key track, két LFO, wheel/velocity/pressure
+routing, pitch bend és sustain működik az 1/16 MIDI-csatornán. Egy hang
+pedál alatt enged fel; a végén minden voice befejeződik, majd a reset néma.
+A Release paraméter időállandó, ezért 100 ms beállítás után egy teljes
+másodpercet engedünk a voice-ok befejezésére.
+
+Véges PreFX, védett végső kimenet, nem néma gerjesztés és release/reset
+kontraktus mellett a két offline idővonal mintánként azonos. Az események
+ugyanazon abszolút mintán érkeznek, akár egyesével, akár változó
+16/32/64/256/2048 mintás csoportokban hívjuk a `ProcessStereo()`-t.
+Ez nem VST3-wrapper vagy host automation blokkméret-függetlenségi bizonyítás.
+Az öt célzott Release és a három új/kibővített ASan/UBSan teszt sikeres.
+
+## Négy mód teljes motorprofilja
+
+A benchmark `--all-modes` opciója módonként futtatja a korábbi rövid gridet:
+864 eset/model, 48/96/192 kHz, 1/8/16 voice, 0/20/24 dB, FX ki/be,
+32/64/128/256 mintás csoportok. Az opció nélkül a korábbi LP24 CSV-kontraktus
+megmarad. 2048 minta bemelegítés után 4096 mintát mérünk, három ismétlés
+mediánjával; ez nem hosszú zenei stresszfutás vagy natív pluginmérés.
+
+16 voice, 20 dB Drive, FX bekapcsolva; a tartomány a négy mód és négy
+csoportméret mediánjait fogja át, helyi Release build:
+
+| Ráta | Régi motor | Új, mindig 4x Drive | Új, rátafüggő jelölt |
+| --- | ---: | ---: | ---: |
+| 48 kHz | 15,30–18,77% | 30,15–32,95% | 30,25–33,14% |
+| 96 kHz | 30,64–37,90% | 60,34–66,23% | 60,87–66,62% |
+| 192 kHz | 61,70–83,04% | 120,49–131,32% | 81,09–100,41% |
+
+Az érték az audioidő-keret százaléka, nem az operációs rendszer teljes CPU-ja.
+Külön, egymás utáni helyi futások; nem kiegyensúlyozott sebességígéret.
+A legrosszabb blokkokban jelentős kiugrások voltak mind az új, mind a régi
+motorral. Ez nem bizonyítja a kiugrások okát vagy ártalmatlanságát.
+192 kHz-en a 4x út eleve túl költséges; a jelölt egyik mediánja is túllépi
+az időkeretet. **A realtime CPU-kapu nincs lezárva**, még a 2x jelölttel sem.
+Natív Windows/macOS és hosszabb, ellenőrzött terhelésű mérés szükséges.
+
+Nyers profilok:
+[régi](../experiments/premium_filter/measurements/2026-10-04-four-mode-legacy-engine.csv),
+[4x](../experiments/premium_filter/measurements/2026-10-04-four-mode-4x-engine.csv),
+[rátafüggő](../experiments/premium_filter/measurements/2026-10-04-four-mode-rate-engine.csv).
+A production filter és az elfogadott hangminták e munkacsomagban nem módosultak.
+Következő aktív feladat a CPU-költség és magas rátás minőségpolitika megoldása,
+majd latency/state/automation integráció és natív elfogadás.

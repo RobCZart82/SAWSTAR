@@ -73,20 +73,20 @@ int main() {
         Require(error / energy < 1e-6, "8x independent delayed linear passband");
       }
     }
-    std::cout << "rate,scene,drive_control,rate_to_4x_rms,rate_to_8x_rms,4x_to_8x_rms,filtered_rate_to_8x_rms,filtered_4x_to_8x_rms,rate_to_8x_peak\n";
+    std::cout << "rate,scene,filter_mode,drive_control,rate_to_4x_rms,rate_to_8x_rms,4x_to_8x_rms,filtered_rate_to_8x_rms,filtered_4x_to_8x_rms,rate_to_8x_peak\n";
     const std::array<const char*, 4> names{"bass", "lead", "pad-voice", "high-lead"};
     constexpr int warmup = 1024, frames = 4096;
     int controls = 0;
     for (double rate : {176400., 192000.}) for (int scene = 0; scene < 4; ++scene) {
       const auto source = Source(rate, scene, warmup + frames);
-      for (int control = 0; control < 3; ++control) {
+      for (int mode = 0; mode < 4; ++mode) for (int control = 0; control < 3; ++control) {
         RateScaledPremiumDrive candidate; PremiumDrive four; ReferencePremiumDrive8x eight;
         candidate.Init(rate); four.Init(rate); eight.Init(rate);
         const double initial = control == 0 ? 20 : control == 1 ? 24 : 0;
         candidate.Set(initial); four.Set(initial); eight.Set(initial);
         candidate.SnapToTargets(); four.SnapToTargets(); eight.SnapToTargets();
         std::array<PremiumLowPass, 3> filters;
-        for (auto& f : filters) { f.Init(rate); f.Set(12000, 50); f.SnapToTargets(); }
+        for (auto& f : filters) { f.Init(rate); f.Set(12000, 50); f.SetMode(mode); f.SnapToTargets(); }
         Error toFour, toEight, fourToEight, filteredToEight, filteredFourToEight;
         for (int i = 0; i < warmup + frames; ++i) {
           if (control == 2 && i % 512 == 0) {
@@ -108,7 +108,7 @@ int main() {
           }
         }
         ++controls;
-        std::cout << rate << ',' << names[scene] << ',' << (control == 0 ? "20" : control == 1 ? "24" : "steps")
+        std::cout << rate << ',' << names[scene] << ',' << mode << ',' << (control == 0 ? "20" : control == 1 ? "24" : "steps")
           << ',' << toFour.Relative() << ',' << toEight.Relative() << ',' << fourToEight.Relative()
           << ',' << filteredToEight.Relative() << ',' << filteredFourToEight.Relative() << ',' << toEight.peak << '\n';
         // Diagnostic failure bounds, not a claim of transparent or alias-free audio.
@@ -117,6 +117,6 @@ int main() {
         Require(fourToEight.Relative() < .001, "4x/8x convergence diagnostic ceiling (0.1%)");
       }
     }
-    Require(controls == 24, "complete complex source grid");
+    Require(controls == 96, "complete four-mode complex source grid");
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
