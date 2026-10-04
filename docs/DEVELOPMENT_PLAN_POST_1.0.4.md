@@ -78,6 +78,7 @@ A #51 magas rátás kutatás minden CI után beolvadt (`769993c`). A 24 rövid,
 OSC1/OSC2/SUB unison és Drive-lépcsős kontroll egy 8x offline referenciával
 is összeveti a jelöltet. Legnagyobb jelölt/8x eltérés kb. 0,39%, a vizsgált
 LP24 után 0,16%; ez nem hallhatatlansági vagy teljes aliasing-bizonyíték.
+A #52 mind a 17 ellenőrzése sikeres lett és beolvadt (`f0b2851`).
 A korábbi magas szinuszos stresszteszt kompromisszuma megmarad. A négy mód
 kutatási munkacsomagja elkészült: az offline filter és motoradapter már LP12,
 LP24, HP12 és BP12 módot kezel. 360 komplex frekvenciaválasz-kontroll,

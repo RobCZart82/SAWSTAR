@@ -663,6 +663,9 @@ módváltási próbák. A natív host teszt és a végleges faktorpolitika dönt
 
 ## Négy kutatási filtermód és módváltás
 
+A #52 összetett forráskontroll mind a 17 CI-ellenőrzése sikeres lett;
+beolvadt a mainbe (`f0b2851`). A négy mód munkacsomagja erre az alapra épül.
+
 A kutatási `PremiumLowPass` és az offline `EnginePremiumFilter` már kezeli
 a meglévő négy módértéket: 0=LP12, 1=LP24, 2=HP12, 3=BP12. Nincs új paraméter,
 külső függőség vagy GUI-kapcsoló. A production `LowPass`, `Synth` és a plugin
