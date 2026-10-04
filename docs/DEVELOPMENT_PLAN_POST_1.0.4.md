@@ -74,6 +74,13 @@ de erős magas hangon több spektrális maradékot ad, mint a 4x referencia.
 Ez nem elfogadott végleges policy: összetett gerjesztés, aliasing/moduláció
 és natív stresszpróba kell. Utána a hiányzó LP12/HP12/BP12 fejlesztése
 és a teljes csere integrációja következik; új GUI kezelőszerv nélkül.
+A #51 magas rátás kutatás minden CI után beolvadt (`769993c`). A 24 rövid,
+OSC1/OSC2/SUB unison és Drive-lépcsős kontroll egy 8x offline referenciával
+is összeveti a jelöltet. Legnagyobb jelölt/8x eltérés kb. 0,39%, a vizsgált
+LP24 után 0,16%; ez nem hallhatatlansági vagy teljes aliasing-bizonyíték.
+A korábbi magas szinuszos stresszteszt kompromisszuma megmarad. A következő
+fejlesztési munkacsomag a hiányzó LP12/HP12/BP12 és módváltási kontroll;
+minden móddal külön minőség/CPU és natív elfogadás kell a teljes csere előtt.
 A production engine hangútja változatlan.
 
 Részletes filterkövetelmények és első eredmények:
