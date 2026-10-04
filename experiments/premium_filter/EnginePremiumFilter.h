@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "PremiumDrive.h"
+#include "RateScaledPremiumDrive.h"
 #include "PremiumLowPass.h"
 #include "dsp/SevenSaw.h"
 #include <stdexcept>
@@ -9,7 +10,7 @@ namespace sawstar::experimental {
 // Offline LP24-only integration adapter, never used by the shipped Synth.
 // Clean mix has the same 32-sample delay as the oversampled wet path.
 // This is not the final state/parameter/mode compatibility implementation.
-class EnginePremiumFilter {
+template<class Drive> class BasicEnginePremiumFilter {
 public:
   void Init(float rate) {
     drive_.Init(rate); filter_.Init(rate);
@@ -37,16 +38,18 @@ public:
     const auto wet = filter_.Process(shaped);
     const auto dry = dry_[cursor_];
     for (auto& sample : x) if (!std::isfinite(sample)) sample = 0;
-    dry_[cursor_] = x; cursor_ = (cursor_ + 1) % PremiumDrive::Latency;
+    dry_[cursor_] = x; cursor_ = (cursor_ + 1) % Drive::Latency;
     mix_ += slew_ * (targetMix_ - mix_);
     return {static_cast<float>(dry[0] + mix_ * (wet[0] - dry[0])),
             static_cast<float>(dry[1] + mix_ * (wet[1] - dry[1]))};
   }
 private:
-  PremiumDrive drive_;
+  Drive drive_;
   PremiumLowPass filter_;
-  std::array<std::array<float, 2>, PremiumDrive::Latency> dry_{};
+  std::array<std::array<float, 2>, Drive::Latency> dry_{};
   unsigned cursor_ = 0;
   double slew_ = 0, mix_ = 0, targetMix_ = 0;
 };
+using EnginePremiumFilter = BasicEnginePremiumFilter<PremiumDrive>;
+using RateScaledEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledPremiumDrive>;
 }

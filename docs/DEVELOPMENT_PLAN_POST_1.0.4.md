@@ -66,6 +66,14 @@ A #49 teljes motorpróba minden CI után beolvadt (`6eb4fc2`). A tulajdonos
 az új filter teljes cseréjét választotta; a Classic/Premium külön modell
 korábbi terve megszűnt. A mostani kutatási LP24 mellé LP12/HP12/BP12 kell,
 és minden factory preset újrahallgatandó az integráció után.
+A #50 teljes filtercsere-terv beolvadt (`65e3f4d`). Magas rátás kutatási
+jelölt készült: 176,4 kHz alatt 4x, attól felfelé 2x Drive, azonos 32 mintás
+késéssel. A 88,2 kHz-től 2x korábbi jelöltet a mérés elutasította.
+A szűkített jelölt 192 kHz-en helyben kb. 78% teljes motor-mediánt mért,
+de erős magas hangon több spektrális maradékot ad, mint a 4x referencia.
+Ez nem elfogadott végleges policy: összetett gerjesztés, aliasing/moduláció
+és natív stresszpróba kell. Utána a hiányzó LP12/HP12/BP12 fejlesztése
+és a teljes csere integrációja következik; új GUI kezelőszerv nélkül.
 A production engine hangútja változatlan.
 
 Részletes filterkövetelmények és első eredmények:

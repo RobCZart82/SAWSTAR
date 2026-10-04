@@ -830,6 +830,27 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     add_executable(sawstar_premium_engine_benchmark experiments/premium_filter/benchmark_engine.cpp)
     target_link_libraries(sawstar_premium_engine_benchmark PRIVATE sawstar_premium_engine_probe)
     add_test(NAME premium_engine_probe_contract COMMAND sawstar_premium_engine_benchmark --smoke)
+    # Keep both probe class definitions distinct even if a later tool links
+    # both libraries: different per-voice layouts must not share Synth symbols.
+    foreach(_part IN ITEMS h cpp)
+      file(READ "${_premium_engine}/PremiumSynth.${_part}" _rate_probe)
+      string(REPLACE "sawstar::experimental_engine" "sawstar::experimental_rate_engine" _rate_probe "${_rate_probe}")
+      string(REPLACE "experimental::EnginePremiumFilter" "experimental::RateScaledEnginePremiumFilter" _rate_probe "${_rate_probe}")
+      string(REPLACE "PremiumSynth.h" "RatePremiumSynth.h" _rate_probe "${_rate_probe}")
+      file(WRITE "${_premium_engine}/RatePremiumSynth.${_part}" "${_rate_probe}")
+    endforeach()
+    add_library(sawstar_premium_rate_probe STATIC "${_premium_engine}/RatePremiumSynth.cpp")
+    target_include_directories(sawstar_premium_rate_probe PUBLIC "${_premium_engine}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/experiments/premium_filter")
+    target_compile_definitions(sawstar_premium_rate_probe PUBLIC SAWSTAR_PREMIUM_HIGH_RATE_STUDY=1)
+    target_link_libraries(sawstar_premium_rate_probe PUBLIC sawstar_engine)
+    add_executable(sawstar_premium_rate_benchmark experiments/premium_filter/benchmark_engine.cpp)
+    target_link_libraries(sawstar_premium_rate_benchmark PRIVATE sawstar_premium_rate_probe)
+    add_test(NAME premium_rate_engine_contract COMMAND sawstar_premium_rate_benchmark --smoke)
+    add_executable(sawstar_premium_rate_tests tests/premium_drive_rate.cpp)
+    target_link_libraries(sawstar_premium_rate_tests PRIVATE sawstar_engine)
+    add_test(NAME premium_drive_high_rate_controls COMMAND sawstar_premium_rate_tests)
+
 
     add_executable(sawstar_premium_filter_preview experiments/premium_filter/render.cpp)
     target_link_libraries(sawstar_premium_filter_preview PRIVATE sawstar_engine)
