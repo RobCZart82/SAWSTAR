@@ -850,6 +850,10 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     add_executable(sawstar_premium_rate_tests tests/premium_drive_rate.cpp)
     target_link_libraries(sawstar_premium_rate_tests PRIVATE sawstar_engine)
     add_test(NAME premium_drive_high_rate_controls COMMAND sawstar_premium_rate_tests)
+    add_executable(sawstar_premium_complex_tests tests/premium_drive_complex.cpp)
+    target_link_libraries(sawstar_premium_complex_tests PRIVATE sawstar_engine)
+    add_test(NAME premium_drive_complex_controls COMMAND sawstar_premium_complex_tests)
+
 
 
     add_executable(sawstar_premium_filter_preview experiments/premium_filter/render.cpp)

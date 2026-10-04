@@ -601,3 +601,62 @@ a Drive- és rátafüggő motorregressziók ASan/UBSan alatt is sikeresek.
 A korábban elfogadott 48 kHz-es, 20 dB-os raw és RMS-illesztett WAV
 mintánként azonos maradt. Ezek nem helyettesítik a magas rátás jelölt
 hátralévő hangminőségi és natív elfogadását.
+
+## Összetett forrás és Drive moduláció kontrollja
+
+A #51 minden ellenőrzése sikeres lett és beolvadt (`769993c`). A következő
+kontroll a korábbi 2x/4x jelöltet ugyanazzal a forrással egy 8x offline
+referenciához is méri. A `ReferencePremiumDrive` név továbbra is a korábbi
+4x közvetlen konvolúciót jelenti, változatlan numerikus kontraktussal.
+A külön `ReferencePremiumDrive8x` 257 tapot és megfelelően hosszú, 512 elemű
+ringet használ; a késés továbbra is 32 hostminta. Ez mérési referencia,
+nem production- vagy realtime jelölt. Független impulzus-késés, reset,
+csatornaizoláció és késleltetett szinuszos passband-kontroll ellenőrzi.
+A 8x sem matematikailag aliasmentes ground truth.
+
+24 rövid numerikus kontroll: 176,4/192 kHz, basszus/lead/pad-voice/magas lead,
+20/24 dB és lépcsős Drive célérték. Mindegyik forrás egyetlen voice két
+SevenSaw unison bankjából és egy SUB-ból áll: a gyártási motorban is voice-onként
+van a telítés, ezért nem keverünk teljes akkordot egyetlen nonlinear filterbe.
+A gyökérhangok kb. 65/262/131/2093 Hz, az OSC2 egy oktávval feljebb, a SUB
+egy oktávval lejjebb; a waveformok és detune/width az ellenőrző forrásban
+rögzítettek. Egyetlen közös konstans skálázás 0,75 csúcsra illeszti a forrást,
+nincs útvonalankénti vagy dinamikus normalizálás.
+
+1024 hostminta bemelegítés után 4096 mintát mérünk. Ez nagyon rövid ablak,
+nem hallásos zenei fixture vagy hosszú stresszfutás. A Drive-célok lépcsői
+512 mintánként 0/12/20/24 dB értékeket is érintenek, a meglévő 10 ms simítással.
+A három külön LP24 példány ugyanazt a 12 kHz-ről 500 Hz-re gyorsan változó
+cutoff célt és 50% rezonanciát kapja. A gyors kontroll numerikus állapotpróba,
+nem a musical envelope végleges beállítása.
+
+A relatív RMS-különbség legnagyobb értékei a 24 kontrollban:
+
+| Összevetés | Legnagyobb relatív RMS-különbség |
+| --- | ---: |
+| Rátafüggő jelölt – 4x | 0,3954% |
+| Rátafüggő jelölt – 8x | 0,3868% |
+| 4x – 8x | 0,0191% |
+| LP24 után rátafüggő jelölt – 8x | 0,1557% |
+| LP24 után 4x – 8x | 0,0076% |
+
+A maximális szűrés előtti értékek a 192 kHz-es magas lead, 24 dB kontrollból
+származnak; a legnagyobb szűrés utáni jelölt-eltérés a 176,4 kHz-es magas lead,
+24 dB próba. Az RMS-különbség harmonikus/fázis/amplitúdó és aliasing hatását
+is tartalmazhatja; nem izolált alias-energia, nem a hangminőség romlásának
+százaléka és nem hallhatatlansági bizonyíték. A bemeneti oszcillátorok már
+hostrátán előállított jelek: a kontroll nem méri külön a forrás saját aliasingját.
+
+Diagnosztikai felső korlát: 1% nyers jelölt-eltérés a 4x/8x referenciától,
+0,5% LP24 utáni jelölt-eltérés és 0,1% nyers 4x/8x eltérés. Mind teljesült.
+Ezek a rögzített fixture regressziós korlátai, nem minden preset vagy
+szűrőtípus minőségi elfogadása. A korábbi, kb. 20 kHz-es szinuszos stresszteszt
+nagyobb maradéka továbbra is valós eredmény; nem írjuk felül az új kontrollal.
+[Nyers eredmény](../experiments/premium_filter/measurements/2026-10-04-complex-source-controls.csv).
+
+A hét célzott filter/Drive/motor teszt és az új kontroll, valamint a 4x
+referencia-regresszió külön ASan/UBSan futása sikeres. Az új referencia nem
+módosítja a production engine-t, a rátafüggő faktorpolitika továbbra is
+kutatási jelölt. Következő lépés: a még hiányzó LP12/HP12/BP12 kutatási módok
+és módváltási kontrollok, majd minden móddal új gerjesztési/hallásos és
+CPU-elfogadás. A natív host teszt és a végleges faktorpolitika döntése nyitott.
