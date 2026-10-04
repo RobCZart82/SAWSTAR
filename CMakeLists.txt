@@ -798,6 +798,39 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     add_test(NAME premium_drive_spectral_grid COMMAND sawstar_premium_drive_spectrum_tests)
     add_executable(sawstar_premium_drive_benchmark experiments/premium_filter/benchmark_drive.cpp)
     target_link_libraries(sawstar_premium_drive_benchmark PRIVATE sawstar_engine)
+    # Compile the current Synth in a separate namespace, replacing only its
+    # per-voice filter type. Production files and library remain unchanged.
+    # Configure dependencies ensure future Synth edits regenerate this probe.
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+      "${CMAKE_CURRENT_SOURCE_DIR}/src/engine/Synth.h"
+      "${CMAKE_CURRENT_SOURCE_DIR}/src/engine/Synth.cpp")
+    set(_premium_engine "${CMAKE_CURRENT_BINARY_DIR}/premium_engine")
+    file(MAKE_DIRECTORY "${_premium_engine}")
+    foreach(_part IN ITEMS h cpp)
+      file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/engine/Synth.${_part}" _synth_probe)
+      if(NOT _synth_probe MATCHES "namespace sawstar [{]")
+        message(FATAL_ERROR "Premium probe cannot find Synth namespace")
+      endif()
+      string(REPLACE "namespace sawstar {" "namespace sawstar::experimental_engine {" _synth_probe "${_synth_probe}")
+      if(_part STREQUAL "h")
+        if(NOT _synth_probe MATCHES "LowPass filter;")
+          message(FATAL_ERROR "Premium probe cannot find per-voice filter")
+        endif()
+        string(REPLACE "#include \"dsp/LowPass.h\"" "#include \"EnginePremiumFilter.h\"" _synth_probe "${_synth_probe}")
+        string(REPLACE "LowPass filter;" "experimental::EnginePremiumFilter filter;" _synth_probe "${_synth_probe}")
+      else()
+        string(REPLACE "#include \"engine/Synth.h\"" "#include \"PremiumSynth.h\"" _synth_probe "${_synth_probe}")
+      endif()
+      file(WRITE "${_premium_engine}/PremiumSynth.${_part}" "${_synth_probe}")
+    endforeach()
+    add_library(sawstar_premium_engine_probe STATIC "${_premium_engine}/PremiumSynth.cpp")
+    target_include_directories(sawstar_premium_engine_probe PUBLIC "${_premium_engine}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/experiments/premium_filter")
+    target_link_libraries(sawstar_premium_engine_probe PUBLIC sawstar_engine)
+    add_executable(sawstar_premium_engine_benchmark experiments/premium_filter/benchmark_engine.cpp)
+    target_link_libraries(sawstar_premium_engine_benchmark PRIVATE sawstar_premium_engine_probe)
+    add_test(NAME premium_engine_probe_contract COMMAND sawstar_premium_engine_benchmark --smoke)
+
     add_executable(sawstar_premium_filter_preview experiments/premium_filter/render.cpp)
     target_link_libraries(sawstar_premium_filter_preview PRIVATE sawstar_engine)
 

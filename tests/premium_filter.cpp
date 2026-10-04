@@ -72,6 +72,16 @@ int main() {
               "rapid cutoff/resonance modulation must stay finite and symmetric");
       }
     }
+    // Init must invalidate coefficient caches even after a nondefault patch.
+    f.Set(900, 50); f.SnapToTargets(); f.Process({.3f, -.3f});
+    f.Init(sr);
+    sawstar::experimental::PremiumLowPass fresh; fresh.Init(sr);
+    for (int i = 0; i < 256; ++i) {
+      const float x = static_cast<float>(.1 * std::sin(i * .17));
+      f.Set(12000, 0); // Synth publishes unchanged controls every sample.
+      Check(f.Process({x, -x}) == fresh.Process({x, -x}),
+            "cached controls and reinitialization preserve fresh filter output");
+    }
     f.Clear(); Check(f.Process({0, 0})[0] == 0, "clear must erase both stages");
     f.Process({.2f, .2f});
     const auto recovered = f.Process({std::numeric_limits<float>::quiet_NaN(), .2f});

@@ -417,3 +417,74 @@ A 20 dB-os lead teljes raw és RMS-illesztett renderje az előző optimalizált
 mintával helyben mintánként azonos lett. A négy célzott CTest és a kibővített
 Drive-regresszió külön ASan/UBSan futása sikeres. A platform-CI az új PR
 külön beolvasztási kapuja.
+
+## Teljes motoros kutatási próba 2026. október 4.
+
+A #48 minden GitHub-ellenőrzése sikeres lett és beolvadt (`20fe01f`).
+A következő mérés már az aktuális Synth oszcillátorait, burkolóit,
+modulációját, hangkezelését, effekteit és kimeneti védelmét is futtatja.
+A build egy külön névtérben fordítja a Synth aktuális forrását: csak a
+hangonkénti filtert cseréli `EnginePremiumFilter` kutatási adapterre.
+A forrásmásolat automatikusan újragenerálódik Synth-módosításkor.
+Ez elkerüli egy kézzel karbantartott, később elavuló motorfork használatát.
+A gyártási `sawstar_engine` és plugin változatlan.
+
+Az adapter kizárólag LP24 kutatási módot enged; más módra hibát jelez.
+A jelút PremiumDrive → PremiumLowPass, a dry mix ág 32 mintával késleltetett,
+a mix 10 ms alatt simított. A jelenlegi kutatási Drive saját telítési
+karakterét használja; nem emulálja a régi filter Drive/DC-kezelését.
+A burkolók a meglévő Synth idővonalán futnak. Ez CPU- és működési próba,
+nem a végleges preset/state/módváltási vagy latency-kompatibilitási megoldás,
+és nem natív VST3/host mérés.
+
+A motor minden mintán közli a cutoff/rezonancia értékét a filterrel.
+A rezonancia együtthatóját most csak a kanonizált érték változásakor
+számoljuk újra. Az Init érvényteleníti a cache-t; külön teszt ellenőrzi
+az újrainicializálást és a változatlan kontrollok közlésének azonosságát.
+A korábban elfogadott 20 dB lead raw és RMS-illesztett WAV helyben
+mintánként azonos maradt.
+
+A `sawstar_premium_engine_benchmark` 216 konfigurációt mér modellként:
+48/96/192 kHz, 1/8/16 voice, 0/20/24 dB Drive, effektek ki/be,
+32/64/128/256 mintás feldolgozási szakaszok. Három futás teljes idejének
+mediánját és a legrosszabb megfigyelt szakaszt rögzíti. 2048 minta bemelegítés,
+4096 minta időzített render; ellenőrzés és peak/RMS mérés is az időzített
+ciklus része. Ez rövid ablak, nem teljes lecsengés vagy steady-state FX próba.
+A szakaszolás nem a valódi plugin ProcessBlock és host/framework overheadje.
+
+Helyi macOS arm64, Apple Clang 21, Release build, egymás után futtatott
+premium és legacy mérés, 16 voice, 20 dB Drive, effektek bekapcsolva:
+
+| Ráta | Legacy medián tartomány | Premium medián tartomány | Premium legrosszabb szakasz |
+| --- | ---: | ---: | ---: |
+| 48 kHz | 14,39–14,62% | 29,67–30,19% | 41,50% |
+| 96 kHz | 28,89–29,32% | 59,24–60,08% | 88,91% |
+| 192 kHz | 57,72–58,48% | 118,48–121,09% | 166,84% |
+
+A tartomány a négy szakaszhosszt fedi le. Az eredmények gép- és ütemezésfüggők;
+nem kiegyensúlyozott, több gépes sebességígéret, és a két modell más karakterű.
+A 192 kHz-es kutatási megoldás átlagosan is túllépi az audioidőt: a 4x Drive
+változatlan használatával még nem integrálható megfelelő CPU-tartalékkal.
+96 kHz-en a legrosszabb mért szakasz közelít a kerethez; itt sincs általános
+natív host tartalék igazolva.
+
+Nyers mérési adatok:
+[Premium motor](../experiments/premium_filter/measurements/2026-10-04-premium-engine.csv),
+[Legacy kontroll](../experiments/premium_filter/measurements/2026-10-04-legacy-engine.csv).
+Újrafuttatás Release buildben: `sawstar_premium_engine_benchmark`, illetve
+ugyanez `--legacy` kapcsolóval. A `--smoke` CTest nem időkorlátot ellenőriz:
+a késleltetett dry utat, az elfogadott wet láncot, Poly/Mono/Legato
+note-release-t és reset utáni csendet vizsgálja négy mintavételi rátán.
+
+Következő döntési kapu: magas hostrátán kisebb belső túlmintavételezés vagy
+más, méréssel igazolt gyorsítás. A kisebb faktor még nem elfogadott megoldás.
+Először abszolút hallható frekvenciákon kell összehasonlítani az aliasingot,
+a teljes spektrumot, a 0/20/24 dB karaktert, késést és modulációs viselkedést
+a mostani 4x referenciával. Ezután teljes motoros és natív host CPU-próba kell.
+A CPU-guard küszöbei és a hangminőségi követelmények nem lazulnak.
+
+Ellenőrzés: a teljes helyi munkacsomag 75/75 CTestje sikeres volt; a
+cache- és adapter-kontroll bővítése után a két érintett teszt újrafuttatva
+is sikeres, külön ASan/UBSan buildben is. Az öt premium célteszt és az
+elfogadott WAV mintánkénti összevetése szintén sikeres. Az új PR teljes
+platform-CI eredménye külön beolvasztási feltétel.
