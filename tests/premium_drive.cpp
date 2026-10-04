@@ -57,6 +57,23 @@ int main() {
       std::cout << "rate=" << rate << ", reference max error=" << maxError
                 << ", RMS error=" << std::sqrt(squaredError / 20000) << '\n';
       Require(squaredError / 20000 < 1e-16, "reference RMS error below -160 dBFS");
+      // Sparse impulses exercise every interpolation phase and the mirrored
+      // ring boundary; high Drive also checks interpolation before tanh.
+      for (double db : {0., 20., 24.}) {
+        for (int offset : {0, 1, 63, 64, 65, 127}) {
+          PremiumDrive candidate; candidate.Init(rate); candidate.Set(db); candidate.SnapToTargets();
+          sawstar::experimental::ReferencePremiumDrive oracle;
+          oracle.Init(rate); oracle.Set(db); oracle.SnapToTargets();
+          for (int i = 0; i < 384; ++i) {
+            const std::array<float, 2> x = {i == offset ? .8f : 0.f,
+                                           i == offset + 1 ? -.6f : 0.f};
+            const auto a = candidate.Process(x), b = oracle.Process(x);
+            for (size_t ch = 0; ch < 2; ++ch)
+              Require(std::abs(static_cast<double>(a[ch]) - b[ch]) < 1e-7,
+                      "symmetric FIR impulse and ring-wrap reference contract");
+          }
+        }
+      }
       PremiumDrive drive;
       drive.Init(rate);
       double peak = 0; int position = -1;

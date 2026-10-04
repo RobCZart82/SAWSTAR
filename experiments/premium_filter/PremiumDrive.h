@@ -21,6 +21,11 @@ public:
       const double window = .42 - .5 * std::cos(2 * pi * i / 128) + .08 * std::cos(4 * pi * i / 128);
       taps_[i] = sinc * window; sum += taps_[i];
     }
+    // Enforce the mathematical symmetry despite libm rounding in the window.
+    // Pair averaging preserves the DC sum and changes coefficients only at
+    // double-rounding scale; the original full FIR remains the test oracle.
+    for (unsigned i = 0; i < 64; ++i)
+      taps_[i] = taps_[128 - i] = .5 * (taps_[i] + taps_[128 - i]);
     for (auto& tap : taps_) tap /= sum;
     gain_ = target_ = 1; Clear();
   }
@@ -55,14 +60,29 @@ private:
       const double* history = fir.history.data() + fir.cursor + 256;
       std::array<double, 4> sums{};
       unsigned i = first;
-      for (; i + 3 * stride < taps_.size(); i += 4 * stride) {
-        for (unsigned lane = 0; lane < 4; ++lane) {
-          const unsigned tap = i + lane * stride;
-          sums[lane] += taps_[tap] * *(history - tap);
+      if (!sparse || (first & 1) == 0) {
+        // The decimator and even interpolation phases are symmetric. Odd
+        // phases have different mirrored residues and keep the full sum.
+        for (; i + 3 * stride < 64; i += 4 * stride) {
+          for (unsigned lane = 0; lane < 4; ++lane) {
+            const unsigned tap = i + lane * stride;
+            sums[lane] += taps_[tap] * (*(history - tap) + *(history - (128 - tap)));
+          }
         }
+        y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
+        for (; i < 64; i += stride)
+          y += taps_[i] * (*(history - i) + *(history - (128 - i)));
+        if (!sparse || first == 0) y += taps_[64] * *(history - 64);
+      } else {
+        for (; i + 3 * stride < taps_.size(); i += 4 * stride) {
+          for (unsigned lane = 0; lane < 4; ++lane) {
+            const unsigned tap = i + lane * stride;
+            sums[lane] += taps_[tap] * *(history - tap);
+          }
+        }
+        y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
+        for (; i < taps_.size(); i += stride) y += taps_[i] * *(history - i);
       }
-      y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
-      for (; i < taps_.size(); i += stride) y += taps_[i] * *(history - i);
     }
     fir.cursor = (fir.cursor + 1) & 255;
     return y;

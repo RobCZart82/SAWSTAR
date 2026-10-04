@@ -46,8 +46,12 @@ A szélesebb spektrális grid 148 érdemben mérhető kontrollja javult.
 A kis-pufferes Drive-próbában 192 kHz-en néhány 32/64 mintás blokk túllépte
 az audioidőt; a magas rátás költségpolicy ezért integrációs előfeltétel.
 A #47 két macOS Release CPU-guardja a korábbi headen sikertelen volt,
-funkcionális tesztbukás nélkül. Friss CI és kontrollált összevetés szükséges;
-a küszöb nem módosul, piros guarddal nincs beolvasztás.
+funkcionális tesztbukás nélkül. A friss `0c3f4e2` head összes ellenőrzése
+sikeres lett, a #47 beolvadt (`29a25ac`); a küszöb nem módosult.
+A szimmetrikus FIR következő optimalizálása helyben kb. 17/34/66%-ra
+csökkenti a 16 voice Drive-költséget 48/96/192 kHz-en. A 192 kHz-es
+32 mintás próba még túllépte az időkeretet; teljes engine-profil és
+magas rátás minőség/költség döntés szükséges az integráció előtt.
 A production engine hangútja változatlan.
 
 Részletes filterkövetelmények és első eredmények:
