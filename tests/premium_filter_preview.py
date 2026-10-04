@@ -23,10 +23,10 @@ def read(path):
     return result
 
 
-def validate(prefix):
-    a = read(Path(prefix + '-A-legacy-LP24.wav'))
-    raw = read(Path(prefix + '-B-candidate-LP24.wav'))
-    matched = read(Path(prefix + '-B-RMS-matched-LP24.wav'))
+def validate(prefix, mode='LP24'):
+    a = read(Path(prefix + f'-A-legacy-{mode}.wav'))
+    raw = read(Path(prefix + f'-B-candidate-{mode}.wav'))
+    matched = read(Path(prefix + f'-B-RMS-matched-{mode}.wav'))
     start, end = 48000, 48000 * 23  # stereo 0.5..11.5 s
     energy_a = sum(float(x) * x for x in a[start:end])
     energy_raw = sum(float(x) * x for x in raw[start:end])
@@ -57,10 +57,19 @@ with tempfile.TemporaryDirectory() as folder:
             if reference is None:
                 reference = data
             assert data == reference  # Identical clean A source, gain and aligned delay.
+    for mode in ('LP12', 'LP24', 'HP12', 'BP12'):
+        prefix = str(Path(folder) / f'four-mode-{mode}')
+        subprocess.run([sys.argv[1], prefix, '50', 'lead', '20', '4x', mode], check=True)
+        validate(prefix, mode)
+        if mode == 'LP24':
+            for suffix in ('A-legacy', 'B-candidate', 'B-RMS-matched'):
+                assert Path(prefix + f'-{suffix}-LP24.wav').read_bytes() == Path(
+                    str(Path(folder) / 'drive-20-4x') + f'-{suffix}-LP24.wav').read_bytes()
     for index, arguments in enumerate((('nan',), ('inf',), ('-1',), ('101',),
                                       ('50oops',), ('50', 'unknown'),
                                       ('50', 'lead', 'nan'), ('50', 'lead', '-1'),
-                                      ('50', 'lead', '25'), ('50', 'lead', '12', 'bad'))):
+                                      ('50', 'lead', '25'), ('50', 'lead', '12', 'bad'),
+                                      ('50', 'lead', '20', '4x', 'bad'))):
         prefix = str(Path(folder) / f'bad-{index}')
         result = subprocess.run([sys.argv[1], prefix, *arguments], capture_output=True)
         assert result.returncode != 0

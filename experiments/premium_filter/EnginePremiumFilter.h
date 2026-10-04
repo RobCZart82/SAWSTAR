@@ -4,10 +4,9 @@
 #include "RateScaledPremiumDrive.h"
 #include "PremiumLowPass.h"
 #include "dsp/SevenSaw.h"
-#include <stdexcept>
 
 namespace sawstar::experimental {
-// Offline LP24-only integration adapter, never used by the shipped Synth.
+// Offline four-mode integration adapter, never used by the shipped Synth.
 // Clean mix has the same 32-sample delay as the oversampled wet path.
 // This is not the final state/parameter/mode compatibility implementation.
 template<class Drive> class BasicEnginePremiumFilter {
@@ -23,7 +22,7 @@ public:
     targetMix_ = FiniteClamp(mix, 0.f, 100.f, 0.f) * .01;
   }
   void SetCharacter(float db, int mode) {
-    if (mode != 1) throw std::invalid_argument("Research engine supports LP24 only");
+    filter_.SetMode(mode);
     drive_.Set(db);
   }
   void SnapToTargets() { drive_.SnapToTargets(); filter_.SnapToTargets(); mix_ = targetMix_; }

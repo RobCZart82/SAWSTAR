@@ -36,7 +36,7 @@ void Write(const std::string& path, const std::vector<float>& samples, uint32_t 
 }
 }
 int main(int argc, char** argv) {
-  if (argc < 2 || argc > 6) { std::cerr << "Usage: premium_filter_preview OUTPUT_PREFIX [RESONANCE_PERCENT [sustain|lead|pluck|pad [DRIVE_DB [host|4x]]]]\n"; return 1; }
+  if (argc < 2 || argc > 7) { std::cerr << "Usage: premium_filter_preview OUTPUT_PREFIX [RESONANCE_PERCENT [sustain|lead|pluck|pad [DRIVE_DB [host|4x [LP12|LP24|HP12|BP12]]]]]\n"; return 1; }
   try {
     double resonance = 30;
     if (argc >= 3) {
@@ -55,8 +55,13 @@ int main(int argc, char** argv) {
       if (used != std::strlen(argv[4]) || !std::isfinite(driveDb) || driveDb < 0 || driveDb > 24)
         throw std::runtime_error("Drive must be finite and within 0..24 dB");
     }
-    const std::string driveMode = argc == 6 ? argv[5] : "host";
+    const std::string driveMode = argc >= 6 ? argv[5] : "host";
     if (driveMode != "host" && driveMode != "4x") throw std::runtime_error("Unknown Drive mode");
+    const std::string modeName = argc == 7 ? argv[6] : "LP24";
+    const std::array<std::string, 4> modes{"LP12", "LP24", "HP12", "BP12"};
+    const auto selected = std::find(modes.begin(), modes.end(), modeName);
+    if (selected == modes.end()) throw std::runtime_error("Unknown filter mode");
+    const int filterMode = static_cast<int>(selected - modes.begin());
     const bool oversampled = driveFixture && driveMode == "4x";
     constexpr int rate = 48000, count = rate * 12;
     sawstar::SevenSaw source; source.Init(rate);
@@ -68,9 +73,9 @@ int main(int argc, char** argv) {
       chord[i].SetShape(20, 1, 1); chord[i].SnapToTargets();
     }
     sawstar::LowPass legacy; legacy.Init(rate); legacy.Set(8000, static_cast<float>(resonance), 100);
-    legacy.SetCharacter(0, 1); legacy.SnapToTargets();
+    legacy.SetCharacter(0, filterMode); legacy.SnapToTargets();
     sawstar::experimental::PremiumLowPass candidate; candidate.Init(rate);
-    candidate.Set(8000, resonance); candidate.SnapToTargets();
+    candidate.Set(8000, resonance); candidate.SetMode(filterMode); candidate.SnapToTargets();
     sawstar::experimental::PremiumDrive drive; drive.Init(rate); drive.Set(driveDb); drive.SnapToTargets();
     const double driveGain = std::pow(10., driveDb / 20);
     constexpr int latency = sawstar::experimental::PremiumDrive::Latency;
@@ -132,8 +137,8 @@ int main(int argc, char** argv) {
       }
     }
     if (peakA >= 1 || peakB >= 1) throw std::runtime_error("Preview exceeds full scale");
-    Write(std::string(argv[1]) + "-A-legacy-LP24.wav", a, rate);
-    Write(std::string(argv[1]) + "-B-candidate-LP24.wav", b, rate);
+    Write(std::string(argv[1]) + "-A-legacy-" + modeName + ".wav", a, rate);
+    Write(std::string(argv[1]) + "-B-candidate-" + modeName + ".wav", b, rate);
     // One constant offline gain over the common 0.5..11.5 s listening window.
     // No compressor, time-varying leveling or modification of either filter.
     double energyA = 0, energyB = 0;
@@ -149,7 +154,7 @@ int main(int argc, char** argv) {
       if (!std::isfinite(sample) || std::abs(sample) >= 1)
         throw std::runtime_error("Matched preview exceeds full scale");
     }
-    Write(std::string(argv[1]) + "-B-RMS-matched-LP24.wav", matched, rate);
+    Write(std::string(argv[1]) + "-B-RMS-matched-" + modeName + ".wav", matched, rate);
     if (driveFixture) std::cout << "Drive fixture: " << driveDb << " dB, " << driveMode
       << ", aligned latency=" << latency << " samples; input x10, common output x0.15\n";
     std::cout << "B constant RMS-match gain (0.5..11.5 s): " << gain
