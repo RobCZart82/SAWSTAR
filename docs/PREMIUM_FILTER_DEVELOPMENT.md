@@ -807,3 +807,37 @@ Nyers profilok:
 A production filter és az elfogadott hangminták e munkacsomagban nem módosultak.
 Következő aktív feladat a CPU-költség és magas rátás minőségpolitika megoldása,
 majd latency/state/automation integráció és natív elfogadás.
+
+## Együtthatók újrafelhasználása változatlan vezérlésnél
+
+A #54 mind a 17 ellenőrzése sikeres lett és beolvadt (`b5e3625`). A következő
+kutatási optimalizálás a három SVF-együtthatót tárolja. `SnapToTargets()` után,
+illetve amikor az eredeti double simítás már pontosan ugyanazokat az értékeket
+adja, nem ismétli a három osztást és a változatlan simítást. Új cutoff vagy
+rezonancia célérték újraindítja a számítást. Nincs toleranciás korai lezárás,
+kvantálás, rövidebb simítás vagy kihagyott szűrőág; a módváltás meleg állapotai
+megmaradnak. `Clear()` csak a jeltörténetet törli, az `Init()` és a snap a
+megfelelő új együtthatókat is előállítja.
+
+A `ReferencePremiumFilter` a #54 állapotának optimalizálatlan aritmetikája befagyasztott
+offline kontrollja. A regresszió 3 923 984 sztereó frame kimenetét ellenőrzi
+bájtról bájtra: 8/44,1/48/96/192/384 kHz, négy mód, hosszú beállás utáni új
+vezérlés, gyors cutoff/rezonancia/módváltás, snap, clear, más rátán új Init,
+másolt állapot és érvénytelen bemenet. A szándékosan elrontott cache-invalidation
+kontroll megbukik. Mind a 12 korábbi négy módos preview WAV teljes fájlja
+változatlan. Nyolc célzott Release és öt ASan/UBSan teszt sikeres; ez nem a
+teljes helyi tesztsor újrafuttatása.
+
+A külön, csak szűrőt mérő Release benchmark 16 sztereó példányt, négy módot,
+48/96/192 kHz-et és módonként nyolc váltakozó sorrendű referencia/jelölt párt
+használ. 4096 minta bemelegítés után 32768 mintát időzít. Állandó, snapelt
+beállításnál a páronkénti időarányok rátánként összesített mediánja
+0,878 / 0,872 / 0,888: kb. 11–13% kisebb idő. Cutoff és rezonancia 128 mintánkénti
+váltásánál 1,038 / 1,038 / 1,037: kb. 4% többlet a cache állapotkezelése miatt.
+A párok szórnak; ez helyi diagnosztika, nem CI-időzítési küszöb vagy natív ígéret.
+[Nyers párok](../experiments/premium_filter/measurements/2026-10-04-coefficient-cache.csv).
+
+Ez a lineáris szűrő részleges, változatlan hangú optimalizálása, nem a Drive,
+a teljes motor vagy a VST3 költségének ugyanekkora csökkenése. A 192 kHz-es
+realtime kapu és a magas rátás Drive minőségpolitikája továbbra is nyitott.
+A production hangút, túlmintavételezési faktor, FIR, latency és GUI nem változik.

@@ -100,6 +100,16 @@ Következő aktív feladat a CPU-költség és minőségpolitika megoldása; ezt
 a latency/state/automation integráció, factory presetek és natív elfogadás.
 A production engine hangútja egyelőre változatlan.
 
+A #54 mind a 17 ellenőrzése sikeres lett és beolvadt (`b5e3625`). A következő
+kutatási lépés változatlan hang mellett újrahasználja a beállt szűrőegyütthatókat:
+3 923 984 sztereó frame és a 12 korábbi négy módos WAV bitazonos a referenciával.
+Nyolc célzott Release és öt ASan/UBSan ellenőrzés sikeres. A külön szűrőprofil
+állandó beállításnál kb. 11–13% kisebb időt, gyors modulációnál kb. 4% többletet
+mutat helyben; ez nem teljes motoros gyorsulás. A CPU-kapu továbbra is nyitott.
+A következő munka a domináns Drive/FIR-költség és a magas rátás minőségpolitika
+vizsgálata, majd teljes motoros és natív terhelésmérés. Az integráció csak ezek
+után következik; az elfogadott karaktert és a meglévő GUI-t megtartjuk.
+
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
 Az alábbi korábbi sorrend a feladatok technikai háttere; az aktív prioritást
