@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Offline complete engine probe; elapsed time is not a CI pass/fail gate.
+#ifdef SAWSTAR_PREMIUM_HIGH_RATE_STUDY
+#include "RatePremiumSynth.h"
+namespace ProbeEngine = sawstar::experimental_rate_engine;
+#else
 #include "PremiumSynth.h"
+namespace ProbeEngine = sawstar::experimental_engine;
+#endif
 #include "engine/Synth.h"
 #include <chrono>
 #include <iostream>
@@ -51,7 +57,7 @@ void Smoke() {
   if (!rejected) throw std::runtime_error("Unsupported mode must not silently use LP24");
   // Same production MIDI/envelope/FX code, a separate per-voice filter type.
   for (double rate : {44100., 48000., 96000., 192000.}) for (int mode : {0, 1, 2}) {
-    auto s = std::make_unique<sawstar::experimental_engine::Synth>();
+    auto s = std::make_unique<ProbeEngine::Synth>();
     Setup(*s, rate, 0, 20, true); s->SetVoiceMode(mode, 0, true);
     for (int n = 0; n < 3; ++n) s->Midi(0x90, 48 + n, 100);
     for (int n = 0; n < 3; ++n) if (!s->Held(48 + n))
@@ -108,6 +114,12 @@ int main(int argc, char** argv) {
     if (argc != 1 && !legacy) { std::cerr << "Usage: premium_engine_benchmark [--smoke|--legacy]\n"; return 1; }
     std::cout << "engine,rate,voices,drive_db,fx,buffer,median_realtime_percent,worst_block_percent,peak,rms\n";
     if (legacy) Benchmark<sawstar::Synth>("legacy");
-    else Benchmark<sawstar::experimental_engine::Synth>("premium");
+    else {
+#ifdef SAWSTAR_PREMIUM_HIGH_RATE_STUDY
+      Benchmark<ProbeEngine::Synth>("rate-scaled");
+#else
+      Benchmark<ProbeEngine::Synth>("premium");
+#endif
+    }
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

@@ -1,0 +1,2 @@
+rate,requested_hz,actual_hz,drive_db,amplitude,relative_rms_error,peak_error
+88200,18000,18001.8,24,0.75,0.110535,0.0114384

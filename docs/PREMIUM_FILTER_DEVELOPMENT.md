@@ -531,3 +531,73 @@ cache- és adapter-kontroll bővítése után a két érintett teszt újrafuttat
 is sikeres, külön ASan/UBSan buildben is. Az öt premium célteszt és az
 elfogadott WAV mintánkénti összevetése szintén sikeres. Az új PR teljes
 platform-CI eredménye külön beolvasztási feltétel.
+
+## Magas rátás Drive kutatás 2026. október 4.
+
+A #50 teljes filtercsere-terv minden CI után beolvadt (`65e3f4d`). A 4x
+Drive most fix faktorú sablon, a meglévő `PremiumDrive` neve továbbra is a
+négyszeres változatot jelenti. A 4x referencia, a korábbi toleranciák és
+spektrális tesztek megmaradnak. A 2x kutatási ág 65, a 4x ág 129 tapot
+használ: mindkettő .45 hostrátájú cutoffot, Blackman-ablakot és 32 hostminta
+késést ad. A telítési görbe és a 10 ms-os Drive-simítás közös.
+
+A `RateScaledPremiumDrive` jelölt 176,4 kHz alatt 4x, attól felfelé 2x.
+A faktor csak Init/reset során változik; élő streamben nincs faktorváltás.
+Ez **nem elfogadott shipping policy**. A kiadott plugin nem használja,
+és a standard offline motorpróba is megőrzi a 4x referenciaútját.
+A második, külön fordított motorpróba teszi mérhetővé a jelöltet.
+
+Az első, 88,2 kHz-től 2x faktorú jelölt megbukott a változatlan 10%-os
+kutatási különbségkorláton: 88,2 kHz, 18 001,8 Hz bemenet, 24 dB Drive,
+0,75 bemeneti amplitúdó esetén 11,05% relatív RMS-eltérés lett a 4x
+referenciához képest. A követelményt nem lazítottuk: a kisebb faktort
+csak a magasabb rátákra korlátoztuk. A különbség nem tisztán aliasingmérés.
+[Elutasított kontroll](../experiments/premium_filter/measurements/2026-10-04-rejected-2x-88200.csv).
+
+A jelenlegi grid 192 kontroll: 88,2/96/176,4/192 kHz; névlegesen
+1/3/8/12/18/20 kHz; 0/12/20/24 dB; 0,1/0,75 amplitúdó. Koherens 1024-mintás
+periódushoz igazítjuk a frekvenciát, ezért az adatfájl a tényleges Hz-et is
+rögzíti; például 192 kHz-en a 20 kHz cél ténylegesen 20 062,5 Hz.
+88,2 és 96 kHz-en a jelölt a referencia 4x útját használja és az eltérés nulla.
+176,4/192 kHz-en a legnagyobb relatív RMS-különbség 5,14%/4,67%, 24 dB,
+0,75 amplitúdó és kb. 20 kHz mellett. Ez az egész Nyquist-sáv kimeneti
+eltérése: harmonikus amplitúdó/fázis és aliasing egyaránt része lehet.
+Nem 5%-os hallható minőségromlást jelent, és nem bizonyít hallhatatlanságot.
+
+Külön kiválasztott, 20 kHz alatti spektrális maradékot is mérünk: a legfeljebb
+63. rendű páratlan harmonikusok behajlított binjeit, a legitim harmonikusokkal
+azonos binbe eső komponensek nélkül. Ez nem teljes alias-energia. Legrosszabb
+kontroll: 176,4 kHz-en a jelölt −55,86 dBFS, a 4x referencia −76,60 dBFS;
+192 kHz-en −58,20 és −81,18 dBFS. A kisebb faktor mérhetően rosszabb ezekben
+az erős gerjesztésekben. A teszt −50 dBFS kiválasztott maradék- és 10% teljes
+relatív eltéréskorlátja diagnosztikai védőkorlát, **nem végleges hangminőségi
+elfogadás**. Nulla Drive mellett külön 0,1%-os lineáris eltéréskorlát van.
+
+Helyi Release teljes motorprofil, az előzővel azonos rövid ablakokkal,
+16 voice, 20 dB, FX bekapcsolva, négy szakaszhossz:
+
+| Ráta | 4x referencia korábbi mediánja | Rátafüggő jelölt mediánja | Jelölt legrosszabb szakasza |
+| --- | ---: | ---: | ---: |
+| 48 kHz | 29,67–30,19% | 29,77–29,90% | 34,06% |
+| 96 kHz | 59,24–60,08% | 59,41–59,54% | 70,31% |
+| 192 kHz | 118,48–121,09% | 77,91–78,05% | 95,15% |
+
+Külön helyi futások, nem kiegyensúlyozott statisztikai sebességígéret.
+192 kHz-en érdemi tartalék keletkezett a mediánban, de a legrosszabb szakasz
+közel van az időkerethez. Natív Windows/macOS host vagy hosszú stresszfutás
+nem történt; nem jelentjük ki a realtime integráció készségét.
+[Nyers motorprofil](../experiments/premium_filter/measurements/2026-10-04-rate-scaled-engine.csv),
+[spektrális kontroll](../experiments/premium_filter/measurements/2026-10-04-rate-scaled-controls.csv).
+
+A következő kapu: összetett/unison gerjesztés, Drive-moduláció és magasabb
+pontosságú aliasing-kontroll; szükség esetén a jelölt finomítása. A CPU-előnyt
+nem váltjuk automatikusan hangminőségi engedményre. Ezután LP12/HP12/BP12
+kidolgozása, minden mód stabilitási/hallásos tesztje, és a teljes filtercsere
+integrációs próbája következik. Nincs új GUI minőségkapcsoló.
+
+Ellenőrzés: 77/77 teljes helyi CTest sikeres. A végső csatorna/reset kontrollok
+és a két külön névtérben fordított motorpróba célzott újrafuttatása sikeres;
+a Drive- és rátafüggő motorregressziók ASan/UBSan alatt is sikeresek.
+A korábban elfogadott 48 kHz-es, 20 dB-os raw és RMS-illesztett WAV
+mintánként azonos maradt. Ezek nem helyettesítik a magas rátás jelölt
+hátralévő hangminőségi és natív elfogadását.
