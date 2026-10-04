@@ -5,7 +5,7 @@ Az akkori main Windows, macOS és Code quality workflow-ja sikeres volt. A #36 P
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
 
-## Aktív prioritás 2026-10-03
+## Aktív prioritás 2026-10-04
 
 A tulajdonos új sorrendje szerint a következő release fő fejlesztési iránya
 **a prémium filter**. A többi felsorolt megbízhatósági és használhatósági téma
@@ -16,9 +16,11 @@ biztosan a soron következő release utánra.
    hosszabb bevezetőjű hangminták, stabilitás több mintavételi frekvencián.
 2. A jelölt hallásos értékelése, rezonancia és telítés tervezése; a nemlineáris
    részekhez anti-aliasing/túlmintavételezés és CPU-költség külön ellenőrzése.
-3. Kompatibilis engine-integráció: régi preset/projekt a régi karaktert használja;
-   az új karakter kiválasztása és alapértelmezése kifejezett döntés. A prototípus
-   önmagában még nem kerül a plugin jelútjába.
+3. Teljes filtercsere a tulajdonos október 4-i döntése szerint: prémium LP12,
+   LP24, HP12 és BP12 a meglévő GUI-val. Nincs Classic/Premium választó.
+   Régi preset/projekt értékei megmaradnak, de az új karakterrel szólnak.
+   Parameter ID-k, automation és módértékek stabilak; a hallható változás
+   dokumentált. A prototípus önmagában még nem kerül a plugin jelútjába.
 4. Presetkoherencia reprodukció, import/mentés késésének profilozása,
    fájlrendszer-megbízhatóság és hagyományos automatizálás blokkfüggésének mérése.
    A reset/kerék és natív lifecycle kombinációk ugyanitt kapnak célzott tesztet.
@@ -59,7 +61,11 @@ A rezonancia ismételt együttható-számítását cache kiváltja, a korábban
 elfogadott hangminta változatlan. 192 kHz-en így is túl nagy a költség.
 Következő aktív kapu a magas rátás Drive minőség/költség megoldása,
 abszolút hallható frekvenciákon a 4x referenciával összevetve; utána natív
-host CPU-próba és kompatibilis, külön választható motorintegráció következik.
+host CPU-próba és a négy mód teljes cseréje következik a meglévő vezérlőkkel.
+A #49 teljes motorpróba minden CI után beolvadt (`6eb4fc2`). A tulajdonos
+az új filter teljes cseréjét választotta; a Classic/Premium külön modell
+korábbi terve megszűnt. A mostani kutatási LP24 mellé LP12/HP12/BP12 kell,
+és minden factory preset újrahallgatandó az integráció után.
 A production engine hangútja változatlan.
 
 Részletes filterkövetelmények és első eredmények:
@@ -206,8 +212,8 @@ Teljes hangállapot átadását csak a következő szerződéssel szabad bevezet
 - A stabilitási feladatok után a prémium filter legyen az első hangminőségi
   munkacsomag: jelenlegi filter referencia, cutoff/rezonancia sweep, több
   mintavételi frekvencia, szintillesztett hallásos A/B és CPU-mérés. A régi
-  presetek hangját nem szabad észrevétlenül megváltoztatni; kompatibilitási
-  döntés szükséges az új karakter bevezetése előtt.
+  presetek hangja az elfogadott teljes filtercsere miatt változhat; a betöltési
+  és automatizálási szerződés megmarad, a hangváltozás kiadási jegyzetbe kerül.
 - A gyors presetlista ABC-sorrendje és kategóriák szerinti böngészése külön
   használhatósági feladat. Új cutoff-központú factory presetek csak a filter
   végleges viselkedésére készüljenek.

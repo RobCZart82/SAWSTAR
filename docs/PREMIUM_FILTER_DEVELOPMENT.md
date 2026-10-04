@@ -1,9 +1,50 @@
 # SAWSTAR prémium filter fejlesztése
 
-Frissítve: 2026-10-03. Alap: a kiadott 1.0.4 filter és a `71a4855` main.
+Frissítve: 2026-10-04. Kutatási kiindulás: a kiadott 1.0.4 filter és a `71a4855` main.
 A cél határozottabb cutoff-karakter, zeneileg használható rezonancia, tiszta
 moduláció és jó minőségű Drive. A „prémium” hallásos elfogadási cél, nem a
 szűrő neve alapján bizonyított minőség vagy más hangszer hangjának ígérete.
+
+## Elfogadott teljes filtercsere
+
+A tulajdonos 2026. október 4-i döntése szerint a prémium filter **teljesen
+leváltja** a jelenlegi szűrőt. Nem lesz Classic/Premium modellválasztó,
+és nem tartunk fenn felhasználó által választható régi filtermodellt.
+Ez felülírja a korábbi, régi hangkaraktert megtartó opt-in integrációs tervet.
+
+A MAIN oldal meglévő FILTER kezelőszervei maradnak: Cutoff, Resonance,
+Drive (0–24 dB), Filter Mix, Key Track és a négy filtermód lenyíló listája.
+A FILTER ENV A/D/S/R és Amount feladata változatlan. Nincs új GUI kezelőszerv,
+és a meglévő parameter ID-k, filtermód-számértékek és automation kapcsolatok
+megmaradnak: 0=LP12, 1=LP24, 2=HP12, 3=BP12.
+
+A régi presetek/projektek mentett értékei továbbra is betölthetők, de ezután
+is az új motor dolgozza fel őket. A filter frekvenciamenete, rezonanciája és
+Drive karaktere szándékosan változhat. A korábbi renderrel való bitazonosság
+nem elfogadási feltétel a végleges filtercserére. A kiadási jegyzet és a
+kézikönyv ezt a hallható változást kifejezetten jelzi. A régi implementáció
+kutatási/tesztreferenciaként használható; a production jelútban nem marad
+kompatibilitási alternatíva.
+
+Teljes csere csak az alábbi kapuk lezárása után:
+
+1. Magas rátás Drive minőség/költség megoldása, a 4x referenciával mérve;
+   a jelenlegi 192 kHz-es teljes motor költsége még túl nagy.
+2. A prémium LP24 mellett LP12, HP12 és BP12 kidolgozása. Minden módhoz saját
+   cutoff/center, meredekség, rezonancia/gain és szélső gerjesztési kontroll kell.
+   Egyetlen LP24 algoritmus nem helyettesítheti némán a többi módot.
+3. Filtermód- és Drive-váltás, cutoff-envelope, LFO/mod wheel, key tracking,
+   dry/wet keverés, sztereó izoláció és visszaállítás ellenőrzése.
+   A késés és a host felé jelentett latency kezelése külön tervezési feladat;
+   a kutatási 32 mintás adapter nem kész plugin-latency megoldás.
+4. Engine-integráció a meglévő vezérlőkkel; régi state/preset betöltési és
+   automatizálási regresszió, minden factory preset újrahallgatása.
+5. 16 voice CPU-próba és natív Windows/macOS elfogadás, majd dokumentált kiadás.
+   Linux és 32 voice továbbra is halasztott.
+
+A jelenlegi prototípus és a #49 alatt beolvadt teljes motorpróba (`6eb4fc2`)
+csak LP24-et támogat. Az új döntés a fejlesztés célállapotát rögzíti;
+a kiadott plugin filtere ettől a dokumentációs változtatástól nem cserélődik le.
 
 ## A jelenlegi filter
 
@@ -162,13 +203,15 @@ Az eddigi lineáris jelölt és a kiadott plugin jelútja változatlan.
    Az oversampling önmagában nem garancia; latency, sztereófázis és száraz út is tesztelendő.
 4. 16 voice, kis buffer és több mintavételi frekvencia CPU-profilja. Fix realtime
    költség, allokálás/zárolás nélkül. 32 voice és Linux biztosan későbbi release.
-5. Kompatibilitási szerződés, majd engine-integráció: régi state/preset régi
-   modellre tér vissza, új modell választása megkülönböztethető. Ne cseréljük le
-   rejtetten a meglévő módokat; parameter/state migrációhoz külön regresszió szükséges.
+5. A teljes filtercsere fenti szerződése szerint mind a négy mód befejezése,
+   majd engine-integráció a meglévő vezérlőkkel. Régi preset/state értékei
+   betöltődnek az új motorba; a hangkarakter változása dokumentált. Nincs
+   Classic/Premium választó; parameter/state/automation regresszió szükséges.
 6. Factory presetek, dokumentáció, Windows/macOS CI és natív hallásos elfogadás.
 
 A lezárt click/pop kutatás nem indul újra. A prémium filter új hangminőségi
-fejlesztés; az elfogadott GUI/kompatibilitási követelmények megmaradnak.
+fejlesztés; a GUI és a mentett vezérlőértékek szerződése megmarad, a filter
+hangkarakterét az új tulajdonosi döntés szerint lecseréljük.
 
 
 ## Első Drive prototípus 2026-10-03
