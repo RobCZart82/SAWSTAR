@@ -42,9 +42,10 @@ Teljes csere csak az alábbi kapuk lezárása után:
 5. 16 voice CPU-próba és natív Windows/macOS elfogadás, majd dokumentált kiadás.
    Linux és 32 voice továbbra is halasztott.
 
-A jelenlegi prototípus és a #49 alatt beolvadt teljes motorpróba (`6eb4fc2`)
-csak LP24-et támogat. Az új döntés a fejlesztés célállapotát rögzíti;
-a kiadott plugin filtere ettől a dokumentációs változtatástól nem cserélődik le.
+A #49 alatt beolvadt kezdeti teljes motorpróba (`6eb4fc2`) csak LP24-et támogatott.
+A mostani kutatási prototípus és az offline motoradapter már mind a négy módot
+kezeli; a részletek és a fennmaradó elfogadási kapuk a dokumentum végén vannak.
+A kiadott plugin filtere még nem cserélődött le.
 
 ## A jelenlegi filter
 
@@ -657,6 +658,75 @@ nagyobb maradéka továbbra is valós eredmény; nem írjuk felül az új kontro
 A hét célzott filter/Drive/motor teszt és az új kontroll, valamint a 4x
 referencia-regresszió külön ASan/UBSan futása sikeres. Az új referencia nem
 módosítja a production engine-t, a rátafüggő faktorpolitika továbbra is
-kutatási jelölt. Következő lépés: a még hiányzó LP12/HP12/BP12 kutatási módok
-és módváltási kontrollok, majd minden móddal új gerjesztési/hallásos és
-CPU-elfogadás. A natív host teszt és a végleges faktorpolitika döntése nyitott.
+kutatási jelölt. Ezt a kontrollt követően elkészültek az alábbi négy mód és
+módváltási próbák. A natív host teszt és a végleges faktorpolitika döntése nyitott.
+
+## Négy kutatási filtermód és módváltás
+
+A kutatási `PremiumLowPass` és az offline `EnginePremiumFilter` már kezeli
+a meglévő négy módértéket: 0=LP12, 1=LP24, 2=HP12, 3=BP12. Nincs új paraméter,
+külső függőség vagy GUI-kapcsoló. A production `LowPass`, `Synth` és a plugin
+változatlan; ez továbbra is kutatási implementáció.
+
+Az elfogadott LP24 két fokozata megmarad. A három kétpólusú mód egy külön,
+közös TPT SVF-ből kap low/high/band kimenetet. Nulla rezonancián sqrt(2)
+csillapítás ad másodrendű Butterworth LP/HP választ. A rezonancia logaritmikusan
+csökkenti a csillapítást 0,1-ig; ez kutatási karakterválasztás, külön hallásos
+elfogadást igényel. A BP középfrekvenciás gainje egységre normalizált:
+a rezonancia itt a sávot szűkíti, nem növeli a center gainjét.
+Az LP12/HP12 távoli meredeksége 12 dB/oktáv; a kétpólusú BP alacsony és magas
+oldala külön 6 dB/oktáv. A meglévő BP12 módnév/számérték megmarad.
+
+Beállt válasz, 48 kHz, 1000 Hz cutoff és bemenet; nem maximális csúcskeresés:
+
+| Mód | 0% rezonancia | 50% rezonancia | 100% rezonancia |
+| --- | ---: | ---: | ---: |
+| LP12 | −3,01 dB | +8,49 dB | +20,00 dB |
+| LP24 | −3,01 dB | +9,66 dB | +22,32 dB |
+| HP12 | −3,01 dB | +8,49 dB | +20,00 dB |
+| BP12 | 0,00 dB | 0,00 dB | 0,00 dB |
+
+Mindkét szűrőhálózat folyamatosan fut, hogy váltáskor ne régi, megállított
+integrátorállapot jelenjen meg. A módok kimenete konvex súlyokkal vált át,
+10 ms időállandóval: ez kb. 30 ms alatt éri el a változás 95%-át, nem 10 ms-os
+véges fade. A jelentéktelen súlyfarok a denormál tartomány előtt megszűnik.
+A súlyok egységnyi összege nem garantál állandó energiát/érzékelt hangerőt,
+és önmagában nem bizonyít hallhatóan hibátlan módváltást. A harmadik TPT
+fokozat CPU-költségét a következő teljes motorprofilban külön meg kell mérni;
+a korábbi kétfokozatú CPU-számok nem írják le ezt a változatot.
+
+A `premium_filter_modes` 360 szinuszos kontrollban ellenőrzi a komplex
+frekvenciaátvitelt, tehát a fázist is: 8/44,1/48/96/192/384 kHz, négy mód,
+0/50/100% rezonancia, 100/800/1000/1400/3000 Hz, 1000 Hz cutoff. Független
+analitikus átviteli függvényhez mér; a legnagyobb komplex abszolút eltérés
+helyben kb. 1,87e−7, a regressziós korlát 2e−4. Ez implementációs pontosság,
+nem hangminőségi százalék.
+[Nyers válaszkontroll](../experiments/premium_filter/measurements/2026-10-04-four-mode-response.csv).
+
+További tesztek: gyors mód/cutoff/rezonancia-váltás a külön futó meleg ágakhoz
+viszonyítva; sztereó szimmetria és izoláció; Init/Clear; invalid mód clamp;
+NaN/Inf és szélsőséges véges bemenet utáni csatornánkénti helyreállás.
+A nagy, véges bemenet rezonáns erősítése sem küldhet float-overflowt tovább.
+Ez a védelmi ág nem szól bele a normál LP24 fixture-be. Az offline motorpróba
+mind a négy filtermóddal ellenőrzi a wet jelutat és a Poly/Mono/Legato
+hangelengedést/visszaállítást, négy rátán, bekapcsolt FX mellett.
+
+A módfejlesztés előtti LP24-hez viszonyított külön helyi kontroll 600 000
+sztereó mintája azonos; a korábban elfogadott 48 kHz-es 20 dB-os raw és
+RMS-illesztett LP24 WAV is mintánként azonos. Ez a vizsgált fixture-ekre
+érvényes, nem az új filter és a kiadott régi filter közötti kompatibilitási ígéret.
+A hat célzott Release teszt és a három mód/motor ASan/UBSan teszt sikeres.
+
+A preview eszköz utolsó opcionális argumentuma `LP12|LP24|HP12|BP12`;
+elhagyva továbbra is az eredeti LP24 fájlokat készíti. Mindegyik módhoz
+12 másodperces, három másodperc bevezetőjű lead minta készült, 50% rezonanciával
+és 20 dB 4x Drive-val. Az A az adott mód régi, tiszta filtere, a B az új
+Drive+filter. A B RMS-illesztése egyetlen konstans az adott A-hoz, nem a négy
+mód egymáshoz igazított érzékelt hangereje; a rezonanciaskálák eltérnek.
+A formátumot, véges/clippingmentes mintákat és állandó RMS-gain kontraktust
+a preview-regresszió ellenőrzi. Az új módok tulajdonosi hallásos minősítése
+még nyitott.
+
+Következő kapu: minden móddal összetett gerjesztés, Drive/mód/moduláció,
+új CPU-profil és magas rátás faktorpolitika. Ezután latency/state/automation
+integráció, factory presetek, natív Windows/macOS elfogadás és kiadás.

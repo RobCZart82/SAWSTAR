@@ -39,26 +39,28 @@ void Smoke() {
     if (y.left != (i == 32 ? .5f : 0.f) || y.right != 0)
       throw std::runtime_error("Delayed dry path contract");
   }
-  // Adapter's fully wet output must be the accepted Drive -> filter chain.
-  filter.Init(48000); filter.Set(1800, 50, 100); filter.SetCharacter(20, 1); filter.SnapToTargets();
-  sawstar::experimental::PremiumDrive drive; drive.Init(48000); drive.Set(20); drive.SnapToTargets();
-  sawstar::experimental::PremiumLowPass lp; lp.Init(48000); lp.Set(1800, 50); lp.SnapToTargets();
-  for (int i = 0; i < 1024; ++i) {
-    const float x = static_cast<float>(.4 * std::sin(i * .13));
-    const auto expected = lp.Process(drive.Process({x, -x}));
-    const auto actual = filter.Process({x, -x});
-    if (std::abs(actual.left - expected[0]) > 1e-7 || std::abs(actual.right - expected[1]) > 1e-7)
-      throw std::runtime_error("Adapter wet-chain reference contract");
+  // Every adapter mode must use the corresponding Drive -> filter chain.
+  for (int filterMode : {0, 1, 2, 3}) {
+    filter.Init(48000); filter.Set(1800, 50, 100); filter.SetCharacter(20, filterMode); filter.SnapToTargets();
+    sawstar::experimental::PremiumDrive drive; drive.Init(48000); drive.Set(20); drive.SnapToTargets();
+    sawstar::experimental::PremiumLowPass lp; lp.Init(48000); lp.Set(1800, 50);
+    lp.SetMode(filterMode); lp.SnapToTargets();
+    for (int i = 0; i < 1024; ++i) {
+      const float x = static_cast<float>(.4 * std::sin(i * .13));
+      const auto expected = lp.Process(drive.Process({x, -x}));
+      const auto actual = filter.Process({x, -x});
+      if (std::abs(actual.left - expected[0]) > 1e-7 || std::abs(actual.right - expected[1]) > 1e-7)
+        throw std::runtime_error("Adapter wet-chain reference contract");
+    }
   }
   filter.Clear();
   if (filter.Process({0, 0}).left != 0) throw std::runtime_error("Adapter clear contract");
-  bool rejected = false;
-  try { filter.SetCharacter(0, 0); } catch (const std::invalid_argument&) { rejected = true; }
-  if (!rejected) throw std::runtime_error("Unsupported mode must not silently use LP24");
   // Same production MIDI/envelope/FX code, a separate per-voice filter type.
-  for (double rate : {44100., 48000., 96000., 192000.}) for (int mode : {0, 1, 2}) {
+  for (double rate : {44100., 48000., 96000., 192000.})
+    for (int filterMode : {0, 1, 2, 3}) for (int mode : {0, 1, 2}) {
     auto s = std::make_unique<ProbeEngine::Synth>();
     Setup(*s, rate, 0, 20, true); s->SetVoiceMode(mode, 0, true);
+    s->SetFilterCharacter(20, filterMode);
     for (int n = 0; n < 3; ++n) s->Midi(0x90, 48 + n, 100);
     for (int n = 0; n < 3; ++n) if (!s->Held(48 + n))
       throw std::runtime_error("Probe must actually hold MIDI notes");

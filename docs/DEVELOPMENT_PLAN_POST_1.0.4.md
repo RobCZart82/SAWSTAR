@@ -78,10 +78,18 @@ A #51 magas rátás kutatás minden CI után beolvadt (`769993c`). A 24 rövid,
 OSC1/OSC2/SUB unison és Drive-lépcsős kontroll egy 8x offline referenciával
 is összeveti a jelöltet. Legnagyobb jelölt/8x eltérés kb. 0,39%, a vizsgált
 LP24 után 0,16%; ez nem hallhatatlansági vagy teljes aliasing-bizonyíték.
-A korábbi magas szinuszos stresszteszt kompromisszuma megmarad. A következő
-fejlesztési munkacsomag a hiányzó LP12/HP12/BP12 és módváltási kontroll;
-minden móddal külön minőség/CPU és natív elfogadás kell a teljes csere előtt.
-A production engine hangútja változatlan.
+A korábbi magas szinuszos stresszteszt kompromisszuma megmarad. A négy mód
+kutatási munkacsomagja elkészült: az offline filter és motoradapter már LP12,
+LP24, HP12 és BP12 módot kezel. 360 komplex frekvenciaválasz-kontroll,
+folyamatosan futó ágak közötti simított módváltás és minden móddal
+Poly/Mono/Legato lifecycle regresszió készült. A célzott Release és ASan/UBSan
+próbák sikeresek; a már elfogadott LP24 hangminta változatlan.
+A három új mód hallásos elfogadása, az összetett/magas rátás minőségellenőrzés
+és a harmadik TPT fokozattal frissített teljes CPU-profil következik.
+A korábbi CPU-számok nem ennek a négy módos változatnak a mérései.
+Csak ezek után következik a latency/state/automation integráció,
+factory presetek újrahallgatása és natív Windows/macOS elfogadás.
+A production engine hangútja egyelőre változatlan.
 
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
@@ -246,4 +254,3 @@ A következő release verzióját és RC-jét a tényleges kiadási kör rögzí
 Minden PR pontos headje legyen zöld; publikálás előtt a végleges commit,
 csomagok, natív elfogadás és dokumentáció kapui is teljesüljenek.
 Filterkarakter, 32 voice és a lezárt click/pop kutatás külön munkacsomag marad.
-
