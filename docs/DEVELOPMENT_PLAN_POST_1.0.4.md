@@ -1,6 +1,6 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
-Frissítve: 2026-10-03. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
+Frissítve: 2026-10-04. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
 Az akkori main Windows, macOS és Code quality workflow-ja sikeres volt. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
@@ -52,6 +52,14 @@ A szimmetrikus FIR következő optimalizálása helyben kb. 17/34/66%-ra
 csökkenti a 16 voice Drive-költséget 48/96/192 kHz-en. A 192 kHz-es
 32 mintás próba még túllépte az időkeretet; teljes engine-profil és
 magas rátás minőség/költség döntés szükséges az integráció előtt.
+A #48 szimmetrikus FIR minden CI után beolvadt (`20fe01f`).
+A külön kutatási teljes motor próba elkészült: 16 voice, 20 dB Drive és
+FX mellett helyben kb. 30/60/120% medián audioidő 48/96/192 kHz-en.
+A rezonancia ismételt együttható-számítását cache kiváltja, a korábban
+elfogadott hangminta változatlan. 192 kHz-en így is túl nagy a költség.
+Következő aktív kapu a magas rátás Drive minőség/költség megoldása,
+abszolút hallható frekvenciákon a 4x referenciával összevetve; utána natív
+host CPU-próba és kompatibilis, külön választható motorintegráció következik.
 A production engine hangútja változatlan.
 
 Részletes filterkövetelmények és első eredmények:

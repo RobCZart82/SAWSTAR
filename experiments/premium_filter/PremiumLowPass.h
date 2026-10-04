@@ -13,7 +13,7 @@ public:
   void Init(double sampleRate) {
     rate_ = SafeSampleRate(sampleRate);
     slew_ = 1. - std::exp(-1. / (.01 * rate_));
-    cutoff_ = -1;
+    cutoff_ = resonance_ = -1;
     Set(12000, 0);
     SnapToTargets();
     Clear();
@@ -24,8 +24,11 @@ public:
       cutoff_ = cutoff;
       targetG_ = std::tan(3.14159265358979323846 * cutoff / rate_);
     }
-    const double r = FiniteClamp(resonance, 0., 100., 0.) / 100.;
-    targetK_ = 1.8477590650225735 * std::pow(.1 / 1.8477590650225735, r);
+    resonance = FiniteClamp(resonance, 0., 100., 0.);
+    if (resonance != resonance_) {
+      resonance_ = resonance;
+      targetK_ = 1.8477590650225735 * std::pow(.1 / 1.8477590650225735, resonance / 100.);
+    }
   }
   void SnapToTargets() { g_ = targetG_; k_ = targetK_; }
   void Clear() { for (auto& channel : stages_) channel = {}; }
@@ -58,7 +61,7 @@ private:
     return low;
   }
   std::array<std::array<State, 2>, 2> stages_{};
-  double rate_ = 44100, slew_ = 0, cutoff_ = -1;
+  double rate_ = 44100, slew_ = 0, cutoff_ = -1, resonance_ = -1;
   double g_ = 1, targetG_ = 1, k_ = 2, targetK_ = 2;
 };
 }
