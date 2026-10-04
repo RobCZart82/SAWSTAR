@@ -85,11 +85,19 @@ LP24, HP12 és BP12 módot kezel. 360 komplex frekvenciaválasz-kontroll,
 folyamatosan futó ágak közötti simított módváltás és minden móddal
 Poly/Mono/Legato lifecycle regresszió készült. A célzott Release és ASan/UBSan
 próbák sikeresek; a már elfogadott LP24 hangminta változatlan.
-A három új mód hallásos elfogadása, az összetett/magas rátás minőségellenőrzés
-és a harmadik TPT fokozattal frissített teljes CPU-profil következik.
-A korábbi CPU-számok nem ennek a négy módos változatnak a mérései.
-Csak ezek után következik a latency/state/automation integráció,
-factory presetek újrahallgatása és natív Windows/macOS elfogadás.
+A #53 minden ellenőrzése sikeres lett, beolvadt (`8056431`). A tulajdonos
+a három új mód 48 kHz-es, 50% rezonancia/20 dB Drive mintáját szépen szólónak
+hallotta. A 96 összetett forráskontroll minden móddal teljesült, a korábbi
+korlátok változtatása nélkül; HP12-ben a jelölt/8x eltérés közel 0,49%.
+A teljes offline motor két változatán új envelope/LFO/wheel/pitch/sustain és
+mód/Drive/mix-váltási kontroll sikeres, Poly/Mono/Legato módban.
+A friss négy módos profil 16 voice/20 dB/FX mellett helyben kb. 30–33% mediánt
+ad 48 kHz-en. 192 kHz-en a 4x út kb. 120–131%, a rátafüggő jelölt kb. 81–100%;
+jelentős legrosszabb blokkkiugrások is voltak, a régi motoron is.
+Ez rövid offline mérés, nem natív stresszteszt. A realtime CPU-kapu továbbra
+is nyitott; a magas rátás minőségpolitika sem végleges.
+Következő aktív feladat a CPU-költség és minőségpolitika megoldása; ezt követi
+a latency/state/automation integráció, factory presetek és natív elfogadás.
 A production engine hangútja egyelőre változatlan.
 
 Részletes filterkövetelmények és első eredmények:

@@ -13,12 +13,13 @@ namespace ProbeEngine = sawstar::experimental_engine;
 #include <memory>
 #include <string>
 #include <stdexcept>
+#include <vector>
 
-template<class Synth> void Setup(Synth& s, double rate, int voices, double drive, bool fx) {
+template<class Synth> void Setup(Synth& s, double rate, int voices, double drive, bool fx, int filterMode = 1) {
   s.Reset(rate); s.SetParameters(-6, 5, 100, .8, 100); s.SetOutputBoost(18);
   s.SetSaw(25, 70, 70); s.SetOsc2(19, 60, 80);
   s.SetMixer(70, 50, 20, 5, 0, -1, 0, 0);
-  s.SetFilter(1800, 50, 100); s.SetFilterCharacter(static_cast<float>(drive), 1);
+  s.SetFilter(1800, 50, 100); s.SetFilterCharacter(static_cast<float>(drive), filterMode);
   if (fx) {
     s.SetChorus(true, 20, .3, 30); s.SetDelay(true, 15, 250, 30, 60, true, false, 2, 120);
     s.SetReverb(true, 15, 50, 40, 50);
@@ -76,16 +77,88 @@ void Smoke() {
   }
   std::cout << "Premium engine probe lifecycle and delayed-mix contracts PASS\n";
 }
-template<class Synth> void Benchmark(const char* label) {
+// Offline Synth API timeline only; this does not exercise VST3 automation.
+void ModulationSmoke() {
+  constexpr int frames = 8192;
+  for (double rate : {48000., 96000., 192000.})
+    for (int filterMode = 0; filterMode < 4; ++filterMode) for (int voiceMode = 0; voiceMode < 3; ++voiceMode) {
+      std::vector<sawstar::StereoSample> reference(frames);
+      for (int partition : {0, 1}) {
+        auto s = std::make_unique<ProbeEngine::Synth>();
+        Setup(*s, rate, 0, 20, true); s->SetVoiceMode(voiceMode, 15, true);
+        s->SetFilterCharacter(20, filterMode);
+        s->SetFilterEnvelope(60, 100, 1, 30, .3f, 100);
+        s->SetPerformance(24, 24);
+        s->SetLfo(20, 100, 3, 0, false, 0, 136, true);
+        s->SetLfo2(17, 100, 2, 1, false, 0, 136, false);
+        s->SetModulation(0, 3, 0, 100);  // wheel -> cutoff
+        s->SetModulation(1, 4, 0, -100); // velocity -> cutoff
+        s->SetModulation(2, 1, 2, 40);   // LFO1 -> amplitude
+        s->SetModulation(3, 5, 1, 100);  // pressure -> pitch
+        double energy = 0;
+        int begin = 0;
+        while (begin < frames) {
+          constexpr std::array<int, 5> sizes{16, 32, 64, 256, 2048};
+          const int end = std::min(frames, begin + (partition ? sizes[(begin / 16) % sizes.size()] : 1));
+          for (int i = begin; i < end; ++i) {
+            if (i == 0) {
+              s->Midi(0x90, 36, 100); s->Midi(0x90, 60, 100); s->Midi(0x9f, 84, 100);
+            }
+            if (i % 128 == 0) {
+              const int step = i / 128;
+              s->SetFilter(step % 2 ? 40 : 18000, step % 3 * 50, step % 3 * 50);
+              s->SetFilterCharacter(step % 3 == 0 ? 0 : step % 3 == 1 ? 20 : 24,
+                                    (filterMode + step / 2) % 4);
+              for (int ch : {0, 15}) {
+                s->Midi(0xb0 | ch, 1, step % 2 ? 127 : 0);
+                s->Midi(0xe0 | ch, step % 2 ? 127 : 0, step % 2 ? 127 : 0);
+                s->Midi(0xd0 | ch, step % 2 ? 127 : 0, 0);
+              }
+            }
+            if (i == 1024) { s->Midi(0xb0, 64, 127); s->Midi(0xbf, 64, 127); }
+            if (i == 2048) s->Midi(0x80, 36, 0); // pedal-latched release
+            if (i == 4096) {
+              s->Midi(0xb0, 64, 0); s->Midi(0xbf, 64, 0);
+              s->Midi(0x80, 36, 0); s->Midi(0x80, 60, 0); s->Midi(0x8f, 84, 0);
+            }
+            const auto y = s->ProcessStereo(); Check(y);
+            const auto wet = s->PreFX();
+            if (!std::isfinite(wet.left) || !std::isfinite(wet.right))
+              throw std::runtime_error("Nonfinite modulation before FX");
+            energy += double(wet.left) * wet.left + double(wet.right) * wet.right;
+            if (partition == 0) reference[i] = y;
+            else if (y.left != reference[i].left || y.right != reference[i].right)
+              throw std::runtime_error("Offline sample timeline partition mismatch");
+          }
+          begin = end;
+        }
+        if (energy < 1e-12) throw std::runtime_error("Modulation fixture must sound");
+        // Release is an exponential time constant, not a finite 100 ms ramp.
+        for (int i = 0; i < static_cast<int>(rate); ++i) Check(s->ProcessStereo());
+        if (s->Held(36) || s->Held(60) || s->Held(84) || s->ActiveVoices() != 0)
+          throw std::runtime_error("Modulated release: rate=" + std::to_string(rate)
+            + " filter=" + std::to_string(filterMode) + " voice=" + std::to_string(voiceMode)
+            + " active=" + std::to_string(s->ActiveVoices()));
+        s->Reset(rate);
+        for (int i = 0; i < 64; ++i) {
+          const auto y = s->ProcessStereo();
+          if (y.left != 0 || y.right != 0) throw std::runtime_error("Modulated reset silence");
+        }
+      }
+    }
+  std::cout << "36 modulation scenes, two offline partitions, release/reset PASS\n";
+}
+template<class Synth> void Benchmark(const char* label, bool allModes) {
   using Clock = std::chrono::steady_clock;
   constexpr int frames = 4096;
   double checksum = 0;
-  for (double rate : {48000., 96000., 192000.}) for (int voices : {1, 8, 16})
+  for (int filterMode : allModes ? std::vector<int>{0, 1, 2, 3} : std::vector<int>{1})
+    for (double rate : {48000., 96000., 192000.}) for (int voices : {1, 8, 16})
     for (double drive : {0., 20., 24.}) for (bool fx : {false, true})
       for (int buffer : {32, 64, 128, 256}) {
         std::array<double, 3> times{}; double worst = 0, energy = 0, peak = 0;
         for (auto& time : times) {
-          auto s = std::make_unique<Synth>(); Setup(*s, rate, voices, drive, fx);
+          auto s = std::make_unique<Synth>(); Setup(*s, rate, voices, drive, fx, filterMode);
           for (int i = 0; i < 2048; ++i) Check(s->ProcessStereo());
           double sum = 0;
           const auto start = Clock::now();
@@ -103,7 +176,9 @@ template<class Synth> void Benchmark(const char* label) {
           time = std::chrono::duration<double>(Clock::now() - start).count(); checksum += sum;
         }
         std::sort(times.begin(), times.end());
-        std::cout << label << ',' << rate << ',' << voices << ',' << drive << ',' << fx << ',' << buffer
+        std::cout << label << ',' << rate << ',' << voices;
+        if (allModes) std::cout << ',' << filterMode;
+        std::cout << ',' << drive << ',' << fx << ',' << buffer
           << ',' << 100 * times[1] * rate / frames << ',' << worst << ',' << peak
           << ',' << std::sqrt(energy / (frames * 2 * times.size())) << '\n';
       }
@@ -112,15 +187,23 @@ template<class Synth> void Benchmark(const char* label) {
 int main(int argc, char** argv) {
   try {
     if (argc == 2 && std::string(argv[1]) == "--smoke") { Smoke(); return 0; }
-    const bool legacy = argc == 2 && std::string(argv[1]) == "--legacy";
-    if (argc != 1 && !legacy) { std::cerr << "Usage: premium_engine_benchmark [--smoke|--legacy]\n"; return 1; }
-    std::cout << "engine,rate,voices,drive_db,fx,buffer,median_realtime_percent,worst_block_percent,peak,rms\n";
-    if (legacy) Benchmark<sawstar::Synth>("legacy");
+    if (argc == 2 && std::string(argv[1]) == "--modulation") { ModulationSmoke(); return 0; }
+    bool legacy = false, allModes = false;
+    for (int i = 1; i < argc; ++i) {
+      const std::string arg = argv[i];
+      if (arg == "--legacy" && !legacy) legacy = true;
+      else if (arg == "--all-modes" && !allModes) allModes = true;
+      else { std::cerr << "Usage: premium_engine_benchmark [--smoke|--modulation|[--legacy] [--all-modes]]\n"; return 1; }
+    }
+    std::cout << "engine,rate,voices,";
+    if (allModes) std::cout << "filter_mode,";
+    std::cout << "drive_db,fx,buffer,median_realtime_percent,worst_block_percent,peak,rms\n";
+    if (legacy) Benchmark<sawstar::Synth>("legacy", allModes);
     else {
 #ifdef SAWSTAR_PREMIUM_HIGH_RATE_STUDY
-      Benchmark<ProbeEngine::Synth>("rate-scaled");
+      Benchmark<ProbeEngine::Synth>("rate-scaled", allModes);
 #else
-      Benchmark<ProbeEngine::Synth>("premium");
+      Benchmark<ProbeEngine::Synth>("premium", allModes);
 #endif
     }
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
