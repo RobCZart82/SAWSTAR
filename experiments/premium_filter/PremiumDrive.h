@@ -8,7 +8,8 @@ namespace sawstar::experimental {
 // Research-only fixed-factor waveshaper, with explicit interpolation and anti-alias FIRs.
 // Interpolation keeps only host-rate samples, never inserting/storing zeros.
 // Only retained decimator phases convolve. ReferencePremiumDrive is the full oracle.
-template<unsigned Factor> class FixedRatePremiumDrive {
+// Nonlinear=false is an offline cost control, never a selectable sound mode.
+template<unsigned Factor, bool Nonlinear = true> class FixedRatePremiumDrive {
   static_assert(Factor == 2 || Factor == 4, "Research factors are 2x and 4x");
 public:
   static constexpr int Latency = 32;
@@ -65,7 +66,8 @@ private:
   struct Fir { std::array<double, 512> history{}; unsigned cursor = 0; };
   template<unsigned Phase> double ProcessPhase(const HostFir& up, Fir& down) {
     const double x = Interpolate<Phase>(up);
-    const double shaped = gain_ == 1 ? x : std::tanh(gain_ * x) / gain_;
+    double shaped = x;
+    if constexpr (Nonlinear) shaped = gain_ == 1 ? x : std::tanh(gain_ * x) / gain_;
     return Tick<Phase == 0>(down, shaped);
   }
   template<unsigned Phase> double Interpolate(const HostFir& fir) const {

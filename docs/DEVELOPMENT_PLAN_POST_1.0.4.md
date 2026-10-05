@@ -156,6 +156,15 @@ korlátok a filterdokumentumban. Következik a FIR és nemlinearitás szélesebb
 profilozása, teljes motoros és kontrollált natív célgépes próba. Production
 DSP, GUI, minőségpolitika és állapotformátum ebben a kutatási körben változatlan.
 
+A #60 main (`3179223`) minden workflow-ja sikeres. A következő offline
+Drive-költségkontroll telítés nélkül ugyanazokat a FIR-eket futtatja.
+72 váltakozó sorrendű páros mérésben helyben a FIR-only út a teljes Drive
+idejének kb. 52–56%-át használja; ez nem pontos, összeadható CPU-részarány
+vagy elfogadható hangmód. Öt célzott Release és két ASan/UBSan teszt sikeres,
+a normál út két referenciához továbbra is bitazonos. Következik a nemlinearitás
+gyorsabb számításának külön numerikus/spektrális és CPU-kontrollja, majd
+teljes motoros és natív próba. A production DSP továbbra is változatlan.
+
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
 Az alábbi korábbi sorrend a feladatok technikai háttere; az aktív prioritást
