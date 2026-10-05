@@ -1,6 +1,6 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
-Frissítve: 2026-10-04. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
+Frissítve: 2026-10-05. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
 Az akkori main Windows, macOS és Code quality workflow-ja sikeres volt. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
@@ -109,6 +109,18 @@ mutat helyben; ez nem teljes motoros gyorsulás. A CPU-kapu továbbra is nyitott
 A következő munka a domináns Drive/FIR-költség és a magas rátás minőségpolitika
 vizsgálata, majd teljes motoros és natív terhelésmérés. Az integráció csak ezek
 után következik; az elfogadott karaktert és a meglévő GUI-t megtartjuk.
+
+A következő Drive/FIR kutatási optimalizálás az interpolációban csak a host
+nemnulla mintáit tárolja, és folytonos fázistáblákból olvassa a változatlan
+együtthatókat. A `715cd47` befagyasztott sparse FIR-éhez 998 400 sztereó frame
+bitazonos 2x/4x, hat ráta, Drive-váltás, ring-wrap, clear, snap, másolás,
+új Init és hibás bemenet mellett. A 12 scene/mód preview mind a 36 WAV-ja
+bájtról bájtra változatlan. Kilenc célzott helyi Release teszt sikeres;
+a szándékosan hibás fázisindexet az új regresszió elutasítja.
+A külön páros Drive-mérés 16 voice/20 dB mellett kb. 7–8% kisebb időt mutat
+2x, illetve 13% körüli csökkenést 4x esetén. Ez nem teljesmotor-gyorsulás
+vagy natív teljesítményígéret. A CPU-kapu és a magas rátás minőségpolitika
+továbbra is nyitott; teljes motoros és natív mérés következik az integráció előtt.
 
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
