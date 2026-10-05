@@ -4,8 +4,8 @@
 #include <array>
 #include <cmath>
 
-namespace sawstar::experimental {
-// Research-only fixed-factor waveshaper, with explicit interpolation and anti-alias FIRs.
+namespace sawstar::phase_reference {
+// Frozen main d4c7822 compact Drive with runtime phase dispatch; benchmark oracle.
 // Interpolation keeps only host-rate samples, never inserting/storing zeros.
 // Only retained decimator phases convolve. ReferencePremiumDrive is the full oracle.
 template<unsigned Factor> class FixedRatePremiumDrive {
@@ -44,13 +44,12 @@ public:
       if (!std::isfinite(input[ch])) { up_[ch] = {}; down_[ch] = {}; input[ch] = 0; }
       auto& up = up_[ch];
       up.history[up.cursor] = up.history[up.cursor + HostRingSize] = Factor * double(input[ch]);
-      // Phase and decimator-output choices are compile-time constants. Keep
-      // the original evaluation order and consume every oversampled phase.
-      const double out = ProcessPhase<0>(up, down_[ch]);
-      ProcessPhase<1>(up, down_[ch]);
-      if constexpr (Factor == 4) {
-        ProcessPhase<2>(up, down_[ch]);
-        ProcessPhase<3>(up, down_[ch]);
+      double out = 0;
+      for (int phase = 0; phase < static_cast<int>(Factor); ++phase) {
+        const double x = Interpolate(up, static_cast<unsigned>(phase));
+        const double shaped = gain_ == 1 ? x : std::tanh(gain_ * x) / gain_;
+        const double y = Tick(down_[ch], shaped, phase == 0);
+        if (phase == 0) out = y;
       }
       up.cursor = (up.cursor + 1) & (HostRingSize - 1);
       input[ch] = static_cast<float>(out);
@@ -63,20 +62,14 @@ private:
   static constexpr unsigned HostRingSize = 64;
   struct HostFir { std::array<double, 2 * HostRingSize> history{}; unsigned cursor = 0; };
   struct Fir { std::array<double, 512> history{}; unsigned cursor = 0; };
-  template<unsigned Phase> double ProcessPhase(const HostFir& up, Fir& down) {
-    const double x = Interpolate<Phase>(up);
-    const double shaped = gain_ == 1 ? x : std::tanh(gain_ * x) / gain_;
-    return Tick<Phase == 0>(down, shaped);
-  }
-  template<unsigned Phase> double Interpolate(const HostFir& fir) const {
-    static_assert(Phase < Factor, "Invalid interpolation phase");
+  double Interpolate(const HostFir& fir, unsigned phase) const {
     const double* history = fir.history.data() + fir.cursor + HostRingSize;
-    const double* taps = phaseTaps_[Phase].data();
+    const double* taps = phaseTaps_[phase].data();
     std::array<double, 4> sums{};
     double y = 0;
-    if constexpr (((TapCount - 1 - Phase) % Factor) == Phase) {
+    if (((TapCount - 1 - phase) % Factor) == phase) {
       // Keep the preceding sparse FIR's lane sums and addition order exactly.
-      constexpr unsigned last = Phase == 0 ? PhaseTapCount - 1 : PhaseTapCount - 2;
+      const unsigned last = phase == 0 ? PhaseTapCount - 1 : PhaseTapCount - 2;
       for (unsigned i = 0; i < HalfPhase; i += 4) {
         for (unsigned lane = 0; lane < 4; ++lane) {
           const unsigned tap = i + lane;
@@ -84,7 +77,7 @@ private:
         }
       }
       y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
-      if constexpr (Phase == 0) y += taps[HalfPhase] * *(history - HalfPhase);
+      if (phase == 0) y += taps[HalfPhase] * *(history - HalfPhase);
     } else {
       // The odd 4x phases each have 32 taps; both arrays are contiguous.
       for (unsigned i = 0; i < PhaseTapCount - 1; i += 4) {
@@ -97,12 +90,12 @@ private:
     }
     return y;
   }
-  template<bool Output> double Tick(Fir& fir, double x) {
+  double Tick(Fir& fir, double x, bool output) {
     // Mirrored ring makes the convolution history contiguous without wrapping
     // each tap. Independent sums enable vectorization without fast-math.
     fir.history[fir.cursor] = fir.history[fir.cursor + 256] = x;
     double y = 0;
-    if constexpr (Output) {
+    if (output) {
       const double* history = fir.history.data() + fir.cursor + 256;
       std::array<double, 4> sums{};
       unsigned i = 0;

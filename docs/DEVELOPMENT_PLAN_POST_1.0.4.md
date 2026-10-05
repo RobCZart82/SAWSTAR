@@ -144,6 +144,18 @@ elfogadás is nyitott. Négy lifecycle/modulációs regresszió sikeres.
 Részletek és minden nyers ismétlés a filterdokumentumban; a production DSP
 és a GUI ebben a mérési munkacsomagban változatlan.
 
+A #59 komponensprofil 17/17 sikeres ellenőrzés után beolvadt (`d4c7822`).
+A következő Drive-optimalizálás fordításkor rögzíti a 2x/4x interpolációs
+fázisokat és a decimátor kimenetágát, változatlan mintasorrenddel és tárolókkal.
+1 996 800 sztereó frame bitazonos a sparse és a befagyasztott kompakt
+referenciával; 36 preview WAV változatlan, kilenc helyi Release regresszió sikeres.
+A hibás fázissorrendet negatív kontroll elutasítja. A 432 váltakozó páros
+mérésben 16 voice/20 dB mellett helyben kb. 2–3% kisebb izolált Drive-idő;
+ez nem teljesmotor-gyorsulás és nem zárja le a CPU-kaput. A nyers párok és
+korlátok a filterdokumentumban. Következik a FIR és nemlinearitás szélesebb
+profilozása, teljes motoros és kontrollált natív célgépes próba. Production
+DSP, GUI, minőségpolitika és állapotformátum ebben a kutatási körben változatlan.
+
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
 Az alábbi korábbi sorrend a feladatok technikai háttere; az aktív prioritást

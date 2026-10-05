@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #include "../experiments/premium_filter/PremiumDrive.h"
 #include "fixtures/premium_drive_sparse_reference.h"
+#include "fixtures/premium_drive_runtime_phase_reference.h"
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -9,15 +10,17 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace {
 using Frame = std::array<float, 2>;
 unsigned long long compared = 0;
-template<unsigned Factor> void Contract() {
+template<unsigned Factor, template<unsigned> class Oracle = sawstar::test_reference::FixedRatePremiumDrive> void Contract() {
   using Candidate = sawstar::experimental::FixedRatePremiumDrive<Factor>;
-  using Reference = sawstar::test_reference::FixedRatePremiumDrive<Factor>;
-  static_assert(sizeof(Candidate) + 4096 <= sizeof(Reference), "Compact interpolation saves at least 4 KiB per Drive");
+  using Reference = Oracle<Factor>;
+  static_assert(sizeof(Candidate) + (std::is_same_v<Reference, sawstar::test_reference::FixedRatePremiumDrive<Factor>> ? 4096 : 0)
+                <= sizeof(Reference), "Retain compact storage savings; phase dispatch adds no storage");
   static_assert(Candidate::Latency == Reference::Latency, "Latency is unchanged");
   auto compare = [](Candidate& a, Reference& b, Frame x) {
     const auto actual = a.Process(x), expected = b.Process(x);
@@ -80,7 +83,7 @@ template<class Drive> double Measure(double rate, int voices, double db, int buf
   checksum = checksum + sum;
   return seconds;
 }
-template<unsigned Factor> void Benchmark() {
+template<unsigned Factor, template<unsigned> class Oracle = sawstar::test_reference::FixedRatePremiumDrive> void Benchmark() {
   std::vector<Frame> input(16384);
   for (int n = 0; n < static_cast<int>(input.size()); ++n)
     input[n] = {static_cast<float>(.4 * std::sin(n * .057)), static_cast<float>(.4 * std::cos(n * .083))};
@@ -90,9 +93,9 @@ template<unsigned Factor> void Benchmark() {
       // Alternate execution order. Timings are diagnostic, not CI thresholds.
       if (pair % 2) {
         after = Measure<sawstar::experimental::FixedRatePremiumDrive<Factor>>(rate, voices, db, buffer, input);
-        before = Measure<sawstar::test_reference::FixedRatePremiumDrive<Factor>>(rate, voices, db, buffer, input);
+        before = Measure<Oracle<Factor>>(rate, voices, db, buffer, input);
       } else {
-        before = Measure<sawstar::test_reference::FixedRatePremiumDrive<Factor>>(rate, voices, db, buffer, input);
+        before = Measure<Oracle<Factor>>(rate, voices, db, buffer, input);
         after = Measure<sawstar::experimental::FixedRatePremiumDrive<Factor>>(rate, voices, db, buffer, input);
       }
       std::cout << Factor << ',' << rate << ',' << voices << ',' << db << ',' << buffer << ',' << pair
@@ -104,11 +107,18 @@ int main(int argc, char** argv) {
   try {
     if (argc == 1) {
       Contract<2>(); Contract<4>();
-      std::cout << compared << " stereo frames bit-identical to main 715cd47 sparse FIR\n";
+      Contract<2, sawstar::phase_reference::FixedRatePremiumDrive>();
+      Contract<4, sawstar::phase_reference::FixedRatePremiumDrive>();
+      std::cout << compared << " stereo frames bit-identical to sparse 715cd47 and compact runtime-phase d4c7822\n";
     } else if (argc == 2 && std::string(argv[1]) == "--benchmark") {
       std::cout << "factor,rate,voices,drive_db,buffer,pair,sparse_seconds,compact_seconds\n";
       Benchmark<2>(); Benchmark<4>();
       if (!std::isfinite(checksum)) throw std::runtime_error("Nonfinite benchmark checksum");
-    } else throw std::runtime_error("Usage: premium_drive_polyphase [--benchmark]");
+    } else if (argc == 2 && std::string(argv[1]) == "--phase-benchmark") {
+      std::cout << "factor,rate,voices,drive_db,buffer,pair,runtime_phase_seconds,static_phase_seconds\n";
+      Benchmark<2, sawstar::phase_reference::FixedRatePremiumDrive>();
+      Benchmark<4, sawstar::phase_reference::FixedRatePremiumDrive>();
+      if (!std::isfinite(checksum)) throw std::runtime_error("Nonfinite phase benchmark checksum");
+    } else throw std::runtime_error("Usage: premium_drive_polyphase [--benchmark|--phase-benchmark]");
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
