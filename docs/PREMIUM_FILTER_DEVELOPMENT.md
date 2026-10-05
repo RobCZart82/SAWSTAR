@@ -898,3 +898,58 @@ azokra ezt a százalékot nem alkalmazzuk automatikusan.
 Teljes motoros és natív terhelésmérés, magas rátás minőségpolitika, majd
 latency/state/automation integráció következik. A realtime CPU-kapu nyitott,
 a production engine és a meglévő GUI ebben a kutatási lépésben változatlan.
+
+## Kis pufferes teljesmotor-időeloszlás — 2026-10-05
+
+A #56 kompakt interpoláció main-ba került (`c36f743`). A következő lépés
+új mérési mód a meglévő offline motorpróbában; a DSP-kódot nem módosítja.
+A `sawstar_premium_engine_benchmark --stress` a rögzített 4x utat,
+a `sawstar_premium_rate_benchmark --stress` a rátafüggő kutatási jelöltet,
+a `sawstar_premium_engine_benchmark --stress-legacy` a production kontrollt méri.
+
+Mindhárom út: 48/96/192 kHz, 16 kitartott voice, négy filtermód,
+20 dB Drive, chorus/delay/reverb, 32/64/128 mintás offline blokkok.
+Esetenként 0,25 másodpercnyi audio bemelegítés után 1024 blokkot időzítünk:
+medián, nearest-rank p95/p99, maximum és a 100%-os audioidőkeretet túllépő
+blokkok száma kerül CSV-be. A fixture igazolja a 16 aktív voice-ot, a hangzó
+kimenetet és a véges, védett mintákat; peak és RMS is szerepel.
+A százalék falióra-idő / (buffer / sample rate), nem OS CPU-kihasználtság.
+A mért idő a mintánkénti biztonsági ellenőrzést és energia/peak-gyűjtést is
+tartalmazza; az Init és a bemelegítés nincs benne. Nincs automatikus időzítési kapu.
+
+Windows x64, MSVC 19.44 Release `/O2 /Ob2 /DNDEBUG`, ugyanazon helyi gépen.
+A processzor környezeti azonosítója: Intel64 Family 6 Model 158 Stepping 10.
+Az útvonalakat egymás után mértük, külön motoros tesztfuttatás nélkül.
+A négy mód és három buffer 12 esetének minimum–maximum medián blokkideje:
+
+| Motor | 48 kHz | 96 kHz | 192 kHz |
+| --- | ---: | ---: | ---: |
+| Production kontroll | 41,7–44,5% | 80,9–85,7% | 161,9–169,2% |
+| Prémium, rögzített 4x | 73,9–77,5% | 146,0–153,7% | 291,4–311,6% |
+| Rátafüggő kutatási jelölt | 74,0–77,3% | 146,0–163,1% | 222,5–236,3% |
+
+Összesen 108 ellenőrzött CSV-sor, 110 592 időzített blokk. A prémium utak
+96/192 kHz-es összes mért blokkja túllépte az időkeretet. A production
+kontroll 192 kHz-en szintén minden blokkban túllépett; 96 kHz-en 210/12 288
+blokk lépte túl. A 48 kHz-es 4x út 28, a rátafüggő út 169 túllépést adott
+12 288 blokkból; ezek az azonos 4x faktor mellett külön futások szórását is
+mutatják, nem eltérő algoritmus bizonyítékai. A p99 és maximum adatok a
+nyers fájlokban vannak, az összefoglaló táblázat nem rejti el őket.
+
+- [Rögzített 4x](../experiments/premium_filter/measurements/2026-10-05-engine-stress-premium.csv)
+- [Rátafüggő jelölt](../experiments/premium_filter/measurements/2026-10-05-engine-stress-rate-scaled.csv)
+- [Production kontroll](../experiments/premium_filter/measurements/2026-10-05-engine-stress-legacy.csv)
+
+Négy helyi Release lifecycle/modulációs regresszió sikeres mindkét adapterrel.
+A CSV-k teljes esetkészlete, véges és rendezett percentilisei, számlálói és
+hangzó/védett kimenete külön ellenőrzött. A production kontroll más filtert
+használ, ezért ez nem hangazonos gyorsulásmérés. A korábbi rövid profilok más
+mérési körét és platformját nem tekintjük közvetlen előtte/utána párnak.
+
+Ez egy statikus beállítású, rövid offline diagnosztika. Nem VST3 callback,
+nem natív REAPER-próba, nem általános Windows/macOS teljesítményígéret,
+és nem hosszú modulációs vagy ütemezési stresszteszt. A magas költség és a
+production kontroll túllépése miatt a CPU-kapu ezzel a méréssel nem zárható le.
+Következő feladat a Drive/FIR és a teljes motor költségének bontása, ismételt
+mérés kontrollált célgépen, a magas rátás minőségpolitika és natív hostpróba.
+Latency/state/automation integráció csak a megfelelő kapuk után következhet.
