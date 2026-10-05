@@ -1012,3 +1012,53 @@ következő fókusz a FIR/interpoláció/decimáció és nemlinearitás elkülö
 vizsgálata. A teljes motor fennmaradó szintézisköltsége sem hagyható figyelmen
 kívül. A CPU-kapu, a magas rátás minőségpolitika és a natív REAPER-próba
 továbbra is nyitott; ezek lezárása előtt nincs production filtercsere.
+
+## Fordításkori Drive-fázisválasztás — 2026-10-05
+
+A #59 komponensprofil 17/17 sikeres ellenőrzés után beolvadt (`d4c7822`).
+A következő kutatási optimalizálás a rögzített 2x/4x interpolációs fázisokat
+template-paraméterként adja át. A szimmetrikus/általános interpolációs ág és
+a decimátor kimenetszámításának választása `if constexpr` alapján történik.
+Minden fázis az eredeti sorrendben lefut; a nulladik után is beírjuk az
+összes többi shaped mintát a decimátorba. A ring, az együtthatók, a gain-simítás,
+a tanh és a lebegőpontos összeadási sorrend változatlan. Nincs új állapottag,
+allokáció, lock, rövidebb FIR, kisebb faktor, fast-math vagy új hangkarakter.
+A 32 host-frame latency és a production jelút megmarad.
+
+A `tests/fixtures/premium_drive_runtime_phase_reference.h` a `d4c7822`
+kompakt, futásidős fázisválasztásának külön névtérben befagyasztott kontrollja.
+A meglévő polyphase regresszió most ezzel és a korábbi `715cd47` sparse
+referenciával is összeveti a jelöltet: összesen 1 996 800 sztereó frame
+bitazonos. A két faktor, hat ráta, targetváltás, snap/clear, ring-határok,
+állapotmásolás, reinit és hibás bemenet ellenőrzése megmarad. A szándékosan
+megismételt nulladik fázist a negatív kontroll már a harmadik összehasonlításnál
+elutasítja. Kilenc célzott helyi MSVC Release regresszió sikeres, és mind a
+36 WAV a 12 eddigi lead/pluck/pad × filtermód fixture-ben bájtról bájtra azonos.
+
+Új `sawstar_premium_polyphase_tests --phase-benchmark` mód a befagyasztott
+kompakt runtime és a statikus jelölt ugyanabban a binárisban futó párait méri.
+1024 frame bemelegítés, 16 384 frame időzítés; 2x/4x, 48/96/192 kHz,
+1/16 voice, 0/20/24 dB, 32/256 mintás offline csoportok, hat pár
+váltakozó futási sorrendben. A korábbi `--benchmark` továbbra is a sparse
+kontrollt használja. Mind a 432 új sor egyedi esete és véges/pozitív ideje
+ellenőrzött. Nincs CI-időzítési küszöb.
+
+16 voice / 20 dB: a két csoportméret 12 páronkénti statikus/runtime
+időarányának mediánja ezen a helyi Windows x64 / MSVC 19.44 Release gépen:
+
+| Faktor | 48 kHz | 96 kHz | 192 kHz |
+| --- | ---: | ---: | ---: |
+| 2x | 0,9690 | 0,9766 | 0,9780 |
+| 4x | 0,9833 | 0,9816 | 0,9769 |
+
+Kb. 2–3% kisebb izolált Drive-idő. A 16 voice / 20 dB 2x 36 párja mind
+kisebb jelöltidőt adott; a 4x 36 párjából 35. Az egyvoice-os és egyes más
+beállítású párok jobban szórnak, és egyedi lassulások is vannak. Ez kis helyi
+előny, nem teljesmotor-gyorsulás vagy platformfüggetlen teljesítményígéret.
+[Mind a 432 nyers pár](../experiments/premium_filter/measurements/2026-10-05-static-phase.csv).
+
+Új teljesmotoros és natív CPU-próba ebben a körben nem készült; az eddigi
+határidő-túllépésekből ez a kis javulás nem csinál elfogadott realtime motort.
+A következő Drive-feladat a FIR/interpoláció/decimáció és a nemlinearitás
+szélesebb költségbontása, majd kontrollált célgépes ismétlés. A CPU-kapu,
+a magas rátás minőségpolitika és a latency/state/automation integráció nyitott.
