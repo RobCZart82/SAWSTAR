@@ -285,3 +285,29 @@ A következő release verzióját és RC-jét a tényleges kiadási kör rögzí
 Minden PR pontos headje legyen zöld; publikálás előtt a végleges commit,
 csomagok, natív elfogadás és dokumentáció kapui is teljesüljenek.
 Filterkarakter, 32 voice és a lezárt click/pop kutatás külön munkacsomag marad.
+
+## Ellenőrzött audit-találatok — 2026-10-05
+
+Forrás: a `SAWSTAR_FRESH_ANALYSIS_2026_10_05_Version2.md` jelentés
+állításainak ellenőrzése a `715cd47f5e3d869bc55974450d8156bbbca7c9fd`
+revision alapján. Az alábbiak nyitott védelmi, dokumentációs és későbbi
+platformfeladatok; a jelentés nem adott reprodukált, a támogatott
+Windows/macOS plugin működését érintő hibát. Ez nem hibamentességi bizonyíték.
+A prémium filter aktív prioritása és a már rögzített natív QA-kapuk megmaradnak.
+
+| Feladat | Ellenőrzött tény és besorolás | Következő lépés / elfogadási feltétel |
+|---|---|---|
+| Presetútvonal környezeti bemenetének ellenőrzése | `src/presets/UserPresets.h`: a `UserPresetFolder()` nem ellenőrzi külön a kapott szöveg ürességét. Üres HOME relatív macOS útvonalat képezhet; az üres APPDATA Windows API-viselkedése külön reprodukciót igényel. Védekezési hiány, nem igazolt általános presetmentési regresszió. | Hiányzó és üres HOME/APPDATA célzott vizsgálata; biztonságos, egyértelmű hibajelzés vagy dokumentált fallback. Ne jöjjön létre presetkönyvtár véletlenül a munkakönyvtárban. Normál és Unicode útvonal regressziója Windows/macOS alatt. |
+| Kiadási ellenőrzések függetlenítése a Python assert-től | `scripts/publish-release.py`: hét assert maradt (11, 13, 30, 40, 49, 51, 54. sor a vizsgált revisionben), amelyeket a `python -O` elhagy. A `workflows_ready()` explicit kivételes CI-védelme ettől megmarad; nem igazolt teljes CI-megkerülés vagy hibás publikálás. | A szükséges ellenőrzések explicit kivételt kapjanak. Normál és optimalizált Python-futtatásban ugyanazok a hibás dátum/notes, lejárt artifact, installer-darabszám/név/verzió és hiányos platformkészlet esetek bukjanak; az explicit CI-védelem maradjon meg. |
+| CMake-követelmények egyeztetése | `CMakeLists.txt`: minimum 3.21; `docs/BUILDING.md`: 3.25+. Dokumentációs eltérés, nem reprodukált buildhiba. A string(JSON) 3.19 óta létezik, ezért önmagában nem indokol 3.21-et. | Rögzíteni a tényleges minimum és az ajánlott/tesztelt verzió különbségét. Minimum ígérete esetén konfigurációs/build ellenőrzés azon a verzión; a dokumentáció és CMake követelménye legyen összhangban. |
+| Linux presetkönyvtár | A nem Windows ág Linuxon is macOS szerkezetet választ. A Save létrehozza a könyvtárat, ezért annak kezdeti hiánya nem bizonyít mentési hibát. A Linux plugin továbbra is halasztott. | A Linux munkacsomag részeként XDG-konform útvonal és HOME fallback, hiányzó/üres/érvénytelen bemenetek és mentés/visszatöltés tesztje. Nem előfeltétele a következő Windows/macOS release-nek. |
+
+Karbantarthatósági megjegyzés: az enum/FindParameter használata mellett a wrapperben
+és az EngineControls leképezésében numerikus ID-k is maradtak (például
+`GetParam(59)`, `71+row*3`). Ez önmagában nem bug; későbbi tisztítás csak
+változatlan host ID-k, állapotkompatibilitás és meglévő leképezési regresszió mellett.
+
+A TSan-bővítés a már felsorolt valódi editor/audio életciklus-esetekhez kapcsolódjon.
+Az egyszálú overlapping-notes, mono/legato és voice-transition tesztek puszta
+TSan-futtatása nem igazol szálak közötti állapotbiztonságot. Az os.name Windows-ág
+és a dátum végi pont nem került új hibafeladatként a tervbe.
