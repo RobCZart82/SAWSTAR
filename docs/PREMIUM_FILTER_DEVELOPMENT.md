@@ -953,3 +953,62 @@ production kontroll túllépése miatt a CPU-kapu ezzel a méréssel nem zárhat
 Következő feladat a Drive/FIR és a teljes motor költségének bontása, ismételt
 mérés kontrollált célgépen, a magas rátás minőségpolitika és natív hostpróba.
 Latency/state/automation integráció csak a megfelelő kapuk után következhet.
+
+## Izolált komponensek és teljesmotor-kontroll — 2026-10-05
+
+A #58 időeloszlás-próba 17/17 sikeres ellenőrzés után main-ba került
+(`54ca373`). A benchmark új `--components` módja külön méri a 16 példányos
+Drive-ot, a PremiumLowPass-t, a teljes filteradaptert, valamint a kutatási
+és production motorokat FX nélkül és FX-szel. Mindkét meglévő benchmark
+target támogatja; a DSP-implementáció és a production jelút változatlan.
+
+48/96/192 kHz, négy mód, 16 voice/példány, 20 dB Drive konfiguráció;
+esetenként három külön inicializált ismétlés, 4096 frame bemelegítés és
+16 384 időzített frame. A kernelbemenet előre számolt, 0,4 amplitúdójú
+440 Hz szinusz / 660 Hz koszinusz. A motorbemenet a korábbi Setup szerinti
+OSC1/OSC2/SUB/noise és 16 kitartott MIDI-hang; FX esetén chorus/delay/reverb.
+Az izolált kernelek snapelt célértékekkel indulnak, a motor a megszokott
+parameter/reset útját használja. A filter sorban a drive_db=20 csak a
+vizsgált konfigurációt azonosítja: ez a kernel nem tartalmaz Drive-ot.
+A Drive-nak nincs filtermódja; a négy mód sorai itt ismételt kontrollok.
+
+A komponenseket külön futtatjuk, per-sample mérőóra nélkül. Az Init,
+allokáció, bemenet-előkészítés és bemelegítés nincs az időzítésben; a kimenet
+energiájának összegzése benne van, és véges, pozitív energia szükséges.
+Az alábbi értékek a négy mód × három ismétlés 12 audioidő-százalékának mediánjai.
+Ugyanaz a helyi Windows x64 / MSVC 19.44 `/O2 /Ob2 /DNDEBUG` gép,
+mint az előző stresszpróbánál; a két út sorban futott, motoros tesztek nélkül.
+
+| Kernel / motor | 4x: 48 kHz | 4x: 96 kHz | 4x: 192 kHz | Rátafüggő: 48 kHz | Rátafüggő: 96 kHz | Rátafüggő: 192 kHz |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Drive | 39,8% | 78,4% | 156,2% | 38,8% | 79,1% | 86,7% |
+| Prémium szűrő | 3,4% | 6,7% | 13,2% | 3,4% | 6,9% | 14,0% |
+| Teljes filteradapter | 44,1% | 86,3% | 172,4% | 43,2% | 86,8% | 108,8% |
+| Kutatási motor, FX nélkül | 75,9% | 147,8% | 289,1% | 74,3% | 148,2% | 228,4% |
+| Kutatási motor, FX-szel | 76,7% | 149,8% | 293,3% | 75,7% | 149,4% | 233,3% |
+| Production kontroll, FX nélkül | 41,3% | 80,3% | 157,1% | 40,3% | 78,2% | 160,9% |
+| Production kontroll, FX-szel | 43,0% | 84,1% | 161,8% | 41,8% | 86,0% | 169,9% |
+
+- [4x nyers ismétlések](../experiments/premium_filter/measurements/2026-10-05-components-premium.csv)
+- [Rátafüggő nyers ismétlések](../experiments/premium_filter/measurements/2026-10-05-components-rate-scaled.csv)
+
+504 ellenőrzött sor, összesen 8 257 536 időzített host-frame. Mindkét fájl
+teljes esetkészlete, ismétlésenkénti véges/pozitív idő és energia, valamint
+az időből számolt audioidő-százalék ellenőrzött. Az ismétlések energiái
+azonosak. A két út 48/96 kHz-en azonos energia-kontrollt ad minden stage-ben;
+a szűrő és a production kontroll 192 kHz-en is azonos. Ez összesített energia,
+nem új sample-by-sample azonossági vagy spektrális bizonyíték.
+Négy helyi Release lifecycle/modulációs regresszió mindkét adapterrel sikeres.
+
+A külön kernelidők nem összeadható motor-részarányok: más a bemenet, a
+cache-környezet, a simítás indulása és az energia-gyűjtés költsége. A két
+út időzítése nem váltakozó páros mérés; az alsó két rátán ugyanaz a 4x
+algoritmus fut, eltérő időik futásszórást jeleznek. A 192 kHz-es Drive
+különbsége 2x/4x minőség/költség összevetés, nem változatlan hangú optimalizálás.
+Nincs natív host, automatizálási stressz vagy CI-időzítési küszöb ebben a módban.
+
+A mért izolált Drive költsége lényegesen nagyobb a lineáris szűrőénél;
+következő fókusz a FIR/interpoláció/decimáció és nemlinearitás elkülönített
+vizsgálata. A teljes motor fennmaradó szintézisköltsége sem hagyható figyelmen
+kívül. A CPU-kapu, a magas rátás minőségpolitika és a natív REAPER-próba
+továbbra is nyitott; ezek lezárása előtt nincs production filtercsere.
