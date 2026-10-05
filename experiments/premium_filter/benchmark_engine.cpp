@@ -217,10 +217,100 @@ template<class Synth> void Stress(const char* label) {
         << ',' << std::sqrt(energy / (2 * blocks * buffer)) << '\n';
     }
 }
+// Separate kernels, not intrusive per-sample timers or additive CPU shares.
+template<class Factory> void Component(const char* engine, const char* stage,
+                                      double rate, int mode, Factory factory) {
+  constexpr int frames = 16384;
+  using Clock = std::chrono::steady_clock;
+  for (int repeat = 0; repeat < 3; ++repeat) {
+    auto process = factory();
+    for (int n = 0; n < 4096; ++n) process(n);
+    double energy = 0;
+    const auto start = Clock::now();
+    for (int n = 0; n < frames; ++n) energy += process(n);
+    const double seconds = std::chrono::duration<double>(Clock::now() - start).count();
+    if (!std::isfinite(energy) || energy <= 0 || !std::isfinite(seconds) || seconds <= 0)
+      throw std::runtime_error("Component must have finite timing and audible output");
+    std::cout << engine << ',' << stage << ',' << rate << ",16," << mode
+      << ",20," << frames << ',' << repeat << ',' << seconds
+      << ',' << 100 * seconds * rate / frames << ',' << energy << '\n';
+  }
+}
+double Energy(const std::array<float, 2>& y) {
+  return double(y[0]) * y[0] + double(y[1]) * y[1];
+}
+template<class Synth> void EngineComponent(const char* engine, const char* stage,
+                                          double rate, int mode, bool fx) {
+  Component(engine, stage, rate, mode, [=] {
+    auto synth = std::make_unique<Synth>(); Setup(*synth, rate, 16, 20, fx, mode);
+    return [s = std::move(synth)](int) {
+      const auto y = s->ProcessStereo();
+      return double(y.left) * y.left + double(y.right) * y.right;
+    };
+  });
+}
+void Components() {
+#ifdef SAWSTAR_PREMIUM_HIGH_RATE_STUDY
+  using Drive = sawstar::experimental::RateScaledPremiumDrive;
+  using Adapter = sawstar::experimental::RateScaledEnginePremiumFilter;
+  const char* label = "rate-scaled";
+#else
+  using Drive = sawstar::experimental::PremiumDrive;
+  using Adapter = sawstar::experimental::EnginePremiumFilter;
+  const char* label = "premium";
+#endif
+  std::cout << "engine,stage,rate,voices,filter_mode,drive_db,frames,repeat,seconds,realtime_percent,energy\n";
+  for (double rate : {48000., 96000., 192000.}) {
+    std::vector<std::array<float, 2>> input(16384);
+    for (int n = 0; n < static_cast<int>(input.size()); ++n)
+      input[n] = {static_cast<float>(.4 * std::sin(6.283185307179586 * 440 * n / rate)),
+                  static_cast<float>(.4 * std::cos(6.283185307179586 * 660 * n / rate))};
+    for (int mode : {0, 1, 2, 3}) {
+      Component(label, "drive", rate, mode, [&] {
+        auto bank = std::make_unique<std::array<Drive, 16>>();
+        for (auto& d : *bank) { d.Init(rate); d.Set(20); d.SnapToTargets(); }
+        return [bank = std::move(bank), &input](int n) {
+          double energy = 0;
+          for (auto& d : *bank) energy += Energy(d.Process(input[n]));
+          return energy;
+        };
+      });
+      Component(label, "filter", rate, mode, [&] {
+        auto bank = std::make_unique<std::array<sawstar::experimental::PremiumLowPass, 16>>();
+        for (auto& f : *bank) { f.Init(rate); f.Set(1800, 50); f.SetMode(mode); f.SnapToTargets(); }
+        return [bank = std::move(bank), &input](int n) {
+          double energy = 0;
+          for (auto& f : *bank) energy += Energy(f.Process(input[n]));
+          return energy;
+        };
+      });
+      Component(label, "adapter", rate, mode, [&] {
+        auto bank = std::make_unique<std::array<Adapter, 16>>();
+        for (auto& f : *bank) {
+          f.Init(static_cast<float>(rate)); f.Set(1800, 50, 100);
+          f.SetCharacter(20, mode); f.SnapToTargets();
+        }
+        return [bank = std::move(bank), &input](int n) {
+          double energy = 0;
+          for (auto& f : *bank) {
+            const auto y = f.Process({input[n][0], input[n][1]});
+            energy += double(y.left) * y.left + double(y.right) * y.right;
+          }
+          return energy;
+        };
+      });
+      EngineComponent<ProbeEngine::Synth>(label, "engine-no-fx", rate, mode, false);
+      EngineComponent<ProbeEngine::Synth>(label, "engine-fx", rate, mode, true);
+      EngineComponent<sawstar::Synth>(label, "production-no-fx", rate, mode, false);
+      EngineComponent<sawstar::Synth>(label, "production-fx", rate, mode, true);
+    }
+  }
+}
 int main(int argc, char** argv) {
   try {
     if (argc == 2 && std::string(argv[1]) == "--smoke") { Smoke(); return 0; }
     if (argc == 2 && std::string(argv[1]) == "--modulation") { ModulationSmoke(); return 0; }
+    if (argc == 2 && std::string(argv[1]) == "--components") { Components(); return 0; }
     if (argc == 2 && std::string(argv[1]) == "--stress-legacy") { Stress<sawstar::Synth>("legacy"); return 0; }
     if (argc == 2 && std::string(argv[1]) == "--stress") {
 #ifdef SAWSTAR_PREMIUM_HIGH_RATE_STUDY
@@ -235,7 +325,7 @@ int main(int argc, char** argv) {
       const std::string arg = argv[i];
       if (arg == "--legacy" && !legacy) legacy = true;
       else if (arg == "--all-modes" && !allModes) allModes = true;
-      else { std::cerr << "Usage: premium_engine_benchmark [--smoke|--modulation|--stress|--stress-legacy|[--legacy] [--all-modes]]\n"; return 1; }
+      else { std::cerr << "Usage: premium_engine_benchmark [--smoke|--modulation|--components|--stress|--stress-legacy|[--legacy] [--all-modes]]\n"; return 1; }
     }
     std::cout << "engine,rate,voices,";
     if (allModes) std::cout << "filter_mode,";

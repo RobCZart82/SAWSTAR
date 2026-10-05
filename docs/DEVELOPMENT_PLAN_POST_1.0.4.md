@@ -132,6 +132,18 @@ Négy lifecycle/modulációs regresszió sikeres. A nyers percentilisek és a m�
 korlátai a filterdokumentumban szerepelnek. Következő lépés költségbontás,
 kontrollált célgépes ismétlés és natív próba; a CPU-kapu továbbra is nyitott.
 
+A #58 teljesmotor-időeloszlás minden friss ellenőrzés után main-ba került
+(`54ca373`). Új komponensprofil külön időzíti a Drive-ot, prémium szűrőt,
+filteradaptert és a kutatási/production motorokat FX nélkül és FX-szel.
+Két út, három ráta, négy mód és három ismétlés: 504 ellenőrzött sor.
+A helyi 48 kHz-es 16 példányos 4x Drive kb. 39,8% audioidőt, a lineáris
+szűrő kb. 3,4%-ot mért. Ezek külön kernelpróbák, nem összeadható motoros
+CPU-részarányok. A költségbontás a Drive/FIR/nemlinearitás további vizsgálatát
+indokolja; a teljes szintézisköltség, magas rátás minőségpolitika és natív
+elfogadás is nyitott. Négy lifecycle/modulációs regresszió sikeres.
+Részletek és minden nyers ismétlés a filterdokumentumban; a production DSP
+és a GUI ebben a mérési munkacsomagban változatlan.
+
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
 Az alábbi korábbi sorrend a feladatok technikai háttere; az aktív prioritást
