@@ -841,3 +841,60 @@ Ez a lineáris szűrő részleges, változatlan hangú optimalizálása, nem a D
 a teljes motor vagy a VST3 költségének ugyanekkora csökkenése. A 192 kHz-es
 realtime kapu és a magas rátás Drive minőségpolitikája továbbra is nyitott.
 A production hangút, túlmintavételezési faktor, FIR, latency és GUI nem változik.
+
+## Kompakt polyphase Drive-interpoláció — 2026-10-05
+
+A `715cd47` sparse interpolátora már kihagyta a nullával szorzott FIR-tagokat,
+de minden oversampled nullát továbbra is beírt a magas rátás ringbe. Az új
+interpolátor 64 host-mintás, tükrözött ringet használ: minden bemeneti frame
+egyszer kerül be, a négy vagy két fázis ugyanabból a host-történetből olvas.
+A változatlan, szimmetrikus FIR-együtthatók fázisonként folytonos táblákba
+kerülnek az Init során. A párosítás és a négy részösszeg összeadási sorrendje
+megmarad. A decimátor aritmetikája és a gain-simítás nem változik.
+Nincs rövidebb FIR, kisebb oversampling faktor, új karakter vagy fast-math.
+A realtime út továbbra is fix tárolókat használ, allokáció és zár nélkül.
+
+Helyi Windows x64 / MSVC 19.44 Release objektumméretek:
+
+| Drive | Sparse referencia | Kompakt jelölt | Megtakarítás |
+| --- | ---: | ---: | ---: |
+| 2x | 16 960 bájt | 11 344 bájt | 5 616 bájt |
+| 4x | 17 472 bájt | 12 384 bájt | 5 088 bájt |
+
+A `premium_drive_polyphase_identity` a külön befagyasztott sparse referencia
+998 400 sztereó frame-jével hasonlítja össze a 2x és 4x jelöltet bájtról bájtra.
+8/44,1/48/96/192/384 kHz, 0..24 dB célváltások, snap, clear, mindkét ring
+határain lévő sztereó impulzusok, másolás, más rátás új Init, NaN/Inf és
+egyoldali history-reset szerepel benne. A téves nonzero-phase tükrözési index
+helyi negatív kontrollja már a 17. összehasonlításnál elbukik.
+Kilenc célzott Release teszt sikeres: identity, meglévő alias/latency és
+spektrális grid, mindkét teljes motoradapter lifecycle/moduláció, valamint
+magas rátás és összetett gerjesztési kontrollok. A korábbi minőségi küszöbök
+nem változtak. Lead/pluck/pad, négy mód, 50% rezonancia és 20 dB 4x Drive
+mellett a 12 fixture mind a 36 legacy/candidate/RMS-matched WAV-fájlja
+SHA-256 szerint azonos az optimalizáció előtti Release renderrel.
+
+Az identity program `--benchmark` módja csak a Drive-ot időzíti, nem CI-kapu.
+1024 frame bemelegítés után 16 384 sztereó frame-et mér; 2x/4x,
+48/96/192 kHz, 1/16 voice, 0/20/24 dB, 32/256-os offline csoportok és
+esetenként hat, váltakozó végrehajtási sorrendű referencia/jelölt pár szerepel.
+A bemenet előre elkészített szinusz/koszinusz, az Init és allokáció nincs a
+mért szakaszban. A buffer oszlop offline csoportosítást jelent, nem natív
+host-callback határidő- vagy legrosszabb blokkpróbát.
+
+16 voice, 20 dB; a két csoportméret 12 páronkénti kompakt/sparse időarányának
+mediánja, ugyanazon helyi MSVC Release binárisban:
+
+| Faktor | 48 kHz | 96 kHz | 192 kHz |
+| --- | ---: | ---: | ---: |
+| 2x | 0,9233 | 0,9282 | 0,9234 |
+| 4x | 0,8657 | 0,8715 | 0,8654 |
+
+Ez kb. 7–8%, illetve 13% kisebb izolált Drive-idő. A párok szórnak;
+ez helyi diagnosztika, nem teljesmotor- vagy natív sebességígéret.
+[Mind a 432 nyers pár](../experiments/premium_filter/measurements/2026-10-05-drive-polyphase.csv).
+A korábbi teljesmotor-profilok az optimalizáció előtti állapot mérései;
+azokra ezt a százalékot nem alkalmazzuk automatikusan.
+Teljes motoros és natív terhelésmérés, magas rátás minőségpolitika, majd
+latency/state/automation integráció következik. A realtime CPU-kapu nyitott,
+a production engine és a meglévő GUI ebben a kutatási lépésben változatlan.

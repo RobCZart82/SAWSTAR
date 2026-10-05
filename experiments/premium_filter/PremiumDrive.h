@@ -6,8 +6,8 @@
 
 namespace sawstar::experimental {
 // Research-only fixed-factor waveshaper, with explicit interpolation and anti-alias FIRs.
-// Polyphase interpolation skips known zero inputs; only retained decimator
-// phases compute a convolution. ReferencePremiumDrive retains the full version.
+// Interpolation keeps only host-rate samples, never inserting/storing zeros.
+// Only retained decimator phases convolve. ReferencePremiumDrive is the full oracle.
 template<unsigned Factor> class FixedRatePremiumDrive {
   static_assert(Factor == 2 || Factor == 4, "Research factors are 2x and 4x");
 public:
@@ -28,6 +28,11 @@ public:
     for (unsigned i = 0; i < Center; ++i)
       taps_[i] = taps_[TapCount - 1 - i] = .5 * (taps_[i] + taps_[TapCount - 1 - i]);
     for (auto& tap : taps_) tap /= sum;
+    for (unsigned phase = 0; phase < Factor; ++phase)
+      for (unsigned i = 0; i < PhaseTapCount; ++i) {
+        const unsigned tap = phase + i * Factor;
+        phaseTaps_[phase][i] = tap < TapCount ? taps_[tap] : 0.;
+      }
     gain_ = target_ = 1; Clear();
   }
   void Set(double db) { target_ = std::pow(10., FiniteClamp(db, 0., 24., 0.) / 20); }
@@ -37,60 +42,83 @@ public:
     gain_ += slew_ * (target_ - gain_);
     for (size_t ch = 0; ch < 2; ++ch) {
       if (!std::isfinite(input[ch])) { up_[ch] = {}; down_[ch] = {}; input[ch] = 0; }
+      auto& up = up_[ch];
+      up.history[up.cursor] = up.history[up.cursor + HostRingSize] = Factor * double(input[ch]);
       double out = 0;
       for (int phase = 0; phase < static_cast<int>(Factor); ++phase) {
-        const double x = Tick(up_[ch], phase == 0 ? Factor * double(input[ch]) : 0., true, true);
+        const double x = Interpolate(up, static_cast<unsigned>(phase));
         const double shaped = gain_ == 1 ? x : std::tanh(gain_ * x) / gain_;
-        const double y = Tick(down_[ch], shaped, phase == 0, false);
+        const double y = Tick(down_[ch], shaped, phase == 0);
         if (phase == 0) out = y;
       }
+      up.cursor = (up.cursor + 1) & (HostRingSize - 1);
       input[ch] = static_cast<float>(out);
     }
     return input;
   }
 private:
+  // At most 33 nonzero host samples are needed by every interpolation phase.
+  // Mirroring 64 slots keeps the compact convolution contiguous through wrap.
+  static constexpr unsigned HostRingSize = 64;
+  struct HostFir { std::array<double, 2 * HostRingSize> history{}; unsigned cursor = 0; };
   struct Fir { std::array<double, 512> history{}; unsigned cursor = 0; };
-  double Tick(Fir& fir, double x, bool output, bool sparse) {
+  double Interpolate(const HostFir& fir, unsigned phase) const {
+    const double* history = fir.history.data() + fir.cursor + HostRingSize;
+    const double* taps = phaseTaps_[phase].data();
+    std::array<double, 4> sums{};
+    double y = 0;
+    if (((TapCount - 1 - phase) % Factor) == phase) {
+      // Keep the preceding sparse FIR's lane sums and addition order exactly.
+      const unsigned last = phase == 0 ? PhaseTapCount - 1 : PhaseTapCount - 2;
+      for (unsigned i = 0; i < HalfPhase; i += 4) {
+        for (unsigned lane = 0; lane < 4; ++lane) {
+          const unsigned tap = i + lane;
+          sums[lane] += taps[tap] * (*(history - tap) + *(history - (last - tap)));
+        }
+      }
+      y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
+      if (phase == 0) y += taps[HalfPhase] * *(history - HalfPhase);
+    } else {
+      // The odd 4x phases each have 32 taps; both arrays are contiguous.
+      for (unsigned i = 0; i < PhaseTapCount - 1; i += 4) {
+        for (unsigned lane = 0; lane < 4; ++lane) {
+          const unsigned tap = i + lane;
+          sums[lane] += taps[tap] * *(history - tap);
+        }
+      }
+      y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
+    }
+    return y;
+  }
+  double Tick(Fir& fir, double x, bool output) {
     // Mirrored ring makes the convolution history contiguous without wrapping
     // each tap. Independent sums enable vectorization without fast-math.
     fir.history[fir.cursor] = fir.history[fir.cursor + 256] = x;
     double y = 0;
     if (output) {
-      const unsigned first = sparse ? (fir.cursor & (Factor - 1)) : 0;
-      const unsigned stride = sparse ? Factor : 1;
       const double* history = fir.history.data() + fir.cursor + 256;
       std::array<double, 4> sums{};
-      unsigned i = first;
-      if (!sparse || ((TapCount - 1 - first) % Factor) == first) {
-        // Pair taps only when the mirrored index has the same residue:
-        // all 2x phases, or even 4x phases. Other phases keep the full sum.
-        for (; i + 3 * stride < Center; i += 4 * stride) {
-          for (unsigned lane = 0; lane < 4; ++lane) {
-            const unsigned tap = i + lane * stride;
-            sums[lane] += taps_[tap] * (*(history - tap) + *(history - (TapCount - 1 - tap)));
-          }
+      unsigned i = 0;
+      for (; i + 3 < Center; i += 4) {
+        for (unsigned lane = 0; lane < 4; ++lane) {
+          const unsigned tap = i + lane;
+          sums[lane] += taps_[tap] * (*(history - tap) + *(history - (TapCount - 1 - tap)));
         }
-        y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
-        for (; i < Center; i += stride)
-          y += taps_[i] * (*(history - i) + *(history - (TapCount - 1 - i)));
-        if (!sparse || first == 0) y += taps_[Center] * *(history - Center);
-      } else {
-        for (; i + 3 * stride < taps_.size(); i += 4 * stride) {
-          for (unsigned lane = 0; lane < 4; ++lane) {
-            const unsigned tap = i + lane * stride;
-            sums[lane] += taps_[tap] * *(history - tap);
-          }
-        }
-        y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
-        for (; i < taps_.size(); i += stride) y += taps_[i] * *(history - i);
       }
+      y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
+      for (; i < Center; ++i)
+        y += taps_[i] * (*(history - i) + *(history - (TapCount - 1 - i)));
+      y += taps_[Center] * *(history - Center);
     }
     fir.cursor = (fir.cursor + 1) & 255;
     return y;
   }
   static constexpr unsigned TapCount = 32 * Factor + 1, Center = (TapCount - 1) / 2;
+  static constexpr unsigned PhaseTapCount = 33, HalfPhase = 16;
   std::array<double, TapCount> taps_{};
-  std::array<Fir, 2> up_{}, down_{};
+  std::array<std::array<double, PhaseTapCount>, Factor> phaseTaps_{};
+  std::array<HostFir, 2> up_{};
+  std::array<Fir, 2> down_{};
   double gain_ = 1, target_ = 1, slew_ = 0;
 };
 using PremiumDrive = FixedRatePremiumDrive<4>;
