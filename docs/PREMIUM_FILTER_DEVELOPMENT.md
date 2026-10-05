@@ -1062,3 +1062,42 @@ határidő-túllépésekből ez a kis javulás nem csinál elfogadott realtime m
 A következő Drive-feladat a FIR/interpoláció/decimáció és a nemlinearitás
 szélesebb költségbontása, majd kontrollált célgépes ismétlés. A CPU-kapu,
 a magas rátás minőségpolitika és a latency/state/automation integráció nyitott.
+
+
+## Drive FIR és nemlinearitás költségkontroll — 2026-10-05
+
+A #60 main (`3179223`) Windows, macOS és Code quality futása sikeres. Új
+offline költségkontroll ugyanazt a 2x/4x interpolációt, FIR-decimációt,
+tárolókat és 32 mintás késést futtatja a tanh/gain telítés nélkül. A külön
+`Nonlinear=false` template csak a mérőtargetben szerepel: nem választható
+filter vagy production policy. A normál alapértelmezett út változatlan.
+
+Nulla Drive mellett a kontroll 2x/4x és öt rátán mintánként bitazonos a normál
+úttal; clear után néma. 20 dB mellett szándékosan eltérő hangot ad, mindkét
+út véges. A normál Drive két korábbi referenciával végzett 1 996 800 frame-es
+azonossági regressziója megmarad. Öt célzott Release és két ASan/UBSan teszt
+sikeres; a két motor modulációja és az összetett gerjesztési kontroll is teljesül.
+
+A Release benchmark 16 sztereó példányt, 2x/4x, 48/96/192 kHz, 20/24 dB,
+1024 mintás bemelegítést és 16 384 időzített mintát használ. Előre számolt
+0,4 amplitúdójú 440 Hz szinusz / 660 Hz koszinusz; hat váltakozó sorrendű
+pár konfigurációnként, összesen 72 ellenőrzött sor. Init és allokáció nincs
+a mérésben, a kimeneti ellenőrző összeg benne van. Helyi macOS Release mérés:
+
+| Faktor | 48 kHz FIR-only/full | 96 kHz | 192 kHz |
+| --- | ---: | ---: | ---: |
+| 2x | 0,5230 | 0,5244 | 0,5247 |
+| 4x | 0,5560 | 0,5571 | 0,5612 |
+
+Az érték a 20/24 dB tizenkét páronkénti időarányának mediánja. A telítés
+kikapcsolása megváltoztatja a gerjesztést, a compiler optimalizációit és
+a kód elrendezését is: a különbség nem izolált libm-tanh idő vagy összeadható
+CPU-részarány. A kontroll nem javított hangút, nem teljes motoros gyorsulás
+és nem minőségbizonyíték. A FIR-only mért költség is jelentős marad.
+[Nyers párok](../experiments/premium_filter/measurements/2026-10-05-drive-cost-control.csv).
+
+Következő kutatási lépés a nemlinearitás gyorsabb számítási lehetőségeinek
+külön összevetése a változatlan referenciával: numerikus hiba, spektrális
+maradék, kis/erős bemenet, Drive-simítás, sztereó izoláció és CPU. Közelítés
+nem kerül automatikusan a normál útba. Utána teljes motoros és natív mérés;
+a CPU-kapu, magas rátás minőségpolitika és végleges integráció nyitott.
