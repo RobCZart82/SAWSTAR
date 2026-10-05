@@ -173,6 +173,15 @@ bemenetskálán kb. 28% kisebb idő, ami nem teljes Drive/motor gyorsulás.
 Következik a jelölt külön túlmintavételezett Drive-, spektrális és CPU-próbája;
 a normál hangút, CPU-kapu és minőségpolitika egyelőre változatlan.
 
+A #62 beolvadt (`c53d025`). A telítésjelölt külön Drive- és teljes 4x
+motor-probe mérföldköve elkészült: 72 Drive-eset és 12 Poly/FX motor-fixture
+a rögzített eltérési korlátokon belül, helyben nulla float kimeneti eltérés.
+Három célzott Release és két új ASan/UBSan regresszió sikeres. Páros helyi
+mérésben kb. 7–8% Drive és 5–6% teljesmotor-időcsökkenés; ez nem natív
+realtime elfogadás. A normál Drive nem vált át. Következő kapu a Windows/macOS
+ismétlés, szélesebb moduláció/spektrum és kis-bufferes deadline-próba; csak
+utána dönthető el a jelölt átvétele és a végleges engine-integráció.
+
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
 Az alábbi korábbi sorrend a feladatok technikai háttere; az aktív prioritást

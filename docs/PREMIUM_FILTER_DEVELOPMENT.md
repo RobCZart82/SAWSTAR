@@ -1136,3 +1136,57 @@ spektrális összevetése: erős/kis/összetett gerjesztés, Drive-simítás, t�
 ráta, 2x/4x, sztereó izoláció, latency és teljes motoros CPU. Skaláris
 azonosság közeli hiba önmagában nem minősíti a teljes szűrt hangot; a
 normál út cseréje és a CPU/minőség kapuk lezárása még nem indokolt.
+
+
+## Telítésjelölt Drive és motor mérföldköve — 2026-10-05
+
+A #62 zöld ellenőrzésekkel mainbe került (`c53d025`). A skaláris jelölt
+most külön, explicit kutatási template-változatban fut a változatlan 2x/4x
+FIR-en keresztül. A normál FixedRatePremiumDrive alapértelmezése továbbra
+is std::tanh; a production DSP és az elfogadott preview-generátor nem vált át.
+A külön engine-probe saját névteret és TanhStudyEnginePremiumFilter adaptert
+használ: nincs eltérő Synth-layout közös szimbólumokkal vagy production link.
+
+A Drive-kontroll 72 eset: 2x/4x, hat ráta 8..384 kHz, 1e-6/0,1/0,75
+bemeneti amplitúdó és állandó 20 dB vagy 0/12/24 dB célváltás. Esetenként
+8192 sztereó frame, két eltérő csatorna, clear, másolt állapot továbbfutása,
+NaN csatorna-helyreállítás és reinit. A rögzített diagnosztikai korlátok:
+2e-7 abszolút és relatív RMS eltérés; hat kiválasztott DFT-bin eltérésének
+normalizált amplitúdója legfeljebb 2e-8. A helyi float kimeneten mindhárom
+mérőszám nulla volt. Ez nem minden bemenetre bitazonossági bizonyíték,
+sem nulla alias-energia: a DFT az eltérést, nem a teljes aliasingot vizsgálja.
+A szándékosan hibás 0,99-es gain kontroll megbukik a waveform teszten.
+[Nyers eltérések](../experiments/premium_filter/measurements/2026-10-05-drive-tanh-errors.csv).
+
+A teljes offline 4x motor referencia/jelölt összevetése 12 eset: 48/96/192 kHz,
+négy filtermód, 16 kitartott voice, OSC1/OSC2/SUB/noise, chorus/delay/reverb,
+0/12/24 dB célváltás, 8192 frame és reset-csend. A 2e-6 abszolút kimeneti
+korlát teljesül, helyi maximum nulla. Ez Poly-fixture, nem teljes Mono/Legato,
+ARP, host automation, latency/state vagy natív wrapper-elfogadás. Három
+célzott Release és két új ASan/UBSan regresszió sikeres; a normál Drive
+korábbi két referenciával végzett azonossági tesztje is megmarad.
+
+A Drive-benchmark 16 példány, 20 dB, 2x/4x, 48/96/192 kHz, 1024 frame
+bemelegítés és 16 384 időzített frame; nyolc váltakozó pár/rátánként,
+48 sor. Helyi macOS Release study/reference mediánok:
+
+| Út | 48 kHz | 96 kHz | 192 kHz |
+| --- | ---: | ---: | ---: |
+| Drive 2x | 0,9169 | 0,9237 | 0,9224 |
+| Drive 4x | 0,9348 | 0,9321 | 0,9339 |
+| Teljes 4x motor FX-szel | 0,9431 | 0,9455 | 0,9448 |
+
+A motorprofil 16 voice, 20 dB, négy mód, 2048 frame bemelegítés után
+4096 időzített frame, négy váltakozó pár/mód/rátánként, 48 sor. A motor
+értékei a négy mód 16 páronkénti arányának mediánjai. Init és allokáció
+nincs időzítve; az ellenőrzőösszeg igen. Kb. 7–8% Drive és 5–6% motor
+időcsökkenés ezen a gépen; nem platformfüggetlen vagy realtime ígéret.
+Nincs blokk-percentilis, natív host vagy hosszú stresszfutás ebben a körben.
+[Drive-párok](../experiments/premium_filter/measurements/2026-10-05-drive-tanh-cost.csv),
+[motor-párok](../experiments/premium_filter/measurements/2026-10-05-tanh-engine-cost.csv).
+
+A mérföldkő a külön jelölt helyi numerikus és CPU-minősítése, nem kész
+filtercsere. Következik Windows/macOS CI és célgépes ismétlés, szélesebb
+modulációs és spektrális gerjesztés, kis-bufferes deadline-próba. Csak ezek
+alapján dönthető el a normál kutatási út átváltása; a CPU-kapu, magas rátás
+policy, végleges latency/state/automation integráció és natív elfogadás nyitott.
