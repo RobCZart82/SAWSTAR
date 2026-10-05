@@ -122,6 +122,16 @@ A külön páros Drive-mérés 16 voice/20 dB mellett kb. 7–8% kisebb időt mu
 vagy natív teljesítményígéret. A CPU-kapu és a magas rátás minőségpolitika
 továbbra is nyitott; teljes motoros és natív mérés következik az integráció előtt.
 
+A #56 kompakt Drive-interpoláció minden ellenőrzés után main-ba került
+(`c36f743`). Új offline kis-pufferes időeloszlás-mérő mód készült: három
+motorút, 16 voice/20 dB/FX, négy mód, 48/96/192 kHz, 32/64/128 mintás
+csoportok; 108 CSV-sor és 110 592 blokk. A helyi MSVC Release mérésben a
+prémium utak 96/192 kHz-en továbbra is túllépik az audioidőt. A production
+kontroll is túl lassú 192 kHz-en ezen a gépen; ez nem natív hostbizonyíték.
+Négy lifecycle/modulációs regresszió sikeres. A nyers percentilisek és a mérés
+korlátai a filterdokumentumban szerepelnek. Következő lépés költségbontás,
+kontrollált célgépes ismétlés és natív próba; a CPU-kapu továbbra is nyitott.
+
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
 Az alábbi korábbi sorrend a feladatok technikai háttere; az aktív prioritást

@@ -184,16 +184,58 @@ template<class Synth> void Benchmark(const char* label, bool allModes) {
       }
   if (!std::isfinite(checksum)) throw std::runtime_error("Invalid benchmark checksum");
 }
+// Focused offline deadline distribution: no host scheduling or CI timing gate.
+template<class Synth> void Stress(const char* label) {
+  using Clock = std::chrono::steady_clock;
+  constexpr int blocks = 1024;
+  std::cout << "engine,rate,voices,filter_mode,drive_db,fx,buffer,blocks,median_block_percent,p95_block_percent,p99_block_percent,worst_block_percent,over_budget_blocks,peak,rms\n";
+  for (double rate : {48000., 96000., 192000.})
+    for (int mode : {0, 1, 2, 3}) for (int buffer : {32, 64, 128}) {
+      auto s = std::make_unique<Synth>(); Setup(*s, rate, 16, 20, true, mode);
+      for (int i = 0; i < static_cast<int>(rate / 4); ++i) Check(s->ProcessStereo());
+      std::array<double, blocks> times{};
+      double energy = 0, peak = 0; int over = 0;
+      for (auto& time : times) {
+        const auto start = Clock::now();
+        for (int i = 0; i < buffer; ++i) {
+          const auto y = s->ProcessStereo(); Check(y);
+          energy += double(y.left) * y.left + double(y.right) * y.right;
+          peak = std::max(peak, double(std::max(std::abs(y.left), std::abs(y.right))));
+        }
+        time = 100 * rate / buffer * std::chrono::duration<double>(Clock::now() - start).count();
+        if (time > 100) ++over;
+      }
+      if (s->ActiveVoices() != 16 || energy <= 0 || !std::isfinite(energy))
+        throw std::runtime_error("Stress fixture must hold 16 sounding voices");
+      std::sort(times.begin(), times.end());
+      // Nearest-rank percentiles over the measured blocks.
+      std::cout << label << ',' << rate << ",16," << mode << ",20,1," << buffer << ',' << blocks
+        << ',' << (times[blocks / 2 - 1] + times[blocks / 2]) / 2
+        << ',' << times[(95 * blocks + 99) / 100 - 1]
+        << ',' << times[(99 * blocks + 99) / 100 - 1]
+        << ',' << times.back() << ',' << over << ',' << peak
+        << ',' << std::sqrt(energy / (2 * blocks * buffer)) << '\n';
+    }
+}
 int main(int argc, char** argv) {
   try {
     if (argc == 2 && std::string(argv[1]) == "--smoke") { Smoke(); return 0; }
     if (argc == 2 && std::string(argv[1]) == "--modulation") { ModulationSmoke(); return 0; }
+    if (argc == 2 && std::string(argv[1]) == "--stress-legacy") { Stress<sawstar::Synth>("legacy"); return 0; }
+    if (argc == 2 && std::string(argv[1]) == "--stress") {
+#ifdef SAWSTAR_PREMIUM_HIGH_RATE_STUDY
+      Stress<ProbeEngine::Synth>("rate-scaled");
+#else
+      Stress<ProbeEngine::Synth>("premium");
+#endif
+      return 0;
+    }
     bool legacy = false, allModes = false;
     for (int i = 1; i < argc; ++i) {
       const std::string arg = argv[i];
       if (arg == "--legacy" && !legacy) legacy = true;
       else if (arg == "--all-modes" && !allModes) allModes = true;
-      else { std::cerr << "Usage: premium_engine_benchmark [--smoke|--modulation|[--legacy] [--all-modes]]\n"; return 1; }
+      else { std::cerr << "Usage: premium_engine_benchmark [--smoke|--modulation|--stress|--stress-legacy|[--legacy] [--all-modes]]\n"; return 1; }
     }
     std::cout << "engine,rate,voices,";
     if (allModes) std::cout << "filter_mode,";
