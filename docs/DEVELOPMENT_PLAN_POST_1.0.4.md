@@ -165,6 +165,14 @@ a normál út két referenciához továbbra is bitazonos. Következik a nemlinea
 gyorsabb számításának külön numerikus/spektrális és CPU-kontrollja, majd
 teljes motoros és natív próba. A production DSP továbbra is változatlan.
 
+A #61 17/17 sikeres ellenőrzés után beolvadt (`262177f`). Külön skaláris
+telítésjelölt készült, a normál Drive használata nélkül. A std::tanh
+referenciától helyben legfeljebb 1,11e-16 abszolút eltérést mért; Release
+és ASan/UBSan regresszió sikeres. A skaláris mikromérésben 20/24 dB
+bemenetskálán kb. 28% kisebb idő, ami nem teljes Drive/motor gyorsulás.
+Következik a jelölt külön túlmintavételezett Drive-, spektrális és CPU-próbája;
+a normál hangút, CPU-kapu és minőségpolitika egyelőre változatlan.
+
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
 Az alábbi korábbi sorrend a feladatok technikai háttere; az aktív prioritást
