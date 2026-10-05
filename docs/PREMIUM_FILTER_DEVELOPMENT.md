@@ -1101,3 +1101,38 @@ külön összevetése a változatlan referenciával: numerikus hiba, spektrális
 maradék, kis/erős bemenet, Drive-simítás, sztereó izoláció és CPU. Közelítés
 nem kerül automatikusan a normál útba. Utána teljes motoros és natív mérés;
 a CPU-kapu, magas rátás minőségpolitika és végleges integráció nyitott.
+
+
+## Skaláris telítés számítási jelöltje — 2026-10-05
+
+A #61 minden 17 ellenőrzése sikeres lett és beolvadt (`262177f`). A külön
+`ResearchTanh` a tanh algebrai alakját egy exp hívással számolja: az abszolút
+bemenethez q=exp(-2a), majd (1-q)/(1+q) előjelhelyesen. A nagyon kis,
+1e-5 alatti tartományban x(1-x²/3) elkerüli a kivonás pontosságvesztését;
+20-tól a double telítési kimenet ±1. Ez saját kutatási függvény, nem
+a PremiumDrive új alapértelmezése. A production és a normál kutatási Drive
+sem hivatkozik rá, nem változik karakter, FIR, faktor vagy latency.
+
+A skaláris regresszió 400 001 egyenletes pontot vizsgál -20..20 között,
+két előjellel a kettőhatványokat a legkisebb subnormálistól 4096-ig, a két
+ágküszöb szomszédos double értékeit, signed zero, NaN és ±infinity eseteket.
+A std::tanh-hoz képesti abszolút hibakorlát 5e-15; helyben a maximum
+1,11022e-16 volt. A rácson monoton, páratlan és [-1,1] tartományú kimenet
+szükséges. Ez nem minden double értékre kiterjedő formális pontosságbizonyítás.
+A Release és az ASan/UBSan skaláris regresszió sikeres.
+
+A külön mikromérés 65 536 előre számolt, 0,4*sin(n*0,057) bemenetet
+szoroz 0/12/20/24 dB gainnel, 16 ismétlésben értékeli a függvényeket.
+Bemelegítés után nyolc váltakozó sorrendű pár/gain, 32 nyers sor. Helyi
+macOS Release research/std::tanh időarány-mediánok: 0,815 / 0,765 / 0,718 /
+0,724. Ez csak a skaláris függvények és ellenőrzőösszeg ideje; a normál
+Drive 0 dB-en eleve kihagyja a tanh-t, ezért annak nincs ígért gyorsulása.
+A mérés nem oversampled jeltörténet, nem FIR vagy teljes motor, nem natív
+host, és más fordító/platform más eredményt adhat. Nincs CI-időzítési küszöb.
+[Nyers párok](../experiments/premium_filter/measurements/2026-10-05-tanh-scalar.csv).
+
+Következik a külön, csak kutatási oversampled Drive-változat numerikus és
+spektrális összevetése: erős/kis/összetett gerjesztés, Drive-simítás, több
+ráta, 2x/4x, sztereó izoláció, latency és teljes motoros CPU. Skaláris
+azonosság közeli hiba önmagában nem minősíti a teljes szűrt hangot; a
+normál út cseréje és a CPU/minőség kapuk lezárása még nem indokolt.
