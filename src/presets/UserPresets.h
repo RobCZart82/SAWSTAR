@@ -19,7 +19,7 @@ inline fs::path UserPresetFolder(){
  return home&&*home?fs::path(home.get())/"SAWSTAR"/"Presets":fs::path{};
 #else
  const char* home=std::getenv("HOME");
- return home?fs::path(home)/"Library"/"Application Support"/"SAWSTAR"/"Presets":fs::path{};
+ return home&&*home?fs::path(home)/"Library"/"Application Support"/"SAWSTAR"/"Presets":fs::path{};
 #endif
 }
 // UI/file operations only: canonical Unicode lowercase key, preserving accents.
