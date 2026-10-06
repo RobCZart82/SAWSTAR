@@ -1,0 +1,60 @@
+name: Premium paired deadline research
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/premium-deadline.yml'
+      - 'CMakeLists.txt'
+      - 'src/engine/**'
+      - 'src/dsp/**'
+      - 'experiments/premium_filter/**'
+      - 'scripts/report-premium-deadline.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: premium-deadline-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    name: Premium deadline / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-14]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Initialize selected DSP dependency
+        run: git submodule update --init third_party/DaisySP
+      - name: Configure Release research probes
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON
+      - name: Build paired probe only
+        run: cmake --build build --config Release --target sawstar_premium_tanh_deadline --parallel 2
+      - name: Validate sounding fixture and percentile controls
+        run: ctest --test-dir build -C Release -R '^premium_tanh_deadline_fixture$' --output-on-failure
+      - name: Record paired wall time distributions
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            build/Release/sawstar_premium_tanh_deadline.exe --deadline deadline-results
+          else
+            build/sawstar_premium_tanh_deadline --deadline deadline-results
+          fi
+      - name: Verify raw data and report paired ratios
+        run: python scripts/report-premium-deadline.py deadline-results
+      - name: Preserve compiler description
+        run: |
+          mkdir -p deadline-results/compiler
+          find build/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' deadline-results/compiler/ \;
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: premium-deadline-${{ matrix.os }}
+          path: deadline-results/
+          if-no-files-found: error
+          retention-days: 90

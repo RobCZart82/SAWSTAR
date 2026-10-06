@@ -1,0 +1,66 @@
+{
+  "measured_source_sha": "b0fbebfb18d02d89313a17cfcd7e4b17eed297ae",
+  "date": "2026-10-06",
+  "benchmark_path": "experiments/premium_filter/benchmark_tanh_deadline.cpp",
+  "workflow_run": "https://github.com/RobCZart82/SAWSTAR/actions/runs/37419690617",
+  "fixture": {
+    "factor": 4,
+    "voices": 16,
+    "voice_mode": "Poly",
+    "drive_db": 20,
+    "fx": true,
+    "rates": [
+      48000,
+      96000,
+      192000
+    ],
+    "filter_modes": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "buffers": [
+      32,
+      64,
+      128
+    ],
+    "alternating_pairs": 4,
+    "warmup_seconds": 0.25,
+    "blocks_per_path_pair": 256,
+    "summary_rows_per_platform": 288,
+    "raw_blocks_per_platform": 73728
+  },
+  "platforms": [
+    {
+      "name": "windows",
+      "os": "Windows Server 2022 x64",
+      "compiler": "MSVC 19.44.35229.0",
+      "job": "https://github.com/RobCZart82/SAWSTAR/actions/runs/37419690617/job/112126051906",
+      "summary": "2026-10-06-tanh-deadline-windows-summary.csv",
+      "artifact": "premium-deadline-windows-2022"
+    },
+    {
+      "name": "macos",
+      "os": "macOS 14.8.9 ARM64",
+      "compiler": "AppleClang 15.0.0.15000309",
+      "job": "https://github.com/RobCZart82/SAWSTAR/actions/runs/37419690617/job/112126052201",
+      "summary": "2026-10-06-tanh-deadline-macos-summary.csv",
+      "artifact": "premium-deadline-macos-14"
+    }
+  ],
+  "artifact_retention_days": 90,
+  "acceptance": {
+    "native_host": false,
+    "portable_realtime": false,
+    "adopt_default": false
+  },
+  "limits": [
+    "Shared CI wall-clock measurements",
+    "One full run per platform with four alternating pairs per scene",
+    "Fixed 4x probe, not high-rate 2x policy",
+    "256-block percentiles have few upper-tail observations",
+    "FX units differ from earlier engine benchmarks",
+    "No host wrapper or MIDI/automation stress"
+  ]
+}

@@ -1223,3 +1223,87 @@ A Windows parancsfuttató környezeti hibája miatt helyi fordítás és új
 CPU-mérés nincs; a friss Windows/macOS és sanitizer CI eredményét a PR
 rögzíti. Időzítési küszöböt nem vezettünk be. Célgépes páros ismétlés,
 kis-bufferes deadline-eloszlás, minőségpolicy és natív integráció nyitott.
+
+
+## Páros teljesmotor-blokkidő eloszlás — 2026-10-06
+
+A `sawstar_premium_tanh_deadline` külön research target. Argumentum nélkül
+a fixture és statisztikák funkcionális CTest ellenőrzése fut: medián páros/páratlan
+esetre, nearest-rank p95/p99, szigorú 100% fölötti számláló, hibás/üres időadat
+elutasítása, valamint 12 szóló 16-voice motorfixture referencia/jelölt eltérése
+legfeljebb 2e-6. A std::tanh és ResearchTanh alapértelmezett hangút nem vált át.
+
+A `--deadline output-directory` mérés 4x/4x összevetés, nem a 2x/4x magas
+rátás policy véglegesítése. 48/96/192 kHz, négy filtermód, 16 Poly voice,
+20 dB, FX, 32/64/128 frame/csoport, négy váltakozó sorrendű pár.
+Mindkét út minden párban új motort indít, 0,25 másodperc warmup után 256
+blokkot időzít. Az allokáció, Init, warmup, jelvédelem-ellenőrzés és
+diagnosztikai számtan nincs a blokkidőben; ProcessStereo és bufferírás igen.
+Nincs VST3 callback, host scheduler, MIDI/automatizálási terhelés vagy
+hosszú steady-state FX-bemelegítés. A korábbi motorprofilhoz képest itt
+explicit natív egységű FX-beállítások szerepelnek: delay tone 2000 Hz,
+reverb decay 2 s, damping 6000 Hz; a régi adatsor közvetlenül nem összevethető.
+
+A `summary.csv` 288 sorában az audioidő százalékában szerepel a blokkok
+mediánja, nearest-rank p95/p99, maximum és 100% fölötti blokkok száma,
+plusz peak/RMS/checksum. A `blocks.csv` minden 73 728 blokkot megőrzi,
+külön engine/rate/mode/buffer/pair/block kulccsal. A Python riport minden
+kulcsot, darabszámot, futási sorrendet és a nyers adatokból újraszámolt
+percentilis/számláló értéket ellenőriz, majd kilenc ráta/puffer kombinációban
+16 páros jelenetarány mediánját számolja. Ez nem összevont blokkpercentilis.
+A 256 blokkos p99 kevés felső-tail megfigyelésre támaszkodik; négy pár
+feltáró mérés, nem megbízhatósági vagy hallásos elfogadási bizonyítás.
+
+Külön `premium-deadline.yml` PR/manual workflow Windows x64 és macOS ARM64
+Release mérésben a pontos PR-headet építi. A runner platformja, forrás-SHA,
+compiler-leírás, nyers CSV és riport artifactban marad 90 napig; az összesítő
+és riport a joblogban is olvasható. Az eredmény a PR-ben rögzítendő.
+Nincs CPU/időzítési pass/fail küszöb. Közös CI-gép wall-clock szórása és
+eltérő compiler miatt natív célgépes ismétlés nélkül nincs általános CPU-ígéret.
+A CPU-kapu, magas rátás policy és végleges filterintegráció továbbra is nyitott.
+
+
+### Első páros CI-mérés eredménye
+
+Mért forrás: `b0fbebfb18d02d89313a17cfcd7e4b17eed297ae`; 2026-10-06.
+Windows Server 2022 x64 / MSVC 19.44.35229.0 és macOS 14.8.9 ARM64 /
+AppleClang 15.0.0.15000309, Release. Platformonként külön runner, egy
+teljes négy-páros futás. Az arány a jelölt/referencia blokkmedián arány
+mediánja, konfigurációnként 16 páros megfigyelés (négy mód × négy pár).
+
+| Ráta | Puffer | Windows p50 időarány | macOS p50 időarány |
+| --- | --- | ---: | ---: |
+| 48 kHz | 32 | 1,012967 | 0,948275 |
+| 48 kHz | 64 | 1,017399 | 0,950595 |
+| 48 kHz | 128 | 1,022546 | 0,956787 |
+| 96 kHz | 32 | 1,014420 | 0,949930 |
+| 96 kHz | 64 | 1,017972 | 0,951642 |
+| 96 kHz | 128 | 1,020800 | 0,954294 |
+| 192 kHz | 32 | 1,017774 | 0,950547 |
+| 192 kHz | 64 | 1,019123 | 0,956106 |
+| 192 kHz | 128 | 1,020518 | 0,953697 |
+
+Ebben a futásban Windows alatt kb. 1–2% nagyobb, macOS alatt kb. 4–5%
+kisebb medián blokkidő. Ez nem statisztikai bizonyítás, általános
+compiler-ígéret vagy a korábbi eltérő FX-fixture-rel összevetett gyorsulás.
+A macOS 96 kHz / 64 frame p99 páros időarány-mediánja 1,088100:
+a felső tail nem követi mindenütt a medián javulását. Ebben az esetben
+a referencia 171, a jelölt 226 blokkja lépte túl az audioidőt a 4096-ból.
+
+Windows 96/192 kHz-en és macOS 192 kHz-en minden pufferkombinációban
+4096/4096 blokk túllépett az audioidőn mindkét úton. Windows 48 kHz-en
+is maradtak túllépések; macOS 48/96 kHz-en szintén előfordultak.
+A mérés kizárólag a két 4x kutatási motorra vonatkozik. Nem állítja, hogy
+a production plugin, a 2x magas rátás út vagy egy natív REAPER-host is így viselkedik.
+
+Következtetés: a skaláris jelölt nem tekinthető általános CPU-javításnak.
+A normál Drive átváltása továbbra sem indokolt; célgépes ismétlés és
+nagyobb költségű FIR/teljesmotor-optimalizálás következik. A 4x CPU-kapu
+nem zárult le. A funkcionális fixture és mindkét teljes adatellenőrzés sikeres.
+
+Mindkét 288 soros összesítő tartósan a repository-ban:
+[Windows CSV](../experiments/premium_filter/measurements/2026-10-06-tanh-deadline-windows-summary.csv),
+[macOS CSV](../experiments/premium_filter/measurements/2026-10-06-tanh-deadline-macos-summary.csv).
+[Forrás, compiler és job/artifact eredet](../experiments/premium_filter/measurements/2026-10-06-tanh-deadline-provenance.json).
+A két 73 728 soros nyers blokkfájl a megjelölt jobok 90 napos artifactjában van;
+lejárat után a rögzített forrással újra kell mérni.
