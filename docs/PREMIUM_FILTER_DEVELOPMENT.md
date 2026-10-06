@@ -1552,3 +1552,46 @@ Konkrét CI-hiányosság javítva: a dedikált workflow path-filtere korábban
 nem tartalmazta a két SIMD identitásteszt forrását, így azok önálló
 módosítása nem indította a kutatási méréseket. Most mindkét teszt és az új
 riportoló is trigger. Shipping DSP/default/policy nem változik.
+
+#### Első izolált eredmények és teljesmotoros összevetés
+
+Mért forrás: `0486fb361cd63c81f99437d81e400ef5f045c36a`, run
+[37438349107](https://github.com/RobCZart82/SAWSTAR/actions/runs/37438349107).
+Windows MSVC 19.44.35229.0/SSE2, macOS ARM64 AppleClang 15/NEON.
+Mindkét platformon 998 400 fix és 66 447 rátafüggő frame bitazonos.
+A riportoló 24 valódi párt ellenőrzött, és 13 hibás önellenőrző fixture-t
+utasított el. A táblázat arányait a CSV-ből külön újraszámolás egyeztette.
+
+| Faktor | Ráta | Windows SIMD/scalar | macOS SIMD/scalar |
+| --- | --- | ---: | ---: |
+| 2x | 48000 | 0.940097 | 0.937298 |
+| 2x | 96000 | 0.934893 | 0.920793 |
+| 2x | 192000 | 0.942754 | 0.919041 |
+| 4x | 48000 | 0.906242 | 0.786856 |
+| 4x | 96000 | 0.906420 | 0.831826 |
+| 4x | 192000 | 0.907348 | 0.844291 |
+
+A Windows 192 kHz/2x külön Drive-aránya 0,942754 (~6% kisebb idő);
+ugyanazon job teljesmotoros p50 aránya 1,000000 / 1,000077 / 0,999865
+32/64/128 frame mellett: lényegében semleges. Ebben a körben a korábbi
+~3%-os teljesmotoros lassulás nem ismétlődött meg. A 192 kHz-es motor
+mindkét útján 4096/4096 túllépés maradt mindhárom puffernél.
+
+macOS 192 kHz/2x külön Drive-aránya 0,919041 (~8% kisebb idő);
+a motor p50 aránya 0,970588 / 0,965768 / 0,953826.
+A 32-frame p99 ugyanakkor 1,018620, a túllépések 40→84;
+64 frame esetén 8→11, 128 frame esetén 22→3. Mediánnyereségből
+nem következik általános tail/deadline-javulás.
+
+A külön bank azonos szintetikus sinus/cosinus bemenetet ad mind a 16
+példánynak, rögzített gainnel; eltér a teljes motor hangjától és
+állapot-/cache-/kódelrendezésétől. Az eredmény a vizsgálatot szűkíti,
+de nem igazolja sem a FIR gyökérokot, sem annak kizárását.
+Következő nyitott lépés a teljesmotoros profil/fordított kód és
+célgépes ismétlés; shipping/default aktiválás továbbra sincs.
+
+Tartós [Windows Drive CSV](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-windows.csv),
+[macOS Drive CSV](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-macos.csv),
+[provenance](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-provenance.json).
+A teljesmotoros CSV/nyers blokkok, Drive-riport és compilerleírás a
+provenance-ban jelölt 90 napos artifactokban találhatók.

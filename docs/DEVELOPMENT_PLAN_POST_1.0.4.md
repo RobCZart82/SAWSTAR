@@ -455,3 +455,6 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 - Külön 24 páros, fix 2x/4x Drive-mérés a rátafüggő Windows/macOS CI-ben; ellenőrzött CSV és forrásazonosítós artifact.
 - A SIMD tesztforrások hiányzó workflow path-triggerének javítása.
 - A mérés a teljes Drive költségét izolálja; a Windows teljesmotoros 2x lassulás gyökérokának megállapítása, célgépes ismétlés és shipping policy továbbra is nyitott.
+
+- Első külön Drive-kör: Windows 2x arány 0,935–0,943, 4x 0,906–0,907; macOS 2x 0,919–0,937, 4x 0,787–0,844. CSV/provenance tartósan rögzítve.
+- Ugyanazon Windows job 192 kHz-es motorideje semleges (~1,000); a korábbi 3%-os lassulás most nem ismétlődött. macOS motor p50 javul, de néhány tail/túllépési eset romlik. Gyökérok vagy shipping CPU-elfogadás ebből nem állapítható meg.
