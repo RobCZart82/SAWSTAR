@@ -444,4 +444,6 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 - A meglévő, Init-on választó kutatási 4x/2x út külön SIMD-jelöltet kap; scalar alapérték és 176,4 kHz-es normalizált határ megmarad.
 - Új határ/hibásráta/állapot kontroll: 66 447 frame scalar és SIMD egyezése explicit fix-faktor oracle-lel.
 - Új páros motoradatok 48/96 kHz 4x és 192 kHz 2x mellett; a fordított faktorok külön ellenőrzött metadata-ban szerepelnek.
-- CI- és CPU-eredmények folyamatban. A shipping rate-policy, natív QA és production filtercsere továbbra is nyitott.
+- Az első Windows/macOS próba sikeres: a 66 447 routing frame bitazonos, a 12 motorfixture eltérése nulla. A faktorrekord ellenőrzött.
+- 48/96 kHz-en a p50 csökken, de a 192 kHz/2x Windows-nyereség csak 0,1–0,3%, macOS 1–4% körüli; tail/túllépési nyereség nem általános. CSV/provenance és korlátok tartósan feljegyezve.
+- A végleges PR CI-je rögzíti az elfogadást. Shipping rate-policy, célgépes teljesmotor-CPU/minőség QA és production filtercsere nyitott.

@@ -1,0 +1,64 @@
+{
+  "source_sha": "f7fcd0e4c078c02d0eace9a16623a6b8046225f7",
+  "date": "2026-10-06",
+  "study_kind": "rate-simd-fir",
+  "reference": "RateScaledPremiumDrive (scalar FIR, std::tanh)",
+  "study": "RateScaledSimdPremiumDrive (SIMD FIR, std::tanh)",
+  "rate_policy": "Init-only, SafeSampleRate float-normalized >=176400 selects 2x; otherwise 4x",
+  "compiled_factors_by_rate": {
+    "48000": 4,
+    "96000": 4,
+    "192000": 2
+  },
+  "compiled_factors_verified_against_label": true,
+  "run_id": 37429992259,
+  "run_url": "https://github.com/RobCZart82/SAWSTAR/actions/runs/37429992259",
+  "configuration": "Release",
+  "clock": "C++ steady_clock wall time; ProcessStereo and buffer stores timed",
+  "voices": 16,
+  "drive_db": 20,
+  "fx": true,
+  "rates": [
+    48000,
+    96000,
+    192000
+  ],
+  "buffers": [
+    32,
+    64,
+    128
+  ],
+  "filter_modes": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "pairs_per_scene": 4,
+  "blocks_per_path_and_pair": 256,
+  "warmup_seconds_per_path": 0.25,
+  "summary_rows_per_platform": 288,
+  "raw_blocks_per_platform": 73728,
+  "native_host_acceptance": false,
+  "raw_artifact_retention_days": 90,
+  "platforms": [
+    {
+      "platform": "Windows Server 2022 x64",
+      "compiler": "MSVC 19.44.35229.0",
+      "backend": "SSE2",
+      "job_id": 112158360353,
+      "artifact_id": 11396168742,
+      "artifact_name": "premium-deadline-rate-simd-fir-windows-2022",
+      "summary": "2026-10-06-rate-simd-deadline-windows-summary.csv"
+    },
+    {
+      "platform": "macOS 14.8.9 ARM64",
+      "compiler": "AppleClang 15.0.0.15000309",
+      "backend": "NEON",
+      "job_id": 112158360734,
+      "artifact_id": 11396324568,
+      "artifact_name": "premium-deadline-rate-simd-fir-macos-14",
+      "summary": "2026-10-06-rate-simd-deadline-macos-summary.csv"
+    }
+  ]
+}
