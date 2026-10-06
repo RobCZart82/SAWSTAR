@@ -4,7 +4,31 @@
 #include <chrono>
 #include <thread>
 #include <atomic>
+#ifndef _WIN32
+namespace {
+void CheckPresetFolderEnvironment() {
+ const char* previous=std::getenv("HOME");
+ const bool present=previous!=nullptr;
+ const std::string saved=previous?previous:"";
+ struct RestoreHome {
+  bool present; std::string saved;
+  ~RestoreHome(){if(present)setenv("HOME",saved.c_str(),1);else unsetenv("HOME");}
+ } restore{present,saved};
+ auto check=[](bool ok){if(!ok)throw std::runtime_error("Preset folder environment test failed");};
+ check(setenv("HOME","",1)==0);
+ check(sawstar::UserPresetFolder().empty());
+ check(unsetenv("HOME")==0);
+ check(sawstar::UserPresetFolder().empty());
+ const auto home=sawstar::fs::temp_directory_path()/"sawstar-home";
+ check(setenv("HOME",home.c_str(),1)==0);
+ check(sawstar::UserPresetFolder()==home/"Library"/"Application Support"/"SAWSTAR"/"Presets");
+}
+}
+#endif
 int main(){using namespace sawstar;auto root=fs::temp_directory_path()/("sawstar-preset-test-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));try{
+#ifndef _WIN32
+ CheckPresetFolderEnvironment();
+#endif
  auto check=[](bool ok){if(!ok)throw std::runtime_error("User preset test failed");};
  check(!ValidPresetName("../test")&&!ValidPresetName("")&&!ValidPresetName("foo/bar"));auto values=DefaultSnapshot();values[90]=1;values[91]=83;auto path=root/"My Sound.sawstar";SaveUserPreset(path,values);check(ReadUserPreset(path)==values);check(ListUserPresets(root).size()==1);
  bool rejected=false;try{SaveUserPreset(path,DefaultSnapshot());}catch(...){rejected=true;}check(rejected&&ReadUserPreset(path)==values);

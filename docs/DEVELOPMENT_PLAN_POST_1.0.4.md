@@ -371,3 +371,34 @@ A TSan-bővítés a már felsorolt valódi editor/audio életciklus-esetekhez ka
 Az egyszálú overlapping-notes, mono/legato és voice-transition tesztek puszta
 TSan-futtatása nem igazol szálak közötti állapotbiztonságot. Az os.name Windows-ág
 és a dátum végi pont nem került új hibafeladatként a tervbe.
+
+## Friss repository-felülvizsgálat — 2026-10-06
+
+Vizsgált main: `c53d025a6f9ef215b0d11a47771c0fc98717de1c`.
+Részletek: [REPOSITORY_REVIEW_2026_10_06.md](REPOSITORY_REVIEW_2026_10_06.md).
+
+A korábbi audit két védelmi feladatának javítása elkészült: az üres környezeti
+presetútvonal elutasítása és a kiadási ellenőrzések explicit kivételekre cserélése.
+Új, konkrét kiadási hiba: két macOS `.dmg` teljesítette a darabszámfeltételt
+hiányzó `.pkg` mellett. Most minden kötelező telepítőtípusból pontosan egy kell,
+és a névnek a megfelelő verzióprefixszel kell kezdődnie. Normál és `-O`
+Python-folyamatban futó regressziók készültek; a HOME eseteket macOS/Linux
+lifecycle teszt ellenőrzi. A javítások elfogadását az új PR CI-je igazolja;
+helyi futás a Windows parancsfuttató környezeti hibája miatt nem történt.
+
+A kutatási filtermunka elkészült részei nem jelentik a production filtercsere
+lezárását. A CPU/minőségpolicy, integráció, natív hostelfogadás, presetek,
+kézikönyvek és következő kiadás továbbra is nyitott. A #63 kutatási PR a
+vizsgált main revisionön még nyitott; munkáját ez a hibajavítás nem írja felül.
+
+
+## Telítésjelölt szélesebb regressziója — 2026-10-06
+
+A #63 külön Drive-jelöltjének próbája további 288 gerjesztési esetet kap:
+2x/4x, hat ráta, három amplitúdó, magas koherens hang, chirp, determinisztikus
+zaj és bipoláris impulzussor; állandó vagy mintánként változó Drive.
+Mindkét csatorna teljes egyoldalas eltérésspektrumát vizsgálja, DC/Nyquist
+végpontokkal és negatív kontrollokkal. Élő FIR-állapot másolása, hibás
+csatorna izolációja, clear-csend és 32 mintás impulzuscsúcs is ellenőrzött.
+Az elfogadást a friss összevont PR CI-je igazolja; új helyi CPU-mérés nem
+készült. A normál út átváltása, kis-bufferes CPU-kapu és natív QA nyitott.

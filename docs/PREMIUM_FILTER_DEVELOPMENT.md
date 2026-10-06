@@ -1190,3 +1190,36 @@ filtercsere. Következik Windows/macOS CI és célgépes ismétlés, szélesebb
 modulációs és spektrális gerjesztés, kis-bufferes deadline-próba. Csak ezek
 alapján dönthető el a normál kutatási út átváltása; a CPU-kapu, magas rátás
 policy, végleges latency/state/automation integráció és natív elfogadás nyitott.
+
+
+
+## Telítésjelölt modulációs és teljes binspektrum-kontroll — 2026-10-06
+
+A meglévő 72 Drive-fixture mellé 288 új eset kerül ugyanabba a CTest
+targetbe: 2x/4x, hat mintavételi frekvencia, 1e-8 / 0,25 / 4 amplitúdó,
+négy jel és állandó 24 dB vagy mintánként szinuszos 0..24 dB target.
+A gerjesztések magas koherens szinusz, chirp, rögzített seedű xorshift zaj,
+valamint bipoláris impulzussor. 4096 sztereó frame/eset, clear a 777. mintán;
+a modulált eset 257 mintánként snapet is kap.
+
+A rögzített waveform-korlátok 2e-7 abszolút és relatív RMS. Az utolsó
+2048 frame két csatornájának **eltérését** radix-2 FFT vizsgálja, minden
+egyoldalas binben, DC és Nyquist végpontokkal: legfeljebb 2e-8 normalizált
+amplitúdó. Nincs ablak: a teljes véges rekord eltérését mérjük, nem egy
+hang torzításának alias-energiáját. A chirp és zaj spektrális szivárgása is
+benne van. Ez szélesebb véges fixture, továbbra sem abszolút aliasing- vagy
+hallásos minősítés. Külön ismert 1e-4 amplitúdójú DC, koherens koszinuszok
+és Nyquist kontroll ellenőrzi a normalizálást és meghaladja a korlátot;
+a nulla kontroll pontosan nulla.
+
+Élő historyból való független másolat 129 frame továbbfutásban bitazonos
+a saját eredetijével. NaN/infinity a bal csatornán nem változtathatja meg
+a felmelegített jobb csatornát. Clear után néma kimenet kell. Nulla Drive
+mellett a két út impulzusválasza azonos, a csúcs 32 hostmintánál van,
+a másik csatorna néma. A default Drive és production DSP továbbra sem vált át.
+
+A main auditjavításait a PR új fejlesztési commitja is tartalmazza.
+A Windows parancsfuttató környezeti hibája miatt helyi fordítás és új
+CPU-mérés nincs; a friss Windows/macOS és sanitizer CI eredményét a PR
+rögzíti. Időzítési küszöböt nem vezettünk be. Célgépes páros ismétlés,
+kis-bufferes deadline-eloszlás, minőségpolicy és natív integráció nyitott.
