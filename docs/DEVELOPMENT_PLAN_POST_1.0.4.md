@@ -458,3 +458,5 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 
 - Első külön Drive-kör: Windows 2x arány 0,935–0,943, 4x 0,906–0,907; macOS 2x 0,919–0,937, 4x 0,787–0,844. CSV/provenance tartósan rögzítve.
 - Ugyanazon Windows job 192 kHz-es motorideje semleges (~1,000); a korábbi 3%-os lassulás most nem ismétlődött. macOS motor p50 javul, de néhány tail/túllépési eset romlik. Gyökérok vagy shipping CPU-elfogadás ebből nem állapítható meg.
+
+- Kódazonos ismétlés: macOS külön 192 kHz/2x Drive arány 1,072197 (~7% lassulás), szemben az első 0,919041 értékkel. A negatív eredmény CSV/provenance-nal dokumentálva. Windows külön Drive továbbra gyorsabb, teljesmotoros 192 kHz nyereség csekély (~0,997); stabil/célgépes CPU-garancia nincs.

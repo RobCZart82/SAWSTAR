@@ -1595,3 +1595,37 @@ Tartós [Windows Drive CSV](../experiments/premium_filter/measurements/2026-10-0
 [provenance](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-provenance.json).
 A teljesmotoros CSV/nyers blokkok, Drive-riport és compilerleírás a
 provenance-ban jelölt 90 napos artifactokban találhatók.
+
+#### Kódazonos ismétlés: a mikromérés sem stabil platformígéret
+
+Forrás `d34af2c8de4cbd625dfbcac0a79bcfb9d326ff38`, run
+[37439394722](https://github.com/RobCZart82/SAWSTAR/actions/runs/37439394722).
+A mérőkód, riportoló és workflow blobjai egyeznek az első körével.
+Mindkét bitazonossági fixture, a 24-páros riport és 13 elutasító kontroll
+ismét sikeres; a CSV-ből külön újraszámolt arányok egyeznek.
+
+| Faktor | Ráta | Windows SIMD/scalar | macOS SIMD/scalar |
+| --- | --- | ---: | ---: |
+| 2x | 48000 | 0.926666 | 0.976356 |
+| 2x | 96000 | 0.941457 | 0.909814 |
+| 2x | 192000 | 0.943974 | 1.072197 |
+| 4x | 48000 | 0.902477 | 0.846782 |
+| 4x | 96000 | 0.898998 | 0.866188 |
+| 4x | 192000 | 0.900633 | 0.843603 |
+
+A macOS külön 192 kHz/2x arány most **1,072197 (~7% nagyobb idő)**,
+az első 0,919041 ellenében. Ez negatív kutatási eredmény; a külön
+Drive-mérésből sem állítható stabil platform-CPU-nyereség négy pár alapján.
+A Windows 2x nyereség e két körben hasonló, de nem célgépes igazolás.
+
+Ugyanazon jobban a macOS motor 192 kHz p50 arányai
+0,972643 / 0,979203 / 0,994326; a túllépések
+805→805 / 671→784 / 871→977. A Windows motor p50 arányai
+0,996281 / 0,996820 / 0,996726, mindenütt 4096/4096 túllépéssel.
+A motor és a mikromérés iránya eltérhet. További profil és célgépes,
+hosszabb ismétlés szükséges, shipping/default átállítás nincs.
+
+Tartós [Windows ismétlés CSV](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-repeat-windows.csv),
+[macOS ismétlés CSV](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-repeat-macos.csv),
+[ismétlés provenance](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-repeat-provenance.json).
+A végleges PR-head további ellenőrzései a PR leírásában szerepelnek.
