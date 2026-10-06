@@ -1404,3 +1404,35 @@ Mindkét 73 728 soros nyers blokkadat a megjelölt run artifactjában marad
 90 napig. A riport ellenőrizte az összes nyers kulcsot és az abból
 újraszámolt statisztikát; a repository-ba emelt CSV páros arányait külön
 újraszámolás egyeztette a job riportjával.
+
+
+## Rátafüggő SIMD FIR-jelölt — 2026-10-06 (minősítés folyamatban)
+
+A fix 4x SIMD-jelölt után a meglévő kutatási 4x/2x policy külön SIMD-változata
+következik. A `BasicRateScaledPremiumDrive<VectorFir>` alapértéke false;
+a régi `RateScaledPremiumDrive` skaláris alias marad. A külön SIMD alias
+és generált motornévtér ugyanazt a policyt használja: Init során a
+`SafeSampleRate` által float-ra normalizált ráta 176 400 Hz alatt 4x,
+ettől kezdve 2x. Élő streamben nincs faktorváltás. Ez nem shipping policy.
+
+A rátafüggő scalar/SIMD út 66 447 sztereó frame-en kap külön bitazonossági
+kontrollt, explicit 2x vagy 4x oracle ellen. Lefedett a NaN/Inf, negatív,
+clampelt és határközeli ráta, dinamikus Drive, hibás csatorna/kontroll,
+clear, élő másolat és mindkét irányú reinit. A 176399,999 Hz bemenet float-ra
+kerekítve 176400: a teszt megőrzi ezt a már meglévő normalizálási szerződést.
+Méret/késleltetés fordítási kontroll, az impulzuscsúcs 32 hostminta.
+
+Az új páros teljesmotor-mérés mindkét oldalon a rátafüggő policyt használja:
+48/96 kHz-en 4x, 192 kHz-en 2x; scalar vs SIMD, `std::tanh` mindkét oldalon.
+Ez elkülöníti a SIMD költségét a 4x→2x hangváltozástól. Nem közvetlen
+fix-4x vs adaptív CPU-összehasonlítás, a régi kampányok abszolút blokkideje
+nem hordozható át új runnerre. A korábbi magasrátás spektrum- és hibakontroll
+megmarad; ez nem teljes aliasing/hallásos policy-elfogadás.
+
+A program külön `factors.csv` fájlba rögzíti a fordított útválasztást.
+A riport összeveti a három ráta mindkét faktorát a study-címkével, majd
+metadata-ban rate→factor térképet ment; a rátafüggő mérés nem kap hamis
+fix-4x címkét. A CMake ellenőrzi a rátafüggő adapter generálási horgonyát.
+Windows/macOS Release külön jobokban, a megszokott 288 összesítő/73 728
+nyers blokk mellett készül. Eredmény és teljes platform-CI még folyamatban.
+A natív CPU/minőség/preset elfogadás és az éles integráció nyitott.

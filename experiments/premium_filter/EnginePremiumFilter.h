@@ -55,4 +55,5 @@ using TanhStudyEnginePremiumFilter = BasicEnginePremiumFilter<FixedRatePremiumDr
 // Separate FIR study keeps std::tanh and the fixed 4x policy.
 using SimdStudyEnginePremiumFilter = BasicEnginePremiumFilter<FixedRatePremiumDrive<4, true, false, true>>;
 using RateScaledEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledPremiumDrive>;
+using RateScaledSimdEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledSimdPremiumDrive>;
 }

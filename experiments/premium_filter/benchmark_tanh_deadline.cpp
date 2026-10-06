@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: MIT
 // Offline paired complete-engine study. Timings never gate CI.
+#if defined(SAWSTAR_RATE_SIMD_FIR_STUDY)
+#include "RatePremiumSynth.h"
+#include "RateSimdPremiumSynth.h"
+#else
 #include "PremiumSynth.h"
 #ifdef SAWSTAR_SIMD_FIR_STUDY
 #include "SimdPremiumSynth.h"
 #else
 #include "TanhPremiumSynth.h"
+#endif
 #endif
 #include <algorithm>
 #include <array>
@@ -19,11 +24,16 @@
 #include <string>
 #include <vector>
 
+#if defined(SAWSTAR_RATE_SIMD_FIR_STUDY)
+using Reference = sawstar::experimental_rate_engine::Synth;
+using Study = sawstar::experimental_rate_simd_engine::Synth;
+#else
 using Reference = sawstar::experimental_engine::Synth;
 #ifdef SAWSTAR_SIMD_FIR_STUDY
 using Study = sawstar::experimental_simd_engine::Synth;
 #else
 using Study = sawstar::experimental_tanh_engine::Synth;
+#endif
 #endif
 struct Distribution {
   double median=0,p95=0,p99=0,worst=0;
@@ -119,8 +129,23 @@ void Row(std::ostream& summary,std::ostream& raw,const char* label,double rate,
 }
 void Benchmark(const std::filesystem::path& folder) {
   std::filesystem::create_directories(folder);
+  // Record compiled routing separately from the workflow's study label.
+  std::ofstream factors(folder/"factors.csv");
+  factors << "rate,reference_factor,study_factor\n";
+  for (double rate : {48000., 96000., 192000.}) {
+#if defined(SAWSTAR_RATE_SIMD_FIR_STUDY)
+    sawstar::experimental::RateScaledPremiumDrive reference;
+    sawstar::experimental::RateScaledSimdPremiumDrive study;
+    reference.Init(rate); study.Init(rate);
+    factors << rate << ',' << reference.Factor() << ',' << study.Factor() << '\n';
+#else
+    factors << rate << ",4,4\n";
+#endif
+  }
+  factors.close();
+  if (!factors) throw std::runtime_error("Cannot record compiled routing");
   std::ofstream backend(folder/"backend.txt");
-#ifdef SAWSTAR_SIMD_FIR_STUDY
+#if defined(SAWSTAR_SIMD_FIR_STUDY) || defined(SAWSTAR_RATE_SIMD_FIR_STUDY)
   backend<<sawstar::experimental::detail::FirLanes4::Backend<<'\n';
 #else
   backend<<"scalar-source\n";

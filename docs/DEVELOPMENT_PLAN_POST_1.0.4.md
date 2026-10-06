@@ -437,3 +437,11 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 - [x] Páros Windows/macOS CPU-adatsor és tartós összesítő/provenance. Az első p50-arány Windows 0,932–0,938, macOS 0,886–0,933; néhány tail/túllépési eset romlott.
 - [ ] Célgépes deadline/minőség QA és magasrátás policy lezárása. Fix 4x magas rátákon a kutatási motor többnyire továbbra is túllépi az audioidőt.
 - [ ] Éles integráció/preset elfogadás. A SIMD opció alapértéke false; production rate-policy változatlan. Részletek és korlátok a `PREMIUM_FILTER_DEVELOPMENT.md` utolsó szakaszában.
+
+
+### 2026-10-06: rátafüggő SIMD továbblépés
+
+- A meglévő, Init-on választó kutatási 4x/2x út külön SIMD-jelöltet kap; scalar alapérték és 176,4 kHz-es normalizált határ megmarad.
+- Új határ/hibásráta/állapot kontroll: 66 447 frame scalar és SIMD egyezése explicit fix-faktor oracle-lel.
+- Új páros motoradatok 48/96 kHz 4x és 192 kHz 2x mellett; a fordított faktorok külön ellenőrzött metadata-ban szerepelnek.
+- CI- és CPU-eredmények folyamatban. A shipping rate-policy, natív QA és production filtercsere továbbra is nyitott.
