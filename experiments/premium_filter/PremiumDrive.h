@@ -2,6 +2,7 @@
 #pragma once
 #include "dsp/Safety.h"
 #include "ResearchTanh.h"
+#include "FirLanes4.h"
 #include <array>
 #include <cmath>
 
@@ -10,7 +11,8 @@ namespace sawstar::experimental {
 // Interpolation keeps only host-rate samples, never inserting/storing zeros.
 // Only retained decimator phases convolve. ReferencePremiumDrive is the full oracle.
 // Nonlinear=false is an offline cost control, never a selectable sound mode.
-template<unsigned Factor, bool Nonlinear = true, bool Research = false> class FixedRatePremiumDrive {
+// VectorFir=true is a separately qualified research candidate; default remains scalar.
+template<unsigned Factor, bool Nonlinear = true, bool Research = false, bool VectorFir = false> class FixedRatePremiumDrive {
   static_assert(Factor == 2 || Factor == 4, "Research factors are 2x and 4x");
 public:
   static constexpr int Latency = 32;
@@ -80,6 +82,21 @@ private:
     static_assert(Phase < Factor, "Invalid interpolation phase");
     const double* history = fir.history.data() + fir.cursor + HostRingSize;
     const double* taps = phaseTaps_[Phase].data();
+    if constexpr (VectorFir) {
+      detail::FirLanes4 sums;
+      if constexpr (((TapCount - 1 - Phase) % Factor) == Phase) {
+        constexpr unsigned last = Phase == 0 ? PhaseTapCount - 1 : PhaseTapCount - 2;
+        for (unsigned i = 0; i < HalfPhase; i += 4)
+          sums.Symmetric(taps + i, history - i, history - last + i);
+        double y = sums.Sum();
+        if constexpr (Phase == 0) y += taps[HalfPhase] * *(history - HalfPhase);
+        return y;
+      } else {
+        for (unsigned i = 0; i < PhaseTapCount - 1; i += 4)
+          sums.Straight(taps + i, history - i);
+        return sums.Sum();
+      }
+    }
     std::array<double, 4> sums{};
     double y = 0;
     if constexpr (((TapCount - 1 - Phase) % Factor) == Phase) {
@@ -112,18 +129,27 @@ private:
     double y = 0;
     if constexpr (Output) {
       const double* history = fir.history.data() + fir.cursor + 256;
-      std::array<double, 4> sums{};
-      unsigned i = 0;
-      for (; i + 3 < Center; i += 4) {
-        for (unsigned lane = 0; lane < 4; ++lane) {
-          const unsigned tap = i + lane;
-          sums[lane] += taps_[tap] * (*(history - tap) + *(history - (TapCount - 1 - tap)));
+
+      if constexpr (VectorFir) {
+        detail::FirLanes4 sums;
+        for (unsigned i = 0; i < Center; i += 4)
+          sums.Symmetric(taps_.data() + i, history - i, history - (TapCount - 1) + i);
+        y = sums.Sum();
+        y += taps_[Center] * *(history - Center);
+      } else {
+        std::array<double, 4> sums{};
+        unsigned i = 0;
+        for (; i + 3 < Center; i += 4) {
+          for (unsigned lane = 0; lane < 4; ++lane) {
+            const unsigned tap = i + lane;
+            sums[lane] += taps_[tap] * (*(history - tap) + *(history - (TapCount - 1 - tap)));
+          }
         }
+        y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
+        for (; i < Center; ++i)
+          y += taps_[i] * (*(history - i) + *(history - (TapCount - 1 - i)));
+        y += taps_[Center] * *(history - Center);
       }
-      y = (sums[0] + sums[1]) + (sums[2] + sums[3]);
-      for (; i < Center; ++i)
-        y += taps_[i] * (*(history - i) + *(history - (TapCount - 1 - i)));
-      y += taps_[Center] * *(history - Center);
     }
     fir.cursor = (fir.cursor + 1) & 255;
     return y;

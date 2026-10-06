@@ -428,3 +428,11 @@ eredetjegyzék tartósan rögzített; a nyers blokkok CI-artifactokban vannak.
 Ez egy megosztott runneres kör, nem natív vagy platformfüggetlen CPU-bizonyíték.
 A normál út átváltása nem indokolt. Következik a nagyobb FIR/teljesmotor-költség
 optimalizálása és célgépes ismétlés; részletek a filterdokumentum új táblájában.
+
+
+### 2026-10-06: independent SIMD FIR qualification
+
+- Add an opt-in SSE2/NEON research candidate preserving coefficients, saturation and scalar lane/reduction order; explicit scalar fallback elsewhere.
+- Add direct bit-identity regression controls for 2x/4x and a separate complete-engine fixture.
+- Extend paired Windows/macOS measurements to report the SIMD candidate independently from the exp-based tanh candidate, including source/backend/compiler provenance.
+- CPU/audio results pending CI. Defaults and production rate policy remain unchanged; native host/preset qualification is still open. Detailed findings belong in `PREMIUM_FILTER_DEVELOPMENT.md`.

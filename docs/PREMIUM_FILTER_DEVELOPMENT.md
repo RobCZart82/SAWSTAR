@@ -1307,3 +1307,15 @@ Mindkét 288 soros összesítő tartósan a repository-ban:
 [Forrás, compiler és job/artifact eredet](../experiments/premium_filter/measurements/2026-10-06-tanh-deadline-provenance.json).
 A két 73 728 soros nyers blokkfájl a megjelölt jobok 90 napos artifactjában van;
 lejárat után a rögzített forrással újra kell mérni.
+
+### SIMD FIR research candidate (2026-10-06; qualification pending)
+
+The next CPU study isolates FIR arithmetic from saturation: `FixedRatePremiumDrive<Factor, true, false, true>` retains `std::tanh`, coefficients, 32-host-sample latency, history layout and gain smoothing. The fourth template option defaults to false. The generated SIMD engine lives in a separate namespace and is an offline fixed-4x probe, not a production sound mode or policy change.
+
+`FirLanes4.h` packs four independent double accumulators into two SSE2/NEON vectors. Descending ring-history loads reverse the two lanes; symmetric second loads and taps ascend. Reduction stays `(s0+s1)+(s2+s3)`. Each load consumes exactly four valid samples; no padding is required, no state/allocation is added. x64 SSE2 and Apple Clang AArch64 NEON are explicit backends; unsupported configurations use a labelled scalar fallback. Scoped Clang contraction control applies to the candidate convolution arithmetic; no global fast-math policy changes. References: [Arm NEON intrinsics](https://arm-software.github.io/acle/neon_intrinsics/advsimd.html), [Clang scoped floating-point controls](https://clang.llvm.org/docs/LanguageExtensions.html).
+
+The new CTest checks the primitive at double bit level (including a negative unreversed-history control) and 998,400 stereo output frames for 2x/4x at six rates (8–384 kHz), dynamic Drive, clearing, invalid inputs, nonzero-state copying, ring-boundary impulses and reinitialization. Size and latency are compile-time controls. The existing frozen scalar/FIR controls remain. The complete-engine fixture compares all four filter modes at 48/96/192 kHz with 16 sounding Poly voices and FX.
+
+The paired deadline workflow now measures both tanh and SIMD-FIR candidates independently on Windows x64/macOS ARM64: 32/64/128 buffers, four alternating pairs, 256 measured blocks per path/pair, 0.25 s warmup. Each campaign keeps 288 summary rows, 73,728 raw blocks, source SHA, backend and compiler metadata in separate artifacts. Signal checks and initialization stay outside timing. No noisy shared-runner timing threshold is added. Results and adoption decision are pending; native REAPER QA and preset compatibility remain prerequisites for production integration.
+
+Background from PR #65: its repeated code-identical tanh campaign reversed the small Windows p50 direction (first study/reference 1.013–1.023; repeat 0.981–0.989). macOS retained a p50 gain, but the 96 kHz/64-buffer p99 worsened in both runs. Fixed-4x high-rate full-engine scenes exceeded the host budget broadly. These observations justify measuring the full FIR candidate and retaining native QA gates; they do not establish a production high-rate bug or a portable CPU guarantee.

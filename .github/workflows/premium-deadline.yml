@@ -16,13 +16,31 @@ concurrency:
   cancel-in-progress: true
 jobs:
   measure:
-    name: Premium deadline / ${{ matrix.os }}
+    name: Premium deadline / ${{ matrix.study }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, macos-14]
+        include:
+          - os: windows-2022
+            study: tanh
+            target: sawstar_premium_tanh_deadline
+            contract: premium_tanh_deadline_fixture
+          - os: macos-14
+            study: tanh
+            target: sawstar_premium_tanh_deadline
+            contract: premium_tanh_deadline_fixture
+          - os: windows-2022
+            study: simd-fir
+            target: sawstar_premium_simd_deadline
+            contract: premium_simd_deadline_fixture
+          - os: macos-14
+            study: simd-fir
+            target: sawstar_premium_simd_deadline
+            contract: premium_simd_deadline_fixture
+    env:
+      SAWSTAR_PREMIUM_STUDY: ${{ matrix.study }}
     defaults:
       run:
         shell: bash
@@ -36,15 +54,15 @@ jobs:
       - name: Configure Release research probes
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON
       - name: Build paired probe only
-        run: cmake --build build --config Release --target sawstar_premium_tanh_deadline --parallel 2
+        run: cmake --build build --config Release --target ${{ matrix.target }} sawstar_premium_simd_tests --parallel 2
       - name: Validate sounding fixture and percentile controls
-        run: ctest --test-dir build -C Release -R '^premium_tanh_deadline_fixture$' --output-on-failure
+        run: ctest --test-dir build -C Release -R '^(premium_drive_simd_identity|${{ matrix.contract }})$' --verbose
       - name: Record paired wall time distributions
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            build/Release/sawstar_premium_tanh_deadline.exe --deadline deadline-results
+            build/Release/${{ matrix.target }}.exe --deadline deadline-results
           else
-            build/sawstar_premium_tanh_deadline --deadline deadline-results
+            build/${{ matrix.target }} --deadline deadline-results
           fi
       - name: Verify raw data and report paired ratios
         run: python scripts/report-premium-deadline.py deadline-results
@@ -54,7 +72,7 @@ jobs:
           find build/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' deadline-results/compiler/ \;
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: premium-deadline-${{ matrix.os }}
+          name: premium-deadline-${{ matrix.study }}-${{ matrix.os }}
           path: deadline-results/
           if-no-files-found: error
           retention-days: 90
