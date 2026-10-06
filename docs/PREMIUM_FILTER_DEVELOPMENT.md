@@ -1528,3 +1528,104 @@ Tartós [Windows ismétlés CSV](../experiments/premium_filter/measurements/2026
 [macOS ismétlés CSV](../experiments/premium_filter/measurements/2026-10-06-rate-simd-repeat-macos-summary.csv),
 [ismétlés provenance](../experiments/premium_filter/measurements/2026-10-06-rate-simd-repeat-provenance.json).
 A végleges PR-head további CI-eredményeit a PR leírása rögzíti.
+
+### 2026-10-06: izolált Drive-profilozás és CI-trigger javítása
+
+A teljesmotoros Windows 192 kHz/2x lassulási jel okának szűkítéséhez
+a rátafüggő SIMD CI külön futtatja a meglévő Drive-mikromérést:
+2x/4x, 48/96/192 kHz, 16 példány, 20 dB, négy váltott sorrendű pár,
+16 384 időzített frame és 1024 előmelegítő frame példányonként.
+Az inicializálás és előmelegítés az időzítésen kívül, a checksum-összegzés
+belül van. Ez teljes Drive-költség, nem tiszta FIR-profil; a szintetizátor,
+lowpass, FX és host-wrapper kimarad. Ebből önmagában nem állapítható meg
+a teljesmotoros lassulás oka.
+
+A CSV 17 számjegyes időértékeket őriz. Az új
+`scripts/report-premium-drive.py` ellenőrzi a 24 páros sor teljes rácsát,
+a fixture-paramétereket és a pozitív véges időket/arányokat; önellenőrzése
+hiányos, duplikált, hibásan címkézett és érvénytelen időadatokat utasít el.
+A riport és CSV a teljesmotoros adatokkal közös, forrásazonosítóval ellátott
+90 napos artifactba kerül, és a job naplója is kiírja a CSV-t.
+Nincs teljesítményküszöb vagy natív realtime elfogadás.
+
+Konkrét CI-hiányosság javítva: a dedikált workflow path-filtere korábban
+nem tartalmazta a két SIMD identitásteszt forrását, így azok önálló
+módosítása nem indította a kutatási méréseket. Most mindkét teszt és az új
+riportoló is trigger. Shipping DSP/default/policy nem változik.
+
+#### Első izolált eredmények és teljesmotoros összevetés
+
+Mért forrás: `0486fb361cd63c81f99437d81e400ef5f045c36a`, run
+[37438349107](https://github.com/RobCZart82/SAWSTAR/actions/runs/37438349107).
+Windows MSVC 19.44.35229.0/SSE2, macOS ARM64 AppleClang 15/NEON.
+Mindkét platformon 998 400 fix és 66 447 rátafüggő frame bitazonos.
+A riportoló 24 valódi párt ellenőrzött, és 13 hibás önellenőrző fixture-t
+utasított el. A táblázat arányait a CSV-ből külön újraszámolás egyeztette.
+
+| Faktor | Ráta | Windows SIMD/scalar | macOS SIMD/scalar |
+| --- | --- | ---: | ---: |
+| 2x | 48000 | 0.940097 | 0.937298 |
+| 2x | 96000 | 0.934893 | 0.920793 |
+| 2x | 192000 | 0.942754 | 0.919041 |
+| 4x | 48000 | 0.906242 | 0.786856 |
+| 4x | 96000 | 0.906420 | 0.831826 |
+| 4x | 192000 | 0.907348 | 0.844291 |
+
+A Windows 192 kHz/2x külön Drive-aránya 0,942754 (~6% kisebb idő);
+ugyanazon job teljesmotoros p50 aránya 1,000000 / 1,000077 / 0,999865
+32/64/128 frame mellett: lényegében semleges. Ebben a körben a korábbi
+~3%-os teljesmotoros lassulás nem ismétlődött meg. A 192 kHz-es motor
+mindkét útján 4096/4096 túllépés maradt mindhárom puffernél.
+
+macOS 192 kHz/2x külön Drive-aránya 0,919041 (~8% kisebb idő);
+a motor p50 aránya 0,970588 / 0,965768 / 0,953826.
+A 32-frame p99 ugyanakkor 1,018620, a túllépések 40→84;
+64 frame esetén 8→11, 128 frame esetén 22→3. Mediánnyereségből
+nem következik általános tail/deadline-javulás.
+
+A külön bank azonos szintetikus sinus/cosinus bemenetet ad mind a 16
+példánynak, rögzített gainnel; eltér a teljes motor hangjától és
+állapot-/cache-/kódelrendezésétől. Az eredmény a vizsgálatot szűkíti,
+de nem igazolja sem a FIR gyökérokot, sem annak kizárását.
+Következő nyitott lépés a teljesmotoros profil/fordított kód és
+célgépes ismétlés; shipping/default aktiválás továbbra sincs.
+
+Tartós [Windows Drive CSV](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-windows.csv),
+[macOS Drive CSV](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-macos.csv),
+[provenance](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-provenance.json).
+A teljesmotoros CSV/nyers blokkok, Drive-riport és compilerleírás a
+provenance-ban jelölt 90 napos artifactokban találhatók.
+
+#### Kódazonos ismétlés: a mikromérés sem stabil platformígéret
+
+Forrás `d34af2c8de4cbd625dfbcac0a79bcfb9d326ff38`, run
+[37439394722](https://github.com/RobCZart82/SAWSTAR/actions/runs/37439394722).
+A mérőkód, riportoló és workflow blobjai egyeznek az első körével.
+Mindkét bitazonossági fixture, a 24-páros riport és 13 elutasító kontroll
+ismét sikeres; a CSV-ből külön újraszámolt arányok egyeznek.
+
+| Faktor | Ráta | Windows SIMD/scalar | macOS SIMD/scalar |
+| --- | --- | ---: | ---: |
+| 2x | 48000 | 0.926666 | 0.976356 |
+| 2x | 96000 | 0.941457 | 0.909814 |
+| 2x | 192000 | 0.943974 | 1.072197 |
+| 4x | 48000 | 0.902477 | 0.846782 |
+| 4x | 96000 | 0.898998 | 0.866188 |
+| 4x | 192000 | 0.900633 | 0.843603 |
+
+A macOS külön 192 kHz/2x arány most **1,072197 (~7% nagyobb idő)**,
+az első 0,919041 ellenében. Ez negatív kutatási eredmény; a külön
+Drive-mérésből sem állítható stabil platform-CPU-nyereség négy pár alapján.
+A Windows 2x nyereség e két körben hasonló, de nem célgépes igazolás.
+
+Ugyanazon jobban a macOS motor 192 kHz p50 arányai
+0,972643 / 0,979203 / 0,994326; a túllépések
+805→805 / 671→784 / 871→977. A Windows motor p50 arányai
+0,996281 / 0,996820 / 0,996726, mindenütt 4096/4096 túllépéssel.
+A motor és a mikromérés iránya eltérhet. További profil és célgépes,
+hosszabb ismétlés szükséges, shipping/default átállítás nincs.
+
+Tartós [Windows ismétlés CSV](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-repeat-windows.csv),
+[macOS ismétlés CSV](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-repeat-macos.csv),
+[ismétlés provenance](../experiments/premium_filter/measurements/2026-10-06-isolated-drive-repeat-provenance.json).
+A végleges PR-head további ellenőrzései a PR leírásában szerepelnek.

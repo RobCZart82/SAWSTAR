@@ -1,0 +1,39 @@
+{
+  "date_utc": "2026-10-06",
+  "source_sha": "0486fb361cd63c81f99437d81e400ef5f045c36a",
+  "workflow_run": 37438349107,
+  "windows": {
+    "job": 112185630300,
+    "artifact": 11401060583,
+    "compiler": "MSVC 19.44.35229.0",
+    "backend": "SSE2",
+    "drive_csv": "2026-10-06-isolated-drive-windows.csv"
+  },
+  "configuration": "Release",
+  "factor_grid": [
+    2,
+    4
+  ],
+  "rate_grid": [
+    48000,
+    96000,
+    192000
+  ],
+  "voices": 16,
+  "drive_db": 20,
+  "pairs": 4,
+  "timed_frames_per_instance": 16384,
+  "warmup_frames_per_instance": 1024,
+  "checksum_inside_timing": true,
+  "alternate_pair_order": true,
+  "native_host_acceptance": false,
+  "artifact_retention_days": 90,
+  "macos": {
+    "job": 112185630558,
+    "artifact": 11400965656,
+    "compiler": "AppleClang 15.0.0.15000309",
+    "backend": "NEON",
+    "drive_csv": "2026-10-06-isolated-drive-macos.csv"
+  },
+  "interpretation": "Whole Drive bank microbenchmark, checksum inside timing, identical synthetic inputs across instances. Not isolated FIR instruction cost or native host acceptance."
+}

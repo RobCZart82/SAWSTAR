@@ -8,6 +8,9 @@ on:
       - 'src/dsp/**'
       - 'experiments/premium_filter/**'
       - 'scripts/report-premium-deadline.py'
+      - 'scripts/report-premium-drive.py'
+      - 'tests/premium_drive_simd.cpp'
+      - 'tests/premium_drive_rate_simd.cpp'
   workflow_dispatch:
 permissions:
   contents: read
@@ -74,6 +77,17 @@ jobs:
           fi
       - name: Verify raw data and report paired ratios
         run: python scripts/report-premium-deadline.py deadline-results
+      - name: Measure isolated Drive cost
+        if: matrix.study == 'rate-simd-fir'
+        run: |
+          python scripts/report-premium-drive.py --self-test
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            build/Release/sawstar_premium_simd_tests.exe --benchmark > deadline-results/drive.csv
+          else
+            build/sawstar_premium_simd_tests --benchmark > deadline-results/drive.csv
+          fi
+          python scripts/report-premium-drive.py deadline-results
+          cat deadline-results/drive.csv
       - name: Preserve compiler description
         run: |
           mkdir -p deadline-results/compiler
