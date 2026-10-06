@@ -173,6 +173,15 @@ bemenetskálán kb. 28% kisebb idő, ami nem teljes Drive/motor gyorsulás.
 Következik a jelölt külön túlmintavételezett Drive-, spektrális és CPU-próbája;
 a normál hangút, CPU-kapu és minőségpolitika egyelőre változatlan.
 
+A #62 beolvadt (`c53d025`). A telítésjelölt külön Drive- és teljes 4x
+motor-probe mérföldköve elkészült: 72 Drive-eset és 12 Poly/FX motor-fixture
+a rögzített eltérési korlátokon belül, helyben nulla float kimeneti eltérés.
+Három célzott Release és két új ASan/UBSan regresszió sikeres. Páros helyi
+mérésben kb. 7–8% Drive és 5–6% teljesmotor-időcsökkenés; ez nem natív
+realtime elfogadás. A normál Drive nem vált át. Következő kapu a Windows/macOS
+ismétlés, szélesebb moduláció/spektrum és kis-bufferes deadline-próba; csak
+utána dönthető el a jelölt átvétele és a végleges engine-integráció.
+
 Részletes filterkövetelmények és első eredmények:
 [prémium filter fejlesztése](PREMIUM_FILTER_DEVELOPMENT.md).
 Az alábbi korábbi sorrend a feladatok technikai háttere; az aktív prioritást
@@ -381,3 +390,15 @@ A kutatási filtermunka elkészült részei nem jelentik a production filtercser
 lezárását. A CPU/minőségpolicy, integráció, natív hostelfogadás, presetek,
 kézikönyvek és következő kiadás továbbra is nyitott. A #63 kutatási PR a
 vizsgált main revisionön még nyitott; munkáját ez a hibajavítás nem írja felül.
+
+
+## Telítésjelölt szélesebb regressziója — 2026-10-06
+
+A #63 külön Drive-jelöltjének próbája további 288 gerjesztési esetet kap:
+2x/4x, hat ráta, három amplitúdó, magas koherens hang, chirp, determinisztikus
+zaj és bipoláris impulzussor; állandó vagy mintánként változó Drive.
+Mindkét csatorna teljes egyoldalas eltérésspektrumát vizsgálja, DC/Nyquist
+végpontokkal és negatív kontrollokkal. Élő FIR-állapot másolása, hibás
+csatorna izolációja, clear-csend és 32 mintás impulzuscsúcs is ellenőrzött.
+Az elfogadást a friss összevont PR CI-je igazolja; új helyi CPU-mérés nem
+készült. A normál út átváltása, kis-bufferes CPU-kapu és natív QA nyitott.

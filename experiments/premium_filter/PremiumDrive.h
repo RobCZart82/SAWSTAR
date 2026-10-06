@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "dsp/Safety.h"
+#include "ResearchTanh.h"
 #include <array>
 #include <cmath>
 
@@ -9,7 +10,7 @@ namespace sawstar::experimental {
 // Interpolation keeps only host-rate samples, never inserting/storing zeros.
 // Only retained decimator phases convolve. ReferencePremiumDrive is the full oracle.
 // Nonlinear=false is an offline cost control, never a selectable sound mode.
-template<unsigned Factor, bool Nonlinear = true> class FixedRatePremiumDrive {
+template<unsigned Factor, bool Nonlinear = true, bool Research = false> class FixedRatePremiumDrive {
   static_assert(Factor == 2 || Factor == 4, "Research factors are 2x and 4x");
 public:
   static constexpr int Latency = 32;
@@ -67,7 +68,12 @@ private:
   template<unsigned Phase> double ProcessPhase(const HostFir& up, Fir& down) {
     const double x = Interpolate<Phase>(up);
     double shaped = x;
-    if constexpr (Nonlinear) shaped = gain_ == 1 ? x : std::tanh(gain_ * x) / gain_;
+    if constexpr (Nonlinear) {
+      if (gain_ != 1) {
+        if constexpr (Research) shaped = ResearchTanh(gain_ * x) / gain_;
+        else shaped = std::tanh(gain_ * x) / gain_;
+      }
+    }
     return Tick<Phase == 0>(down, shaped);
   }
   template<unsigned Phase> double Interpolate(const HostFir& fir) const {

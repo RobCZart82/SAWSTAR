@@ -50,5 +50,7 @@ private:
   double slew_ = 0, mix_ = 0, targetMix_ = 0;
 };
 using EnginePremiumFilter = BasicEnginePremiumFilter<PremiumDrive>;
+// Separate offline tanh study; never selected by the production Synth.
+using TanhStudyEnginePremiumFilter = BasicEnginePremiumFilter<FixedRatePremiumDrive<4, true, true>>;
 using RateScaledEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledPremiumDrive>;
 }
