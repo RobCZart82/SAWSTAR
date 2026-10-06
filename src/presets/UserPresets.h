@@ -16,10 +16,10 @@ inline fs::path UserPresetFolder(){
  wchar_t* value=nullptr;
  if(::_wdupenv_s(&value,nullptr,L"APPDATA")!=0)return {};
  std::unique_ptr<wchar_t,decltype(&std::free)> home(value,&std::free);
- return home?fs::path(home.get())/"SAWSTAR"/"Presets":fs::path{};
+ return home&&*home?fs::path(home.get())/"SAWSTAR"/"Presets":fs::path{};
 #else
  const char* home=std::getenv("HOME");
- return home?fs::path(home)/"Library"/"Application Support"/"SAWSTAR"/"Presets":fs::path{};
+ return home&&*home?fs::path(home)/"Library"/"Application Support"/"SAWSTAR"/"Presets":fs::path{};
 #endif
 }
 // UI/file operations only: canonical Unicode lowercase key, preserving accents.
