@@ -348,8 +348,10 @@ def gh(args, **kwargs):
         if '/actions/runs?' in endpoint:
             return json.dumps(dict(workflow_runs=runs))
         if endpoint.endswith('/artifacts'):
+            run_id = int(endpoint.split('/')[-2])
+            platform_names = names[:1] if run_id == 1 else names[1:] if run_id == 2 else []
             artifacts = [] if scenario == 'coverage' else [
-                dict(name=name, expired=scenario == 'expired') for name in names]
+                dict(name=name, expired=scenario == 'expired') for name in platform_names]
             return json.dumps(dict(artifacts=artifacts))
         raise RuntimeError('Unexpected API: ' + endpoint)
     if args[1:3] == ['run', 'download']:
@@ -364,7 +366,8 @@ def gh(args, **kwargs):
         for index, suffix in enumerate(suffixes):
             version = '1.0.3' if scenario == 'version' else '1.0.4'
             prefix = 'foreign-' if scenario == 'prefix' else ''
-            (dest / (prefix + 'SAWSTAR-' + version + '-Installer-' + str(index) + suffix)).write_bytes(b'installer')
+            platform = dest.name.removesuffix('-candidate').removeprefix('SAWSTAR-')
+            (dest / (prefix + 'SAWSTAR-' + version + '-' + platform + '-' + str(index) + suffix)).write_bytes(b'installer')
         return ''
     raise RuntimeError('Unexpected command: ' + repr(args))
 def write_draft(*args):
