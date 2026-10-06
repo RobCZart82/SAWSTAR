@@ -418,3 +418,13 @@ forrásazonosítót, ellenőrzi a CSV teljességét, és 90 napos artifactot men
 Az időzítés nem CI-küszöb, nem host-wrapper vagy natív realtime elfogadás.
 A kis-pufferes jelöltadatok alapján kell értékelni a további CPU-munkát;
 a normál kutatási/production hangút átváltása és natív QA továbbra is nyitott.
+
+
+Első eredmény a `b0fbebf` mért forrásból:
+Windows x64 medián blokkidő kb. 1–2%-kal nagyobb, macOS ARM64 kb. 4–5%-kal
+kisebb a jelölttel. A p99 nem mindenütt javul; 4x/192 kHz-en mindkét
+platformon minden mért blokk túllépte az audioidőt. A két összesítő CSV és
+eredetjegyzék tartósan rögzített; a nyers blokkok CI-artifactokban vannak.
+Ez egy megosztott runneres kör, nem natív vagy platformfüggetlen CPU-bizonyíték.
+A normál út átváltása nem indokolt. Következik a nagyobb FIR/teljesmotor-költség
+optimalizálása és célgépes ismétlés; részletek a filterdokumentum új táblájában.

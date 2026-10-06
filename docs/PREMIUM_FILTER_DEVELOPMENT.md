@@ -1261,3 +1261,49 @@ compiler-leírás, nyers CSV és riport artifactban marad 90 napig; az összesí
 Nincs CPU/időzítési pass/fail küszöb. Közös CI-gép wall-clock szórása és
 eltérő compiler miatt natív célgépes ismétlés nélkül nincs általános CPU-ígéret.
 A CPU-kapu, magas rátás policy és végleges filterintegráció továbbra is nyitott.
+
+
+### Első páros CI-mérés eredménye
+
+Mért forrás: `b0fbebfb18d02d89313a17cfcd7e4b17eed297ae`; 2026-10-06.
+Windows Server 2022 x64 / MSVC 19.44.35229.0 és macOS 14.8.9 ARM64 /
+AppleClang 15.0.0.15000309, Release. Platformonként külön runner, egy
+teljes négy-páros futás. Az arány a jelölt/referencia blokkmedián arány
+mediánja, konfigurációnként 16 páros megfigyelés (négy mód × négy pár).
+
+| Ráta | Puffer | Windows p50 időarány | macOS p50 időarány |
+| --- | --- | ---: | ---: |
+| 48 kHz | 32 | 1,012967 | 0,948275 |
+| 48 kHz | 64 | 1,017399 | 0,950595 |
+| 48 kHz | 128 | 1,022546 | 0,956787 |
+| 96 kHz | 32 | 1,014420 | 0,949930 |
+| 96 kHz | 64 | 1,017972 | 0,951642 |
+| 96 kHz | 128 | 1,020800 | 0,954294 |
+| 192 kHz | 32 | 1,017774 | 0,950547 |
+| 192 kHz | 64 | 1,019123 | 0,956106 |
+| 192 kHz | 128 | 1,020518 | 0,953697 |
+
+Ebben a futásban Windows alatt kb. 1–2% nagyobb, macOS alatt kb. 4–5%
+kisebb medián blokkidő. Ez nem statisztikai bizonyítás, általános
+compiler-ígéret vagy a korábbi eltérő FX-fixture-rel összevetett gyorsulás.
+A macOS 96 kHz / 64 frame p99 páros időarány-mediánja 1,088100:
+a felső tail nem követi mindenütt a medián javulását. Ebben az esetben
+a referencia 171, a jelölt 226 blokkja lépte túl az audioidőt a 4096-ból.
+
+Windows 96/192 kHz-en és macOS 192 kHz-en minden pufferkombinációban
+4096/4096 blokk túllépett az audioidőn mindkét úton. Windows 48 kHz-en
+is maradtak túllépések; macOS 48/96 kHz-en szintén előfordultak.
+A mérés kizárólag a két 4x kutatási motorra vonatkozik. Nem állítja, hogy
+a production plugin, a 2x magas rátás út vagy egy natív REAPER-host is így viselkedik.
+
+Következtetés: a skaláris jelölt nem tekinthető általános CPU-javításnak.
+A normál Drive átváltása továbbra sem indokolt; célgépes ismétlés és
+nagyobb költségű FIR/teljesmotor-optimalizálás következik. A 4x CPU-kapu
+nem zárult le. A funkcionális fixture és mindkét teljes adatellenőrzés sikeres.
+
+Mindkét 288 soros összesítő tartósan a repository-ban:
+[Windows CSV](../experiments/premium_filter/measurements/2026-10-06-tanh-deadline-windows-summary.csv),
+[macOS CSV](../experiments/premium_filter/measurements/2026-10-06-tanh-deadline-macos-summary.csv).
+[Forrás, compiler és job/artifact eredet](../experiments/premium_filter/measurements/2026-10-06-tanh-deadline-provenance.json).
+A két 73 728 soros nyers blokkfájl a megjelölt jobok 90 napos artifactjában van;
+lejárat után a rögzített forrással újra kell mérni.
