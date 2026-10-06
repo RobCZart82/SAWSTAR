@@ -437,3 +437,15 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 - [x] Páros Windows/macOS CPU-adatsor és tartós összesítő/provenance. Az első p50-arány Windows 0,932–0,938, macOS 0,886–0,933; néhány tail/túllépési eset romlott.
 - [ ] Célgépes deadline/minőség QA és magasrátás policy lezárása. Fix 4x magas rátákon a kutatási motor többnyire továbbra is túllépi az audioidőt.
 - [ ] Éles integráció/preset elfogadás. A SIMD opció alapértéke false; production rate-policy változatlan. Részletek és korlátok a `PREMIUM_FILTER_DEVELOPMENT.md` utolsó szakaszában.
+
+
+### 2026-10-06: rátafüggő SIMD továbblépés
+
+- A meglévő, Init-on választó kutatási 4x/2x út külön SIMD-jelöltet kap; scalar alapérték és 176,4 kHz-es normalizált határ megmarad.
+- Új határ/hibásráta/állapot kontroll: 66 447 frame scalar és SIMD egyezése explicit fix-faktor oracle-lel.
+- Új páros motoradatok 48/96 kHz 4x és 192 kHz 2x mellett; a fordított faktorok külön ellenőrzött metadata-ban szerepelnek.
+- Az első Windows/macOS próba sikeres: a 66 447 routing frame bitazonos, a 12 motorfixture eltérése nulla. A faktorrekord ellenőrzött.
+- 48/96 kHz-en a p50 csökken, de a 192 kHz/2x Windows-nyereség csak 0,1–0,3%, macOS 1–4% körüli; tail/túllépési nyereség nem általános. CSV/provenance és korlátok tartósan feljegyezve.
+- A végleges PR CI-je rögzíti az elfogadást. Shipping rate-policy, célgépes teljesmotor-CPU/minőség QA és production filtercsere nyitott.
+
+- Kódazonos ismétlés (`cd4c591`): Windows 192 kHz/2x p50 arány 1,028–1,029, kb. 3%-os lassulási jel; macOS 0,949–0,956. Mindkét bitazonossági fixture ismét sikeres. Az ismétlés CSV/provenance és a negatív CPU-találat a filterdokumentumban is szerepel; default aktiválás nincs.

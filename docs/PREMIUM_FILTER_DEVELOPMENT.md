@@ -1404,3 +1404,127 @@ Mindkét 73 728 soros nyers blokkadat a megjelölt run artifactjában marad
 90 napig. A riport ellenőrizte az összes nyers kulcsot és az abból
 újraszámolt statisztikát; a repository-ba emelt CSV páros arányait külön
 újraszámolás egyeztette a job riportjával.
+
+
+## Rátafüggő SIMD FIR-jelölt — 2026-10-06
+
+A fix 4x SIMD-jelölt után a meglévő kutatási 4x/2x policy külön SIMD-változata
+következik. A `BasicRateScaledPremiumDrive<VectorFir>` alapértéke false;
+a régi `RateScaledPremiumDrive` skaláris alias marad. A külön SIMD alias
+és generált motornévtér ugyanazt a policyt használja: Init során a
+`SafeSampleRate` által float-ra normalizált ráta 176 400 Hz alatt 4x,
+ettől kezdve 2x. Élő streamben nincs faktorváltás. Ez nem shipping policy.
+
+A rátafüggő scalar/SIMD út 66 447 sztereó frame-en kap külön bitazonossági
+kontrollt, explicit 2x vagy 4x oracle ellen. Lefedett a NaN/Inf, negatív,
+clampelt és határközeli ráta, dinamikus Drive, hibás csatorna/kontroll,
+clear, élő másolat és mindkét irányú reinit. A 176399,999 Hz bemenet float-ra
+kerekítve 176400: a teszt megőrzi ezt a már meglévő normalizálási szerződést.
+Méret/késleltetés fordítási kontroll, az impulzuscsúcs 32 hostminta.
+
+Az új páros teljesmotor-mérés mindkét oldalon a rátafüggő policyt használja:
+48/96 kHz-en 4x, 192 kHz-en 2x; scalar vs SIMD, `std::tanh` mindkét oldalon.
+Ez elkülöníti a SIMD költségét a 4x→2x hangváltozástól. Nem közvetlen
+fix-4x vs adaptív CPU-összehasonlítás, a régi kampányok abszolút blokkideje
+nem hordozható át új runnerre. A korábbi magasrátás spektrum- és hibakontroll
+megmarad; ez nem teljes aliasing/hallásos policy-elfogadás.
+
+A program külön `factors.csv` fájlba rögzíti a fordított útválasztást.
+A riport összeveti a három ráta mindkét faktorát a study-címkével, majd
+metadata-ban rate→factor térképet ment; a rátafüggő mérés nem kap hamis
+fix-4x címkét. A CMake ellenőrzi a rátafüggő adapter generálási horgonyát.
+Windows/macOS Release külön jobokban, a megszokott 288 összesítő/73 728
+nyers blokk mellett készül. Az első eredmény alább; a végleges PR-head teljes CI-jét a PR rögzíti.
+A natív CPU/minőség/preset elfogadás és az éles integráció nyitott.
+
+
+### Első rátafüggő SIMD mérési eredmények
+
+Forrás: `f7fcd0e4c078c02d0eace9a16623a6b8046225f7`; Windows Server 2022 x64 /
+MSVC 19.44.35229.0 (SSE2), macOS 14.8.9 ARM64 /
+AppleClang 15.0.0.15000309 (NEON), Release.
+Mindkét jobban sikeres a 66 447 rátafüggő frame és a meglévő 998 400
+fix-faktoros frame bitazonossága; a 12 motorfixture eltérése nulla.
+A fordított faktorrekord és a riport ellenőrzése szerint mindkét motor
+48/96 kHz-en 4x, 192 kHz-en 2x Drive-ot használ.
+
+| Ráta | Puffer | Mindkét faktor | Windows p50 arány | Windows p99 arány | macOS p50 arány | macOS p99 arány |
+| --- | --- | --- | ---: | ---: | ---: | ---: |
+| 48 kHz | 32 | 4x | 0.948413 | 0.942474 | 0.893052 | 0.717172 |
+| 48 kHz | 64 | 4x | 0.947570 | 0.902562 | 0.894915 | 0.964395 |
+| 48 kHz | 128 | 4x | 0.947149 | 0.869000 | 0.898919 | 0.794880 |
+| 96 kHz | 32 | 4x | 0.947797 | 0.976650 | 0.919483 | 0.733271 |
+| 96 kHz | 64 | 4x | 0.946694 | 0.923300 | 0.915013 | 0.908964 |
+| 96 kHz | 128 | 4x | 0.946334 | 0.940190 | 0.900577 | 0.975238 |
+| 192 kHz | 32 | 2x | 0.998374 | 0.938839 | 0.959111 | 0.898348 |
+| 192 kHz | 64 | 2x | 0.998838 | 0.956539 | 0.975226 | 0.865874 |
+| 192 kHz | 128 | 2x | 0.997531 | 0.940561 | 0.988902 | 0.991176 |
+
+Az arány jelölt/referencia; cellánként 16 páros jelenetarány mediánja.
+48/96 kHz-en a p50 Windows alatt kb. 5%, macOS alatt kb. 8–11%-kal kisebb.
+192 kHz-en a 2x ág Windows-nyeresége csupán 0,1–0,3%, macOS alatt
+1–4% körüli. A kis különbséget nem szabad stabil CPU-nyereségként
+vagy lezárt realtime-kapuként kezelni. A 4x eredmény nem vihető át a 2x ágra.
+
+Windows 96/192 kHz-en minden puffer esetén mindkét út 4096/4096 blokkban
+túllépte az audioidőt ebben a futásban. macOS 192 kHz-en a számlálók
+referencia→jelölt: 772→554 (32), 862→942 (64), 946→891 (128), 4096-ból.
+A 64-es puffer p99 aránya 0,865874, mégis több a túllépés: a kisebb
+p50/p99 nem jelent minden jelenetben kisebb deadline-számlálót.
+A korábbi fix-4x kampányok más runner/job abszolút ideje nem közvetlen
+páros 4x→2x CPU-bizonyíték.
+
+Döntés: a rátafüggő SIMD út külön kutatási jelöltként megmarad; default
+aktiválás és shipping policy nem következik ebből. A magasrátás teljes
+motorköltség, célgépes ismétlés, preset/hallásos és szélesebb aliasing
+minősítés nyitott. A skaláris default és az éles plugin változatlan.
+
+Tartós adatok:
+[Windows CSV](../experiments/premium_filter/measurements/2026-10-06-rate-simd-deadline-windows-summary.csv),
+[macOS CSV](../experiments/premium_filter/measurements/2026-10-06-rate-simd-deadline-macos-summary.csv),
+[provenance](../experiments/premium_filter/measurements/2026-10-06-rate-simd-deadline-provenance.json).
+A nyers 73 728 blokk/platform és `factors.csv` a megjelölt 90 napos artifactban
+van. A riport nyers blokkokból ellenőrizte a statisztikát; a tartós összesítők
+páros arányait külön újraszámolás egyeztette a job riportjával.
+Az új mérőtarget `sawstar_premium_rate_simd_deadline`; kézi riportnál
+`SAWSTAR_PREMIUM_STUDY=rate-simd-fir` szükséges a helyes policy-címkéhez.
+
+
+### Kódazonos rátafüggő ismétlés: Windows 2x regressziós jel
+
+Ismételt forrás: `cd4c591d88a35c38966482ebc6883442563ef546`, run
+[37430758425](https://github.com/RobCZart82/SAWSTAR/actions/runs/37430758425).
+Mind a hét kód/build/workflow blob egyezik az első forrással;
+az eltérés csak dokumentáció és mérési adatok. Mindkét platformon ismét
+bitazonos 66 447 routing és 998 400 fix-faktoros frame, a 12 motorfixture
+eltérése nulla. A fordított faktorrekord ismét 4x/4x/2x.
+
+| Ráta | Puffer | Windows p50 arány | macOS p50 arány |
+| --- | --- | ---: | ---: |
+| 48 kHz | 32 | 0.981515 | 0.903463 |
+| 48 kHz | 64 | 0.980552 | 0.906112 |
+| 48 kHz | 128 | 0.980124 | 0.903807 |
+| 96 kHz | 32 | 0.982060 | 0.917074 |
+| 96 kHz | 64 | 0.980659 | 0.903853 |
+| 96 kHz | 128 | 0.980719 | 0.906370 |
+| 192 kHz | 32 | 1.029111 | 0.949270 |
+| 192 kHz | 64 | 1.028290 | 0.955459 |
+| 192 kHz | 128 | 1.028567 | 0.955707 |
+
+Windows 48/96 kHz-en ebben az ismétlésben kb. 2% a p50-nyereség,
+192 kHz/2x mellett viszont **kb. 3%-kal nagyobb a medián blokkidő**
+(1,028–1,029), szemben az első 0,9975–0,9988 aránnyal.
+Ez CPU-regressziós jel a kutatási jelöltnél, nem bizonyított production bug;
+a SIMD alapút átváltását nem indokolja. macOS 192 kHz/2x arány
+0,949–0,956 (kb. 4–5% kisebb medián), nem általános platformgarancia.
+
+Windows 192 kHz-en ismét 4096/4096 túllépés mindkét úton.
+Windows 96 kHz/32 frame számláló 101→154, macOS 96 kHz/32 frame
+15→46 a 4096-ból, vagyis a p50-nyereség itt is több túllépéssel járhat.
+A magasrátás nyereség platform- és runnerfüggő; további teljesmotor-profilozás
+és célgépes mérés szükséges. A minőség/preset és shipping policy kapuk nyitottak.
+
+Tartós [Windows ismétlés CSV](../experiments/premium_filter/measurements/2026-10-06-rate-simd-repeat-windows-summary.csv),
+[macOS ismétlés CSV](../experiments/premium_filter/measurements/2026-10-06-rate-simd-repeat-macos-summary.csv),
+[ismétlés provenance](../experiments/premium_filter/measurements/2026-10-06-rate-simd-repeat-provenance.json).
+A végleges PR-head további CI-eredményeit a PR leírása rögzíti.

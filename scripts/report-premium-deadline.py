@@ -63,26 +63,39 @@ def report(folder):
     if set(summaries) != expected:
         raise ValueError("Incomplete summary grid")
     study_kind = os.environ.get("SAWSTAR_PREMIUM_STUDY", "tanh")
-    if study_kind not in ("tanh", "simd-fir"):
+    if study_kind not in ("tanh", "simd-fir", "rate-simd-fir"):
         raise ValueError("Unknown study kind")
     backend = (folder / "backend.txt").read_text(encoding="utf-8").strip()
     if backend not in ("SSE2", "NEON", "scalar-fallback", "scalar-source"):
         raise ValueError("Unknown FIR backend")
     if study_kind == "tanh" and backend != "scalar-source":
         raise ValueError("Incorrect tanh backend")
-    if study_kind == "simd-fir" and backend == "scalar-source":
+    if study_kind in ("simd-fir", "rate-simd-fir") and backend == "scalar-source":
         raise ValueError("Incorrect SIMD study backend")
+    adaptive = study_kind == "rate-simd-fir"
+    factors = {str(rate): (2 if adaptive and rate >= 176400 else 4)
+               for rate in (48000, 96000, 192000)}
+    with (folder / "factors.csv").open(newline="") as f:
+        recorded = list(csv.DictReader(f))
+    if len(recorded) != 3 or {row["rate"] for row in recorded} != set(factors):
+        raise ValueError("Incomplete compiled routing record")
+    for row in recorded:
+        if (int(row["reference_factor"]), int(row["study_factor"])) != (factors[row["rate"]],) * 2:
+            raise ValueError("Compiled routing disagrees with study label")
     metadata = {"study_kind": study_kind, "fir_backend": backend,"source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
                 "platform": platform.platform(), "machine": platform.machine(),
                 "runner_os": os.environ.get("RUNNER_OS"), "runner_arch": os.environ.get("RUNNER_ARCH"),
                 "configuration": "Release", "blocks_per_path": 36864, "pairs_per_scene": 4,
                 "warmup_seconds_per_path": .25, "timed_blocks_per_path_and_pair": 256,
-                "drive_factor": 4, "clock": "C++ steady_clock wall time",
+                "drive_factor": None if adaptive else 4, "drive_factors_by_rate": factors,
+                "rate_policy": "normalized-176400-boundary" if adaptive else "fixed-4x",
+                "clock": "C++ steady_clock wall time",
                 "native_host_acceptance": False}
     (folder / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     lines = ["# Offline paired premium engine deadline study", "",
              f"Source: {metadata['source_sha']}; {metadata['platform']}; {metadata['machine']}; Release.", "",
              f"Candidate: {study_kind}; explicit FIR backend: {backend}.",
+             f"Both paths use Drive factors by rate: {factors}.",
              "16 Poly voices, 20 dB, FX, four filter modes. Ratios are study/reference.",
              "Each table row uses 16 paired scene observations (four modes x four pairs).",
              "Percentages use host audio time; counts combine the measured scenes only.",
