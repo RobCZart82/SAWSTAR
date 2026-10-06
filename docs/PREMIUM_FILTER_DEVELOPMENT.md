@@ -1308,14 +1308,99 @@ Mindkét 288 soros összesítő tartósan a repository-ban:
 A két 73 728 soros nyers blokkfájl a megjelölt jobok 90 napos artifactjában van;
 lejárat után a rögzített forrással újra kell mérni.
 
-### SIMD FIR research candidate (2026-10-06; qualification pending)
 
-The next CPU study isolates FIR arithmetic from saturation: `FixedRatePremiumDrive<Factor, true, false, true>` retains `std::tanh`, coefficients, 32-host-sample latency, history layout and gain smoothing. The fourth template option defaults to false. The generated SIMD engine lives in a separate namespace and is an offline fixed-4x probe, not a production sound mode or policy change.
+## Külön SIMD FIR-jelölt minősítése — 2026-10-06
 
-`FirLanes4.h` packs four independent double accumulators into two SSE2/NEON vectors. Descending ring-history loads reverse the two lanes; symmetric second loads and taps ascend. Reduction stays `(s0+s1)+(s2+s3)`. Each load consumes exactly four valid samples; no padding is required, no state/allocation is added. x64 SSE2 and Apple Clang AArch64 NEON are explicit backends; unsupported configurations use a labelled scalar fallback. Scoped Clang contraction control applies to the candidate convolution arithmetic; no global fast-math policy changes. References: [Arm NEON intrinsics](https://arm-software.github.io/acle/neon_intrinsics/advsimd.html), [Clang scoped floating-point controls](https://clang.llvm.org/docs/LanguageExtensions.html).
+A következő CPU-vizsgálat elkülöníti a FIR számítását a telítéstől:
+`FixedRatePremiumDrive<Factor, true, false, true>` továbbra is `std::tanh`-t használ.
+Az együtthatók, a 32 hostmintás késleltetés, a gain-simítás és a history
+elrendezése megmarad. A negyedik template-opció alapértéke false.
+A külön névtérben generált motor offline, fix 4x kutatási út; nincs új
+választható hangmód vagy production rate-policy változás.
 
-The new CTest checks the primitive at double bit level (including a negative unreversed-history control) and 998,400 stereo output frames for 2x/4x at six rates (8–384 kHz), dynamic Drive, clearing, invalid inputs, nonzero-state copying, ring-boundary impulses and reinitialization. Size and latency are compile-time controls. The existing frozen scalar/FIR controls remain. The complete-engine fixture compares all four filter modes at 48/96/192 kHz with 16 sounding Poly voices and FX.
+A `FirLanes4.h` négy független double részösszeget két kétlane-es SSE2/NEON
+vektorban számol. A csökkenő history két elemét megfordítja; az együtthatók
+és a szimmetrikus második history növekvő irányúak. Az összegzés sorrendje
+`(s0+s1)+(s2+s3)`. Minden hívás négy érvényes mintát olvas, padding nélkül;
+nincs új tartós állapot vagy allokáció. x64-en SSE2, Apple Clang AArch64-en
+NEON, máshol explicit skaláris fallback szerepel. A jelölt scoped Clang
+contraction-kontrollja nem változtat globális fast-math policyt.
+Hivatkozás: [Arm NEON](https://arm-software.github.io/acle/neon_intrinsics/advsimd.html),
+[Clang floating-point scope](https://clang.llvm.org/docs/LanguageExtensions.html).
 
-The paired deadline workflow now measures both tanh and SIMD-FIR candidates independently on Windows x64/macOS ARM64: 32/64/128 buffers, four alternating pairs, 256 measured blocks per path/pair, 0.25 s warmup. Each campaign keeps 288 summary rows, 73,728 raw blocks, source SHA, backend and compiler metadata in separate artifacts. Signal checks and initialization stay outside timing. No noisy shared-runner timing threshold is added. Results and adoption decision are pending; native REAPER QA and preset compatibility remain prerequisites for production integration.
+A CTest primitívszinten double-bitazonosságot és hibás lane-sorrendet elutasító
+negatív kontrollt ellenőriz. 2x/4x módban 998 400 sztereó frame-nél kell
+bitazonos kimenet: hat ráta 8–384 kHz között, dinamikus Drive, clearing,
+NaN/Inf, élő állapot másolása, ringhatár-impulzusok és reinit. A méret és
+késleltetés fordítási kontroll. A régi frozen skaláris/FIR tesztek megmaradnak.
+A teljesmotor-fixture négy filtermódot ellenőriz 48/96/192 kHz-en,
+16 szóló Poly voice és FX mellett.
 
-Background from PR #65: its repeated code-identical tanh campaign reversed the small Windows p50 direction (first study/reference 1.013–1.023; repeat 0.981–0.989). macOS retained a p50 gain, but the 96 kHz/64-buffer p99 worsened in both runs. Fixed-4x high-rate full-engine scenes exceeded the host budget broadly. These observations justify measuring the full FIR candidate and retaining native QA gates; they do not establish a production high-rate bug or a portable CPU guarantee.
+A páros deadline-workflow külön méri a tanh- és SIMD-FIR-jelöltet Windows
+x64/macOS ARM64 Release alatt: 32/64/128-as pufferek, négy váltakozó pár,
+256 időzített blokk út/pár, 0,25 s warmup. Futásonként 288 összesítő sor és
+73 728 nyers blokk marad külön artifactban a forrás-SHA, backend és compiler
+mellett. Init, warmup és jelkontroll nincs a blokkidőben. Nincs új közös
+CI-runnerre épülő időzítési pass/fail küszöb.
+
+A PR #65 kódazonos ismétlése a kis Windows tanh-p50 különbség irányát
+megfordította: első arány 1,013–1,023, ismétlés 0,981–0,989. macOS alatt
+p50-nyereség maradt, de a 96 kHz/64-es puffer p99 mindkétszer romlott.
+Ez a teljes FIR/motor mérését indokolja; nem production magasrátás bug
+vagy hordozható CPU-garancia. A natív REAPER/preset és rate-policy kapuk
+továbbra is nyitottak.
+
+
+### Első SIMD páros CI-futás eredménye
+
+Mért forrás: `7255c1285979df35d20873306d1cfac239c4ee5e`; Windows Server 2022 x64 /
+MSVC 19.44.35229.0 (SSE2), macOS 14.8.9 ARM64 /
+AppleClang 15.0.0.15000309 (NEON), Release.
+Mindkét jobban 998 400 sztereó frame bitazonos a skaláris referenciával;
+a 12 teljesmotor-fixture legnagyobb eltérése nulla.
+A 2x/4x objektumméret rendre 11 344 / 12 384 byte, változatlan.
+
+Az alábbi értékek jelölt/referencia arányok. Egy cella 16 páros
+jelenetarány mediánja (négy mód × négy pár), nem összevont blokkpercentilis.
+
+| Ráta | Puffer | Windows p50 arány | Windows p99 arány | macOS p50 arány | macOS p99 arány |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 48 kHz | 32 | 0.937297 | 0.968626 | 0.903467 | 0.823320 |
+| 48 kHz | 64 | 0.937328 | 0.936349 | 0.916418 | 0.992918 |
+| 48 kHz | 128 | 0.938010 | 0.920690 | 0.904125 | 0.851018 |
+| 96 kHz | 32 | 0.935161 | 0.938584 | 0.894706 | 0.771778 |
+| 96 kHz | 64 | 0.935389 | 0.947133 | 0.898515 | 0.439334 |
+| 96 kHz | 128 | 0.935231 | 0.922813 | 0.904156 | 0.842007 |
+| 192 kHz | 32 | 0.932150 | 0.891456 | 0.932924 | 0.981674 |
+| 192 kHz | 64 | 0.933482 | 0.932990 | 0.886109 | 0.940653 |
+| 192 kHz | 128 | 0.933766 | 0.928889 | 0.891215 | 1.158142 |
+
+Ebben a futásban a p50 kb. 6–7%-kal kisebb Windows, 7–11%-kal kisebb
+macOS alatt. Az arányokat nem szabad a külön tanh-jelölt nyereségével
+összeadni: a kombinált jelölt itt nincs mérve.
+
+A kisebb medián nem mindenütt javítja a deadline-viselkedést. Windows
+48 kHz/64 frame esetén a p99 arány 0,936349, mégis 0-ról 18-ra nőtt
+a 100% fölötti blokkok száma a 4096-ból. macOS 96 kHz/128 frame esetén
+a p99 arány 0,842007, a túllépések 113-ról 197-re nőttek.
+macOS 192 kHz/128 frame p99 aránya 1,158142 (romlás).
+A p99 és a túllépési számláló külön mutató; a runner felső-tail szórása jelentős.
+
+Windows 96/192 kHz-en mindkét út minden puffer esetén 4096/4096 blokkban
+túllépett az audioidőn. macOS 192 kHz-en a referencia mindig 4096/4096,
+a jelölt rendre 4089/4096, 4095/4096 és 4096/4096 (32/64/128 frame).
+Ez továbbra is fix 4x kutatási motor; nem production VST3, magasrátás
+2x út vagy natív REAPER elfogadási eredmény.
+
+Döntés: a SIMD FIR külön kutatási jelöltként megőrizhető, de az alapút
+nem vált át. Célgépes kis-buffer QA, magasrátás
+policy és preset/hallásos ellenőrzés szükséges; a CPU-kapu nyitott.
+
+A forrásból újramérhető 288 soros összesítők tartósan:
+[Windows SIMD CSV](../experiments/premium_filter/measurements/2026-10-06-simd-deadline-windows-summary.csv),
+[macOS SIMD CSV](../experiments/premium_filter/measurements/2026-10-06-simd-deadline-macos-summary.csv).
+[Forrás és job/artifact eredet](../experiments/premium_filter/measurements/2026-10-06-simd-deadline-provenance.json).
+Mindkét 73 728 soros nyers blokkadat a megjelölt run artifactjában marad
+90 napig. A riport ellenőrizte az összes nyers kulcsot és az abból
+újraszámolt statisztikát; a repository-ba emelt CSV páros arányait külön
+újraszámolás egyeztette a job riportjával.

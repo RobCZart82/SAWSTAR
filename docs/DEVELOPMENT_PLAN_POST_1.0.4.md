@@ -430,9 +430,10 @@ A normál út átváltása nem indokolt. Következik a nagyobb FIR/teljesmotor-k
 optimalizálása és célgépes ismétlés; részletek a filterdokumentum új táblájában.
 
 
-### 2026-10-06: independent SIMD FIR qualification
+### 2026-10-06: SIMD FIR külön minősítése
 
-- Add an opt-in SSE2/NEON research candidate preserving coefficients, saturation and scalar lane/reduction order; explicit scalar fallback elsewhere.
-- Add direct bit-identity regression controls for 2x/4x and a separate complete-engine fixture.
-- Extend paired Windows/macOS measurements to report the SIMD candidate independently from the exp-based tanh candidate, including source/backend/compiler provenance.
-- CPU/audio results pending CI. Defaults and production rate policy remain unchanged; native host/preset qualification is still open. Detailed findings belong in `PREMIUM_FILTER_DEVELOPMENT.md`.
+- [x] Opt-in SSE2/NEON kutatási jelölt, változatlan együtthatók/telítés/állapot, explicit skaláris fallback.
+- [x] 2x/4x bitazonossági kontroll és külön teljesmotor-fixture: Windows/macOS Release alatt 998 400 sztereó frame bitazonos, a 12 motorfixture eltérése nulla.
+- [x] Páros Windows/macOS CPU-adatsor és tartós összesítő/provenance. Az első p50-arány Windows 0,932–0,938, macOS 0,886–0,933; néhány tail/túllépési eset romlott.
+- [ ] Célgépes deadline/minőség QA és magasrátás policy lezárása. Fix 4x magas rátákon a kutatási motor többnyire továbbra is túllépi az audioidőt.
+- [ ] Éles integráció/preset elfogadás. A SIMD opció alapértéke false; production rate-policy változatlan. Részletek és korlátok a `PREMIUM_FILTER_DEVELOPMENT.md` utolsó szakaszában.
