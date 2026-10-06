@@ -1223,3 +1223,41 @@ A Windows parancsfuttató környezeti hibája miatt helyi fordítás és új
 CPU-mérés nincs; a friss Windows/macOS és sanitizer CI eredményét a PR
 rögzíti. Időzítési küszöböt nem vezettünk be. Célgépes páros ismétlés,
 kis-bufferes deadline-eloszlás, minőségpolicy és natív integráció nyitott.
+
+
+## Páros teljesmotor-blokkidő eloszlás — 2026-10-06
+
+A `sawstar_premium_tanh_deadline` külön research target. Argumentum nélkül
+a fixture és statisztikák funkcionális CTest ellenőrzése fut: medián páros/páratlan
+esetre, nearest-rank p95/p99, szigorú 100% fölötti számláló, hibás/üres időadat
+elutasítása, valamint 12 szóló 16-voice motorfixture referencia/jelölt eltérése
+legfeljebb 2e-6. A std::tanh és ResearchTanh alapértelmezett hangút nem vált át.
+
+A `--deadline output-directory` mérés 4x/4x összevetés, nem a 2x/4x magas
+rátás policy véglegesítése. 48/96/192 kHz, négy filtermód, 16 Poly voice,
+20 dB, FX, 32/64/128 frame/csoport, négy váltakozó sorrendű pár.
+Mindkét út minden párban új motort indít, 0,25 másodperc warmup után 256
+blokkot időzít. Az allokáció, Init, warmup, jelvédelem-ellenőrzés és
+diagnosztikai számtan nincs a blokkidőben; ProcessStereo és bufferírás igen.
+Nincs VST3 callback, host scheduler, MIDI/automatizálási terhelés vagy
+hosszú steady-state FX-bemelegítés. A korábbi motorprofilhoz képest itt
+explicit natív egységű FX-beállítások szerepelnek: delay tone 2000 Hz,
+reverb decay 2 s, damping 6000 Hz; a régi adatsor közvetlenül nem összevethető.
+
+A `summary.csv` 288 sorában az audioidő százalékában szerepel a blokkok
+mediánja, nearest-rank p95/p99, maximum és 100% fölötti blokkok száma,
+plusz peak/RMS/checksum. A `blocks.csv` minden 73 728 blokkot megőrzi,
+külön engine/rate/mode/buffer/pair/block kulccsal. A Python riport minden
+kulcsot, darabszámot, futási sorrendet és a nyers adatokból újraszámolt
+percentilis/számláló értéket ellenőriz, majd kilenc ráta/puffer kombinációban
+16 páros jelenetarány mediánját számolja. Ez nem összevont blokkpercentilis.
+A 256 blokkos p99 kevés felső-tail megfigyelésre támaszkodik; négy pár
+feltáró mérés, nem megbízhatósági vagy hallásos elfogadási bizonyítás.
+
+Külön `premium-deadline.yml` PR/manual workflow Windows x64 és macOS ARM64
+Release mérésben a pontos PR-headet építi. A runner platformja, forrás-SHA,
+compiler-leírás, nyers CSV és riport artifactban marad 90 napig; az összesítő
+és riport a joblogban is olvasható. Az eredmény a PR-ben rögzítendő.
+Nincs CPU/időzítési pass/fail küszöb. Közös CI-gép wall-clock szórása és
+eltérő compiler miatt natív célgépes ismétlés nélkül nincs általános CPU-ígéret.
+A CPU-kapu, magas rátás policy és végleges filterintegráció továbbra is nyitott.

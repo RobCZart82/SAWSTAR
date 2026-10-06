@@ -1,6 +1,6 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
-Frissítve: 2026-10-05. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
+Frissítve: 2026-10-06. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
 Az akkori main Windows, macOS és Code quality workflow-ja sikeres volt. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
@@ -402,3 +402,19 @@ végpontokkal és negatív kontrollokkal. Élő FIR-állapot másolása, hibás
 csatorna izolációja, clear-csend és 32 mintás impulzuscsúcs is ellenőrzött.
 Az elfogadást a friss összevont PR CI-je igazolja; új helyi CPU-mérés nem
 készült. A normál út átváltása, kis-bufferes CPU-kapu és natív QA nyitott.
+
+
+## Telítésjelölt páros kis-pufferes CPU-próbája — 2026-10-06
+
+A #63 beolvadt (`8c0bb23`), mind a 17 PR-ellenőrzés és a main tíz
+ellenőrzése sikeres. Új külön mérőprogram hasonlítja össze a std::tanh és
+ResearchTanh 4x teljes motorját: 16 Poly voice, 20 dB, négy mód, FX,
+48/96/192 kHz, 32/64/128 mintás csoportok és négy váltakozó pár.
+Platformonként 288 összesítő sor és 73 728 nyers blokkidő, p50/p95/p99,
+maximum és szigorúan 100% fölötti audioidőszámláló készül.
+
+Külön Windows/macOS Release CI gyűjti a nyers adatot, compiler- és
+forrásazonosítót, ellenőrzi a CSV teljességét, és 90 napos artifactot ment.
+Az időzítés nem CI-küszöb, nem host-wrapper vagy natív realtime elfogadás.
+A kis-pufferes jelöltadatok alapján kell értékelni a további CPU-munkát;
+a normál kutatási/production hangút átváltása és natív QA továbbra is nyitott.
