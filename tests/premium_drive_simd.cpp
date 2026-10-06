@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <iomanip>
 #include <limits>
 #include <stdexcept>
 #include <string>
@@ -118,7 +119,7 @@ int main(int argc,char** argv) {
       std::cout<<compared<<" stereo frames bit-identical in SIMD fixture; backend "
                <<sawstar::experimental::detail::FirLanes4::Backend<<'\n';
     }else if(argc==2&&std::string(argv[1])=="--benchmark") {
-      std::cout<<"factor,rate,voices,drive_db,pair,reference_seconds,simd_seconds\n";
+      std::cout<<std::setprecision(17)<<"factor,rate,voices,drive_db,pair,reference_seconds,simd_seconds\n";
       Benchmark<2>();Benchmark<4>();
       if(!std::isfinite(checksum))throw std::runtime_error("Invalid SIMD checksum");
     }else throw std::runtime_error("Usage: premium_drive_simd [--benchmark]");

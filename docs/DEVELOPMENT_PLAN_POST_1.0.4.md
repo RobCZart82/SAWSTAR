@@ -449,3 +449,9 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 - A végleges PR CI-je rögzíti az elfogadást. Shipping rate-policy, célgépes teljesmotor-CPU/minőség QA és production filtercsere nyitott.
 
 - Kódazonos ismétlés (`cd4c591`): Windows 192 kHz/2x p50 arány 1,028–1,029, kb. 3%-os lassulási jel; macOS 0,949–0,956. Mindkét bitazonossági fixture ismét sikeres. Az ismétlés CSV/provenance és a negatív CPU-találat a filterdokumentumban is szerepel; default aktiválás nincs.
+
+### 2026-10-06: külön Drive CPU-diagnosztika
+
+- Külön 24 páros, fix 2x/4x Drive-mérés a rátafüggő Windows/macOS CI-ben; ellenőrzött CSV és forrásazonosítós artifact.
+- A SIMD tesztforrások hiányzó workflow path-triggerének javítása.
+- A mérés a teljes Drive költségét izolálja; a Windows teljesmotoros 2x lassulás gyökérokának megállapítása, célgépes ismétlés és shipping policy továbbra is nyitott.

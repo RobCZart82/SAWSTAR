@@ -1528,3 +1528,27 @@ Tartós [Windows ismétlés CSV](../experiments/premium_filter/measurements/2026
 [macOS ismétlés CSV](../experiments/premium_filter/measurements/2026-10-06-rate-simd-repeat-macos-summary.csv),
 [ismétlés provenance](../experiments/premium_filter/measurements/2026-10-06-rate-simd-repeat-provenance.json).
 A végleges PR-head további CI-eredményeit a PR leírása rögzíti.
+
+### 2026-10-06: izolált Drive-profilozás és CI-trigger javítása
+
+A teljesmotoros Windows 192 kHz/2x lassulási jel okának szűkítéséhez
+a rátafüggő SIMD CI külön futtatja a meglévő Drive-mikromérést:
+2x/4x, 48/96/192 kHz, 16 példány, 20 dB, négy váltott sorrendű pár,
+16 384 időzített frame és 1024 előmelegítő frame példányonként.
+Az inicializálás és előmelegítés az időzítésen kívül, a checksum-összegzés
+belül van. Ez teljes Drive-költség, nem tiszta FIR-profil; a szintetizátor,
+lowpass, FX és host-wrapper kimarad. Ebből önmagában nem állapítható meg
+a teljesmotoros lassulás oka.
+
+A CSV 17 számjegyes időértékeket őriz. Az új
+`scripts/report-premium-drive.py` ellenőrzi a 24 páros sor teljes rácsát,
+a fixture-paramétereket és a pozitív véges időket/arányokat; önellenőrzése
+hiányos, duplikált, hibásan címkézett és érvénytelen időadatokat utasít el.
+A riport és CSV a teljesmotoros adatokkal közös, forrásazonosítóval ellátott
+90 napos artifactba kerül, és a job naplója is kiírja a CSV-t.
+Nincs teljesítményküszöb vagy natív realtime elfogadás.
+
+Konkrét CI-hiányosság javítva: a dedikált workflow path-filtere korábban
+nem tartalmazta a két SIMD identitásteszt forrását, így azok önálló
+módosítása nem indította a kutatási méréseket. Most mindkét teszt és az új
+riportoló is trigger. Shipping DSP/default/policy nem változik.
