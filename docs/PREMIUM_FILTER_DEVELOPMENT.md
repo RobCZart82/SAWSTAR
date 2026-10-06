@@ -1488,3 +1488,43 @@ van. A riport nyers blokkokból ellenőrizte a statisztikát; a tartós összes�
 páros arányait külön újraszámolás egyeztette a job riportjával.
 Az új mérőtarget `sawstar_premium_rate_simd_deadline`; kézi riportnál
 `SAWSTAR_PREMIUM_STUDY=rate-simd-fir` szükséges a helyes policy-címkéhez.
+
+
+### Kódazonos rátafüggő ismétlés: Windows 2x regressziós jel
+
+Ismételt forrás: `cd4c591d88a35c38966482ebc6883442563ef546`, run
+[37430758425](https://github.com/RobCZart82/SAWSTAR/actions/runs/37430758425).
+Mind a hét kód/build/workflow blob egyezik az első forrással;
+az eltérés csak dokumentáció és mérési adatok. Mindkét platformon ismét
+bitazonos 66 447 routing és 998 400 fix-faktoros frame, a 12 motorfixture
+eltérése nulla. A fordított faktorrekord ismét 4x/4x/2x.
+
+| Ráta | Puffer | Windows p50 arány | macOS p50 arány |
+| --- | --- | ---: | ---: |
+| 48 kHz | 32 | 0.981515 | 0.903463 |
+| 48 kHz | 64 | 0.980552 | 0.906112 |
+| 48 kHz | 128 | 0.980124 | 0.903807 |
+| 96 kHz | 32 | 0.982060 | 0.917074 |
+| 96 kHz | 64 | 0.980659 | 0.903853 |
+| 96 kHz | 128 | 0.980719 | 0.906370 |
+| 192 kHz | 32 | 1.029111 | 0.949270 |
+| 192 kHz | 64 | 1.028290 | 0.955459 |
+| 192 kHz | 128 | 1.028567 | 0.955707 |
+
+Windows 48/96 kHz-en ebben az ismétlésben kb. 2% a p50-nyereség,
+192 kHz/2x mellett viszont **kb. 3%-kal nagyobb a medián blokkidő**
+(1,028–1,029), szemben az első 0,9975–0,9988 aránnyal.
+Ez CPU-regressziós jel a kutatási jelöltnél, nem bizonyított production bug;
+a SIMD alapút átváltását nem indokolja. macOS 192 kHz/2x arány
+0,949–0,956 (kb. 4–5% kisebb medián), nem általános platformgarancia.
+
+Windows 192 kHz-en ismét 4096/4096 túllépés mindkét úton.
+Windows 96 kHz/32 frame számláló 101→154, macOS 96 kHz/32 frame
+15→46 a 4096-ból, vagyis a p50-nyereség itt is több túllépéssel járhat.
+A magasrátás nyereség platform- és runnerfüggő; további teljesmotor-profilozás
+és célgépes mérés szükséges. A minőség/preset és shipping policy kapuk nyitottak.
+
+Tartós [Windows ismétlés CSV](../experiments/premium_filter/measurements/2026-10-06-rate-simd-repeat-windows-summary.csv),
+[macOS ismétlés CSV](../experiments/premium_filter/measurements/2026-10-06-rate-simd-repeat-macos-summary.csv),
+[ismétlés provenance](../experiments/premium_filter/measurements/2026-10-06-rate-simd-repeat-provenance.json).
+A végleges PR-head további CI-eredményeit a PR leírása rögzíti.

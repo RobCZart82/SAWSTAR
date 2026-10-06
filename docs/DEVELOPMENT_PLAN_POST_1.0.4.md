@@ -447,3 +447,5 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 - Az első Windows/macOS próba sikeres: a 66 447 routing frame bitazonos, a 12 motorfixture eltérése nulla. A faktorrekord ellenőrzött.
 - 48/96 kHz-en a p50 csökken, de a 192 kHz/2x Windows-nyereség csak 0,1–0,3%, macOS 1–4% körüli; tail/túllépési nyereség nem általános. CSV/provenance és korlátok tartósan feljegyezve.
 - A végleges PR CI-je rögzíti az elfogadást. Shipping rate-policy, célgépes teljesmotor-CPU/minőség QA és production filtercsere nyitott.
+
+- Kódazonos ismétlés (`cd4c591`): Windows 192 kHz/2x p50 arány 1,028–1,029, kb. 3%-os lassulási jel; macOS 0,949–0,956. Mindkét bitazonossági fixture ismét sikeres. Az ismétlés CSV/provenance és a negatív CPU-találat a filterdokumentumban is szerepel; default aktiválás nincs.
