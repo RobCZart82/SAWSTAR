@@ -352,6 +352,8 @@ def gh(args, **kwargs):
             platform_names = names[:1] if run_id == 1 else names[1:] if run_id == 2 else []
             artifacts = [] if scenario == 'coverage' else [
                 dict(name=name, expired=scenario == 'expired') for name in platform_names]
+            if scenario == 'duplicate_artifact' and artifacts:
+                artifacts.append(artifacts[0])
             return json.dumps(dict(artifacts=artifacts))
         raise RuntimeError('Unexpected API: ' + endpoint)
     if args[1:3] == ['run', 'download']:
@@ -366,11 +368,20 @@ def gh(args, **kwargs):
         for index, suffix in enumerate(suffixes):
             version = '1.0.3' if scenario == 'version' else '1.0.4'
             prefix = 'foreign-' if scenario == 'prefix' else ''
-            platform = dest.name.removesuffix('-candidate').removeprefix('SAWSTAR-')
-            (dest / (prefix + 'SAWSTAR-' + version + '-' + platform + '-' + str(index) + suffix)).write_bytes(b'installer')
+            platform = 'macOS-Universal' if mac else 'Windows-ARM64' if 'ARM64' in dest.name else 'Windows-x64'
+            if scenario == 'wrong_platform' and platform == 'Windows-x64':
+                platform = 'Windows-ARM64'
+            ending = suffix if mac else '-Setup.exe'
+            if mac and scenario == 'duplicate_type':
+                ending = '-' + str(index) + suffix
+            (dest / (prefix + 'SAWSTAR-' + version + '-' + platform + ending)).write_bytes(b'installer')
         return ''
     raise RuntimeError('Unexpected command: ' + repr(args))
 def write_draft(*args):
+    expected_assets = {'SAWSTAR-1.0.4-' + platform + '-Manual.zip' for platform in ('macOS-Universal', 'Windows-x64', 'Windows-ARM64')}
+    expected_assets.update({'SAWSTAR-1.0.4-macOS-Universal.dmg', 'SAWSTAR-1.0.4-macOS-Universal.pkg', 'SAWSTAR-1.0.4-Windows-x64-Setup.exe', 'SAWSTAR-1.0.4-Windows-ARM64-Setup.exe', 'SHA256SUMS.txt'})
+    if {p.name for p in (root / 'release-assets').iterdir()} != expected_assets:
+        raise RuntimeError('Unexpected final asset manifest')
     (root / 'draft-written').write_text('verified')
 with patch('subprocess.check_output', side_effect=gh), \
      patch('release_validation.validate_package'), \
@@ -392,7 +403,9 @@ with patch('subprocess.check_output', side_effect=gh), \
                         coverage='Incomplete platform coverage',
                         duplicate_type='Missing or extra installer type',
                         version='Installer version mismatch',
-                        prefix='Installer version mismatch')
+                        prefix='Installer version mismatch',
+                        wrong_platform='Installer version mismatch',
+                        duplicate_artifact='Duplicate platform artifact')
         for optimized in (False, True):
             for scenario, message in expected.items():
                 with self.subTest(optimized=optimized, scenario=scenario):

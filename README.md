@@ -90,9 +90,9 @@ Original SAWSTAR code: [MIT](LICENSE). External components retain their own
 terms; see [Third-party notices](THIRD_PARTY_NOTICES.md). Creator branding has
 separate treatment and is not granted for unrestricted reuse by the code license.
 
-### Upcoming 1.0.4 maintenance release — draft
+### Published 1.0.4 maintenance release
 
-The unpublished draft includes MIDI/editor lifecycle, envelope precision,
+Version 1.0.4 was published on October 2, 2026. It includes MIDI/editor lifecycle, envelope precision,
 VST3 tail and preset-validation fixes. Parameter IDs, state compatibility and
 GUI layout remain unchanged. See [1.0.4 changes](docs/RELEASE_NOTES_1.0.4.md)
 and [release validation](docs/RELEASE_1.0.4_CHECKLIST.md).

@@ -36,10 +36,22 @@ expected={'SAWSTAR-macos-universal-candidate':('macOS-Universal','SAWSTAR-macos.
 'SAWSTAR-windows-x64-candidate':('Windows-x64','SAWSTAR-windows.zip'),
 'SAWSTAR-windows-ARM64-candidate':('Windows-ARM64','SAWSTAR-windows.zip')}
 found=set()
+expected_assets=set()
+for platform,_ in expected.values():
+ expected_assets.add(f'SAWSTAR-{version}-{platform}-Manual.zip')
+ suffixes=('.dmg','.pkg') if platform.startswith('macOS') else ('-Setup.exe',)
+ expected_assets.update(f'SAWSTAR-{version}-{platform}{suffix}' for suffix in suffixes)
+def copy_asset(name,data):
+ target=assets/name
+ if target.exists():
+  raise ValueError('Duplicate release asset: '+name)
+ target.write_bytes(data)
 for run in selected.values():
  for artifact in api(f"repos/{repo}/actions/runs/{run['id']}/artifacts")['artifacts']:
   name=artifact['name']
   if name not in expected:continue
+  if name in found:
+   raise ValueError('Duplicate platform artifact: '+name)
   if artifact['expired']:
    raise ValueError('Expired artifact: '+name)
   dest=root/'downloaded'/name
@@ -47,18 +59,21 @@ for run in selected.values():
   platform,archive=expected[name];z=dest/archive
   with zipfile.ZipFile(z) as package:
    validate_package(package,sha,version)
-  (assets/f'SAWSTAR-{version}-{platform}-Manual.zip').write_bytes(z.read_bytes())
+  copy_asset(f'SAWSTAR-{version}-{platform}-Manual.zip',z.read_bytes())
   extensions={'.dmg','.pkg'} if platform.startswith('macOS') else {'.exe'}
   installers=[p for p in dest.rglob('*') if p.suffix in extensions]
   if any(sum(p.suffix==extension for p in installers)!=1 for extension in extensions):
    raise ValueError('Missing or extra installer type for '+platform)
   for p in installers:
-   if not p.name.startswith(f'SAWSTAR-{version}-') or '-rc' in p.name:
+   suffix=p.suffix if platform.startswith('macOS') else '-Setup.exe'
+   if p.name!=f'SAWSTAR-{version}-{platform}{suffix}':
     raise ValueError('Installer version mismatch: '+p.name)
-   (assets/p.name).write_bytes(p.read_bytes())
+   copy_asset(p.name,p.read_bytes())
   found.add(name)
 if found!=set(expected):
  raise ValueError('Incomplete platform coverage')
+if {p.name for p in assets.iterdir()}!=expected_assets:
+ raise ValueError('Incomplete release asset manifest')
 checks=''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in sorted(assets.iterdir()))
 (assets/'SHA256SUMS.txt').write_text(checks)
 # An unpublished draft may be refreshed; public releases and existing tags
