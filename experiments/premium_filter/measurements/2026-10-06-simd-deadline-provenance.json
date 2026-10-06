@@ -1,0 +1,58 @@
+{
+  "source_sha": "7255c1285979df35d20873306d1cfac239c4ee5e",
+  "study_kind": "simd-fir",
+  "reference": "FixedRatePremiumDrive<4,true,false,false>",
+  "study": "FixedRatePremiumDrive<4,true,false,true>",
+  "run_id": 37424058942,
+  "run_url": "https://github.com/RobCZart82/SAWSTAR/actions/runs/37424058942",
+  "date": "2026-10-06",
+  "drive_factor": 4,
+  "voices": 16,
+  "drive_db": 20,
+  "fx": true,
+  "rates": [
+    48000,
+    96000,
+    192000
+  ],
+  "buffers": [
+    32,
+    64,
+    128
+  ],
+  "filter_modes": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "pairs_per_scene": 4,
+  "blocks_per_path_and_pair": 256,
+  "warmup_seconds_per_path": 0.25,
+  "configuration": "Release",
+  "clock": "C++ steady_clock wall time; process and buffer stores timed",
+  "summary_rows_per_platform": 288,
+  "raw_blocks_per_platform": 73728,
+  "native_host_acceptance": false,
+  "raw_artifact_retention_days": 90,
+  "platforms": [
+    {
+      "platform": "Windows Server 2022 x64",
+      "compiler": "MSVC 19.44.35229.0",
+      "backend": "SSE2",
+      "job_id": 112139607078,
+      "artifact_id": 11394655360,
+      "artifact_name": "premium-deadline-simd-fir-windows-2022",
+      "summary": "2026-10-06-simd-deadline-windows-summary.csv"
+    },
+    {
+      "platform": "macOS 14.8.9 ARM64",
+      "compiler": "AppleClang 15.0.0.15000309",
+      "backend": "NEON",
+      "job_id": 112139607346,
+      "artifact_id": 11394144159,
+      "artifact_name": "premium-deadline-simd-fir-macos-14",
+      "summary": "2026-10-06-simd-deadline-macos-summary.csv"
+    }
+  ]
+}

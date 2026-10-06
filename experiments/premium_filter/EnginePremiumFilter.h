@@ -52,5 +52,7 @@ private:
 using EnginePremiumFilter = BasicEnginePremiumFilter<PremiumDrive>;
 // Separate offline tanh study; never selected by the production Synth.
 using TanhStudyEnginePremiumFilter = BasicEnginePremiumFilter<FixedRatePremiumDrive<4, true, true>>;
+// Separate FIR study keeps std::tanh and the fixed 4x policy.
+using SimdStudyEnginePremiumFilter = BasicEnginePremiumFilter<FixedRatePremiumDrive<4, true, false, true>>;
 using RateScaledEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledPremiumDrive>;
 }

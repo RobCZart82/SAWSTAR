@@ -62,7 +62,17 @@ def report(folder):
         summaries[key] = row
     if set(summaries) != expected:
         raise ValueError("Incomplete summary grid")
-    metadata = {"source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+    study_kind = os.environ.get("SAWSTAR_PREMIUM_STUDY", "tanh")
+    if study_kind not in ("tanh", "simd-fir"):
+        raise ValueError("Unknown study kind")
+    backend = (folder / "backend.txt").read_text(encoding="utf-8").strip()
+    if backend not in ("SSE2", "NEON", "scalar-fallback", "scalar-source"):
+        raise ValueError("Unknown FIR backend")
+    if study_kind == "tanh" and backend != "scalar-source":
+        raise ValueError("Incorrect tanh backend")
+    if study_kind == "simd-fir" and backend == "scalar-source":
+        raise ValueError("Incorrect SIMD study backend")
+    metadata = {"study_kind": study_kind, "fir_backend": backend,"source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
                 "platform": platform.platform(), "machine": platform.machine(),
                 "runner_os": os.environ.get("RUNNER_OS"), "runner_arch": os.environ.get("RUNNER_ARCH"),
                 "configuration": "Release", "blocks_per_path": 36864, "pairs_per_scene": 4,
@@ -70,8 +80,9 @@ def report(folder):
                 "drive_factor": 4, "clock": "C++ steady_clock wall time",
                 "native_host_acceptance": False}
     (folder / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
-    lines = ["# Offline paired saturation deadline study", "",
+    lines = ["# Offline paired premium engine deadline study", "",
              f"Source: {metadata['source_sha']}; {metadata['platform']}; {metadata['machine']}; Release.", "",
+             f"Candidate: {study_kind}; explicit FIR backend: {backend}.",
              "16 Poly voices, 20 dB, FX, four filter modes. Ratios are study/reference.",
              "Each table row uses 16 paired scene observations (four modes x four pairs).",
              "Percentages use host audio time; counts combine the measured scenes only.",

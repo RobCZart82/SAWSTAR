@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
 // Offline paired complete-engine study. Timings never gate CI.
 #include "PremiumSynth.h"
+#ifdef SAWSTAR_SIMD_FIR_STUDY
+#include "SimdPremiumSynth.h"
+#else
 #include "TanhPremiumSynth.h"
+#endif
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -16,7 +20,11 @@
 #include <vector>
 
 using Reference = sawstar::experimental_engine::Synth;
+#ifdef SAWSTAR_SIMD_FIR_STUDY
+using Study = sawstar::experimental_simd_engine::Synth;
+#else
 using Study = sawstar::experimental_tanh_engine::Synth;
+#endif
 struct Distribution {
   double median=0,p95=0,p99=0,worst=0;
   size_t over=0;
@@ -111,6 +119,14 @@ void Row(std::ostream& summary,std::ostream& raw,const char* label,double rate,
 }
 void Benchmark(const std::filesystem::path& folder) {
   std::filesystem::create_directories(folder);
+  std::ofstream backend(folder/"backend.txt");
+#ifdef SAWSTAR_SIMD_FIR_STUDY
+  backend<<sawstar::experimental::detail::FirLanes4::Backend<<'\n';
+#else
+  backend<<"scalar-source\n";
+#endif
+  backend.close();
+  if(!backend)throw std::runtime_error("Cannot record FIR backend");
   std::ofstream summary(folder/"summary.csv"),raw(folder/"blocks.csv");
   if(!summary||!raw)throw std::runtime_error("Cannot open measurement files");
   summary<<std::setprecision(17);raw<<std::setprecision(17);
