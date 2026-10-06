@@ -316,5 +316,94 @@ class FinalReleaseValidation(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     validate_package(z, 'expected', '1.0.3')
 
+
+class PublisherRuntimeGuards(unittest.TestCase):
+    # Execute the real publisher in a separate interpreter: -O must never
+    # disable release validation. Mock only external GitHub/package I/O.
+    RUNNER = r"""
+import io, json, os, runpy, sys, zipfile
+from pathlib import Path
+from unittest.mock import patch
+script, scenario = sys.argv[1:]
+sys.path.insert(0, str(Path(script).parent))
+root = Path.cwd()
+os.environ.update(RELEASE_SHA='expected', GH_REPO='owner/repo')
+metadata = dict(version='1.0.4', candidate='', release_date='2026-10-06')
+if scenario == 'date':
+    metadata['release_date'] = ''
+(root / 'release.json').write_text(json.dumps(metadata))
+(root / 'docs').mkdir()
+if scenario != 'notes':
+    (root / 'docs/RELEASE_NOTES_1.0.4.md').write_text('notes')
+names = ['SAWSTAR-macos-universal-candidate',
+         'SAWSTAR-windows-x64-candidate', 'SAWSTAR-windows-ARM64-candidate']
+runs = [dict(id=i, path='.github/workflows/' + name, head_sha='expected',
+             event='push', status='completed', conclusion='success')
+        for i, name in enumerate(('build-macos.yml', 'build-windows.yml', 'quality.yml'), 1)]
+def gh(args, **kwargs):
+    if args[1] == 'api':
+        endpoint = args[2]
+        if '/releases?' in endpoint:
+            return '[[]]'
+        if '/actions/runs?' in endpoint:
+            return json.dumps(dict(workflow_runs=runs))
+        if endpoint.endswith('/artifacts'):
+            artifacts = [] if scenario == 'coverage' else [
+                dict(name=name, expired=scenario == 'expired') for name in names]
+            return json.dumps(dict(artifacts=artifacts))
+        raise RuntimeError('Unexpected API: ' + endpoint)
+    if args[1:3] == ['run', 'download']:
+        dest = Path(args[args.index('--dir') + 1])
+        dest.mkdir(parents=True)
+        mac = 'macos' in args[args.index('--name') + 1]
+        with zipfile.ZipFile(dest / ('SAWSTAR-macos.zip' if mac else 'SAWSTAR-windows.zip'), 'w'):
+            pass
+        suffixes = ['.dmg', '.pkg'] if mac else ['.exe']
+        if mac and scenario == 'duplicate_type':
+            suffixes = ['.dmg', '.dmg']
+        for index, suffix in enumerate(suffixes):
+            version = '1.0.3' if scenario == 'version' else '1.0.4'
+            prefix = 'foreign-' if scenario == 'prefix' else ''
+            (dest / (prefix + 'SAWSTAR-' + version + '-Installer-' + str(index) + suffix)).write_bytes(b'installer')
+        return ''
+    raise RuntimeError('Unexpected command: ' + repr(args))
+def write_draft(*args):
+    (root / 'draft-written').write_text('verified')
+with patch('subprocess.check_output', side_effect=gh), \
+     patch('release_validation.validate_package'), \
+     patch('release_draft.write_verified_draft', side_effect=write_draft):
+    runpy.run_path(script, run_name='__main__')
+"""
+
+    def exercise(self, scenario, optimized):
+        with tempfile.TemporaryDirectory() as folder:
+            args = [sys.executable] + (['-O'] if optimized else [])
+            result = subprocess.run(args + ['-c', self.RUNNER, str(SCRIPT), scenario],
+                                    cwd=folder, capture_output=True, text=True)
+            return result, (Path(folder) / 'draft-written').exists()
+
+    def test_invalid_final_release_blocked_with_and_without_optimization(self):
+        expected = dict(date='Final release date required',
+                        notes='Version-specific release notes required',
+                        expired='Expired artifact',
+                        coverage='Incomplete platform coverage',
+                        duplicate_type='Missing or extra installer type',
+                        version='Installer version mismatch',
+                        prefix='Installer version mismatch')
+        for optimized in (False, True):
+            for scenario, message in expected.items():
+                with self.subTest(optimized=optimized, scenario=scenario):
+                    result, wrote = self.exercise(scenario, optimized)
+                    self.assertNotEqual(result.returncode, 0, result.stdout)
+                    self.assertIn(message, result.stderr)
+                    self.assertFalse(wrote)
+
+    def test_valid_final_release_reaches_draft_in_both_modes(self):
+        for optimized in (False, True):
+            with self.subTest(optimized=optimized):
+                result, wrote = self.exercise('valid', optimized)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertTrue(wrote)
+
 if __name__ == '__main__':
     unittest.main()

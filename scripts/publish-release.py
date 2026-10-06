@@ -8,9 +8,11 @@ if m['candidate']:
  print('Release preparation skipped: development candidate '+m['candidate'])
  raise SystemExit(0)
 version=m['version'];sha=os.environ['RELEASE_SHA'];repo=os.environ['GH_REPO'];tag='v'+version
-assert m.get('release_date'), 'Final release date required'
+if not m.get('release_date'):
+ raise ValueError('Final release date required')
 notes=root/f'docs/RELEASE_NOTES_{version}.md'
-assert notes.is_file(), 'Version-specific release notes required'
+if not notes.is_file():
+ raise ValueError('Version-specific release notes required')
 def gh(*args):return subprocess.check_output(['gh',*args],text=True)
 def api(path):return json.loads(gh('api',path))
 # Main documentation may change after publication. A published version is an
@@ -27,7 +29,8 @@ while True:
  if workflows_ready(selected):break
  if time.monotonic()>deadline:raise RuntimeError('Build timeout; release not published')
  time.sleep(20)
-assert all(x['conclusion']=='success' for x in selected.values()),'Build failed; release not published'
+if not all(x['conclusion']=='success' for x in selected.values()):
+ raise ValueError('Build failed; release not published')
 assets=root/'release-assets';assets.mkdir()
 expected={'SAWSTAR-macos-universal-candidate':('macOS-Universal','SAWSTAR-macos.zip'),
 'SAWSTAR-windows-x64-candidate':('Windows-x64','SAWSTAR-windows.zip'),
@@ -37,7 +40,8 @@ for run in selected.values():
  for artifact in api(f"repos/{repo}/actions/runs/{run['id']}/artifacts")['artifacts']:
   name=artifact['name']
   if name not in expected:continue
-  assert not artifact['expired']
+  if artifact['expired']:
+   raise ValueError('Expired artifact: '+name)
   dest=root/'downloaded'/name
   gh('run','download',str(run['id']),'--name',name,'--dir',str(dest))
   platform,archive=expected[name];z=dest/archive
@@ -46,12 +50,15 @@ for run in selected.values():
   (assets/f'SAWSTAR-{version}-{platform}-Manual.zip').write_bytes(z.read_bytes())
   extensions={'.dmg','.pkg'} if platform.startswith('macOS') else {'.exe'}
   installers=[p for p in dest.rglob('*') if p.suffix in extensions]
-  assert len(installers)==len(extensions),'Missing or extra installer'
+  if any(sum(p.suffix==extension for p in installers)!=1 for extension in extensions):
+   raise ValueError('Missing or extra installer type for '+platform)
   for p in installers:
-   assert f'SAWSTAR-{version}-' in p.name and '-rc' not in p.name
+   if not p.name.startswith(f'SAWSTAR-{version}-') or '-rc' in p.name:
+    raise ValueError('Installer version mismatch: '+p.name)
    (assets/p.name).write_bytes(p.read_bytes())
   found.add(name)
-assert found==set(expected),'Incomplete platform coverage'
+if found!=set(expected):
+ raise ValueError('Incomplete platform coverage')
 checks=''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in sorted(assets.iterdir()))
 (assets/'SHA256SUMS.txt').write_text(checks)
 # An unpublished draft may be refreshed; public releases and existing tags
