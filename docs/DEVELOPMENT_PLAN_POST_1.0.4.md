@@ -504,7 +504,7 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 | Mérföldkő | Állapot és bizonyíték | Következő kapu |
 | --- | --- | --- |
 | Pufferkapacitás CPU-vizsgálata | #76 beolvadt (`bfd011f`); 25/25 ellenőrzés sikeres. A Windows/macOS párok és provenance tartósan rögzítettek; a macOS kontroll erősen szór. | Nincs általános CPU-nyereségből következő aktiválás. |
-| Drive-normalizálási jelölt | Elkészült az alapból kikapcsolt reciprok opció. Helyben 1 831 104 sztereó frame egyezett, per-ráta/per-scene numerikus kapukkal; 11 célzott teszt sikeres. | Friss Windows/macOS és sanitizer CI. |
+| Drive-normalizálási jelölt | Elkészült az alapból kikapcsolt reciprok opció. Helyben 1 831 104 sztereó frame egyezett, per-ráta/per-scene numerikus kapukkal; 11 célzott teszt sikeres. | #77 CI sikeres; a friss teljesmotor-eredmények nem zárják a CPU-kaput. |
 | Jelölt teljesmotor-CPU-ja | Külön SIMD/4× motoradapter és 16 hangos, négy módos, FX-es kis-bufferes fixture/mérőcélpont kész. A helyi külön Drive SIMD-ideje kb. 4–10%-kal kisebb; ez nem motoreredmény. | Új CI-adatok, ismétlés és célgépes/natív REAPER deadline-próba. |
 | Végleges minőség/rátapolicy | Továbbra nyitott. A reciprok opció alapértéke false; a szállított hangút változatlan. | Magas rátás minőség, teljesmotor-CPU és natív elfogadás együtt. |
 | Production filtercsere | A policy után következik a meglévő négy móddal és GUI-val. | Latency/state/automation, factory presetek és kompatibilitás. |
@@ -513,3 +513,37 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 A normalizálás numerikus határa kutatási minősítés, nem általános bitazonossági,
 hallhatatlansági vagy realtime garancia. Részletek és a megtartott negatív/korlátozó
 eredmények: [normalizálási jelölt](PREMIUM_GAIN_NORMALIZATION.md).
+
+
+### 2026-10-07 következő munkacsomag
+
+A #77 Windows/macOS és sanitizer ellenőrzései sikeresek, a main `1c3fefb`
+mind a tíz ellenőrzése zöld. Helyben 98/98 Release teszt és az öt új
+preset/DSP-terület ASan/UBSan tesztje sikeres. A friss fix-4x motorpróba
+kb. 1–2% medián időnyereséget ad, de 192 kHz-en mindkét platformon minden
+mért blokk túllépi az audioidőt. Windows 96 kHz-en több a deadline-túllépés;
+a kisebb medián nem elegendő elfogadási feltétel.
+
+1. A normalizálási jelölt külön rátafüggő SIMD/4x–2x próbája, explicit
+   routing/numerikus regresszió és Windows/macOS páros teljesmotor-mérés.
+   A meglévő 176,4 kHz-es határ és 32 mintás késés megmarad; default aktiválás nincs.
+2. Az eredmények alapján célgépes ismétlés és a magasrátás minőség/költségpolicy
+   lezárása. A CI mérési idők leíró adatok; a funkcionális tesztek sikerét
+   nem tekintjük realtime CPU-elfogadásnak.
+3. Natív REAPER-elfogadás az új háttérimporttal: lejátszás/import, editor
+   bezárás/újranyitás, plugineltávolítás, több példány és külső meghajtó.
+4. Elfogadott policy után production filtercsere, latency/state/automation
+   és factory presetek. Kézikönyvek, RC és kiadás csak ezután.
+
+A teljesmotor- és külön Drive-eredmények, a negatív kontrollok és a mérési
+forrásazonosítók a [normalizálási dokumentumban](PREMIUM_GAIN_NORMALIZATION.md)
+szerepelnek. A presetkoherencia és a hagyományos automatizálás blokkfüggése
+nyitott; Linux/32 voice halasztott, a lezárt click/pop kutatás nem újranyitott.
+
+
+Az első új rátafüggő normalizálási jelölt helyi ellenőrzése: 101/101 Release,
+3/3 új ASan/UBSan kontroll sikeres. A Mac mini M1 célgépes offline próba
+kb. 1,2% medián javulást ad; 192 kHz-en 81,85% helyett 80,86% audioidő-medián,
+de 175/12 288 blokk még túllépi az időkeretet. A 48 kHz-es túllépésszám
+2-ről 4-re nőtt. Ez nem natív hostelfogadás; a friss Windows/macOS CI-mérés,
+kódazonos ismétlés és realtime/minőség kapu továbbra is nyitott.

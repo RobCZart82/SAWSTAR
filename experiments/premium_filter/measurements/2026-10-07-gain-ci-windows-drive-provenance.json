@@ -1,0 +1,134 @@
+{
+  "source_sha": "fb3f7df0594a33f0f454c94380a6b77f9caa46d7",
+  "reference_sha": null,
+  "study": "gain-normalization",
+  "reference_policy": "same-source default division branch",
+  "source_state": "checked-out CI commit",
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "machine": "AMD64",
+  "run_id": "37613211507",
+  "attempt": "1",
+  "rows": 96,
+  "pairs_per_case": 8,
+  "voices": 16,
+  "drive_db": 20,
+  "frames_per_pair": 16384,
+  "warmup_frames": 1024,
+  "vector_backend": "vector_backend=SSE2",
+  "csv_sha256": "6ec1127ea4361d97d6a3774112465b126c9cce95610c163911a256187b3d0917",
+  "source_sha256": {
+    "experiments/premium_filter/PremiumDrive.h": "5416de88280f64198bd31cfa6ccf9d7f4733b4b378cdbaf479eb06e6896b0187",
+    "experiments/premium_filter/FirLanes4.h": "df984cfb7c8948ea6627b23a3b959c5b8c53d90de8516f751abe1a5635ce3b7a",
+    "experiments/premium_filter/ResearchTanh.h": "acb025b4b76cde3379ea4bf2d297572bb4478fbc9b8a5339ec34206dcdfef735",
+    "experiments/premium_filter/benchmark_ring_storage.cpp": "336d6dedc38baa5e119b996c9760c83e71caee0f8fdcac37e0bf1f3c49d6740d",
+    "tests/fixtures/premium_drive_large_ring_reference.h": "6d5a80d1abec86145d885072a5e17a2d5359107719d0d15efefec3890a080bde",
+    "scripts/report-premium-ring.py": "bd54dac22f72f634bb1a7460b3e116816ea4c8409555db46daf2e862c7ac98e2",
+    "tests/premium_gain_normalization.cpp": "d243a9ef62a36439e2f743b6217198ead6b50b813f266cfed3f1c0f1a42a4f29"
+  },
+  "compiler": {
+    "id": "MSVC",
+    "version": "19.44.35229.0"
+  },
+  "compiler_sha256": {
+    "CMakeCXXCompiler.cmake": "0d3430047398ee357bbf65db10906b7cf793a22dd8b02c6db6f6372d2a4db77f"
+  },
+  "summaries": [
+    {
+      "factor": 2,
+      "implementation": "scalar",
+      "rate": 48000,
+      "median_ratio": 0.9606334664606841,
+      "minimum_ratio": 0.9452622246048846,
+      "maximum_ratio": 0.9871289016358791
+    },
+    {
+      "factor": 2,
+      "implementation": "scalar",
+      "rate": 96000,
+      "median_ratio": 0.9605945212402726,
+      "minimum_ratio": 0.9523630526025042,
+      "maximum_ratio": 0.9743931664790132
+    },
+    {
+      "factor": 2,
+      "implementation": "scalar",
+      "rate": 192000,
+      "median_ratio": 0.960009311166876,
+      "minimum_ratio": 0.9450709252404116,
+      "maximum_ratio": 0.9644938912305779
+    },
+    {
+      "factor": 2,
+      "implementation": "simd",
+      "rate": 48000,
+      "median_ratio": 0.8919193276112658,
+      "minimum_ratio": 0.888919279872031,
+      "maximum_ratio": 0.8947523317938966
+    },
+    {
+      "factor": 2,
+      "implementation": "simd",
+      "rate": 96000,
+      "median_ratio": 0.8924189995173606,
+      "minimum_ratio": 0.8913205867262246,
+      "maximum_ratio": 0.9407604040495515
+    },
+    {
+      "factor": 2,
+      "implementation": "simd",
+      "rate": 192000,
+      "median_ratio": 0.8933224925656142,
+      "minimum_ratio": 0.8894263020525048,
+      "maximum_ratio": 0.896944772851979
+    },
+    {
+      "factor": 4,
+      "implementation": "scalar",
+      "rate": 48000,
+      "median_ratio": 0.9635382437633315,
+      "minimum_ratio": 0.956429191956833,
+      "maximum_ratio": 1.1183921331077429
+    },
+    {
+      "factor": 4,
+      "implementation": "scalar",
+      "rate": 96000,
+      "median_ratio": 0.9602100181974942,
+      "minimum_ratio": 0.9565120471752422,
+      "maximum_ratio": 0.9642109858873635
+    },
+    {
+      "factor": 4,
+      "implementation": "scalar",
+      "rate": 192000,
+      "median_ratio": 0.9621440701685786,
+      "minimum_ratio": 0.9585295275134847,
+      "maximum_ratio": 0.9675328367544209
+    },
+    {
+      "factor": 4,
+      "implementation": "simd",
+      "rate": 48000,
+      "median_ratio": 0.9497190795386257,
+      "minimum_ratio": 0.8736228204247741,
+      "maximum_ratio": 0.9657715642310737
+    },
+    {
+      "factor": 4,
+      "implementation": "simd",
+      "rate": 96000,
+      "median_ratio": 0.9469634063280483,
+      "minimum_ratio": 0.8734753620236488,
+      "maximum_ratio": 0.9500978875778492
+    },
+    {
+      "factor": 4,
+      "implementation": "simd",
+      "rate": 192000,
+      "median_ratio": 0.9491825551111237,
+      "minimum_ratio": 0.9474658113633159,
+      "maximum_ratio": 0.9501153348240555
+    }
+  ],
+  "timing_is_acceptance_gate": false
+}

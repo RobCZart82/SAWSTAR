@@ -63,16 +63,16 @@ def report(folder):
     if set(summaries) != expected:
         raise ValueError("Incomplete summary grid")
     study_kind = os.environ.get("SAWSTAR_PREMIUM_STUDY", "tanh")
-    if study_kind not in ("tanh", "simd-fir", "rate-simd-fir", "gain-normalization"):
+    if study_kind not in ("tanh", "simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization"):
         raise ValueError("Unknown study kind")
     backend = (folder / "backend.txt").read_text(encoding="utf-8").strip()
     if backend not in ("SSE2", "NEON", "scalar-fallback", "scalar-source"):
         raise ValueError("Unknown FIR backend")
     if study_kind == "tanh" and backend != "scalar-source":
         raise ValueError("Incorrect tanh backend")
-    if study_kind in ("simd-fir", "rate-simd-fir", "gain-normalization") and backend == "scalar-source":
+    if study_kind in ("simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization") and backend == "scalar-source":
         raise ValueError("Incorrect SIMD study backend")
-    adaptive = study_kind == "rate-simd-fir"
+    adaptive = study_kind in ("rate-simd-fir", "rate-gain-normalization")
     factors = {str(rate): (2 if adaptive and rate >= 176400 else 4)
                for rate in (48000, 96000, 192000)}
     with (folder / "factors.csv").open(newline="") as f:
@@ -99,7 +99,7 @@ def report(folder):
              "16 Poly voices, 20 dB, FX, four filter modes. Ratios are study/reference.",
              "Each table row uses 16 paired scene observations (four modes x four pairs).",
              "Percentages use host audio time; counts combine the measured scenes only.",
-             "Shared CI wall time, buffer stores included, output checks outside timing.",
+             "Offline wall time, buffer stores included, output checks outside timing.",
              "No native host or portable realtime acceptance; no timing pass/fail threshold.", "",
              "| Rate | Buffer | Median paired p50 ratio | Median paired p99 ratio | Reference over/4096 | Study over/4096 |",
              "| --- | --- | --- | --- | --- | --- |"]
