@@ -144,8 +144,8 @@ record or an incorrect study/backend label.
 Local macOS Release validation passes all 101 CTest cases. The three new
 routing, complete-engine fixture and reporter checks also pass with ASan/UBSan.
 The routed test compares 69,632 frames with the fixed-factor reciprocal oracle
-and the unchanged division error bounds. Windows/macOS study results for this
-combined path remain pending its exact-head CI run.
+and the unchanged division error bounds. The exact-head Windows/macOS study
+has now completed; its results are recorded below.
 
 This extends the experiment to the relevant high-rate path. It does not approve
 the 2x quality compromise, activate a production filter, or close native CPU,
@@ -178,3 +178,81 @@ preserve the observation. All 73,728 raw blocks are also retained in the local
 `outputs/premium-rate-gain-m1-20261007` measurement folder. Repeat on the same
 machine and Windows, then perform native host acceptance with the approved
 quality policy before production integration.
+
+## Combined policy CI result
+
+PR #78 passed all 31 checks and merged as `cafae21`; the three main workflows
+also succeeded. Timing run `37632882450` measured source
+`0d14778d8cb5d76b647ea9d4f5568fa989491814`, not the merge commit. Both paths
+use 4x at 48/96 kHz and 2x at 192 kHz.
+
+| Platform | Rate | Median paired time ratio | Reference/study over-budget blocks |
+| --- | ---: | ---: | ---: |
+| Windows x64 / SSE2 | 48,000 | 0.978889 | 0 / 2 |
+| Windows x64 / SSE2 | 96,000 | 0.979202 | 251 / 186 |
+| Windows x64 / SSE2 | 192,000 | 0.991276 | 12,288 / 12,288 |
+| macOS ARM64 / NEON | 48,000 | 0.983474 | 7 / 23 |
+| macOS ARM64 / NEON | 96,000 | 0.988705 | 813 / 750 |
+| macOS ARM64 / NEON | 192,000 | 0.989857 | 631 / 798 |
+
+Each ratio aggregates 48 scene/pair ratios. Each path/rate has 12,288 blocks.
+The median improves, but every Windows 192 kHz block still misses its deadline;
+macOS 192 kHz and both 48 kHz runs have more misses with the candidate. Shared
+runner timing does not establish causation, native realtime acceptance or a
+cross-machine guarantee. The combined policy CPU gate remains open.
+
+The [Windows summary](../experiments/premium_filter/measurements/2026-10-07-rate-gain-ci-windows-engine.csv),
+[metadata](../experiments/premium_filter/measurements/2026-10-07-rate-gain-ci-windows-engine-metadata.json)
+and [artifact hashes](../experiments/premium_filter/measurements/2026-10-07-rate-gain-ci-windows-provenance.json),
+and the [macOS summary](../experiments/premium_filter/measurements/2026-10-07-rate-gain-ci-macos-engine.csv),
+[metadata](../experiments/premium_filter/measurements/2026-10-07-rate-gain-ci-macos-engine-metadata.json)
+and [artifact hashes](../experiments/premium_filter/measurements/2026-10-07-rate-gain-ci-macos-provenance.json)
+retain the source and compiled factor/backend records. Raw block measurements
+remain in the run's 90-day artifacts.
+
+## Combined policy high-rate complex-source qualification
+
+`premium_gain_complex_controls` runs the combined SIMD/reciprocal candidate
+at 176.4, 192 and 384 kHz against the independent 8x offline reference and
+the existing fixed 4x path. It also runs rate-scaled SIMD **division** with
+identical factors, source and controls to separate normalization rounding
+from the rate-policy difference. The existing division-only complex-source
+test remains a separate CTest case.
+
+The grid contains 144 cases: four actual OSC1/OSC2/SUB per-voice source scenes,
+four filter modes, steady 20/24 dB Drive and stepped Drive, with shared rapid
+cutoff targets and 50% resonance. There are 1,024 warmup and 4,096 measured
+frames per case: 589,824 measured stereo frames. The independent 8x reference
+must first pass delay, silence, channel-isolation and delayed linear-passband
+controls at each rate.
+
+All earlier diagnostic ceilings are unchanged: 1% unfiltered difference from
+4x/8x, 0.5% filtered difference from 8x and 0.1% 4x/8x convergence. Separately,
+normalization must stay within `2e-7` peak / `1e-7` relative RMS before the
+filter and `2e-6` peak / `1e-7` relative RMS after it, per case. These are
+numerical diagnostic bounds, not an alias-spectrum or audibility threshold.
+
+Local M1 Clang Release source `684b0eab60d02b18d19960b8f427888c71065677`:
+
+| Rate | Maximum relative RMS vs 8x | Maximum filtered relative RMS vs 8x | Maximum 4x/8x relative RMS |
+| --- | ---: | ---: | ---: |
+| 176,400 | 0.366091% | 0.461440% | 0.011819% |
+| 192,000 | 0.386792% | 0.490212% | 0.019081% |
+| 384,000 | 0.192252% | 0.253998% | 0.008673% |
+
+The filtered 192 kHz high-lead / HP12 / 24 dB case is close to the unchanged
+0.5% diagnostic ceiling. Passing it does not approve the 2x character/aliasing
+compromise. Normalization-vs-division peak and RMS differences were zero in
+this local fixture, before and after filtering; this observation is not a
+general bit-identity promise.
+
+The [144 rows](../experiments/premium_filter/measurements/2026-10-07-rate-gain-complex-local-m1.csv)
+and [source/measurement hashes](../experiments/premium_filter/measurements/2026-10-07-rate-gain-complex-local-m1-provenance.json)
+retain the local result. All 102 Release CTest cases pass, and both complex
+tests pass with ASan/UBSan. Windows/macOS research jobs also run the new
+combined fixture before timing; their fresh exact-head gates remain required.
+
+Next: repeat target-machine deadlines and resolve the high-rate cost/quality
+policy, then native host acceptance and production latency/state/automation
+integration. This qualification alone does not activate the filter or close
+the preset/listening/release gates.

@@ -515,7 +515,7 @@ hallhatatlansági vagy realtime garancia. Részletek és a megtartott negatív/k
 eredmények: [normalizálási jelölt](PREMIUM_GAIN_NORMALIZATION.md).
 
 
-### 2026-10-07 következő munkacsomag
+### 2026-10-07: a #77 utáni munkacsomag előzménye
 
 A #77 Windows/macOS és sanitizer ellenőrzései sikeresek, a main `1c3fefb`
 mind a tíz ellenőrzése zöld. Helyben 98/98 Release teszt és az öt új
@@ -547,3 +547,36 @@ kb. 1,2% medián javulást ad; 192 kHz-en 81,85% helyett 80,86% audioidő-mediá
 de 175/12 288 blokk még túllépi az időkeretet. A 48 kHz-es túllépésszám
 2-ről 4-re nőtt. Ez nem natív hostelfogadás; a friss Windows/macOS CI-mérés,
 kódazonos ismétlés és realtime/minőség kapu továbbra is nyitott.
+
+### 2026-10-07: #78 után, aktuális sorrend
+
+A #78 mind a 31 ellenőrzése sikeres; beolvadt a mainbe (`cafae21`), ahol
+a Code quality és a Windows/macOS build is zöld. A rátafüggő SIMD/reciprok
+jelölt Windows/macOS mérése elkészült és tartósan rögzített. A mediánidő
+kb. 0,9–2,1%-kal kisebb, de Windows 192 kHz-en továbbra is 12 288/12 288
+blokk túllépi az időkeretet. macOS 192 kHz-en a jelölttel több lett a
+túllépés (631 helyett 798). A CPU-kapu továbbra is nyitott.
+
+Az új kombinált minőségi regresszió 176,4/192/384 kHz-en, 144 OSC1/OSC2/SUB
+kontrollban ellenőrzi mind a négy szűrőmódot, 20/24 dB és változó Drive mellett.
+A változatlan 8x referenciakorlátok teljesülnek; helyben 102/102 Release és
+2/2 célzott ASan/UBSan teszt sikeres. A legnagyobb szűrt referenciaeltérés
+0,490212% (192 kHz, high-lead, HP12, 24 dB), közel a 0,5%-os diagnosztikai
+korláthoz. Ez nem hallásos vagy aliasing-elfogadás, és nem production aktiválás.
+
+1. Az új minőségi regresszió Windows/macOS és sanitizer CI-ellenőrzése;
+   beolvasztás csak a teljes, pontos headhez tartozó zöld ellenőrzéssor után.
+2. Kódazonos célgépes ismétlés, kis-bufferes teljesmotor-profil és a magasrátás
+   költség/minőségpolicy lezárása. A normalizálási gyorsítás önmagában kevés;
+   a rosszabb deadline-eredményeket és a minőségi kompromisszumot megtartjuk.
+3. Natív Windows/macOS REAPER-elfogadás az elfogadott filterpolicy és a
+   háttérimport mellett: lejátszás/import, editor bezárás/újranyitás,
+   plugineltávolítás, több példány, külső meghajtó.
+4. A kapuk után a prémium filter váltsa le teljesen a Classicot a meglévő
+   GUI-val és négy móddal; latency/state/automation, presetkoherencia,
+   factory presetek és régi projektek ellenőrzése külön feladat.
+5. Kézikönyvek, verzió/RC és Windows/macOS csomagellenőrzés, majd kiadás.
+
+A részletes mérési eredmények és forrásazonosítók:
+[Drive-normalizálás és kombinált policy](PREMIUM_GAIN_NORMALIZATION.md).
+Linux/32 voice továbbra is halasztott; a lezárt click/pop kutatás nem nyílik újra.

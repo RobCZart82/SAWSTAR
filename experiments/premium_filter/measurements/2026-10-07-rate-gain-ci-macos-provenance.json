@@ -1,0 +1,37 @@
+{
+  "run_id": 37632882450,
+  "source_commit": "0d14778d8cb5d76b647ea9d4f5568fa989491814",
+  "runner": "macos-14",
+  "artifact": "premium-deadline-rate-gain-normalization-macos-14",
+  "files": {
+    "factors.csv": {
+      "sha256": "00bd2b1ebc1805dbb0e935b593a0bfa9ddee2cc0765acfb2dd851698707144d9",
+      "bytes": 66
+    },
+    "summary.csv": {
+      "sha256": "9595c4b226d7716f2b27cc1ac1ad71bccdcf2afe6755273e716fa6aca3c43701",
+      "bytes": 51778
+    },
+    "report.md": {
+      "sha256": "4190ac924023f78f20acb3b35868fcce97acb21dd7148baa780608da433c412a",
+      "bytes": 1253
+    },
+    "metadata.json": {
+      "sha256": "191540969cd904f3a756b3f38099dc939588c7569ecf655711eeb2657ded89b0",
+      "bytes": 643
+    },
+    "backend.txt": {
+      "sha256": "0e18aea3bbc2a90e8443299891c8e78603257e12fb4397ac24a79218568ce2b7",
+      "bytes": 5
+    },
+    "blocks.csv": {
+      "sha256": "75a36342a7913d0a787bda68161555f34e1bf57d01b67fd19e3228070161a945",
+      "bytes": 3133269
+    },
+    "CMakeCXXCompiler.cmake": {
+      "sha256": "66ff634d7b84f4018e91288a10aca879e3c26f8a6d4bec58ba2544a1fee73154",
+      "bytes": 6984
+    }
+  },
+  "raw_block_retention": "CI artifact: 90 days; summary and metadata retained in repository"
+}

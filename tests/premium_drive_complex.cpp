@@ -6,10 +6,18 @@
 #include "dsp/SubOscillator.h"
 #include <array>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
 using namespace sawstar::experimental;
+#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+using CandidateDrive = RateScaledGainPremiumDrive;
+constexpr std::array<double, 3> Rates{176400., 192000., 384000.};
+#else
+using CandidateDrive = RateScaledPremiumDrive;
+constexpr std::array<double, 2> Rates{176400., 192000.};
+#endif
 void Require(bool ok, const char* message) { if (!ok) throw std::runtime_error(message); }
 struct Error {
   double squared = 0, energy = 0, peak = 0;
@@ -48,7 +56,7 @@ std::vector<std::array<float, 2>> Source(double rate, int scene, int count) {
 int main() {
   try {
     // Independent 8x impulse/clear/passband checks before using it as reference.
-    for (double rate : {176400., 192000.}) {
+    for (double rate : Rates) {
       ReferencePremiumDrive8x reference; reference.Init(rate);
       int position = -1; double peak = 0;
       for (int i = 0; i < 128; ++i) {
@@ -73,19 +81,31 @@ int main() {
         Require(error / energy < 1e-6, "8x independent delayed linear passband");
       }
     }
-    std::cout << "rate,scene,filter_mode,drive_control,rate_to_4x_rms,rate_to_8x_rms,4x_to_8x_rms,filtered_rate_to_8x_rms,filtered_4x_to_8x_rms,rate_to_8x_peak\n";
+    std::cout << "rate,scene,filter_mode,drive_control,rate_to_4x_rms,rate_to_8x_rms,4x_to_8x_rms,filtered_rate_to_8x_rms,filtered_4x_to_8x_rms,rate_to_8x_peak";
+#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+    std::cout << ",rate_to_division_rms,filtered_rate_to_division_rms,rate_to_division_peak,filtered_rate_to_division_peak";
+    std::cout << std::setprecision(17);
+#endif
+    std::cout << '\n';
     const std::array<const char*, 4> names{"bass", "lead", "pad-voice", "high-lead"};
     constexpr int warmup = 1024, frames = 4096;
     int controls = 0;
-    for (double rate : {176400., 192000.}) for (int scene = 0; scene < 4; ++scene) {
+    for (double rate : Rates) for (int scene = 0; scene < 4; ++scene) {
       const auto source = Source(rate, scene, warmup + frames);
       for (int mode = 0; mode < 4; ++mode) for (int control = 0; control < 3; ++control) {
-        RateScaledPremiumDrive candidate; PremiumDrive four; ReferencePremiumDrive8x eight;
+        CandidateDrive candidate; PremiumDrive four; ReferencePremiumDrive8x eight;
         candidate.Init(rate); four.Init(rate); eight.Init(rate);
         const double initial = control == 0 ? 20 : control == 1 ? 24 : 0;
         candidate.Set(initial); four.Set(initial); eight.Set(initial);
         candidate.SnapToTargets(); four.SnapToTargets(); eight.SnapToTargets();
+#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+        RateScaledSimdPremiumDrive division;
+        division.Init(rate); division.Set(initial); division.SnapToTargets();
+        std::array<PremiumLowPass, 4> filters;
+        Error toDivision, filteredToDivision;
+#else
         std::array<PremiumLowPass, 3> filters;
+#endif
         for (auto& f : filters) { f.Init(rate); f.Set(12000, 50); f.SetMode(mode); f.SnapToTargets(); }
         Error toFour, toEight, fourToEight, filteredToEight, filteredFourToEight;
         for (int i = 0; i < warmup + frames; ++i) {
@@ -93,6 +113,9 @@ int main() {
             constexpr std::array<double, 8> targets{0, 12, 20, 24, 20, 12, 0, 24};
             const double db = targets[(i / 512) % targets.size()];
             candidate.Set(db); four.Set(db); eight.Set(db);
+#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+            division.Set(db);
+#endif
           }
           // Shared rapid cutoff target changes stress the downstream state;
           // this is a short numerical control, not a musical listening fixture.
@@ -102,6 +125,10 @@ int main() {
           }
           const auto a = candidate.Process(source[i]), b = four.Process(source[i]), c = eight.Process(source[i]);
           const auto fa = filters[0].Process(a), fb = filters[1].Process(b), fc = filters[2].Process(c);
+#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+          const auto d = division.Process(source[i]), fd = filters[3].Process(d);
+          if (i >= warmup) { toDivision.Add(a, d); filteredToDivision.Add(fa, fd); }
+#endif
           if (i >= warmup) {
             toFour.Add(a, b); toEight.Add(a, c); fourToEight.Add(b, c);
             filteredToEight.Add(fa, fc); filteredFourToEight.Add(fb, fc);
@@ -110,13 +137,26 @@ int main() {
         ++controls;
         std::cout << rate << ',' << names[scene] << ',' << mode << ',' << (control == 0 ? "20" : control == 1 ? "24" : "steps")
           << ',' << toFour.Relative() << ',' << toEight.Relative() << ',' << fourToEight.Relative()
-          << ',' << filteredToEight.Relative() << ',' << filteredFourToEight.Relative() << ',' << toEight.peak << '\n';
+          << ',' << filteredToEight.Relative() << ',' << filteredFourToEight.Relative() << ',' << toEight.peak;
+#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+        std::cout << ',' << toDivision.Relative() << ',' << filteredToDivision.Relative()
+          << ',' << toDivision.peak << ',' << filteredToDivision.peak;
+        Require(toDivision.peak <= 2e-7 && toDivision.Relative() <= 1e-7,
+                "complex normalization numerical bounds");
+        Require(filteredToDivision.peak <= 2e-6 && filteredToDivision.Relative() <= 1e-7,
+                "filtered complex normalization numerical bounds");
+#endif
+        std::cout << '\n';
         // Diagnostic failure bounds, not a claim of transparent or alias-free audio.
         Require(toFour.Relative() < .01 && toEight.Relative() < .01, "complex-source diagnostic difference ceiling (1%)");
         Require(filteredToEight.Relative() < .005, "filtered complex-source diagnostic difference ceiling (0.5%)");
         Require(fourToEight.Relative() < .001, "4x/8x convergence diagnostic ceiling (0.1%)");
       }
     }
+#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+    Require(controls == 144, "complete combined gain four-mode high-rate grid");
+#else
     Require(controls == 96, "complete four-mode complex source grid");
+#endif
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
