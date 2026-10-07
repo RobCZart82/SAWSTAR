@@ -11,7 +11,12 @@
 #include <stdexcept>
 #include <vector>
 using namespace sawstar::experimental;
-#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+#ifdef SAWSTAR_COMPLEX_LOOKUP_STUDY
+using CandidateDrive = RateScaledLookupPremiumDrive;
+using ComparisonDrive = RateScaledGainPremiumDrive;
+constexpr std::array<double, 3> Rates{176400., 192000., 384000.};
+#elif defined(SAWSTAR_COMPLEX_GAIN_STUDY)
+using ComparisonDrive = RateScaledSimdPremiumDrive;
 using CandidateDrive = RateScaledGainPremiumDrive;
 constexpr std::array<double, 3> Rates{176400., 192000., 384000.};
 #else
@@ -82,8 +87,12 @@ int main() {
       }
     }
     std::cout << "rate,scene,filter_mode,drive_control,rate_to_4x_rms,rate_to_8x_rms,4x_to_8x_rms,filtered_rate_to_8x_rms,filtered_4x_to_8x_rms,rate_to_8x_peak";
-#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+#if defined(SAWSTAR_COMPLEX_GAIN_STUDY) || defined(SAWSTAR_COMPLEX_LOOKUP_STUDY)
+#ifdef SAWSTAR_COMPLEX_LOOKUP_STUDY
+    std::cout << ",rate_to_std_tanh_rms,filtered_rate_to_std_tanh_rms,rate_to_std_tanh_peak,filtered_rate_to_std_tanh_peak";
+#else
     std::cout << ",rate_to_division_rms,filtered_rate_to_division_rms,rate_to_division_peak,filtered_rate_to_division_peak";
+#endif
     std::cout << std::setprecision(17);
 #endif
     std::cout << '\n';
@@ -98,8 +107,8 @@ int main() {
         const double initial = control == 0 ? 20 : control == 1 ? 24 : 0;
         candidate.Set(initial); four.Set(initial); eight.Set(initial);
         candidate.SnapToTargets(); four.SnapToTargets(); eight.SnapToTargets();
-#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
-        RateScaledSimdPremiumDrive division;
+#if defined(SAWSTAR_COMPLEX_GAIN_STUDY) || defined(SAWSTAR_COMPLEX_LOOKUP_STUDY)
+        ComparisonDrive division;
         division.Init(rate); division.Set(initial); division.SnapToTargets();
         std::array<PremiumLowPass, 4> filters;
         Error toDivision, filteredToDivision;
@@ -113,7 +122,7 @@ int main() {
             constexpr std::array<double, 8> targets{0, 12, 20, 24, 20, 12, 0, 24};
             const double db = targets[(i / 512) % targets.size()];
             candidate.Set(db); four.Set(db); eight.Set(db);
-#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+#if defined(SAWSTAR_COMPLEX_GAIN_STUDY) || defined(SAWSTAR_COMPLEX_LOOKUP_STUDY)
             division.Set(db);
 #endif
           }
@@ -125,7 +134,7 @@ int main() {
           }
           const auto a = candidate.Process(source[i]), b = four.Process(source[i]), c = eight.Process(source[i]);
           const auto fa = filters[0].Process(a), fb = filters[1].Process(b), fc = filters[2].Process(c);
-#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+#if defined(SAWSTAR_COMPLEX_GAIN_STUDY) || defined(SAWSTAR_COMPLEX_LOOKUP_STUDY)
           const auto d = division.Process(source[i]), fd = filters[3].Process(d);
           if (i >= warmup) { toDivision.Add(a, d); filteredToDivision.Add(fa, fd); }
 #endif
@@ -138,7 +147,7 @@ int main() {
         std::cout << rate << ',' << names[scene] << ',' << mode << ',' << (control == 0 ? "20" : control == 1 ? "24" : "steps")
           << ',' << toFour.Relative() << ',' << toEight.Relative() << ',' << fourToEight.Relative()
           << ',' << filteredToEight.Relative() << ',' << filteredFourToEight.Relative() << ',' << toEight.peak;
-#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+#if defined(SAWSTAR_COMPLEX_GAIN_STUDY) || defined(SAWSTAR_COMPLEX_LOOKUP_STUDY)
         std::cout << ',' << toDivision.Relative() << ',' << filteredToDivision.Relative()
           << ',' << toDivision.peak << ',' << filteredToDivision.peak;
         Require(toDivision.peak <= 2e-7 && toDivision.Relative() <= 1e-7,
@@ -153,7 +162,7 @@ int main() {
         Require(fourToEight.Relative() < .001, "4x/8x convergence diagnostic ceiling (0.1%)");
       }
     }
-#ifdef SAWSTAR_COMPLEX_GAIN_STUDY
+#if defined(SAWSTAR_COMPLEX_GAIN_STUDY) || defined(SAWSTAR_COMPLEX_LOOKUP_STUDY)
     Require(controls == 144, "complete combined gain four-mode high-rate grid");
 #else
     Require(controls == 96, "complete four-mode complex source grid");
