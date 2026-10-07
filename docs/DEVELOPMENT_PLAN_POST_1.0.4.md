@@ -16,7 +16,7 @@ az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpon
 | Presetátnevezés | #70 beolvadt; 17/17 ellenőrzés sikeres | exFAT és natív GUI elfogadás |
 | Gyors presetlista | #71 beolvadt; ABC-sorrend, kategóriacímkék és azonos sorrendű nyilak; 17/17 ellenőrzés sikeres | Natív GUI elfogadás |
 | Preset archiválása | #72 beolvadt; 17/17 ellenőrzés sikeres | Natív törlés/mentés és külső meghajtós elfogadás |
-| Presetkezelés | #73 importprofil beolvadt; háttérjob és GUI-integráció ebben a munkacsomagban, megtartott eredménnyel és lifecycle regresszióval | Friss CI és natív import/editor/unload elfogadás; koherencia-reprodukció nyitott |
+| Presetkezelés | #73 importprofil és #74 háttérimport beolvadt; a #74 friss headjének mind a 17 különböző CI-ellenőrzése sikeres | Natív import/editor/unload elfogadás; koherencia-reprodukció nyitott |
 | 32 voice / Linux plugin | Halasztott | Következő release után |
 
 Az átnevezés működése és külső meghajtós tesztje:
@@ -482,3 +482,11 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 - Ugyanazon Windows job 192 kHz-es motorideje semleges (~1,000); a korábbi 3%-os lassulás most nem ismétlődött. macOS motor p50 javul, de néhány tail/túllépési eset romlik. Gyökérok vagy shipping CPU-elfogadás ebből nem állapítható meg.
 
 - Kódazonos ismétlés: macOS külön 192 kHz/2x Drive arány 1,072197 (~7% lassulás), szemben az első 0,919041 értékkel. A negatív eredmény CSV/provenance-nal dokumentálva. Windows külön Drive továbbra gyorsabb, teljesmotoros 192 kHz nyereség csekély (~0,997); stabil/célgépes CPU-garancia nincs.
+
+
+### 2026-10-07: a 2× Drive decimátorpufferének csökkentése
+
+- A kutatási 2× ág 65 FIR-együtthatójához 128 helyes, tükrözött gyűrű elegendő; a korábbi 256 hely helyett pontosan 4096 bájttal kisebb a sztereó Drive-objektum. A 4× ág 256 helyes gyűrűje változatlan.
+- A korábbi, befagyasztott scalar referenciákhoz 1 996 800 sztereó frame bitazonos a helyi MSVC x64 Release-próbában. A méret és a 32 mintás késés fordítási regresszióval védett.
+- Friss Windows/macOS és sanitizer CI szükséges. A helyi memóriaelőny nem CPU- vagy natív realtime-elfogadás; a shipping ráta-policy és production filtercsere továbbra is nyitott.
+- Részletek: [2× decimátorpuffer](PREMIUM_DRIVE_RING_STORAGE.md).

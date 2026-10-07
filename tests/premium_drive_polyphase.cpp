@@ -22,6 +22,10 @@ template<unsigned Factor, template<unsigned> class Oracle = sawstar::test_refere
   static_assert(sizeof(Candidate) + (std::is_same_v<Reference, sawstar::test_reference::FixedRatePremiumDrive<Factor>> ? 4096 : 0)
                 <= sizeof(Reference), "Retain compact storage savings; phase dispatch adds no storage");
   static_assert(Candidate::Latency == Reference::Latency, "Latency is unchanged");
+  if constexpr (std::is_same_v<Reference, sawstar::phase_reference::FixedRatePremiumDrive<Factor>>) {
+    static_assert(sizeof(Candidate) + (Factor == 2 ? 4096 : 0) == sizeof(Reference),
+                  "2x decimator saves exactly 4096 bytes; 4x storage is unchanged");
+  }
   auto compare = [](Candidate& a, Reference& b, Frame x) {
     const auto actual = a.Process(x), expected = b.Process(x);
     if (std::memcmp(actual.data(), expected.data(), sizeof(actual)) != 0)
