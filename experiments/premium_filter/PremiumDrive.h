@@ -66,7 +66,13 @@ private:
   // Mirroring 64 slots keeps the compact convolution contiguous through wrap.
   static constexpr unsigned HostRingSize = 64;
   struct HostFir { std::array<double, 2 * HostRingSize> history{}; unsigned cursor = 0; };
-  struct Fir { std::array<double, 512> history{}; unsigned cursor = 0; };
+  // The decimator retains 32 * Factor + 1 oversampled values. Use the next
+  // power-of-two ring (128 at 2x, 256 at 4x), mirrored for contiguous loads.
+  // This saves 4096 bytes per stereo 2x Drive without changing FIR arithmetic.
+  static constexpr unsigned DownRingSize = 64 * Factor;
+  static_assert((DownRingSize & (DownRingSize - 1)) == 0);
+  static_assert(DownRingSize >= 32 * Factor + 1);
+  struct Fir { std::array<double, 2 * DownRingSize> history{}; unsigned cursor = 0; };
   template<unsigned Phase> double ProcessPhase(const HostFir& up, Fir& down) {
     const double x = Interpolate<Phase>(up);
     double shaped = x;
@@ -125,10 +131,10 @@ private:
   template<bool Output> double Tick(Fir& fir, double x) {
     // Mirrored ring makes the convolution history contiguous without wrapping
     // each tap. Independent sums enable vectorization without fast-math.
-    fir.history[fir.cursor] = fir.history[fir.cursor + 256] = x;
+    fir.history[fir.cursor] = fir.history[fir.cursor + DownRingSize] = x;
     double y = 0;
     if constexpr (Output) {
-      const double* history = fir.history.data() + fir.cursor + 256;
+      const double* history = fir.history.data() + fir.cursor + DownRingSize;
 
       if constexpr (VectorFir) {
         detail::FirLanes4 sums;
@@ -151,7 +157,7 @@ private:
         y += taps_[Center] * *(history - Center);
       }
     }
-    fir.cursor = (fir.cursor + 1) & 255;
+    fir.cursor = (fir.cursor + 1) & (DownRingSize - 1);
     return y;
   }
   static constexpr unsigned TapCount = 32 * Factor + 1, Center = (TapCount - 1) / 2;
