@@ -12,6 +12,7 @@ on:
       - 'tests/premium_drive_simd.cpp'
       - 'tests/premium_drive_rate_simd.cpp'
       - 'tests/premium_drive_rate_gain.cpp'
+      - 'tests/premium_drive_complex.cpp'
       - 'tests/premium_deadline_report.py'
   workflow_dispatch:
 permissions:
@@ -83,9 +84,9 @@ jobs:
       - name: Configure Release research probes
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON
       - name: Build paired probe only
-        run: cmake --build build --config Release --target ${{ matrix.target }} sawstar_premium_simd_tests sawstar_premium_rate_simd_tests sawstar_premium_rate_gain_tests --parallel 2
+        run: cmake --build build --config Release --target ${{ matrix.target }} sawstar_premium_simd_tests sawstar_premium_rate_simd_tests sawstar_premium_rate_gain_tests sawstar_premium_gain_complex_tests --parallel 2
       - name: Validate sounding fixture and percentile controls
-        run: ctest --test-dir build -C Release -R '^(premium_drive_simd_identity|premium_drive_rate_simd_identity|premium_drive_rate_gain_contract|premium_deadline_report|${{ matrix.contract }})$' --verbose
+        run: ctest --test-dir build -C Release -R '^(premium_drive_simd_identity|premium_drive_rate_simd_identity|premium_drive_rate_gain_contract|premium_gain_complex_controls|premium_deadline_report|${{ matrix.contract }})$' --verbose
       - name: Record paired wall time distributions
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
