@@ -222,7 +222,9 @@ on a dedicated target machine. They require repeats and component profiling.
 Permanent [Windows summaries](../experiments/premium_filter/measurements/2026-10-07-lookup-engine-windows-summary.csv),
 [macOS summaries](../experiments/premium_filter/measurements/2026-10-07-lookup-engine-macos-summary.csv)
 and [exact-head artifact/source provenance](../experiments/premium_filter/measurements/2026-10-07-lookup-engine-ci-provenance.json)
-retain the observations. Raw blocks/compiler data and reports are also saved
+retain the observations. Repository summaries normalize line endings to LF
+without changing CSV values; provenance retains original artifact hashes and
+normalized summary hashes. Raw blocks/compiler data and reports are also saved
 locally in `outputs/premium-lookup-engine-ci-20261007` and in 90-day workflow
 artifacts. Subsequent lookup jobs additionally preserve the verbose numerical
 control log alongside the deadline files.

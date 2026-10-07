@@ -37,7 +37,8 @@
         "blocks.csv": "2e56c515a13dbd4a92020d7c2ed09454c0e5b73e757c4e91538e78c62e2e5fc5",
         "compiler/CMakeCXXCompiler.cmake": "0d3430047398ee357bbf65db10906b7cf793a22dd8b02c6db6f6372d2a4db77f"
       },
-      "job_id": 112973369620
+      "job_id": 112973369620,
+      "repository_summary_sha256": "378026d351762cb7671d70927626975c5abb9147cb7457754a01d237fce580fb"
     },
     "macos": {
       "metadata": {
@@ -72,7 +73,9 @@
         "blocks.csv": "7763c741a8794ac953758c8e0d209a48f6450dd456c9ce4ce404247f4fdb0602",
         "compiler/CMakeCXXCompiler.cmake": "66ff634d7b84f4018e91288a10aca879e3c26f8a6d4bec58ba2544a1fee73154"
       },
-      "job_id": 112973369825
+      "job_id": 112973369825,
+      "repository_summary_sha256": "e9eb68b51695e5ba4dc69e9f7fcf858e255c3d7388475b9d456e386005e458a9"
     }
-  }
+  },
+  "repository_csv_normalization": "CRLF to LF only; parsed CSV rows unchanged. Artifact hashes describe original downloaded bytes."
 }
