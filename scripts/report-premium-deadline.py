@@ -99,7 +99,7 @@ def report(folder):
              "16 Poly voices, 20 dB, FX, four filter modes. Ratios are study/reference.",
              "Each table row uses 16 paired scene observations (four modes x four pairs).",
              "Percentages use host audio time; counts combine the measured scenes only.",
-             "Shared CI wall time, buffer stores included, output checks outside timing.",
+             "Offline wall time, buffer stores included, output checks outside timing.",
              "No native host or portable realtime acceptance; no timing pass/fail threshold.", "",
              "| Rate | Buffer | Median paired p50 ratio | Median paired p99 ratio | Reference over/4096 | Study over/4096 |",
              "| --- | --- | --- | --- | --- | --- |"]

@@ -1,0 +1,23 @@
+{
+  "study_kind": "rate-gain-normalization",
+  "fir_backend": "NEON",
+  "source_sha": "64cbb57602c799cf8bbc8c5413fb11fe53205dd0",
+  "platform": "macOS-26.7-arm64-arm-64bit",
+  "machine": "arm64",
+  "runner_os": null,
+  "runner_arch": null,
+  "configuration": "Release",
+  "blocks_per_path": 36864,
+  "pairs_per_scene": 4,
+  "warmup_seconds_per_path": 0.25,
+  "timed_blocks_per_path_and_pair": 256,
+  "drive_factor": null,
+  "drive_factors_by_rate": {
+    "48000": 4,
+    "96000": 4,
+    "192000": 2
+  },
+  "rate_policy": "normalized-176400-boundary",
+  "clock": "C++ steady_clock wall time",
+  "native_host_acceptance": false
+}

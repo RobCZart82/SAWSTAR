@@ -539,3 +539,11 @@ A teljesmotor- és külön Drive-eredmények, a negatív kontrollok és a méré
 forrásazonosítók a [normalizálási dokumentumban](PREMIUM_GAIN_NORMALIZATION.md)
 szerepelnek. A presetkoherencia és a hagyományos automatizálás blokkfüggése
 nyitott; Linux/32 voice halasztott, a lezárt click/pop kutatás nem újranyitott.
+
+
+Az első új rátafüggő normalizálási jelölt helyi ellenőrzése: 101/101 Release,
+3/3 új ASan/UBSan kontroll sikeres. A Mac mini M1 célgépes offline próba
+kb. 1,2% medián javulást ad; 192 kHz-en 81,85% helyett 80,86% audioidő-medián,
+de 175/12 288 blokk még túllépi az időkeretet. A 48 kHz-es túllépésszám
+2-ről 4-re nőtt. Ez nem natív hostelfogadás; a friss Windows/macOS CI-mérés,
+kódazonos ismétlés és realtime/minőség kapu továbbra is nyitott.

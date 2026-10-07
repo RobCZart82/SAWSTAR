@@ -150,3 +150,31 @@ combined path remain pending its exact-head CI run.
 This extends the experiment to the relevant high-rate path. It does not approve
 the 2x quality compromise, activate a production filter, or close native CPU,
 state/automation/preset and listening gates.
+
+
+## Local Mac mini M1 combined policy result
+
+Source `64cbb57602c799cf8bbc8c5413fb11fe53205dd0`, Apple M1/Macmini9,1,
+Clang Release, NEON. Both paths use 4x at 48/96 kHz and 2x at 192 kHz.
+This is a single offline desktop run without pinned affinity or realtime
+priority, not a native REAPER callback test.
+
+| Rate | Median paired time ratio | Reference/study median audio time | Reference/study over-budget blocks |
+| --- | ---: | ---: | ---: |
+| 48,000 | 0.988240 | 27.9203% / 27.5941% | 2 / 4 |
+| 96,000 | 0.988059 | 55.6562% / 54.9922% | 142 / 134 |
+| 192,000 | 0.988192 | 81.8501% / 80.8610% | 271 / 175 |
+
+Ratios and median audio percentages aggregate 48 scene/pair observations per
+rate. Miss counts cover 12,288 blocks per path/rate. The median improvement is
+about 1.2%; deadline misses remain and the 48 kHz count increases. This does
+not close the realtime gate, establish a cause for desktop scheduling spikes,
+or approve the high-rate quality policy.
+
+The [summary](../experiments/premium_filter/measurements/2026-10-07-rate-gain-local-m1-engine.csv),
+[metadata](../experiments/premium_filter/measurements/2026-10-07-rate-gain-local-m1-engine-metadata.json)
+and [source/compiler/measurement hashes](../experiments/premium_filter/measurements/2026-10-07-rate-gain-local-m1-provenance.json)
+preserve the observation. All 73,728 raw blocks are also retained in the local
+`outputs/premium-rate-gain-m1-20261007` measurement folder. Repeat on the same
+machine and Windows, then perform native host acceptance with the approved
+quality policy before production integration.
