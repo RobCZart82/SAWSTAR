@@ -1,6 +1,6 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
-Frissítve: 2026-10-06. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
+Frissítve: 2026-10-07. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
 Az akkori main Windows, macOS és Code quality workflow-ja sikeres volt. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
@@ -13,12 +13,16 @@ az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpon
 | Kiadási ellenőrzés | #69: pontos platformú installer, duplikációvédelem, végleges assetlista | Következő kiadás csomagellenőrzése |
 | Prémium filter | Négy módos kutatási prototípus; production hangút még változatlan | CPU/minőségpolicy és natív kis-bufferes mérés |
 | Filter integráció | Még nem kész | Latency/state/automation, factory presetek, natív elfogadás |
-| Presetátnevezés | Natív, felülírást tiltó Windows/macOS javítás és regresszió ebben a munkacsomagban | Friss CI; exFAT és natív GUI elfogadás |
+| Presetátnevezés | #70 beolvadt; 17/17 ellenőrzés sikeres | exFAT és natív GUI elfogadás |
+| Gyors presetlista | #71 beolvadt; ABC-sorrend, kategóriacímkék és azonos sorrendű nyilak; 17/17 ellenőrzés sikeres | Natív GUI elfogadás |
+| Preset archiválása | Felülírást tiltó mentés és célzott ütközési regresszió ebben a munkacsomagban | Friss CI és natív törlés/mentés elfogadás |
 | Presetkezelés | Koherencia-reprodukció és GUI importkésés vizsgálata nyitott | Célzott hostteszt és profilozás |
 | 32 voice / Linux plugin | Halasztott | Következő release után |
 
 Az átnevezés működése és külső meghajtós tesztje:
 [preset rename validation](PRESET_RENAME_VALIDATION.md).
+A gyors lista működése: [quick preset list](QUICK_PRESET_LIST.md).
+A törléskor megtartott mentések védelme: [preset archive validation](PRESET_ARCHIVE_VALIDATION.md).
 Az alábbi történeti mérési eredmények nem helyettesítik a nyitott kapukat.
 
 ## Aktív prioritás 2026-10-04
@@ -476,4 +480,3 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 - Ugyanazon Windows job 192 kHz-es motorideje semleges (~1,000); a korábbi 3%-os lassulás most nem ismétlődött. macOS motor p50 javul, de néhány tail/túllépési eset romlik. Gyökérok vagy shipping CPU-elfogadás ebből nem állapítható meg.
 
 - Kódazonos ismétlés: macOS külön 192 kHz/2x Drive arány 1,072197 (~7% lassulás), szemben az első 0,919041 értékkel. A negatív eredmény CSV/provenance-nal dokumentálva. Windows külön Drive továbbra gyorsabb, teljesmotoros 192 kHz nyereség csekély (~0,997); stabil/célgépes CPU-garancia nincs.
-
