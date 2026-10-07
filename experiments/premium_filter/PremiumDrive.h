@@ -12,7 +12,8 @@ namespace sawstar::experimental {
 // Only retained decimator phases convolve. ReferencePremiumDrive is the full oracle.
 // Nonlinear=false is an offline cost control, never a selectable sound mode.
 // VectorFir=true is a separately qualified research candidate; default remains scalar.
-template<unsigned Factor, bool Nonlinear = true, bool Research = false, bool VectorFir = false> class FixedRatePremiumDrive {
+// ReciprocalGain=true is opt-in research: normalization rounds differently from division.
+template<unsigned Factor, bool Nonlinear = true, bool Research = false, bool VectorFir = false, bool ReciprocalGain = false> class FixedRatePremiumDrive {
   static_assert(Factor == 2 || Factor == 4, "Research factors are 2x and 4x");
 public:
   static constexpr int Latency = 32;
@@ -44,17 +45,21 @@ public:
   void Clear() { up_ = {}; down_ = {}; }
   std::array<float, 2> Process(std::array<float, 2> input) {
     gain_ += slew_ * (target_ - gain_);
+    double reciprocal = 1;
+    if constexpr (Nonlinear && ReciprocalGain) {
+      if (gain_ != 1) reciprocal = 1 / gain_;
+    }
     for (size_t ch = 0; ch < 2; ++ch) {
       if (!std::isfinite(input[ch])) { up_[ch] = {}; down_[ch] = {}; input[ch] = 0; }
       auto& up = up_[ch];
       up.history[up.cursor] = up.history[up.cursor + HostRingSize] = Factor * double(input[ch]);
       // Phase and decimator-output choices are compile-time constants. Keep
       // the original evaluation order and consume every oversampled phase.
-      const double out = ProcessPhase<0>(up, down_[ch]);
-      ProcessPhase<1>(up, down_[ch]);
+      const double out = ProcessPhase<0>(up, down_[ch], reciprocal);
+      ProcessPhase<1>(up, down_[ch], reciprocal);
       if constexpr (Factor == 4) {
-        ProcessPhase<2>(up, down_[ch]);
-        ProcessPhase<3>(up, down_[ch]);
+        ProcessPhase<2>(up, down_[ch], reciprocal);
+        ProcessPhase<3>(up, down_[ch], reciprocal);
       }
       up.cursor = (up.cursor + 1) & (HostRingSize - 1);
       input[ch] = static_cast<float>(out);
@@ -73,13 +78,18 @@ private:
   static_assert((DownRingSize & (DownRingSize - 1)) == 0);
   static_assert(DownRingSize >= 32 * Factor + 1);
   struct Fir { std::array<double, 2 * DownRingSize> history{}; unsigned cursor = 0; };
-  template<unsigned Phase> double ProcessPhase(const HostFir& up, Fir& down) {
+  template<unsigned Phase> double ProcessPhase(const HostFir& up, Fir& down, double reciprocal) {
     const double x = Interpolate<Phase>(up);
     double shaped = x;
     if constexpr (Nonlinear) {
       if (gain_ != 1) {
-        if constexpr (Research) shaped = ResearchTanh(gain_ * x) / gain_;
-        else shaped = std::tanh(gain_ * x) / gain_;
+        if constexpr (ReciprocalGain) {
+          if constexpr (Research) shaped = ResearchTanh(gain_ * x) * reciprocal;
+          else shaped = std::tanh(gain_ * x) * reciprocal;
+        } else {
+          if constexpr (Research) shaped = ResearchTanh(gain_ * x) / gain_;
+          else shaped = std::tanh(gain_ * x) / gain_;
+        }
       }
     }
     return Tick<Phase == 0>(down, shaped);

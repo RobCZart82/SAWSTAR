@@ -50,6 +50,14 @@ jobs:
             study: rate-simd-fir
             target: sawstar_premium_rate_simd_deadline
             contract: premium_rate_simd_deadline_fixture
+          - os: windows-2022
+            study: gain-normalization
+            target: sawstar_premium_gain_deadline
+            contract: premium_gain_deadline_fixture
+          - os: macos-14
+            study: gain-normalization
+            target: sawstar_premium_gain_deadline
+            contract: premium_gain_deadline_fixture
     env:
       SAWSTAR_PREMIUM_STUDY: ${{ matrix.study }}
     defaults:

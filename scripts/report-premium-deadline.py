@@ -63,14 +63,14 @@ def report(folder):
     if set(summaries) != expected:
         raise ValueError("Incomplete summary grid")
     study_kind = os.environ.get("SAWSTAR_PREMIUM_STUDY", "tanh")
-    if study_kind not in ("tanh", "simd-fir", "rate-simd-fir"):
+    if study_kind not in ("tanh", "simd-fir", "rate-simd-fir", "gain-normalization"):
         raise ValueError("Unknown study kind")
     backend = (folder / "backend.txt").read_text(encoding="utf-8").strip()
     if backend not in ("SSE2", "NEON", "scalar-fallback", "scalar-source"):
         raise ValueError("Unknown FIR backend")
     if study_kind == "tanh" and backend != "scalar-source":
         raise ValueError("Incorrect tanh backend")
-    if study_kind in ("simd-fir", "rate-simd-fir") and backend == "scalar-source":
+    if study_kind in ("simd-fir", "rate-simd-fir", "gain-normalization") and backend == "scalar-source":
         raise ValueError("Incorrect SIMD study backend")
     adaptive = study_kind == "rate-simd-fir"
     factors = {str(rate): (2 if adaptive and rate >= 176400 else 4)

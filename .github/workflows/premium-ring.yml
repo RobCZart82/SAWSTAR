@@ -1,4 +1,4 @@
-name: Premium ring storage study
+name: Premium Drive paired studies
 on:
   pull_request:
     paths:
@@ -10,6 +10,7 @@ on:
       - 'experiments/premium_filter/benchmark_ring_storage.cpp'
       - 'tests/fixtures/premium_drive_large_ring_reference.h'
       - 'scripts/report-premium-ring.py'
+      - 'tests/premium_gain_normalization.cpp'
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,13 +19,16 @@ concurrency:
   cancel-in-progress: true
 jobs:
   measure:
-    name: Ring storage / ${{ matrix.os }}
+    name: Drive pairs / ${{ matrix.study }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         os: [windows-2022, macos-14]
+        study: [ring, normalization]
+    env:
+      SAWSTAR_PAIR_STUDY: ${{ matrix.study }}
     defaults:
       run:
         shell: bash
@@ -36,22 +40,28 @@ jobs:
       - name: Configure Release ring study without engine dependencies
         run: cmake -S . -B build-ring -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=OFF
       - name: Build ring study
-        run: cmake --build build-ring --config Release --target sawstar_premium_ring_study --parallel 2
+        run: cmake --build build-ring --config Release --target sawstar_premium_ring_study sawstar_premium_gain_tests --parallel 2
       - name: Validate bit identity, latency, storage and reporter controls
-        run: ctest --test-dir build-ring -C Release -R '^premium_drive_ring_(identity|report)$' --verbose
-      - name: Collect capacity-only pairs and source provenance
+        run: ctest --test-dir build-ring -C Release -R '^(premium_drive_ring_(identity|report)|premium_gain_(normalization|report))$' --verbose
+      - name: Collect paired costs and source provenance
         run: |
           mkdir -p ring-results/compiler
+          benchmark_arg=--benchmark
+          report_flags=()
+          if [[ "$SAWSTAR_PAIR_STUDY" == "normalization" ]]; then
+            benchmark_arg=--normalization-benchmark
+            report_flags=(--normalization)
+          fi
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            build-ring/Release/sawstar_premium_ring_study.exe --benchmark > ring-results/ring.csv 2> ring-results/backend.txt
+            build-ring/Release/sawstar_premium_ring_study.exe "$benchmark_arg" > ring-results/ring.csv 2> ring-results/backend.txt
           else
-            build-ring/sawstar_premium_ring_study --benchmark > ring-results/ring.csv 2> ring-results/backend.txt
+            build-ring/sawstar_premium_ring_study "$benchmark_arg" > ring-results/ring.csv 2> ring-results/backend.txt
           fi
           find build-ring/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' ring-results/compiler/ \;
-          python scripts/report-premium-ring.py ring-results --source-sha "$(git rev-parse HEAD)"
+          python scripts/report-premium-ring.py ring-results --source-sha "$(git rev-parse HEAD)" "${report_flags[@]}"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: premium-ring-${{ matrix.os }}
+          name: premium-drive-${{ matrix.study }}-${{ matrix.os }}
           path: ring-results/
           if-no-files-found: error
           retention-days: 90

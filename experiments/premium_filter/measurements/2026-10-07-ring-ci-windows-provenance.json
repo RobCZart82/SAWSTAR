@@ -1,0 +1,131 @@
+{
+  "source_sha": "5774b6728187b06499f372b1110307197246ab6a",
+  "reference_sha": "c5f5d6351b7dbed9e30af329c99934dcda5cc7f6",
+  "source_state": "checked-out CI commit",
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "machine": "AMD64",
+  "run_id": "37607548766",
+  "attempt": "1",
+  "rows": 96,
+  "pairs_per_case": 8,
+  "voices": 16,
+  "drive_db": 20,
+  "frames_per_pair": 16384,
+  "warmup_frames": 1024,
+  "vector_backend": "vector_backend=SSE2",
+  "csv_sha256": "00426bd1be881d28c48b89b58212b6c6f431e85f6a2619622c279143e6ef5c0e",
+  "source_sha256": {
+    "experiments/premium_filter/PremiumDrive.h": "0e9163ab85f69c63e8c1f01a0b758121613ffa320821eb2079e9246a1f3e9f25",
+    "experiments/premium_filter/FirLanes4.h": "df984cfb7c8948ea6627b23a3b959c5b8c53d90de8516f751abe1a5635ce3b7a",
+    "experiments/premium_filter/ResearchTanh.h": "acb025b4b76cde3379ea4bf2d297572bb4478fbc9b8a5339ec34206dcdfef735",
+    "experiments/premium_filter/benchmark_ring_storage.cpp": "60b918b4ebc1d728253c9e97750f026561ac10cbc76ae16aa7d556bb66f89ff7",
+    "tests/fixtures/premium_drive_large_ring_reference.h": "6d5a80d1abec86145d885072a5e17a2d5359107719d0d15efefec3890a080bde",
+    "scripts/report-premium-ring.py": "a1cac30a4d2089c620a01c4128e61dab00b0df88fce7ff3bd20fb3f2c4ab9e85"
+  },
+  "compiler": {
+    "id": "MSVC",
+    "version": "19.44.35229.0"
+  },
+  "compiler_sha256": {
+    "CMakeCXXCompiler.cmake": "0d3430047398ee357bbf65db10906b7cf793a22dd8b02c6db6f6372d2a4db77f"
+  },
+  "summaries": [
+    {
+      "factor": 2,
+      "implementation": "scalar",
+      "rate": 48000,
+      "median_ratio": 0.9873330352337071,
+      "minimum_ratio": 0.8595830587546155,
+      "maximum_ratio": 1.0070969486193209
+    },
+    {
+      "factor": 2,
+      "implementation": "scalar",
+      "rate": 96000,
+      "median_ratio": 0.990146012322408,
+      "minimum_ratio": 0.982935480924398,
+      "maximum_ratio": 1.0104321014220983
+    },
+    {
+      "factor": 2,
+      "implementation": "scalar",
+      "rate": 192000,
+      "median_ratio": 0.9938077984527134,
+      "minimum_ratio": 0.9895082047679382,
+      "maximum_ratio": 0.9967006598680263
+    },
+    {
+      "factor": 2,
+      "implementation": "simd",
+      "rate": 48000,
+      "median_ratio": 0.9977000651177441,
+      "minimum_ratio": 0.9949061692857365,
+      "maximum_ratio": 1.0022629269908292
+    },
+    {
+      "factor": 2,
+      "implementation": "simd",
+      "rate": 96000,
+      "median_ratio": 0.9950159887767491,
+      "minimum_ratio": 0.991295579481508,
+      "maximum_ratio": 1.0278094179747186
+    },
+    {
+      "factor": 2,
+      "implementation": "simd",
+      "rate": 192000,
+      "median_ratio": 0.9937442196857194,
+      "minimum_ratio": 0.9899115727702943,
+      "maximum_ratio": 1.0044211112540484
+    },
+    {
+      "factor": 4,
+      "implementation": "scalar",
+      "rate": 48000,
+      "median_ratio": 1.0036378634521221,
+      "minimum_ratio": 0.9887722226380657,
+      "maximum_ratio": 1.0613050432001112
+    },
+    {
+      "factor": 4,
+      "implementation": "scalar",
+      "rate": 96000,
+      "median_ratio": 1.0042403218027784,
+      "minimum_ratio": 0.9948579668524212,
+      "maximum_ratio": 1.022964724451242
+    },
+    {
+      "factor": 4,
+      "implementation": "scalar",
+      "rate": 192000,
+      "median_ratio": 0.9987352381017381,
+      "minimum_ratio": 0.9888847423717042,
+      "maximum_ratio": 1.0033788300178508
+    },
+    {
+      "factor": 4,
+      "implementation": "simd",
+      "rate": 48000,
+      "median_ratio": 1.0031081563875006,
+      "minimum_ratio": 0.9964735121146143,
+      "maximum_ratio": 1.0114361348041192
+    },
+    {
+      "factor": 4,
+      "implementation": "simd",
+      "rate": 96000,
+      "median_ratio": 1.0018685007587487,
+      "minimum_ratio": 0.9970036252077998,
+      "maximum_ratio": 1.0091797654696677
+    },
+    {
+      "factor": 4,
+      "implementation": "simd",
+      "rate": 192000,
+      "median_ratio": 0.9986389319221336,
+      "minimum_ratio": 0.9951078875162184,
+      "maximum_ratio": 1.0021936063996209
+    }
+  ],
+  "timing_is_acceptance_gate": false
+}
