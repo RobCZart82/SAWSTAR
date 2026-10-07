@@ -1,0 +1,78 @@
+{
+  "source_sha": "f95fd19e2a1de8a360ff3cd7e1bfeb62515dbfea",
+  "workflow_run": 37674205117,
+  "native_host_acceptance": false,
+  "timing_pass_fail_threshold": false,
+  "platforms": {
+    "windows": {
+      "metadata": {
+        "study_kind": "rate-lookup",
+        "fir_backend": "SSE2",
+        "source_sha": "f95fd19e2a1de8a360ff3cd7e1bfeb62515dbfea",
+        "platform": "Windows-2022Server-10.0.20348-SP0",
+        "machine": "AMD64",
+        "runner_os": "Windows",
+        "runner_arch": "X64",
+        "configuration": "Release",
+        "blocks_per_path": 36864,
+        "pairs_per_scene": 4,
+        "warmup_seconds_per_path": 0.25,
+        "timed_blocks_per_path_and_pair": 256,
+        "drive_factor": null,
+        "drive_factors_by_rate": {
+          "48000": 4,
+          "96000": 4,
+          "192000": 2
+        },
+        "rate_policy": "normalized-176400-boundary",
+        "clock": "C++ steady_clock wall time",
+        "native_host_acceptance": false
+      },
+      "artifact_sha256": {
+        "factors.csv": "2c3e5380538500f2b15b71001ceb51650a9688f210a58b90a2110bd8d3bdff1e",
+        "summary.csv": "11d1bc8e75ea453c0b73b3289dc8ac408e540f586261b02bccfa56002b8eedf9",
+        "report.md": "7b89dd4a5fd5a741a4b6f4307341580a9cba5cad9d980d9301eece3a44ec977e",
+        "metadata.json": "a98ba34dfa7b312b0482a9652746abf74c20b36bc8cb4fcd48303d3c1e3ebd2b",
+        "backend.txt": "9a64ede615c34057ce7f97b6db43eb2b4917ca5b02f6c506e0e7363bf4d7400a",
+        "blocks.csv": "2e56c515a13dbd4a92020d7c2ed09454c0e5b73e757c4e91538e78c62e2e5fc5",
+        "compiler/CMakeCXXCompiler.cmake": "0d3430047398ee357bbf65db10906b7cf793a22dd8b02c6db6f6372d2a4db77f"
+      },
+      "job_id": 112973369620
+    },
+    "macos": {
+      "metadata": {
+        "study_kind": "rate-lookup",
+        "fir_backend": "NEON",
+        "source_sha": "f95fd19e2a1de8a360ff3cd7e1bfeb62515dbfea",
+        "platform": "macOS-14.8.9-arm64-arm-64bit-Mach-O",
+        "machine": "arm64",
+        "runner_os": "macOS",
+        "runner_arch": "ARM64",
+        "configuration": "Release",
+        "blocks_per_path": 36864,
+        "pairs_per_scene": 4,
+        "warmup_seconds_per_path": 0.25,
+        "timed_blocks_per_path_and_pair": 256,
+        "drive_factor": null,
+        "drive_factors_by_rate": {
+          "48000": 4,
+          "96000": 4,
+          "192000": 2
+        },
+        "rate_policy": "normalized-176400-boundary",
+        "clock": "C++ steady_clock wall time",
+        "native_host_acceptance": false
+      },
+      "artifact_sha256": {
+        "factors.csv": "00bd2b1ebc1805dbb0e935b593a0bfa9ddee2cc0765acfb2dd851698707144d9",
+        "summary.csv": "e9eb68b51695e5ba4dc69e9f7fcf858e255c3d7388475b9d456e386005e458a9",
+        "report.md": "d12d4baf2f52d0248bc6e27f0d8072e0c9e88c8548a3b45c6b46287799932a72",
+        "metadata.json": "f90dd4c83539b9349dfb0d38b04ab50a0a8a7e20c959e3912c6186ff1eaee42e",
+        "backend.txt": "0e18aea3bbc2a90e8443299891c8e78603257e12fb4397ac24a79218568ce2b7",
+        "blocks.csv": "7763c741a8794ac953758c8e0d209a48f6450dd456c9ce4ce404247f4fdb0602",
+        "compiler/CMakeCXXCompiler.cmake": "66ff634d7b84f4018e91288a10aca879e3c26f8a6d4bec58ba2544a1fee73154"
+      },
+      "job_id": 112973369825
+    }
+  }
+}

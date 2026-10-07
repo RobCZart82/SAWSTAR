@@ -183,6 +183,50 @@ The deadline workflow adds independent Windows/macOS `rate-lookup` jobs,
 including the numerical controls before timing and 90-day raw-data artifacts.
 Its success validates measurements, not a portable CPU limit.
 
+## Windows/macOS paired CI observation
+
+Both new `rate-lookup` jobs completed successfully on exact source
+`f95fd19e2a1de8a360ff3cd7e1bfeb62515dbfea`, workflow run `37674205117`.
+The routed, 120-case engine and 144-case complex controls pass on both
+platforms. The measurement workload and strict deadline counts are the same
+as above; timings are hosted-runner observations, never acceptance thresholds.
+
+| Platform | Rate | Buffer | Median paired p50 ratio | Median paired p99 ratio | Reference misses /4096 | Lookup misses /4096 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Windows SSE2 | 48000 | 32 | 0.911954 | 0.918663 | 2 | 0 |
+| Windows SSE2 | 48000 | 64 | 0.913039 | 0.949396 | 0 | 3 |
+| Windows SSE2 | 48000 | 128 | 0.918405 | 0.925582 | 1 | 0 |
+| Windows SSE2 | 96000 | 32 | 0.922006 | 0.914266 | 33 | 2 |
+| Windows SSE2 | 96000 | 64 | 0.921152 | 0.917360 | 2 | 9 |
+| Windows SSE2 | 96000 | 128 | 0.910374 | 0.909661 | 53 | 22 |
+| Windows SSE2 | 192000 | 32 | 0.955040 | 0.949570 | 4096 | 4088 |
+| Windows SSE2 | 192000 | 64 | 0.963942 | 0.963995 | 4096 | 4096 |
+| Windows SSE2 | 192000 | 128 | 0.949601 | 0.970213 | 4096 | 4096 |
+| macOS NEON | 48000 | 32 | 0.851346 | 0.897313 | 8 | 8 |
+| macOS NEON | 48000 | 64 | 0.861718 | 0.858584 | 23 | 10 |
+| macOS NEON | 48000 | 128 | 0.845503 | 0.877115 | 16 | 19 |
+| macOS NEON | 96000 | 32 | 0.874306 | 0.865243 | 181 | 195 |
+| macOS NEON | 96000 | 64 | 0.856107 | 0.877316 | 132 | 90 |
+| macOS NEON | 96000 | 128 | 0.884338 | 0.989094 | 39 | 124 |
+| macOS NEON | 192000 | 32 | 0.891455 | 0.938876 | 433 | 264 |
+| macOS NEON | 192000 | 64 | 0.893058 | 1.110693 | 751 | 535 |
+| macOS NEON | 192000 | 128 | 0.884652 | 0.862234 | 577 | 194 |
+
+Windows median improvements are about 8–9% at 48/96 kHz and 4–5% at
+192 kHz. At 192 kHz **12,280 of 12,288 lookup blocks still miss the budget**.
+macOS median improvements are about 11–15%; at 96 kHz total misses increase
+from 352 to 409. The macOS 192 kHz/64-sample p99 ratio worsens to 1.110693.
+Lower medians do not resolve these tail-latency risks or prove a regression
+on a dedicated target machine. They require repeats and component profiling.
+
+Permanent [Windows summaries](../experiments/premium_filter/measurements/2026-10-07-lookup-engine-windows-summary.csv),
+[macOS summaries](../experiments/premium_filter/measurements/2026-10-07-lookup-engine-macos-summary.csv)
+and [exact-head artifact/source provenance](../experiments/premium_filter/measurements/2026-10-07-lookup-engine-ci-provenance.json)
+retain the observations. Raw blocks/compiler data and reports are also saved
+locally in `outputs/premium-lookup-engine-ci-20261007` and in 90-day workflow
+artifacts. Subsequent lookup jobs additionally preserve the verbose numerical
+control log alongside the deadline files.
+
 ## Next gate
 
 Review exact-head Windows/macOS/sanitizer results and paired deadline data.

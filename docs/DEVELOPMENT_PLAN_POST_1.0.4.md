@@ -644,3 +644,18 @@ a CPU-kapu nem zárható le vele. A raw adatok és negatív eredmények megmarad
 
 Részletes eredmények: [lookup motor kvalifikáció](PREMIUM_LOOKUP_SATURATION.md).
 Linux és 32 voice továbbra is halasztott; a click/pop kutatás lezárt.
+
+
+A lookup motor első Windows/macOS CI-mérése is elkészült (`f95fd19`,
+run `37674205117`); mindkét új numerikus/mérési job sikeres. Windowson
+48/96 kHz-en kb. 8–9%, 192 kHz-en kb. 4–5% a mediánnyereség, de utóbbinál
+12 280/12 288 jelöltblokk még túllépi az audioidőt. macOS-en a medián
+11–15%-kal kisebb, viszont 96 kHz-en a túllépésszám 352-ről 409-re nő;
+192 kHz/64 mintán a p99 arány 1,110693. A zöld numerikus CI és a jobb medián
+nem helyettesíti a CPU-elfogadást.
+
+A következő profil ezért tartalmazzon kontrollált célgépes ismétlést,
+komponensenkénti Windows költségvizsgálatot és moduláció alatti blokkidőt.
+A ritka lassú blokkok/p99 és a magasrátás terhelés együtt vezesse a policy-t;
+a szűrő/FIR minőségi korlátjain nem lazítunk pusztán a gyorsulásért.
+A sorrend többi pontja és a production/natív elfogadási kapuk változatlanok.

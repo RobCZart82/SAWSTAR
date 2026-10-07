@@ -102,7 +102,7 @@ jobs:
         run: cmake --build build --config Release --target sawstar_premium_lookup_engine_tests sawstar_premium_lookup_rate_tests sawstar_premium_lookup_complex_tests --parallel 2
       - name: Validate lookup modulation, routing and independent reference
         if: matrix.study == 'rate-lookup'
-        run: ctest --test-dir build -C Release -R '^(premium_lookup_engine_modulation|premium_lookup_rate_contract|premium_lookup_complex_controls)$' --verbose
+        run: ctest --test-dir build -C Release -R '^(premium_lookup_engine_modulation|premium_lookup_rate_contract|premium_lookup_complex_controls)$' --verbose | tee lookup-controls.txt
       - name: Record paired wall time distributions
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -112,6 +112,9 @@ jobs:
           fi
       - name: Verify raw data and report paired ratios
         run: python scripts/report-premium-deadline.py deadline-results
+      - name: Preserve lookup numerical control log
+        if: matrix.study == 'rate-lookup'
+        run: cp lookup-controls.txt deadline-results/lookup-controls.txt
       - name: Measure isolated Drive cost
         if: matrix.study == 'rate-simd-fir'
         run: |
