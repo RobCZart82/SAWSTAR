@@ -580,3 +580,35 @@ korláthoz. Ez nem hallásos vagy aliasing-elfogadás, és nem production aktiv�
 A részletes mérési eredmények és forrásazonosítók:
 [Drive-normalizálás és kombinált policy](PREMIUM_GAIN_NORMALIZATION.md).
 Linux/32 voice továbbra is halasztott; a lezárt click/pop kutatás nem nyílik újra.
+
+### 2026-10-07: #79 után, telítési CPU-jelölt
+
+A #79 mind a 31 PR-ellenőrzése sikeres és mainbe került (`8b03970`).
+A kombinált rátafüggő jelölt komplexforrás-kontrollja így Windows/macOS
+és sanitizer CI-n is megfelelt. A main új Windows/macOS buildje sikeres;
+a friss Code quality futás ellenőrzése még szükséges.
+
+A következő, alapból kikapcsolt kutatási jelölt a tanh kiértékelését gyorsítja
+közös, változatlan Hermite-együttható-táblával. Nem csökkenti a FIR hosszát,
+nem változtat faktort vagy gain-simítást. A skaláris próba és a 360-case Drive
+waveform/spektrum-kontroll sikeres, a korábbi Drive-korlátok változatlanok.
+Helyben 105/105 Release és 3/3 új ASan/UBSan kontroll sikeres. Az első M1
+páros mérésben kb. 10% (4x) / 18% (2x) az izolált Drive időnyeresége;
+ez még nem a teljes motor vagy a natív host eredménye.
+
+1. A lookup-jelölt pontos headjének Windows/macOS, ASan/UBSan és TSan kapui;
+   a közös tábla párhuzamos első inicializálása is tesztelt. Beolvasztás csak
+   minden aktuális ellenőrzés befejezése és sikere után.
+2. Külön rátafüggő, SIMD/reciprok lookup motorpróba a std::tanh változathoz
+   képest; szóló/modulációs/numerikus és 8x referencia-kontroll, majd
+   kis-bufferes páros blokkidő és célgépes ismétlés. A rosszabb eredmény is maradjon.
+3. A teljesmotor-adatok alapján a magasrátás költség/minőségpolicy lezárása,
+   majd natív Windows/macOS REAPER-elfogadás és háttérimport-lifecycle próba.
+4. Elfogadás után production filtercsere a meglévő GUI-val és négy móddal;
+   latency/state/automation, presetkoherencia, factory presetek, régi projektek.
+5. Kézikönyvek, verzió/RC, csomagkapuk és kiadás.
+
+Részletek, határok és megőrzött mérési adatok:
+[lookup telítési jelölt](PREMIUM_LOOKUP_SATURATION.md).
+Ez a munkacsomag nem zárja le a CPU/minőség kaput; Linux/32 voice halasztott,
+a click/pop kutatás lezárt marad.
