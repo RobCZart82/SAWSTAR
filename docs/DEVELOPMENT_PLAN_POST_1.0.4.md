@@ -612,3 +612,35 @@ Részletek, határok és megőrzött mérési adatok:
 [lookup telítési jelölt](PREMIUM_LOOKUP_SATURATION.md).
 Ez a munkacsomag nem zárja le a CPU/minőség kaput; Linux/32 voice halasztott,
 a click/pop kutatás lezárt marad.
+
+
+### 2026-10-07: #80 után, lookup teljesmotor-mérföldkő
+
+A #80 mind a 33 ellenőrzése sikeres és beolvadt (`bfa27e6`). A main
+Code quality és Windows/macOS futamai is sikeresek. Az új, külön névtérben
+fordított lookup motor kizárólag a telítés kiértékelésében tér el a rátafüggő
+SIMD/reciprok std::tanh kontrolltól; production aktiválás nincs.
+
+Helyben 109/109 Release és 5/5 célzott sanitizer/riport kontroll sikeres.
+120 teljesmotoros eset ellenőrzi a négy módot, Poly/Mono/Legato, FX,
+moduláció, stealing, sustain, retrigger, release és reset működését.
+A 144 komplexforrás-kontroll változatlan 8x referencia-korlátja is teljesül;
+a legrosszabb szűrt eltérés továbbra is kb. 0,490212%, közel a 0,5%-hoz.
+
+Az első Mac mini M1 páros teljesmotor-mérésben 13–15%-kal kisebb a medián
+blokkidő. 192 kHz-en 57 helyett 28/12 288 időkeret-túllépés van, de a
+64 mintás puffer összesítésében 10 helyett 11. Ez offline megfigyelés;
+a CPU-kapu nem zárható le vele. A raw adatok és negatív eredmények megmaradnak.
+
+1. A lookup motor Windows/macOS páros mérése és pontos-head CI; beolvasztás
+   csak az összes aktuális ellenőrzés befejezése és sikere után.
+2. A CI-adatok alapján kódazonos célgépes ismétlés, moduláció alatti CPU-profil
+   és a magasrátás költség/minőségpolicy lezárása. A natív REAPER és a
+   háttérimport-lifecycle elfogadása külön kapu marad.
+3. Elfogadás után a prémium filter teljes Classic-cseréje a meglévő GUI-val,
+   ID-kkel és LP12/LP24/HP12/BP12 módokkal; latency, state, automatizálás,
+   presetkoherencia, factory presetek és régi projektek ellenőrzése.
+4. Kézikönyvek, verzió/RC, Windows/macOS csomagkapuk, majd kiadás.
+
+Részletes eredmények: [lookup motor kvalifikáció](PREMIUM_LOOKUP_SATURATION.md).
+Linux és 32 voice továbbra is halasztott; a click/pop kutatás lezárt.
