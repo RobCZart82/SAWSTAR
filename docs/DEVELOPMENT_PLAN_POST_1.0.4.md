@@ -488,5 +488,13 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 
 - A kutatási 2× ág 65 FIR-együtthatójához 128 helyes, tükrözött gyűrű elegendő; a korábbi 256 hely helyett pontosan 4096 bájttal kisebb a sztereó Drive-objektum. A 4× ág 256 helyes gyűrűje változatlan.
 - A korábbi, befagyasztott scalar referenciákhoz 1 996 800 sztereó frame bitazonos a helyi MSVC x64 Release-próbában. A méret és a 32 mintás késés fordítási regresszióval védett.
-- Friss Windows/macOS és sanitizer CI szükséges. A helyi memóriaelőny nem CPU- vagy natív realtime-elfogadás; a shipping ráta-policy és production filtercsere továbbra is nyitott.
+- A #75 beolvadt (`1e99508`), mind a 17 különböző PR-ellenőrzés sikeres. A memóriaelőny nem CPU- vagy natív realtime-elfogadás; a shipping ráta-policy és production filtercsere továbbra is nyitott.
 - Részletek: [2× decimátorpuffer](PREMIUM_DRIVE_RING_STORAGE.md).
+
+### 2026-10-07: pufferkapacitásra elkülönített CPU-mérés
+
+- Külön, közvetlenül a #75 előtti forrásból befagyasztott referencia; scalar/scalar és SIMD/SIMD összevetés, változatlan 4× kontrollal. Csak a pufferkapacitás változik.
+- A helyi MSVC x64 Release-próbában 513 048 sztereó frame bitazonos; 96 páros mérési sor és 18 elutasító riportkontroll sikeres. Az új célpont DaisySP nélkül is fordítható.
+- Az első helyi CPU-arányok nem mutatnak következetes gyorsulást; a lassabb scalar 96 kHz és SSE2 48 kHz eset is dokumentált. CSV és byte-hash eredetjegyzék tartósan rögzített.
+- Külön Windows/macOS Release CI-mérés és ismétlés következik. A memóriaelőnyből nem következik CPU-kapu, végleges ráta-policy vagy production integráció elfogadása.
+- Részletek: [pufferkapacitás CPU-vizsgálata](PREMIUM_DRIVE_RING_CPU_STUDY.md).

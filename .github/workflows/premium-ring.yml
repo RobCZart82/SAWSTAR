@@ -1,0 +1,57 @@
+name: Premium ring storage study
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/premium-ring.yml'
+      - 'CMakeLists.txt'
+      - 'experiments/premium_filter/PremiumDrive.h'
+      - 'experiments/premium_filter/FirLanes4.h'
+      - 'experiments/premium_filter/ResearchTanh.h'
+      - 'experiments/premium_filter/benchmark_ring_storage.cpp'
+      - 'tests/fixtures/premium_drive_large_ring_reference.h'
+      - 'scripts/report-premium-ring.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: premium-ring-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    name: Ring storage / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-14]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Configure Release ring study without engine dependencies
+        run: cmake -S . -B build-ring -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=OFF
+      - name: Build ring study
+        run: cmake --build build-ring --config Release --target sawstar_premium_ring_study --parallel 2
+      - name: Validate bit identity, latency, storage and reporter controls
+        run: ctest --test-dir build-ring -C Release -R '^premium_drive_ring_(identity|report)$' --verbose
+      - name: Collect capacity-only pairs and source provenance
+        run: |
+          mkdir -p ring-results/compiler
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            build-ring/Release/sawstar_premium_ring_study.exe --benchmark > ring-results/ring.csv 2> ring-results/backend.txt
+          else
+            build-ring/sawstar_premium_ring_study --benchmark > ring-results/ring.csv 2> ring-results/backend.txt
+          fi
+          find build-ring/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' ring-results/compiler/ \;
+          python scripts/report-premium-ring.py ring-results --source-sha "$(git rev-parse HEAD)"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: premium-ring-${{ matrix.os }}
+          path: ring-results/
+          if-no-files-found: error
+          retention-days: 90

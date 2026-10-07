@@ -50,3 +50,7 @@ CPU/deadline gate, approve the high-rate quality policy, integrate the new
 filter into the shipping synth, or replace native REAPER acceptance. A cache
 benefit is plausible but must be measured against the same implementation
 with only ring capacity changed before claiming a CPU improvement.
+
+The [capacity-only CPU study](PREMIUM_DRIVE_RING_CPU_STUDY.md) now provides that
+comparison. Its first local run shows no consistent CPU gain; the memory saving
+remains the demonstrated benefit. Windows/macOS CI repetitions are pending.
