@@ -585,8 +585,8 @@ Linux/32 voice továbbra is halasztott; a lezárt click/pop kutatás nem nyílik
 
 A #79 mind a 31 PR-ellenőrzése sikeres és mainbe került (`8b03970`).
 A kombinált rátafüggő jelölt komplexforrás-kontrollja így Windows/macOS
-és sanitizer CI-n is megfelelt. A main új Windows/macOS buildje sikeres;
-a friss Code quality futás ellenőrzése még szükséges.
+és sanitizer CI-n is megfelelt. A main új Windows/macOS buildje és
+Code quality futása is sikeres.
 
 A következő, alapból kikapcsolt kutatási jelölt a tanh kiértékelését gyorsítja
 közös, változatlan Hermite-együttható-táblával. Nem csökkenti a FIR hosszát,
