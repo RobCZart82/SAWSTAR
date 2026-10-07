@@ -1,11 +1,23 @@
 // SPDX-License-Identifier: MIT
 #include "presets/Library.h"
+#include "presets/QuickPresetList.h"
 #include <chrono>
 #include <iostream>
 #include <thread>
 #include <atomic>
 int main(){using namespace sawstar;auto root=fs::temp_directory_path()/("sawstar-library-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));try{
  auto check=[](bool b){if(!b)throw std::runtime_error("Preset library regression failed");};auto source=root/"source",dest=root/"library";auto values=DefaultSnapshot();values[91]=88;
+ // Quick-menu display order must retain the exact factory ID or user path.
+ const std::vector<fs::path> quickFiles{source/"zebra.sawstar",source/"Alpha.sawstar",source/"alpha.sawstar",source/(std::string(FactoryPresets()[1].name)+".sawstar"),source/fs::u8path(u8"\u0150r.sawstar")};
+ const auto quick=BuildQuickPresetList(quickFiles);check(quick.size()==FactoryPresets().size()-1+quickFiles.size());
+ for(size_t i=1;i<quick.size();++i)check(Fold(quick[i-1].name)<=Fold(quick[i].name));
+ auto reversed=quickFiles;std::reverse(reversed.begin(),reversed.end());const auto repeat=BuildQuickPresetList(reversed);
+ for(size_t i=0;i<quick.size();++i)check(quick[i].factory==repeat[i].factory&&quick[i].path==repeat[i].path);
+ for(int id=1;id<int(FactoryPresets().size());++id){auto position=FindQuickPreset(quick,id,false,{});check(position>=0&&quick[position].factory==id&&quick[position].name==FactoryPresets()[id].name&&quick[position].Label()==std::string(FactoryPresets()[id].name)+" ["+FactoryPresets()[id].category+"]");}
+ for(const auto& path:quickFiles){auto position=FindQuickPreset(quick,1,true,path);check(position>=0&&quick[position].factory==-1&&quick[position].path==path&&quick[position].Label()==path.stem().u8string()+" [User]");}
+ check(FindQuickPreset(quick,0,false,{})==-1&&FindQuickPreset(quick,-1,false,{})==-1&&FindQuickPreset(quick,1,true,source/"external.sawstar")==-1);
+ const int count=int(quick.size());check(StepQuickPreset(0,-1,count)==count-1&&StepQuickPreset(count-1,1,count)==0&&StepQuickPreset(-1,1,count)==0&&StepQuickPreset(-1,-1,count)==count-1&&StepQuickPreset(0,1,0)==-1);
+ for(int start=0;start<count;++start){auto position=start;for(int i=0;i<count;++i)position=StepQuickPreset(position,1,count);check(position==start);}
  std::vector<fs::path> files;for(int i=0;i<30;++i){auto p=source/("Sound "+std::to_string(i)+".sawstar");auto unique=values;unique[91]=88-i;SaveUserPreset(p,unique);files.push_back(p);}
  auto result=ImportPresets(files,dest);check(result.imported==30&&result.failed==0&&ListUserPresets(dest).size()==30);check(ReadUserPreset(dest/"Sound 0.sawstar")==values);
  auto modified=DefaultSnapshot();SaveUserPreset(root/"collision"/"Sound 0.sawstar",modified);{std::ofstream out(source/"broken.sawstar");out<<"bad";}
