@@ -90,3 +90,63 @@ target-machine and native REAPER deadlines, then high-rate quality/policy
 acceptance. Only after those gates can the production filter, latency/state/
 automation, factory presets, manuals and next release be finalized. No default
 activation or production filter change follows from this opt-in candidate.
+
+## Windows and macOS complete engine results
+
+The #77 source `fb3f7df0594a33f0f454c94380a6b77f9caa46d7` passed its
+Windows/macOS numerical and sanitizer gates. CI run `37613211515` compared
+the fixed SIMD/4x engines; run `37613211507` measured isolated normalization.
+The paired full-engine median time ratios below are the median of 48 scene
+ratios per rate, covering four modes, three buffers and four pairs.
+
+| Platform | Rate | Median candidate/reference time | Reference/study over-budget blocks |
+| --- | ---: | ---: | ---: |
+| Windows x64 | 48,000 | 0.982514 | 0 / 0 |
+| Windows x64 | 96,000 | 0.978266 | 34 / 167 |
+| Windows x64 | 192,000 | 0.977511 | 12,288 / 12,288 |
+| macOS ARM64 | 48,000 | 0.986880 | 313 / 204 |
+| macOS ARM64 | 96,000 | 0.990726 | 1,534 / 1,270 |
+| macOS ARM64 | 192,000 | 0.982107 | 12,288 / 12,288 |
+
+There are 12,288 timed blocks per path/rate. Every fixed-4x block at 192 kHz
+exceeds the audio deadline on both runners. The Windows 96 kHz study has more
+deadline misses despite its better median. The isolated macOS SIMD/4x median
+is slower at 48 kHz (1.096853) and 192 kHz (1.091770). These negative results
+remain part of the evaluation; isolated Drive savings do not imply safe
+full-engine deadlines. Shared runner measurements do not establish a native
+realtime or audibility guarantee.
+
+The [Windows engine summary](../experiments/premium_filter/measurements/2026-10-07-gain-ci-windows-engine.csv)
+and [metadata](../experiments/premium_filter/measurements/2026-10-07-gain-ci-windows-engine-metadata.json),
+[macOS engine summary](../experiments/premium_filter/measurements/2026-10-07-gain-ci-macos-engine.csv)
+and [metadata](../experiments/premium_filter/measurements/2026-10-07-gain-ci-macos-engine-metadata.json)
+preserve the measured source and compiled factor records. Isolated Drive pairs
+and byte-hash provenance are stored beside them. The 73,728 raw engine block
+measurements per platform are retained in the corresponding 90-day CI artifacts.
+
+## Rate scaled normalization experiment
+
+`RateScaledGainPremiumDrive` selects the existing SIMD 4x path below the
+normalized 176,400 Hz boundary and SIMD 2x at/above it, adding only reciprocal
+normalization. The default rate-scaled aliases retain division. Selection
+occurs on Init; latency remains 32 host samples. The distinct offline engine
+probe compares against rate-scaled SIMD division, so both paths use the same
+factor and the measured change is normalization alone.
+
+The routed regression checks explicit fixed-factor reciprocal oracles at the
+boundary and invalid sample rates, division error bounds, unity-gain identity,
+copied live state, Clear, reinitialization, channel isolation and impulse delay.
+The existing fixed-factor numerical qualification remains unchanged. A full
+engine sounding fixture covers all four modes; a Windows/macOS paired study
+records both actual compiled factors. Reporter regressions reject a wrong 2x/4x
+record or an incorrect study/backend label.
+
+Local macOS Release validation passes all 101 CTest cases. The three new
+routing, complete-engine fixture and reporter checks also pass with ASan/UBSan.
+The routed test compares 69,632 frames with the fixed-factor reciprocal oracle
+and the unchanged division error bounds. Windows/macOS study results for this
+combined path remain pending its exact-head CI run.
+
+This extends the experiment to the relevant high-rate path. It does not approve
+the 2x quality compromise, activate a production filter, or close native CPU,
+state/automation/preset and listening gates.

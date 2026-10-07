@@ -6,7 +6,7 @@ namespace sawstar::experimental {
 // Research policy only: 4x below 176.4 kHz, 2x at/above 176.4 kHz.
 // Factor is selected on Init, never switched in a live stream. Both paths
 // retain 32 host samples of delay. This is not an approved shipping policy.
-template<bool VectorFir = false> class BasicRateScaledPremiumDrive {
+template<bool VectorFir = false, bool ReciprocalGain = false> class BasicRateScaledPremiumDrive {
 public:
   static constexpr int Latency = PremiumDrive::Latency;
   void Init(double rate) {
@@ -21,10 +21,12 @@ public:
     return high_ ? two_.Process(x) : four_.Process(x);
   }
 private:
-  FixedRatePremiumDrive<4, true, false, VectorFir> four_;
-  FixedRatePremiumDrive<2, true, false, VectorFir> two_;
+  FixedRatePremiumDrive<4, true, false, VectorFir, ReciprocalGain> four_;
+  FixedRatePremiumDrive<2, true, false, VectorFir, ReciprocalGain> two_;
   bool high_ = false;
 };
 using RateScaledPremiumDrive = BasicRateScaledPremiumDrive<>;
 using RateScaledSimdPremiumDrive = BasicRateScaledPremiumDrive<true>;
+// Opt-in normalization study; both factors retain the existing rate boundary.
+using RateScaledGainPremiumDrive = BasicRateScaledPremiumDrive<true, true>;
 }

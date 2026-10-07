@@ -58,4 +58,5 @@ using SimdStudyEnginePremiumFilter = BasicEnginePremiumFilter<FixedRatePremiumDr
 using GainStudyEnginePremiumFilter = BasicEnginePremiumFilter<FixedRatePremiumDrive<4, true, false, true, true>>;
 using RateScaledEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledPremiumDrive>;
 using RateScaledSimdEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledSimdPremiumDrive>;
+using RateScaledGainEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledGainPremiumDrive>;
 }

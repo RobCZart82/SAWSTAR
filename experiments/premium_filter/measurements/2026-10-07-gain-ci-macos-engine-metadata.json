@@ -1,0 +1,23 @@
+{
+  "study_kind": "gain-normalization",
+  "fir_backend": "NEON",
+  "source_sha": "fb3f7df0594a33f0f454c94380a6b77f9caa46d7",
+  "platform": "macOS-14.8.9-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "runner_os": "macOS",
+  "runner_arch": "ARM64",
+  "configuration": "Release",
+  "blocks_per_path": 36864,
+  "pairs_per_scene": 4,
+  "warmup_seconds_per_path": 0.25,
+  "timed_blocks_per_path_and_pair": 256,
+  "drive_factor": 4,
+  "drive_factors_by_rate": {
+    "48000": 4,
+    "96000": 4,
+    "192000": 4
+  },
+  "rate_policy": "fixed-4x",
+  "clock": "C++ steady_clock wall time",
+  "native_host_acceptance": false
+}
