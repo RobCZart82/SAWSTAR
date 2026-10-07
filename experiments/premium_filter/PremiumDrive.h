@@ -2,22 +2,29 @@
 #pragma once
 #include "dsp/Safety.h"
 #include "ResearchTanh.h"
+#include "LookupTanh.h"
 #include "FirLanes4.h"
 #include <array>
 #include <cmath>
+#include <type_traits>
 
 namespace sawstar::experimental {
+struct NoLookupTanh {};
 // Research-only fixed-factor waveshaper, with explicit interpolation and anti-alias FIRs.
 // Interpolation keeps only host-rate samples, never inserting/storing zeros.
 // Only retained decimator phases convolve. ReferencePremiumDrive is the full oracle.
 // Nonlinear=false is an offline cost control, never a selectable sound mode.
 // VectorFir=true is a separately qualified research candidate; default remains scalar.
 // ReciprocalGain=true is opt-in research: normalization rounds differently from division.
-template<unsigned Factor, bool Nonlinear = true, bool Research = false, bool VectorFir = false, bool ReciprocalGain = false> class FixedRatePremiumDrive {
+template<unsigned Factor, bool Nonlinear = true, bool Research = false, bool VectorFir = false, bool ReciprocalGain = false, bool Lookup = false>
+class FixedRatePremiumDrive : private std::conditional_t<Lookup, LookupTanh, NoLookupTanh> {
   static_assert(Factor == 2 || Factor == 4, "Research factors are 2x and 4x");
+  static_assert(!(Research && Lookup), "Select only one research saturation implementation");
+  using TanhBase = std::conditional_t<Lookup, LookupTanh, NoLookupTanh>;
 public:
   static constexpr int Latency = 32;
   void Init(double rate) {
+    if constexpr (Lookup) TanhBase::Init();
     slew_ = 1 - std::exp(-1 / (.01 * SafeSampleRate(rate)));
     constexpr double pi = 3.14159265358979323846, cutoff = .45 / Factor;
     double sum = 0;
@@ -84,10 +91,12 @@ private:
     if constexpr (Nonlinear) {
       if (gain_ != 1) {
         if constexpr (ReciprocalGain) {
-          if constexpr (Research) shaped = ResearchTanh(gain_ * x) * reciprocal;
+          if constexpr (Lookup) shaped = TanhBase::Process(gain_ * x) * reciprocal;
+          else if constexpr (Research) shaped = ResearchTanh(gain_ * x) * reciprocal;
           else shaped = std::tanh(gain_ * x) * reciprocal;
         } else {
-          if constexpr (Research) shaped = ResearchTanh(gain_ * x) / gain_;
+          if constexpr (Lookup) shaped = TanhBase::Process(gain_ * x) / gain_;
+          else if constexpr (Research) shaped = ResearchTanh(gain_ * x) / gain_;
           else shaped = std::tanh(gain_ * x) / gain_;
         }
       }

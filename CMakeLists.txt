@@ -1356,6 +1356,15 @@ endif()
 
 if(BUILD_TESTING)
   # Header-only ring study also works without DaisySP or the plugin wrapper.
+  add_executable(sawstar_premium_lookup_tests tests/premium_lookup_tanh.cpp)
+  target_link_libraries(sawstar_premium_lookup_tests PRIVATE sawstar_foundation)
+  add_test(NAME premium_lookup_scalar_contract COMMAND sawstar_premium_lookup_tests)
+  add_executable(sawstar_premium_lookup_drive_tests tests/premium_drive_tanh.cpp)
+  target_compile_definitions(sawstar_premium_lookup_drive_tests PRIVATE SAWSTAR_LOOKUP_TANH_STUDY=1)
+  target_link_libraries(sawstar_premium_lookup_drive_tests PRIVATE sawstar_foundation)
+  add_test(NAME premium_lookup_drive_contract COMMAND sawstar_premium_lookup_drive_tests)
+  add_test(NAME premium_lookup_report
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/report-premium-lookup.py" --self-test)
   add_executable(sawstar_premium_ring_study experiments/premium_filter/benchmark_ring_storage.cpp)
   target_link_libraries(sawstar_premium_ring_study PRIVATE sawstar_foundation)
   add_test(NAME premium_drive_ring_identity COMMAND sawstar_premium_ring_study)

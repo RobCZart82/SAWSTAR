@@ -1,0 +1,60 @@
+name: Premium lookup saturation research
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/premium-lookup.yml'
+      - 'CMakeLists.txt'
+      - 'experiments/premium_filter/PremiumDrive.h'
+      - 'experiments/premium_filter/LookupTanh.h'
+      - 'experiments/premium_filter/FirLanes4.h'
+      - 'tests/premium_lookup_tanh.cpp'
+      - 'tests/premium_drive_tanh.cpp'
+      - 'scripts/report-premium-lookup.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: premium-lookup-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    name: Lookup saturation / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-14]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Configure isolated Release probes
+        run: cmake -S . -B build-lookup -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=OFF
+      - name: Build scalar and Drive qualification
+        run: cmake --build build-lookup --config Release --target sawstar_premium_lookup_tests sawstar_premium_lookup_drive_tests --parallel 2
+      - name: Validate numerical and report contracts before timing
+        run: ctest --test-dir build-lookup -C Release -R '^premium_lookup_(scalar_contract|drive_contract|report)$' --verbose
+      - name: Collect paired isolated timings
+        run: |
+          mkdir -p lookup-results/compiler
+          cp build-lookup/Testing/Temporary/LastTest.log lookup-results/contracts.txt
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            build-lookup/Release/sawstar_premium_lookup_tests.exe --benchmark > lookup-results/scalar.csv
+            build-lookup/Release/sawstar_premium_lookup_drive_tests.exe --benchmark > lookup-results/drive.csv 2> lookup-results/backend.txt
+          else
+            build-lookup/sawstar_premium_lookup_tests --benchmark > lookup-results/scalar.csv
+            build-lookup/sawstar_premium_lookup_drive_tests --benchmark > lookup-results/drive.csv 2> lookup-results/backend.txt
+          fi
+          find build-lookup/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' lookup-results/compiler/ \;
+          python scripts/report-premium-lookup.py lookup-results --source-sha "$(git rev-parse HEAD)"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: premium-lookup-${{ matrix.os }}
+          path: lookup-results/
+          if-no-files-found: error
+          retention-days: 90

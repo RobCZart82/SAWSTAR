@@ -5,13 +5,20 @@
 #include <complex>
 #include <cstdint>
 #include <iostream>
+#include <iomanip>
 #include <limits>
 #include <stdexcept>
 #include <string>
 #include <vector>
 using Frame = std::array<float, 2>;
+#ifdef SAWSTAR_LOOKUP_TANH_STUDY
+// Same SIMD/reciprocal settings: isolate only the new lookup saturator.
+template<unsigned Factor> using Full = sawstar::experimental::FixedRatePremiumDrive<Factor, true, false, true, true>;
+template<unsigned Factor> using Study = sawstar::experimental::FixedRatePremiumDrive<Factor, true, false, true, true, true>;
+#else
 template<unsigned Factor> using Full = sawstar::experimental::FixedRatePremiumDrive<Factor>;
 template<unsigned Factor> using Study = sawstar::experimental::FixedRatePremiumDrive<Factor, true, true>;
+#endif
 volatile double checksum = 0;
 template<unsigned Factor> void Contract() {
   for (double rate : {8000.,44100.,48000.,96000.,192000.,384000.})
@@ -183,8 +190,17 @@ template<unsigned Factor> void Benchmark() {
   }
 }
 int main(int argc,char** argv){try{
+#ifdef SAWSTAR_LOOKUP_TANH_STUDY
+  static_assert(sizeof(Study<2>) == sizeof(Full<2>) + sizeof(void*), "One immutable table pointer per Drive");
+  static_assert(sizeof(Study<4>) == sizeof(Full<4>) + sizeof(void*), "One immutable table pointer per Drive");
+  std::cout << std::setprecision(17);
+#endif
   if(argc==1){std::cout<<"factor,rate,amplitude,modulation,peak_error,relative_rms,spectral_difference\n";Contract<2>();Contract<4>();SpectrumControls();Stress<2>();Stress<4>();}
   else if(argc==2&&std::string(argv[1])=="--benchmark"){
+#ifdef SAWSTAR_LOOKUP_TANH_STUDY
+    std::cerr << "fir_backend=" << sawstar::experimental::detail::FirLanes4::Backend
+              << ";shared_lookup_bytes=" << sawstar::experimental::LookupTanh::TableBytes << '\n';
+#endif
     std::cout<<"factor,rate,voices,drive_db,pair,reference_seconds,study_seconds\n";Benchmark<2>();Benchmark<4>();
     if(!std::isfinite(checksum))throw std::runtime_error("Invalid checksum");
   }else throw std::runtime_error("Usage: premium_drive_tanh [--benchmark]");
