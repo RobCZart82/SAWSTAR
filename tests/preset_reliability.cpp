@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #include "presets/Library.h"
 #include "presets/RenameNoReplace.h"
+#include "presets/ArchiveNoReplace.h"
 #include <thread>
 #include <atomic>
 #include <chrono>
@@ -51,7 +52,29 @@ auto root=parent/("sawstar-reliable-"+std::to_string(std::chrono::steady_clock::
 #endif
  for(auto name:{"CON","con.txt","PRN","AUX","NUL","COM1","LPT9","CONIN$"})check(!ValidPresetName(name),"reserved filename accepted");
  std::string accents;for(int i=0;i<80;++i)accents+=u8"\u0151";check(ValidPresetName(accents),"80 Unicode letters");check(!ValidPresetName(accents+"a"),"81 letters accepted");check(!ValidPresetName(std::string("bad\xc0\xaf")),"invalid UTF-8 accepted");
- auto values=DefaultSnapshot();auto source=root/"external"/"Sound.SAWSTAR";auto saved=SavePresetSelection(source,values,root/"library");check(saved.active&&saved.path==root/"library"/"Sound.sawstar","uppercase save import");
+ auto values=DefaultSnapshot();
+ auto archiveSource=root/"Archive.sawstar";SaveUserPreset(archiveSource,values);
+ auto backup0=archiveSource;backup0+=".deleted";auto backup1=archiveSource;backup1+=".deleted-1";
+ writeBytesAt(backup0,"first backup");writeBytesAt(backup1,"second backup");
+ auto archived=ArchiveUserPreset(archiveSource);
+ check(archived.filename()=="Archive.sawstar.deleted-2"&&!fs::exists(archiveSource)&&ReadUserPreset(archived)==values&&readBytesAt(backup0)=="first backup"&&readBytesAt(backup1)=="second backup","archive replaced an earlier backup");
+ // Force a destination to appear immediately before the real filesystem move.
+ auto racedSource=root/"Archive race.sawstar";writeBytesAt(racedSource,raw);int attempts=0;
+ auto racedBackup=racedSource;racedBackup+=".deleted";
+ auto racedArchive=detail::ArchiveNoReplace(racedSource,[&](const fs::path& from,const fs::path& to){if(attempts++==0)writeBytesAt(to,"external writer");detail::RenameNoReplace(from,to);});
+ check(attempts==2&&racedArchive.filename()=="Archive race.sawstar.deleted-1"&&!fs::exists(racedSource)&&readBytesAt(racedArchive)==raw&&readBytesAt(racedBackup)=="external writer","archive race lost external data");
+ auto failureSource=root/"Archive failure.sawstar";writeBytesAt(failureSource,raw);int failureAttempts=0;bool failureReported=false;
+ try{detail::ArchiveNoReplace(failureSource,[&](const fs::path& from,const fs::path& to){++failureAttempts;throw fs::filesystem_error("injected permission failure",from,to,std::make_error_code(std::errc::permission_denied));});}catch(const fs::filesystem_error&){failureReported=true;}
+ check(failureReported&&failureAttempts==1&&readBytesAt(failureSource)==raw,"non-collision archive failure retried or lost source");
+ bool absentArchiveRejected=false;try{ArchiveUserPreset(root/"Missing archive.sawstar");}catch(const fs::filesystem_error&){absentArchiveRejected=true;}
+ check(absentArchiveRejected&&!fs::exists(root/"Missing archive.sawstar.deleted"),"missing archive source created backup");
+#ifndef _WIN32
+ auto linkSource=root/"Archive link.sawstar";writeBytesAt(linkSource,raw);auto linkBackup=linkSource;linkBackup+=".deleted";
+ fs::create_symlink(root/"missing link target",linkBackup);
+ auto linkArchive=ArchiveUserPreset(linkSource);
+ check(fs::is_symlink(fs::symlink_status(linkBackup))&&readBytesAt(linkArchive)==raw&&linkArchive.filename()=="Archive link.sawstar.deleted-1","archive replaced dangling symlink");
+#endif
+ auto source=root/"external"/"Sound.SAWSTAR";auto saved=SavePresetSelection(source,values,root/"library");check(saved.active&&saved.path==root/"library"/"Sound.sawstar","uppercase save import");
  auto changed=values;changed[20]=33;auto second=SavePresetSelection(root/"elsewhere"/"Sound.sawstar",changed,root/"library");check(second.active&&second.saved==changed&&second.path.parent_path()==root/"elsewhere","external collision lost active state");check(ReadUserPreset(saved.path)==values,"existing library overwritten");
  auto renamed=RenameUserPreset(saved.path,"SOUND");check(ReadUserPreset(renamed)==values,"case-only rename lost preset");check(ListUserPresets(root/"external").size()==1,"uppercase not listed");
  std::atomic<bool> start{false};std::atomic<int> failures{0};std::vector<std::thread> threads;

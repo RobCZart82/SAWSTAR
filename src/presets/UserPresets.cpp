@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #include "presets/UserPresets.h"
 #include "presets/RenameNoReplace.h"
+#include "presets/ArchiveNoReplace.h"
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
 #elif defined(_WIN32)
@@ -316,10 +317,7 @@ fs::path RenameUserPreset(const fs::path& source,const std::string& name) {
 }
 fs::path ArchiveUserPreset(const fs::path& source){
   PresetMutationLock lock(source);
-  auto target=source;target+=".deleted";
-  for(int i=1;fs::exists(target);++i){target=source;target+=".deleted-"+std::to_string(i);}
-  fs::rename(source,target);
-  return target;
+  return detail::ArchiveNoReplace(source);
 }
 fs::path OverwriteUserPreset(const fs::path& path,const Snapshot& expected,const Snapshot& values){
   if(!PresetExtension(path)||!ValidPresetName(path.stem().u8string()))throw std::runtime_error("Invalid user preset path.");
