@@ -1,0 +1,28 @@
+{
+  "study_kind": "lookup-tanh",
+  "source_sha": "0eb50598b8193aad82b3dcb319d529dc907389ed",
+  "platform": "macOS-26.7-arm64-arm-64bit",
+  "machine": "arm64",
+  "configuration": "Release",
+  "fir_backend": "NEON",
+  "shared_lookup_bytes": "65536",
+  "scalar_pairs": 32,
+  "drive_pairs": 48,
+  "native_host_acceptance": false,
+  "source_sha256": {
+    "experiments/premium_filter/LookupTanh.h": "d21d25356cb47a40dc4f5791589f3464ed68288d3e044c1e324f640e2226dc77",
+    "experiments/premium_filter/PremiumDrive.h": "7d15c2a142f77aad6e6479d187794df64fcade17c1930898117d51090ddd1b03",
+    "experiments/premium_filter/FirLanes4.h": "b218369d25c122337783cfdef490ecd62bfc34dffefeb3c8657f3d6deeef4b1d",
+    "tests/premium_lookup_tanh.cpp": "7493ed8c083a195cf687251d273b538a4f5a5d473806e0c5f7cf1d17d6fdd122",
+    "tests/premium_drive_tanh.cpp": "214397728f594fe09098fba13a3f6eba4edeb0919c2976b9422e826d6a0c4610",
+    "scripts/report-premium-lookup.py": "7ea33cb5a36a849b5dd39729d5e0709b01e8a100f869a411f9b2794361519b92"
+  },
+  "measurement_sha256": {
+    "scalar.csv": "330868086246bb7fe404ad099476a7e9b8888e6792e7f662bf28a933c4c342c3",
+    "drive.csv": "970ffe615c10ce1dc261582a8d52c6c022a7967e776dd0659f7815e824e560e0",
+    "backend.txt": "1368b807466ae3fd011ebef9dafbc5d2bef8d7cd3c4a09ba2a8953fcbade81bf"
+  },
+  "compiler_sha256": {
+    "CMakeCXXCompiler.cmake": "0d921ce4d16c8ee29671fd52fbb563fa433e387924e8d26844fdb26010998da1"
+  }
+}
