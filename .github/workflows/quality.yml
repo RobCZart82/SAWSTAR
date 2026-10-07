@@ -165,5 +165,5 @@ jobs:
             --test-dir build-tsan \
             --output-on-failure \
             --timeout 180 \
-            -R '^(realtime_scope|preset_reliability|preset_library_import|user_preset_files|editor_wheel_mailbox)$'
+            -R '^(realtime_scope|preset_reliability|preset_library_import|user_preset_files|preset_import_job|editor_wheel_mailbox)$'
             

@@ -3,6 +3,7 @@
 #include "gui/Controls/Theme.h"
 #include "gui/Controls/ConfirmAction.h"
 #include "presets/Library.h"
+#include "presets/ImportJob.h"
 #include "gui/NativeImport.h"
 #include <functional>
 #include <memory>
@@ -10,7 +11,7 @@
 namespace sawstar::gui {
 class PresetBrowser final:public IControl {
  std::shared_ptr<int> lifetime_=std::make_shared<int>(0);
- ConfirmAction* confirm_;PresetLibrary library_;UserPresetSelection& user_;std::function<Snapshot()> current_;std::function<void(const Snapshot&)> apply_;std::function<void(int)> factory_;
+ PresetImportJob& importJob_;ConfirmAction* confirm_;PresetLibrary library_;UserPresetSelection& user_;std::function<Snapshot()> current_;std::function<void(const Snapshot&)> apply_;std::function<void(int)> factory_;
  std::vector<int> visible_;std::string category_="All",query_,selected_,status_;int scroll_=0,editing_=0;bool dragging_=false;float dragOffset_=0;
  std::optional<Snapshot> preview_,clipboard_;WDL_String file_,folder_;
  static constexpr int Rows=12;
@@ -29,20 +30,27 @@ class PresetBrowser final:public IControl {
  void AddExternal(){if(!user_.active)return;const auto key=ActiveKey();if(key.rfind("external:",0)==0)library_.entries.push_back({key,user_.name,"User","Saved outside the User Library. The diagram shows its saved settings.",user_.path,-1});}
  void Refresh(){library_.Refresh();AddExternal();Filter();if(!Selected()&&!visible_.empty())selected_=library_.entries[visible_.front()].key;Select(selected_);if(!library_.warning.empty())status_=library_.warning;}
  void LoadSelected(){const auto* e=Selected();if(!e)throw std::runtime_error("Select a preset first.");if(e->factory==0){Do(2);return;}auto values=e->Read();if(e->factory>=0)factory_(e->factory);else{apply_(values);user_.path=e->path;user_.name=e->name;user_.saved=values;user_.active=true;}status_="Loaded "+e->name;GetUI()->SetAllControlsDirty();}
- bool CanSave()const{return user_.active&&!user_.path.empty()&&!SnapshotsMatch(current_(),user_.saved);}
+ bool CanSave()const{return !importJob_.Busy()&&user_.active&&!user_.path.empty()&&!SnapshotsMatch(current_(),user_.saved);}
  void Save(){if(!CanSave())return;const auto path=user_.path;const auto name=user_.name;const auto expected=user_.saved;const auto values=current_();
   confirm_->Ask("Overwrite User Preset?","Overwrite the saved settings of \""+name+"\"? A recovery copy will be kept.","Overwrite",[this,path,name,expected,values,weak=std::weak_ptr<int>(lifetime_)]{
    if(weak.expired())return;
-   try{if(!user_.active||user_.path!=path||user_.saved!=expected)throw std::runtime_error("Active preset changed. Please try Save again.");
+   try{if(importJob_.Busy())throw std::runtime_error("Import in progress. Try Save after it finishes.");
+    if(!user_.active||user_.path!=path||user_.saved!=expected)throw std::runtime_error("Active preset changed. Please try Save again.");
     OverwriteUserPreset(path,expected,values);user_.saved=values;user_.status="Saved "+name;Refresh();Select(ActiveKey());status_=user_.status;GetUI()->SetAllControlsDirty();
    }catch(const std::exception& e){Error(e);}
   });
  }
  void SaveAs(){auto root=UserPresetFolder();if(root.empty())throw std::runtime_error("User preset folder unavailable.");fs::create_directories(root);folder_.Set(root.u8string().c_str());file_.Set((ValidPresetName(user_.name)?user_.name+".sawstar":"My Sound.sawstar").c_str());auto values=current_();
-  GetUI()->PromptForFile(file_,folder_,EFileAction::Save,"sawstar",[this,weak=std::weak_ptr<int>(lifetime_),values](const WDL_String& f,const WDL_String&){if(weak.expired()||!f.GetLength())return;try{user_=SavePresetSelection(fs::u8path(f.Get()),values,UserPresetFolder());category_="User";query_.clear();Refresh();Select(ActiveKey());status_=user_.status;GetUI()->SetAllControlsDirty();
+  GetUI()->PromptForFile(file_,folder_,EFileAction::Save,"sawstar",[this,weak=std::weak_ptr<int>(lifetime_),values](const WDL_String& f,const WDL_String&){if(weak.expired()||!f.GetLength())return;try{if(importJob_.Busy())throw std::runtime_error("Import in progress. Try Save As after it finishes.");user_=SavePresetSelection(fs::u8path(f.Get()),values,UserPresetFolder());category_="User";query_.clear();Refresh();Select(ActiveKey());status_=user_.status;GetUI()->SetAllControlsDirty();
   }catch(const std::exception& e){Error(e);}});
  }
+ void BeginImport(std::vector<fs::path> files,bool identical=false){
+  auto root=UserPresetFolder();if(root.empty())throw std::runtime_error("User preset folder unavailable.");
+  if(!importJob_.Start({std::move(files),std::move(root),identical}))throw std::runtime_error("An import is already in progress.");
+  status_="Importing presets...";SetDirty(false);GetUI()->SetAllControlsDirty();
+ }
  void Do(int action){try{
+  if(importJob_.Busy())return;
   if(action==0)Save();
   else if(action==1)SaveAs();
   else if(action==2){confirm_->Ask("Initialize Preset?","Initialize the current sound? Any unsaved changes will be lost.","Initialize",[this,weak=std::weak_ptr<int>(lifetime_)]{if(weak.expired())return;factory_(0);Select("factory:init");status_="Init loaded";GetUI()->SetAllControlsDirty();});}
@@ -50,8 +58,8 @@ class PresetBrowser final:public IControl {
   else if(action==4){if(!clipboard_)throw std::runtime_error("Copy a sound first.");apply_(*clipboard_);user_.active=false;status_="Copied sound applied. Save As to keep it.";GetUI()->SetAllControlsDirty();}
   else if(action==5){auto* e=Selected();if(!e||e->factory>=0)throw std::runtime_error("Select a User preset to rename.");editing_=1;GetUI()->CreateTextEntry(*this,EntryStyle(14),Action(5),e->name.c_str());StyleEntry(GetUI());}
   else if(action==6){const auto* e=Selected();if(!e||e->factory>=0)throw std::runtime_error("Factory presets are read-only.");auto path=e->path;auto key=e->key;
-   confirm_->Ask("Delete Preset?","Delete this user preset? A recovery backup will be kept.","Delete",[this,path,key,weak=std::weak_ptr<int>(lifetime_)]{if(weak.expired())return;try{ArchiveUserPreset(path);if(user_.path==path)user_.active=false;std::string warning;try{library_.MoveFavorite(key,"");}catch(const std::exception& e){warning=" Favorite cleanup failed: "+std::string(e.what());}Refresh();status_="Removed; backup retained."+warning;GetUI()->SetAllControlsDirty();}catch(const std::exception& err){Error(err);}});
-  }else if(action==7){auto weak=std::weak_ptr<int>(lifetime_);auto files=SelectPresetFiles(GetUI()->GetWindow());if(weak.expired()||files.empty())return;auto result=ImportPresets(files,UserPresetFolder());category_="User";query_.clear();scroll_=0;Refresh();status_=result.Summary();std::string report=status_;for(size_t i=0;i<std::min<size_t>(result.details.size(),12);++i)report+="\n"+result.details[i];if(result.details.size()>12)report+="\nAdditional files skipped or failed: "+std::to_string(result.details.size()-12);GetUI()->ShowMessageBox(report.c_str(),"SAWSTAR Import",kMB_OK);if(!result.duplicates.empty()){auto duplicates=result.duplicates;confirm_->Ask("Import identical settings?",std::to_string(duplicates.size())+" presets match sounds already in your library. Import these copies under their different names?","Import copies",[this,weak,duplicates]{if(weak.expired())return;try{auto retry=ImportPresets(duplicates,UserPresetFolder(),true);Refresh();status_=retry.Summary();GetUI()->SetAllControlsDirty();}catch(const std::exception& e){Error(e);}});}}
+   confirm_->Ask("Delete Preset?","Delete this user preset? A recovery backup will be kept.","Delete",[this,path,key,weak=std::weak_ptr<int>(lifetime_)]{if(weak.expired())return;try{if(importJob_.Busy())throw std::runtime_error("Import in progress. Try Delete after it finishes.");ArchiveUserPreset(path);if(user_.path==path)user_.active=false;std::string warning;try{library_.MoveFavorite(key,"");}catch(const std::exception& e){warning=" Favorite cleanup failed: "+std::string(e.what());}Refresh();status_="Removed; backup retained."+warning;GetUI()->SetAllControlsDirty();}catch(const std::exception& err){Error(err);}});
+  }else if(action==7){auto weak=std::weak_ptr<int>(lifetime_);auto files=SelectPresetFiles(GetUI()->GetWindow());if(weak.expired()||files.empty())return;BeginImport(std::move(files));}
   SetDirty(false);
  }catch(const std::exception& e){Error(e);}}
  void TextLine(IGraphics& g,const std::string& s,IRECT r,int size=13,IColor color=Text){g.DrawText(IText(size,color).WithAlign(EAlign::Near),s.c_str(),r);}
@@ -75,8 +83,23 @@ class PresetBrowser final:public IControl {
   std::string fx="FX: ";if(v[42]>.5&&v[43]>0)fx+="Chorus ";if(v[46]>.5&&v[47]>0)fx+="Delay ";if(v[54]>.5&&v[55]>0)fx+="Reverb ";if(fx=="FX: ")fx+="Dry";TextLine(g,fx,IRECT(651,571,1063,595),12);
  }
 public:
- PresetBrowser(UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply,std::function<void(int)> factory,ConfirmAction* confirm):IControl(IRECT(12,82,1268,636)),confirm_(confirm),library_(UserPresetFolder()),user_(user),current_(current),apply_(apply),factory_(factory){if(user_.active)selected_="user:"+user_.path.filename().u8string();else{int i=MatchFactoryPreset(current_());if(i>=0)selected_="factory:"+std::string(FactoryPresets()[i].key);}Refresh();if(user_.active)Select(ActiveKey());}
- void SyncToSound(){try{library_.Refresh();AddExternal();Filter();if(user_.active)Select(ActiveKey());else{int i=MatchFactoryPreset(current_());Select(i>=0?"factory:"+std::string(FactoryPresets()[i].key):"");}}catch(const std::exception& e){Error(e);}}
+ PresetBrowser(UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply,std::function<void(int)> factory,ConfirmAction* confirm,PresetImportJob& importJob):IControl(IRECT(12,82,1268,636)),importJob_(importJob),confirm_(confirm),library_(UserPresetFolder(),!importJob.Busy()),user_(user),current_(current),apply_(apply),factory_(factory){if(importJob_.Busy()){status_="Importing presets...";return;}if(user_.active)selected_="user:"+user_.path.filename().u8string();else{int i=MatchFactoryPreset(current_());if(i>=0)selected_="factory:"+std::string(FactoryPresets()[i].key);}Refresh();if(user_.active)Select(ActiveKey());}
+ void SyncToSound(){if(importJob_.Busy())return;try{library_.Refresh();AddExternal();Filter();if(user_.active)Select(ActiveKey());else{int i=MatchFactoryPreset(current_());Select(i>=0?"factory:"+std::string(FactoryPresets()[i].key):"");}}catch(const std::exception& e){Error(e);}}
+ void PollImport(){auto result=importJob_.TakeResult();if(!result)return;
+  try{
+   if(result->library){library_=std::move(*result->library);AddExternal();category_="User";query_.clear();scroll_=0;Filter();if(!Selected()&&!visible_.empty())selected_=library_.entries[visible_.front()].key;Select(selected_);}
+   status_=result->report.Summary();if(!result->error.empty())status_+=" "+result->error;
+   if(!library_.warning.empty())status_+=" "+library_.warning;
+   SetDirty(false);GetUI()->SetAllControlsDirty();
+   if(result->allowIdentical)return;
+   std::string report=status_;for(size_t i=0;i<std::min<size_t>(result->report.details.size(),12);++i)report+="\n"+result->report.details[i];
+   if(result->report.details.size()>12)report+="\nAdditional files skipped or failed: "+std::to_string(result->report.details.size()-12);
+   auto weak=std::weak_ptr<int>(lifetime_);
+   GetUI()->ShowMessageBox(report.c_str(),"SAWSTAR Import",kMB_OK);
+   if(weak.expired())return;
+   if(!result->report.duplicates.empty()){auto duplicates=std::move(result->report.duplicates);confirm_->Ask("Import identical settings?",std::to_string(duplicates.size())+" presets match sounds already in your library. Import these copies under their different names?","Import copies",[this,weak,duplicates]{if(weak.expired())return;try{BeginImport(duplicates,true);}catch(const std::exception& error){Error(error);}});}
+  }catch(const std::exception& error){Error(error);}
+ }
  void Draw(IGraphics& g)override{
   const IRECT boxes[]={IRECT(12,82,192,636),IRECT(200,82,630,636),IRECT(638,82,1075,636),IRECT(1083,82,1268,636)};const char* names[]={"CATEGORIES","PRESETS","PRESET INFO","PRESET ACTIONS"};for(int i=0;i<4;++i){DrawPanel(g,boxes[i]);g.DrawText(IText(14,Blue).WithFont("SAWSTAR-Bold").WithAlign(EAlign::Near),names[i],boxes[i].GetPadded(-12).GetFromTop(24));}
   const char* labels[]={"All","Favorites","Templates","Leads","Pads","Plucks","Bass","Sub Pads","Arps","Keys","Sequences","FX","User"};const char* keys[]={"All","Favorites","Templates","Lead","Pad","Pluck","Bass","Sub Pad","Arp","Keys","Sequence","FX","User"};
@@ -85,11 +108,11 @@ public:
   for(int i=0;i<Rows&&scroll_+i<int(visible_.size());++i){auto& e=library_.entries[visible_[scroll_+i]];auto r=Row(i);if(e.key==selected_)g.FillRoundRect(IColor(255,25,65,88),r,2);DrawFavorite(g,r.GetFromLeft(32),library_.Favorite(e.key));TextLine(g,e.name,IRECT(r.L+38,r.T,r.R-85,r.B),14);g.FillCircle(e.factory>=0?IColor(255,190,91,91):IColor(255,87,181,119),r.R-73,r.MH(),3);TextLine(g,e.factory>=0?"Factory":"User",r.GetFromRight(63),11,Text);}
   TextLine(g,std::to_string(visible_.size())+" presets  |  "+std::to_string(library_.entries.size())+" total",IRECT(213,571,615,593),12);
   g.FillRoundRect(IColor(255,11,18,23),ScrollTrack(),3);g.DrawRoundRect(Border,ScrollTrack(),3);g.FillRoundRect(MaxScroll()?IColor(255,48,105,139):IColor(255,37,49,56),ScrollThumb().GetHPadded(-2),2);
-  Info(g);const char* actions[]={"Save","Save As...","Initialize","Copy","Paste","Rename","Delete","Import..."};for(int i=0;i<8;++i){auto r=Action(i);bool disabled=(i==0&&!CanSave())||(i==4&&!clipboard_)||(i==6&&(!Selected()||Selected()->factory>=0));g.FillRoundRect(i==2||i==6?IColor(255,38,25,26):IColor(255,10,17,21),r,3);g.DrawRoundRect(disabled?Border:i==2||i==6?IColor(255,125,77,71):Border,r,3);g.DrawText(IText(14,disabled?Border:Text),actions[i],r);}
+  Info(g);const char* actions[]={"Save","Save As...","Initialize","Copy","Paste","Rename","Delete","Import..."};for(int i=0;i<8;++i){auto r=Action(i);bool disabled=importJob_.Busy()||(i==0&&!CanSave())||(i==4&&!clipboard_)||(i==6&&(!Selected()||Selected()->factory>=0));g.FillRoundRect(i==2||i==6?IColor(255,38,25,26):IColor(255,10,17,21),r,3);g.DrawRoundRect(disabled?Border:i==2||i==6?IColor(255,125,77,71):Border,r,3);g.DrawText(IText(14,disabled?Border:Text),i==7&&importJob_.Busy()?"Importing...":actions[i],r);}
   g.DrawLine(Border,1091,510,1253,510);
   TextLine(g,status_,IRECT(650,606,1064,630),11);
  }
- void OnMouseDown(float x,float y,const IMouseMod& mod)override{try{
+ void OnMouseDown(float x,float y,const IMouseMod& mod)override{if(importJob_.Busy())return;try{
   if(Search().Contains(x,y)){editing_=0;GetUI()->CreateTextEntry(*this,EntryStyle(13),Search(),query_.c_str());StyleEntry(GetUI());return;}
   if(x<192&&y>=137&&y<137+13*34){const char* keys[]={"All","Favorites","Templates","Lead","Pad","Pluck","Bass","Sub Pad","Arp","Keys","Sequence","FX","User"};category_=keys[int((y-137)/34)];scroll_=0;Filter();SetDirty(false);return;}
   if(ScrollTrack().Contains(x,y)){if(MaxScroll()){dragging_=true;dragOffset_=ScrollThumb().Contains(x,y)?y-ScrollThumb().T:ScrollThumb().H()/2;ScrollTo(y);}return;}
@@ -99,6 +122,6 @@ public:
  void OnMouseDrag(float,float y,float,float,const IMouseMod&)override{if(dragging_)ScrollTo(y);}
  void OnMouseUp(float,float,const IMouseMod&)override{dragging_=false;}
  void OnMouseWheel(float x,float y,const IMouseMod&,float delta)override{if(x>=200&&x<=630&&y>=138&&y<558&&delta!=0){scroll_+=delta>0?-3:3;Filter();SetDirty(false);}}
- void OnTextEntryCompletion(const char* value,int)override{try{if(editing_==0){query_=value;scroll_=0;Filter();}else{auto* e=Selected();if(!e||e->factory>=0)return;auto old=*e;auto path=RenameUserPreset(old.path,value);auto key="user:"+path.filename().u8string();if(user_.path==old.path){user_.path=path;user_.name=path.stem().u8string();}if(old.key.rfind("external:",0)==0)key="external:"+path.u8string();selected_=key;std::string warning;try{library_.MoveFavorite(old.key,key);}catch(const std::exception& err){warning=" Favorite update failed: "+std::string(err.what());}Refresh();status_="Renamed user preset."+warning;GetUI()->SetAllControlsDirty();}SetDirty(false);}catch(const std::exception& e){Error(e);}}
+ void OnTextEntryCompletion(const char* value,int)override{if(importJob_.Busy())return;try{if(editing_==0){query_=value;scroll_=0;Filter();}else{auto* e=Selected();if(!e||e->factory>=0)return;auto old=*e;auto path=RenameUserPreset(old.path,value);auto key="user:"+path.filename().u8string();if(user_.path==old.path){user_.path=path;user_.name=path.stem().u8string();}if(old.key.rfind("external:",0)==0)key="external:"+path.u8string();selected_=key;std::string warning;try{library_.MoveFavorite(old.key,key);}catch(const std::exception& err){warning=" Favorite update failed: "+std::string(err.what());}Refresh();status_="Renamed user preset."+warning;GetUI()->SetAllControlsDirty();}SetDirty(false);}catch(const std::exception& e){Error(e);}}
 };
 }

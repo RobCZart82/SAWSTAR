@@ -6,27 +6,28 @@
 #include "presets/FactoryPresets.h"
 #include "presets/UserPresets.h"
 #include "presets/QuickPresetList.h"
+#include "presets/ImportJob.h"
 #include "gui/Controls/ConfirmAction.h"
 #include <memory>
 #include <functional>
 namespace sawstar::gui {
 class PresetSelector final : public iplug::igraphics::IControl {
- std::shared_ptr<int> lifetime_=std::make_shared<int>(0);ConfirmAction* confirm_;
+ std::shared_ptr<int> lifetime_=std::make_shared<int>(0);PresetImportJob& importJob_;ConfirmAction* confirm_;
  const int& selected_;std::function<void(int)> action_;UserPresetSelection& user_;std::function<Snapshot()> current_;std::function<void(const Snapshot&)> apply_;iplug::igraphics::IPopupMenu menu_;std::vector<QuickPresetEntry> entries_;std::vector<int> menuIndices_;std::function<void()> sync_;
  void Refresh(){entries_=BuildQuickPresetList(ListUserPresets(UserPresetFolder()));menu_.Clear();menuIndices_.clear();for(int i=0;i<int(entries_.size());++i){menu_.AddItem(entries_[i].Label().c_str());menuIndices_.push_back(i);}menu_.AddSeparator();menuIndices_.push_back(-2);menu_.AddItem("INIT PRESET");menuIndices_.push_back(-1);}
  void Load(int i){if(i==-1){confirm_->Ask("Initialize Preset?","Initialize the current sound? Any unsaved changes will be lost.","Initialize",[this,weak=std::weak_ptr<int>(lifetime_)]{if(weak.expired())return;action_(0);if(sync_)sync_();GetUI()->SetAllControlsDirty();});return;}const auto& entry=entries_.at(i);if(entry.factory>=0)action_(entry.factory);else{auto path=entry.path;auto values=ReadUserPreset(path);apply_(values);user_.path=path;user_.name=path.stem().u8string();user_.saved=values;user_.active=true;}if(sync_)sync_();GetUI()->SetAllControlsDirty();}
  void Error(const std::exception& e){GetUI()->ShowMessageBox(e.what(),"SAWSTAR",iplug::igraphics::kMB_OK);}
 public:
- PresetSelector(const iplug::igraphics::IRECT& r,const int& selected,std::function<void(int)> action,UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply,std::function<void()> sync,ConfirmAction* confirm):IControl(r),confirm_(confirm),selected_(selected),action_(action),user_(user),current_(current),apply_(apply),sync_(sync){}
+ PresetSelector(const iplug::igraphics::IRECT& r,const int& selected,std::function<void(int)> action,UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply,std::function<void()> sync,ConfirmAction* confirm,PresetImportJob& importJob):IControl(r),importJob_(importJob),confirm_(confirm),selected_(selected),action_(action),user_(user),current_(current),apply_(apply),sync_(sync){}
  void Draw(iplug::igraphics::IGraphics& g)override{
   using namespace iplug::igraphics;IColor light(255,210,237,245);g.FillRoundRect(IColor(255,20,26,29),mRECT,5);g.DrawRoundRect(IColor(255,55,95,110),mRECT,5);
   g.DrawText(IText(18,light),"<",mRECT.GetFromLeft(28));g.DrawText(IText(18,light),">",mRECT.GetFromRight(28));
-  auto name=user_.active?user_.path.stem().u8string()+(!SnapshotsMatch(current_(),user_.saved)?" *":""):selected_<0?std::string("Custom"):std::string(FactoryPresets()[selected_].name);g.DrawText(IText(14,light),name.c_str(),mRECT.GetHPadded(-30));
+  auto name=user_.active?user_.path.stem().u8string()+(!SnapshotsMatch(current_(),user_.saved)?" *":""):selected_<0?std::string("Custom"):std::string(FactoryPresets()[selected_].name);if(importJob_.Busy())name+=" (importing)";g.DrawText(IText(14,light),name.c_str(),mRECT.GetHPadded(-30));
  }
- void OnMouseDown(float x,float,const iplug::igraphics::IMouseMod&)override{try{Refresh();const int index=FindQuickPreset(entries_,selected_,user_.active,user_.path);
+ void OnMouseDown(float x,float,const iplug::igraphics::IMouseMod&)override{if(importJob_.Busy())return;try{Refresh();const int index=FindQuickPreset(entries_,selected_,user_.active,user_.path);
   if(x<mRECT.L+28||x>mRECT.R-28){const int next=StepQuickPreset(index,x<mRECT.L+28?-1:1,int(entries_.size()));if(next>=0)Load(next);}else {auto* popup=GetUI()->GetPopupMenuControl();if(popup)popup->SetMenuForcedSouth(true);GetUI()->CreatePopupMenu(*this,menu_,mRECT);}
  }catch(const std::exception& e){Error(e);}}
- void OnPopupMenuSelection(iplug::igraphics::IPopupMenu* menu,int)override{if(menu&&menu->GetChosenItemIdx()>=0)try{int i=menuIndices_.at(menu->GetChosenItemIdx());if(i!=-2)Load(i);}catch(const std::exception& e){Error(e);}}
+ void OnPopupMenuSelection(iplug::igraphics::IPopupMenu* menu,int)override{if(importJob_.Busy())return;if(menu&&menu->GetChosenItemIdx()>=0)try{int i=menuIndices_.at(menu->GetChosenItemIdx());if(i!=-2)Load(i);}catch(const std::exception& e){Error(e);}}
 };
 class PresetRow final : public iplug::igraphics::IControl {
 public:
