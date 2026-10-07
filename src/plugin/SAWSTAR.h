@@ -11,6 +11,7 @@
 #include "visual/Meter.h"
 #include <array>
 #include "presets/UserPresets.h"
+#include "presets/ImportJob.h"
 
 class SAWSTAR final : public iplug::Plugin {
 public:
@@ -55,6 +56,7 @@ private:
   float mGuiScale = 0.f; // Instance/editor preference, independent of sound presets.
   int mPage = 0; // Editor-only state; never read by the audio callback.
 #if IPLUG_EDITOR
+  sawstar::PresetImportJob mPresetImport;
   void SyncRestoredPreset();
 #endif
 };

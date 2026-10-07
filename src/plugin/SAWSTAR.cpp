@@ -121,7 +121,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     sawstar::Snapshot current{};
     for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
-    sawstar::gui::BuildLayout(g,mGuiScale,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mMeter,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply);
+    sawstar::gui::BuildLayout(g,mGuiScale,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mMeter,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply,mPresetImport);
   };
 #endif
 }
@@ -226,6 +226,7 @@ void SAWSTAR::OnMidiMsgFromEditorOverflow() {
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
   SyncRestoredPreset();
+  if(GetUI())if(auto* browser=dynamic_cast<sawstar::gui::PresetBrowser*>(GetUI()->GetControlWithTag(9102)))browser->PollImport();
   if(GetUI()){if(auto* meter=dynamic_cast<sawstar::gui::Meter*>(GetUI()->GetControlWithTag(9100)))meter->Update(mPage==0);}
   else mMeter.Take();
   if(GetUI())if(auto* c=dynamic_cast<sawstar::gui::ScopeControl*>(GetUI()->GetControlWithTag(9104)))c->Update(mScope,mPage==0);
