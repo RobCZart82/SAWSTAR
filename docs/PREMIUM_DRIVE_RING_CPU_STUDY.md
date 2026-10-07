@@ -78,3 +78,42 @@ ctest --test-dir build-ring -C Release -R '^premium_drive_ring_(identity|report)
 ```
 
 The CI workflow shows platform-specific executable paths and capture commands.
+
+## First Windows/macOS CI result
+
+#76 merged as `bfd011f1fa4218c79a39fddc583e87c51c453a67`; all 25 check runs
+(19 distinct checks across push and PR) passed on `5774b6728187b06499f372b1110307197246ab6a`.
+Both 513,048-frame fixtures and eighteen reporter controls passed.
+Run [37607548766](https://github.com/RobCZart82/SAWSTAR/actions/runs/37607548766)
+used SSE2 on Windows and NEON on macOS.
+
+| Factor | Implementation | Rate | Windows median | macOS median |
+| --- | --- | ---: | ---: | ---: |
+| 2x | Scalar | 48,000 | 0.987333 | 1.013934 |
+| 2x | Scalar | 96,000 | 0.990146 | 0.948435 |
+| 2x | Scalar | 192,000 | 0.993808 | 0.978597 |
+| 2x | SIMD | 48,000 | 0.997700 | 0.934030 |
+| 2x | SIMD | 96,000 | 0.995016 | 0.983584 |
+| 2x | SIMD | 192,000 | 0.993744 | 0.945039 |
+| 4x | Scalar | 48,000 | 1.003638 | 0.995443 |
+| 4x | Scalar | 96,000 | 1.004240 | 1.042197 |
+| 4x | Scalar | 192,000 | 0.998735 | 1.126281 |
+| 4x | SIMD | 48,000 | 1.003108 | 1.121773 |
+| 4x | SIMD | 96,000 | 1.001869 | 1.010479 |
+| 4x | SIMD | 192,000 | 0.998639 | 1.052367 |
+
+Windows signals a small improvement at 2x. macOS pair ranges are wide, and even
+the unchanged 4x control moves substantially. These data do not establish a
+stable CPU benefit or change the memory-only acceptance of #75.
+
+The [Windows pairs](../experiments/premium_filter/measurements/2026-10-07-ring-ci-windows.csv),
+[Windows provenance](../experiments/premium_filter/measurements/2026-10-07-ring-ci-windows-provenance.json),
+[macOS pairs](../experiments/premium_filter/measurements/2026-10-07-ring-ci-macos.csv)
+and [macOS provenance](../experiments/premium_filter/measurements/2026-10-07-ring-ci-macos-provenance.json)
+were copied from the verified CI artifacts. Their ZIP digests, CSV hashes,
+source SHA and complete 96-row grids were checked before retention.
+The expanded paired workflow now also measures the separate
+[normalization candidate](PREMIUM_GAIN_NORMALIZATION.md).
+
+The retained local CSV's original CRLF bytes are restored so its byte hash
+matches the original provenance. Values and provenance remain unchanged.

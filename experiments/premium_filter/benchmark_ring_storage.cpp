@@ -12,6 +12,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace {
@@ -91,8 +92,9 @@ template<class Drive> Timing Measure(const std::vector<Frame>& input, double rat
   return {seconds, sum};
 }
 
-template<unsigned Factor, bool Vector> void Benchmark() {
-  using A = After<Factor, Vector>; using B = Before<Factor, Vector>;
+template<unsigned Factor, bool Vector, bool Normalization = false> void Benchmark() {
+  using A = sawstar::experimental::FixedRatePremiumDrive<Factor, true, false, Vector, Normalization>;
+  using B = std::conditional_t<Normalization, After<Factor, Vector>, Before<Factor, Vector>>;
   constexpr int frames = 16384;
   for (double rate : {48000., 96000., 192000.}) {
     std::vector<Frame> input(frames);
@@ -103,7 +105,9 @@ template<unsigned Factor, bool Vector> void Benchmark() {
       Timing before{}, after{};
       if (pair % 2) { after = Measure<A>(input, rate); before = Measure<B>(input, rate); }
       else { before = Measure<B>(input, rate); after = Measure<A>(input, rate); }
-      if (before.sum != after.sum) throw std::runtime_error("Paired checksum differs");
+      if constexpr (!Normalization) {
+        if (before.sum != after.sum) throw std::runtime_error("Paired checksum differs");
+      }
       std::cout << Factor << ',' << (Vector ? "simd" : "scalar") << ','
                 << rate << ",16,20," << pair << ',' << sizeof(B) << ',' << sizeof(A)
                 << ',' << before.seconds << ',' << after.seconds << '\n';
@@ -117,12 +121,17 @@ int main(int argc, char** argv) {
       Contract<2, false>(); Contract<2, true>(); Contract<4, false>(); Contract<4, true>();
       std::cout << compared << " stereo frames bit-identical to c5f5d635 large-ring fixture; backend "
                 << sawstar::experimental::detail::FirLanes4::Backend << '\n';
-    } else if (argc == 2 && std::string(argv[1]) == "--benchmark") {
+    } else if (argc == 2 && (std::string(argv[1]) == "--benchmark" || std::string(argv[1]) == "--normalization-benchmark")) {
       std::cerr << "vector_backend=" << sawstar::experimental::detail::FirLanes4::Backend << '\n';
       std::cout << std::setprecision(17)
                 << "factor,implementation,rate,voices,drive_db,pair,reference_bytes,candidate_bytes,reference_seconds,candidate_seconds\n";
-      Benchmark<2, false>(); Benchmark<2, true>(); Benchmark<4, false>(); Benchmark<4, true>();
+      if (std::string(argv[1]) == "--normalization-benchmark") {
+        Benchmark<2, false, true>(); Benchmark<2, true, true>();
+        Benchmark<4, false, true>(); Benchmark<4, true, true>();
+      } else {
+        Benchmark<2, false>(); Benchmark<2, true>(); Benchmark<4, false>(); Benchmark<4, true>();
+      }
       if (!std::isfinite(checksum)) throw std::runtime_error("Nonfinite total checksum");
-    } else throw std::runtime_error("Usage: premium_ring_study [--benchmark]");
+    } else throw std::runtime_error("Usage: premium_ring_study [--benchmark|--normalization-benchmark]");
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

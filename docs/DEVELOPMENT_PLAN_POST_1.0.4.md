@@ -498,3 +498,18 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 - Az első helyi CPU-arányok nem mutatnak következetes gyorsulást; a lassabb scalar 96 kHz és SSE2 48 kHz eset is dokumentált. CSV és byte-hash eredetjegyzék tartósan rögzített.
 - Külön Windows/macOS Release CI-mérés és ismétlés következik. A memóriaelőnyből nem következik CPU-kapu, végleges ráta-policy vagy production integráció elfogadása.
 - Részletek: [pufferkapacitás CPU-vizsgálata](PREMIUM_DRIVE_RING_CPU_STUDY.md).
+
+### 2026-10-07: következő filtermérföldkövek
+
+| Mérföldkő | Állapot és bizonyíték | Következő kapu |
+| --- | --- | --- |
+| Pufferkapacitás CPU-vizsgálata | #76 beolvadt (`bfd011f`); 25/25 ellenőrzés sikeres. A Windows/macOS párok és provenance tartósan rögzítettek; a macOS kontroll erősen szór. | Nincs általános CPU-nyereségből következő aktiválás. |
+| Drive-normalizálási jelölt | Elkészült az alapból kikapcsolt reciprok opció. Helyben 1 831 104 sztereó frame egyezett, per-ráta/per-scene numerikus kapukkal; 11 célzott teszt sikeres. | Friss Windows/macOS és sanitizer CI. |
+| Jelölt teljesmotor-CPU-ja | Külön SIMD/4× motoradapter és 16 hangos, négy módos, FX-es kis-bufferes fixture/mérőcélpont kész. A helyi külön Drive SIMD-ideje kb. 4–10%-kal kisebb; ez nem motoreredmény. | Új CI-adatok, ismétlés és célgépes/natív REAPER deadline-próba. |
+| Végleges minőség/rátapolicy | Továbbra nyitott. A reciprok opció alapértéke false; a szállított hangút változatlan. | Magas rátás minőség, teljesmotor-CPU és natív elfogadás együtt. |
+| Production filtercsere | A policy után következik a meglévő négy móddal és GUI-val. | Latency/state/automation, factory presetek és kompatibilitás. |
+| Következő kiadás | A production integráció és natív elfogadás után. | Kézikönyvek, végleges verzió/RC, Windows/macOS csomagkapuk. |
+
+A normalizálás numerikus határa kutatási minősítés, nem általános bitazonossági,
+hallhatatlansági vagy realtime garancia. Részletek és a megtartott negatív/korlátozó
+eredmények: [normalizálási jelölt](PREMIUM_GAIN_NORMALIZATION.md).
