@@ -5,6 +5,22 @@ Az akkori main Windows, macOS és Code quality workflow-ja sikeres volt. A #36 P
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.
 
+## Rövid állapotkép — 2026-10-07
+
+| Terület | Jelenlegi állapot | Következő kapu |
+|---|---|---|
+| Nyilvános kiadás | 1.0.4; a kiadott csomag forrása továbbra is `1a6a5f2` | A következő verzió külön rögzítendő |
+| Kiadási ellenőrzés | #69: pontos platformú installer, duplikációvédelem, végleges assetlista | Következő kiadás csomagellenőrzése |
+| Prémium filter | Négy módos kutatási prototípus; production hangút még változatlan | CPU/minőségpolicy és natív kis-bufferes mérés |
+| Filter integráció | Még nem kész | Latency/state/automation, factory presetek, natív elfogadás |
+| Presetátnevezés | Natív, felülírást tiltó Windows/macOS javítás és regresszió ebben a munkacsomagban | Friss CI; exFAT és natív GUI elfogadás |
+| Presetkezelés | Koherencia-reprodukció és GUI importkésés vizsgálata nyitott | Célzott hostteszt és profilozás |
+| 32 voice / Linux plugin | Halasztott | Következő release után |
+
+Az átnevezés működése és külső meghajtós tesztje:
+[preset rename validation](PRESET_RENAME_VALIDATION.md).
+Az alábbi történeti mérési eredmények nem helyettesítik a nyitott kapukat.
+
 ## Aktív prioritás 2026-10-04
 
 A tulajdonos új sorrendje szerint a következő release fő fejlesztési iránya
@@ -460,3 +476,4 @@ optimalizálása és célgépes ismétlés; részletek a filterdokumentum új t�
 - Ugyanazon Windows job 192 kHz-es motorideje semleges (~1,000); a korábbi 3%-os lassulás most nem ismétlődött. macOS motor p50 javul, de néhány tail/túllépési eset romlik. Gyökérok vagy shipping CPU-elfogadás ebből nem állapítható meg.
 
 - Kódazonos ismétlés: macOS külön 192 kHz/2x Drive arány 1,072197 (~7% lassulás), szemben az első 0,919041 értékkel. A negatív eredmény CSV/provenance-nal dokumentálva. Windows külön Drive továbbra gyorsabb, teljesmotoros 192 kHz nyereség csekély (~0,997); stabil/célgépes CPU-garancia nincs.
+

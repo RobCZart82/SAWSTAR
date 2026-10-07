@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #include "presets/UserPresets.h"
+#include "presets/RenameNoReplace.h"
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
 #elif defined(_WIN32)
@@ -309,10 +310,7 @@ fs::path RenameUserPreset(const fs::path& source,const std::string& name) {
     // On case-insensitive volumes this is the same file, not an overwrite.
     fs::rename(source,target);
   }else{
-    // Link creation is exclusive: a concurrent writer cannot be overwritten.
-    fs::create_hard_link(source,target);
-    try{if(!fs::remove(source))throw std::runtime_error("Cannot remove old preset name.");}
-    catch(...){std::error_code ignored;fs::remove(target,ignored);throw;}
+    detail::RenameNoReplace(source,target);
   }
   return target;
 }
