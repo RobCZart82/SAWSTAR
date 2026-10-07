@@ -1,0 +1,37 @@
+{
+  "run_id": 37632882450,
+  "source_commit": "0d14778d8cb5d76b647ea9d4f5568fa989491814",
+  "runner": "windows-2022",
+  "artifact": "premium-deadline-rate-gain-normalization-windows-2022",
+  "files": {
+    "factors.csv": {
+      "sha256": "2c3e5380538500f2b15b71001ceb51650a9688f210a58b90a2110bd8d3bdff1e",
+      "bytes": 70
+    },
+    "summary.csv": {
+      "sha256": "d4b190b94607cb972f40128ca3dd7df6493dcf29258fa4f5d216c274665cc0eb",
+      "bytes": 51455
+    },
+    "report.md": {
+      "sha256": "db21cd6dfc74611422d009f0f51b53e23178028cb4c368078a33dd664bbe493f",
+      "bytes": 1275
+    },
+    "metadata.json": {
+      "sha256": "ec6d074b66c51666145dd1b8d972f1f81b8f1c356b5093e752fa7c538e4cbf52",
+      "bytes": 664
+    },
+    "backend.txt": {
+      "sha256": "9a64ede615c34057ce7f97b6db43eb2b4917ca5b02f6c506e0e7363bf4d7400a",
+      "bytes": 6
+    },
+    "blocks.csv": {
+      "sha256": "9cd7b148ccce2b977d0b6e938877f92cdb786905793c0a9ed445f2fd2e20bdfa",
+      "bytes": 3194523
+    },
+    "CMakeCXXCompiler.cmake": {
+      "sha256": "0d3430047398ee357bbf65db10906b7cf793a22dd8b02c6db6f6372d2a4db77f",
+      "bytes": 6407
+    }
+  },
+  "raw_block_retention": "CI artifact: 90 days; summary and metadata retained in repository"
+}
