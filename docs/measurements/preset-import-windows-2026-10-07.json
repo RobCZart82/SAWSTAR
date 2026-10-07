@@ -1,0 +1,25 @@
+{
+  "production_base_commit": "28d709e15aefb0030269a225bf39c952a7c6a974",
+  "date": "2026-10-07",
+  "platform": "Windows 10.0.26300 AMD64",
+  "compiler": "MSVC 19.44.35229 x64",
+  "configuration": "Release /O2 /Ob2 /DNDEBUG",
+  "repetitions": 3,
+  "rows": 54,
+  "cpu_model": null,
+  "limitations": [
+    "Single machine, CPU model unavailable; no target-machine performance guarantee.",
+    "Fixture setup, initial library construction and cleanup are untimed.",
+    "Filesystem caches are not flushed; no cold-cache or network/external-volume result.",
+    "No native DAW, GUI draw/dialog, audio callback or competing writer measurement.",
+    "Quick-list timing is a separate selector operation, not part of the import callback."
+  ],
+  "files_sha256": {
+    "tests/preset_import_benchmark.cpp": "b1fc95146fc3bbba2d170e9d713a3cf9c4d196290f9b08b9a444ed5e6cafef21",
+    "src/presets/UserPresets.cpp": "97f9d413d2e1778d2ba920134dcf6825061dc84eb63763f9c246826c341801a5",
+    "src/presets/Library.h": "a2cf4432a19569e9daf58fefba3e86caa990b844899a435e3b6e60206b382e6a",
+    "src/presets/QuickPresetList.h": "ed921eec1f930ed8cbbd88679b230d01d5e46a6a1d1a99400b11ca5823b7908c",
+    "docs/measurements/preset-import-windows-2026-10-07.csv": "36d815ae7b2695b583784fba3b6e0cec52e9a8b6b5f91171f7be0c06b947ba31"
+  },
+  "source_format_note": "Measured production sources match the base commit; local Library.h has one additional trailing newline. files_sha256 records actual measured bytes."
+}

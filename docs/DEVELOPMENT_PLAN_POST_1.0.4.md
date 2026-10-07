@@ -15,14 +15,15 @@ az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpon
 | Filter integráció | Még nem kész | Latency/state/automation, factory presetek, natív elfogadás |
 | Presetátnevezés | #70 beolvadt; 17/17 ellenőrzés sikeres | exFAT és natív GUI elfogadás |
 | Gyors presetlista | #71 beolvadt; ABC-sorrend, kategóriacímkék és azonos sorrendű nyilak; 17/17 ellenőrzés sikeres | Natív GUI elfogadás |
-| Preset archiválása | Felülírást tiltó mentés és célzott ütközési regresszió ebben a munkacsomagban | Friss CI és natív törlés/mentés elfogadás |
-| Presetkezelés | Koherencia-reprodukció és GUI importkésés vizsgálata nyitott | Célzott hostteszt és profilozás |
+| Preset archiválása | #72 beolvadt; 17/17 ellenőrzés sikeres | Natív törlés/mentés és külső meghajtós elfogadás |
+| Presetkezelés | 54 helyi import/lista-előkészítési mérés: 1000 meglévő + 100 új hang importmediánja ~484 ms; production import szinkron | Háttérjob/editor-lifecycle megoldás, natív elfogadás; koherencia-reprodukció nyitott |
 | 32 voice / Linux plugin | Halasztott | Következő release után |
 
 Az átnevezés működése és külső meghajtós tesztje:
 [preset rename validation](PRESET_RENAME_VALIDATION.md).
 A gyors lista működése: [quick preset list](QUICK_PRESET_LIST.md).
 A törléskor megtartott mentések védelme: [preset archive validation](PRESET_ARCHIVE_VALIDATION.md).
+Az importmérés nyers eredményei és korlátai: [preset import profile](PRESET_IMPORT_PROFILE.md).
 Az alábbi történeti mérési eredmények nem helyettesítik a nyitott kapukat.
 
 ## Aktív prioritás 2026-10-04
