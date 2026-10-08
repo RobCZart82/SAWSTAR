@@ -8,19 +8,23 @@ különösen magas rátán. Ez a következő, izolált optimalizálási hipotéz
 ## Változás és referencia
 
 A külön `experimental_oscillator::CachedSevenSaw` a main `SevenSaw`
-algoritmusát használja, de csak változó frekvencia-byteoknál hívja újra
-az egyes DaisySP oszcillátorok `SetFreq` függvényét. A rögzített DaisySP
+algoritmusát használja. A végső `held-saw-tuning-v2` csak a SAW-frekvencia
+frissítését hagyja el változatlan pitch és detune-ráták mellett. Mozgó
+pitch vagy változó detune esetén az eredeti setter fut, az alternatív
+waveformok setterei minden aktív mintán változatlanul futnak. A rögzített DaisySP
 commit `599511b740f8f3a9b8db72a0642aa45b8a23c3a3`: a setter frekvenciát
 és fázislépést ír, nem indítja újra a fázist. A cache csak az ismételt,
-azonos érték beírását kerüli el; nincs közelítő összehasonlítás vagy
-vezérlésritkítás. A bitenkénti összehasonlítás a signed zero értékét is
-megőrzi. Minden oszcillátor saját cache-t kap, Init invalidálja őket.
+azonos hangolás újraszámítását kerüli el; nincs közelítő összehasonlítás
+vagy vezérlésritkítás. A pitch és az egy mintával korábbi detune-ráta
+byte-összehasonlítása signed zero esetén is pontos. Init, SetFreq és
+Snap külön invalidálja a hangolást; ezért a közvetlen Snap nem maradhat
+észrevétlen, akkor sem, ha az utána következő simítás már nem mozdul.
 
 A detune, pitch, Nyquist-clamp, waveform súlyok, háromszög-integrátor,
 pan és normalizálás változatlan. Inaktív hullámformák nem kezdenek
-folyamatosan futni; a saját fáziselőzményük megmarad. Másoláskor a cache
-és az oszcillátorállapot együtt másolódik. A külön jelölt 28 floatot,
-112 byte cache-adatot ad az objektumhoz; ezt a költséget is mérni kell.
+folyamatosan futni; a saját fáziselőzményük megmarad. Másoláskor az előző
+pitch, dirty flag és oszcillátorállapot együtt másolódik. A korábbi 28
+floatos lane-cache helyett egy float és egy bool a tartós plusz állapot.
 
 Az eredeti `src/dsp/SevenSaw.*` és a production Synth változatlan.
 Referencia a main `645cab8` SevenSaw-forrása; a riport mindkét saját
@@ -62,9 +66,10 @@ a JSON a CI-naplóban is megjelenik. Nincs CPU pass/fail küszöb.
 Jobb izolált idő nem bizonyít teljesmotoros nyereséget; a modulált
 kontrollban regresszió is lehetséges a cache-ellenőrzés többletköltsége miatt.
 
-## Első helyi eredmény — negatív/semleges
+## Első, teljes waveform-cache helyi eredmény — történeti v1
 
 MSVC 19.44 x64 Release, a végleges byte-összehasonlító cache-sel.
+Ez a `a44dfcb` v1 forrás eredménye, nem a szűkített v2 mérési eredménye.
 Az alábbi feltáró összevonás négy hullámforma × négy pár időarányának
 mediánja; a 24 külön waveform/workload cella és 192 nyers sor is megmarad.
 
@@ -94,6 +99,38 @@ waveformváltási kontroll és teljesmotoros SAW-próba következzen.
 forráscommit, raw/source/compiler/executable hash-ek, helyi buildleírás
 és a 24 cella mind a négy páros aránya. A mérés izolált helyi bankpróba,
 nem azonos workload a korábbi teljesmotor-profillal.
+
+## V1 platformeredmények és a scope szűkítése
+
+Mért forrás: `4ef343ac54b92ded1aac11a51a824f71e0625dbe`, még a teljes
+waveform-cache. A két sikeres job gépi riportja megőrzött:
+[Windows](../experiments/oscillator/measurements/2026-10-08-cache-v1-ci-windows.json),
+[macOS](../experiments/oscillator/measurements/2026-10-08-cache-v1-ci-macos.json).
+Ezek naplóból kiemelt, 24 cellás összesítések a négy nyers páros aránnyal;
+a 192 soros nyers CSV-t nem töltöttük le és nem hash-eltük újra helyben.
+
+| Platform | SAW 48 kHz statikus / modulált | SAW 96 kHz statikus / modulált | SAW 192 kHz statikus / modulált |
+| --- | --- | --- | --- |
+| Windows | 1.000529 / 1.019698 | 0.913434 / 1.039793 | 0.930488 / 1.055580 |
+| macOS arm64 | 0.963924 / 1.086571 | 0.731199 / 1.110797 | 0.818055 / 0.999967 |
+
+Windows alatt statikus SAW 96/192 kHz-en gyorsult, de a modulált SAW
+2–5,6% lassulást mutatott. Más waveformok többsége is lassult. macOS-en
+a párok szórása nagy (pl. 96 kHz statikus SAW: 0.572041–1.210578);
+ezért a medián önmagában nem általános platform-nyereség bizonyítéka.
+
+A v2 ezért elhagyja az alternatív waveformok cache-ét és a per-lane
+frekvencia-cache-t. A már elvégzett detune-simítás változását ellenőrzi,
+valamint egyszer, bankonként az előző pitch értékét. Változó pitch esetén
+a detune-összehasonlítás rövidzáras, a frekvenciasetter eredeti útja fut.
+Változatlan hangolásnál a SAW frekvenciaszorzás/clamp/setter is elmarad.
+Ez új hipotézis: a v1 időarányai nem vihetők át rá.
+
+Az új CSV kötelező compiled `variant=held-saw-tuning-v2` mezőt tartalmaz;
+a reporter rossz/hiányzó variánst elutasít és a metadata-ban rögzíti.
+A helyi 72 jelenet / 596 736 frame újra bitazonos; mind a négy riportteszt
+sikeres a variánsazonosítás negatív kontrolljával is. A v2 friss platformos
+és teljesmotoros CPU-kapu marad; production aktiválás nincs.
 
 Következő döntés: platformeredmények értékelése, majd megfelelő eredmény
 esetén külön teljesmotoros lookup-kontroll és modulált deadline mérés.

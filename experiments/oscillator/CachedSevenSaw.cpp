@@ -14,8 +14,7 @@ void CachedSevenSaw::Init(float rate) {
   rate_=SafeSampleRate(rate);
   slew_=1-std::exp(-1.f/(0.01f*rate_));
   pitch_=1;waveform_=0;waveWeights_={{1,0,0,0}};triangleHistory_.fill(0);
-  sawFrequencies_.fill(-1);
-  for (auto& frequencies : alternativeFrequencies_) frequencies.fill(-1);
+  previousPitch_=1; tuningDirty_=true;
   ratios_.fill(1);targets_.fill(1);detune_=-1;
   mix_=width_=targetMix_=targetWidth_=0;hz_=100;
   for(size_t i=0;i<saws_.size();++i) {
@@ -31,7 +30,8 @@ void CachedSevenSaw::SetFreq(float hz) {
   hz_=Safe(hz,0,20000);
   // MIDI pitch changes immediately; preserve the independently slewed detune.
   // Idle voices initialize their tuning through SnapToTargets().
-  for(size_t i=0;i<saws_.size();++i) SetCached(saws_[i], std::min(hz_*pitch_*ratios_[i],rate_*0.45f), sawFrequencies_[i]);
+  for(size_t i=0;i<saws_.size();++i) saws_[i].SetFreq(std::min(hz_*pitch_*ratios_[i],rate_*0.45f));
+  tuningDirty_=true;
 }
 void CachedSevenSaw::SetWaveform(int waveform){waveform_=std::clamp(waveform,0,3);}
 void CachedSevenSaw::SetShape(float cents,float mix,float width) {
@@ -46,13 +46,19 @@ StereoSample CachedSevenSaw::Process() {
   for(int w=0;w<4;++w){waveWeights_[w]+=slew_*((w==waveform_?1.f:0.f)-waveWeights_[w]);
     if(w!=waveform_&&waveWeights_[w]<1.e-8f)waveWeights_[w]=0;}
   StereoSample result;
+  // Moving pitch uses the original setter path; no frequency cache per lane.
+  // Byte comparison preserves +0/-0 and Snap/Init explicitly invalidate tuning.
+  const bool pitchChanged=tuningDirty_ || std::memcmp(&pitch_, &previousPitch_, sizeof(float)) != 0;
+  previousPitch_=pitch_; tuningDirty_=false;
   for(size_t i=0;i<saws_.size();++i) {
+    const float previousRatio=ratios_[i];
     ratios_[i]+=slew_*(targets_[i]-ratios_[i]);
-    SetCached(saws_[i], std::min(hz_*pitch_*ratios_[i],rate_*0.45f), sawFrequencies_[i]);
+    if(pitchChanged || std::memcmp(&ratios_[i], &previousRatio, sizeof(float)) != 0)
+      saws_[i].SetFreq(std::min(hz_*pitch_*ratios_[i],rate_*0.45f));
     float sample=waveWeights_[0]>0?saws_[i].Process()*waveWeights_[0]:0;
     for(int w=1;w<4;++w)if(waveWeights_[w]>0){auto& o=alternatives_[w-1][i];
       const float frequency=std::min(hz_*pitch_*ratios_[i],rate_*.45f);
-      SetCached(o, frequency, alternativeFrequencies_[w-1][i]);float value=o.Process();
+      o.SetFreq(frequency);float value=o.Process();
       if(w==2){
         // Explicit SAWSTAR history avoids DaisySP triangle Init's unset last_out_.
         // Undo DaisySP square's 0.707 gain before leaky integration.

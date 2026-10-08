@@ -28,11 +28,12 @@ template<class S> void Measure(const char* path, int rate, int wave, int workloa
   if (!std::isfinite(energy) || energy <= 0 || !std::isfinite(seconds) || seconds <= 0)
     throw std::runtime_error("Invalid oscillator measurement");
   std::cout << path << ',' << rate << ',' << wave << ',' << workload << ',' << pair << ','
-            << (pair % 2 ? "study-first" : "reference-first") << ",32," << frames << ',' << seconds << ',' << energy << '\n';
+            << (pair % 2 ? "study-first" : "reference-first") << ",32," << frames << ',' << seconds << ',' << energy
+            << ",held-saw-tuning-v2\n";
 }
 int main() {
   try {
-    std::cout << std::setprecision(17) << "path,rate,waveform,modulated,pair,order,oscillators,frames,seconds,energy\n";
+    std::cout << std::setprecision(17) << "path,rate,waveform,modulated,pair,order,oscillators,frames,seconds,energy,variant\n";
     for (int rate : {48000, 96000, 192000}) for (int wave = 0; wave < 4; ++wave)
       for (int workload = 0; workload < 2; ++workload) for (int pair = 0; pair < 4; ++pair) {
         if (pair % 2 == 0) Measure<sawstar::SevenSaw>("reference", rate, wave, workload, pair);

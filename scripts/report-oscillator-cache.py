@@ -23,6 +23,8 @@ def report(folder, source_sha, emit_ci=False):
                 for wave in range(4) for moving in range(2) for pair in range(4)}
     samples = {}
     for row in rows:
+        if row.get('variant') != 'held-saw-tuning-v2':
+            raise ValueError('Incorrect compiled candidate variant')
         key = row['path'], int(row['rate']), int(row['waveform']), int(row['modulated']), int(row['pair'])
         if key not in expected or key in samples:
             raise ValueError('Unexpected or duplicate oscillator pair')
@@ -63,7 +65,8 @@ def report(folder, source_sha, emit_ci=False):
                                           for p in sorted((folder / 'compiler').glob('*')) if p.is_file()},
                 'oscillators': 32, 'voices_represented': 16, 'frames_per_path_and_pair': 8192,
                 'warmup_seconds': .25, 'native_host_acceptance': False,
-                'scope': 'isolated-oscillator-bank', 'ratio_direction': 'study/reference',
+                'scope': 'isolated-oscillator-bank', 'candidate_variant': 'held-saw-tuning-v2',
+                'ratio_direction': 'study/reference',
                 'timed_work': 'bank processing, pitch setters/sine when modulated, energy accumulation',
                 'production_activation': False}
     payload = {'schema_version': 1, 'metadata': metadata, 'summary': summaries}

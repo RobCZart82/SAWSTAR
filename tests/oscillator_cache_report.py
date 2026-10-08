@@ -25,7 +25,8 @@ class ReportTest(unittest.TestCase):
                             self.rows.append(dict(path=path, rate=rate, waveform=wave, modulated=moving,
                                 pair=pair, order='study-first' if pair % 2 else 'reference-first',
                                 oscillators=32, frames=8192,
-                                seconds=((2, 8, 30, 100) if path == 'study' else (1, 2, 10, 20))[pair], energy=10))
+                                seconds=((2, 8, 30, 100) if path == 'study' else (1, 2, 10, 20))[pair], energy=10,
+                                variant='held-saw-tuning-v2'))
     def tearDown(self):
         self.temp.cleanup()
     def run_report(self, source_sha='0' * 40):
@@ -45,6 +46,7 @@ class ReportTest(unittest.TestCase):
         self.assertFalse(result['metadata']['native_host_acceptance'])
         self.assertFalse(result['metadata']['production_activation'])
         self.assertEqual(result['metadata']['ratio_direction'], 'study/reference')
+        self.assertEqual(result['metadata']['candidate_variant'], 'held-saw-tuning-v2')
         self.assertEqual(len(result['metadata']['raw_sha256']), 64)
         self.assertEqual(len(result['metadata']['source_file_sha256']), 9)
         self.assertEqual(json.loads((self.root / 'report.json').read_text()), result)
@@ -59,7 +61,8 @@ class ReportTest(unittest.TestCase):
         original = self.rows[0].copy()
         for key, value, message in [('seconds', 0, 'measurement'), ('seconds', 'nan', 'measurement'),
                                     ('energy', 'inf', 'measurement'), ('order', 'study-first', 'order'),
-                                    ('frames', 1, 'frame count'), ('oscillators', 1, 'bank')]:
+                                    ('frames', 1, 'frame count'), ('oscillators', 1, 'bank'),
+                                    ('variant', 'all-waveforms-v1', 'variant')]:
             with self.subTest(key=key, value=value):
                 self.rows[0] = dict(original, **{key: value})
                 with self.assertRaisesRegex(ValueError, message): self.run_report()

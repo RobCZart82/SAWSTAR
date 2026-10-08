@@ -1,0 +1,353 @@
+{
+  "extraction": "CI JSON summary from successful job log; raw CSV not downloaded or rehashed locally.",
+  "job_id": 113272699892,
+  "candidate_variant": "all-waveforms-v1",
+  "report": {
+    "schema_version": 1,
+    "metadata": {
+      "source_sha": "4ef343ac54b92ded1aac11a51a824f71e0625dbe",
+      "platform": "macOS-14.8.9-arm64-arm-64bit-Mach-O",
+      "machine": "arm64",
+      "runner_os": "macOS",
+      "configuration": "Release",
+      "raw_sha256": "c36650928d8935f909b92616ec75f444daa2b7fc455f32aa37c0ba412c7f5d74",
+      "source_file_sha256": {
+        "src/dsp/SevenSaw.h": "b2d4c2e910e929822d3a306a421599df43e8254022b128ac4dac42e4dce794b6",
+        "src/dsp/SevenSaw.cpp": "676e713324b6acd01ff9f93c8185cc2cb62dbd9e32407162d73c61304198f1e0",
+        "experiments/oscillator/CachedSevenSaw.h": "677f2d7d017d55ce9cf53c4a7eefa1683bf6f321e867bd58ec19e5bd69318a15",
+        "experiments/oscillator/CachedSevenSaw.cpp": "173a506e8dd2d772294ec06f11887bcdb54980b618f7e0d43dfa4f67338fa022",
+        "experiments/oscillator/benchmark_frequency_cache.cpp": "c20b3792b56ecf74454128402a63ef5157ecaf5b690bc5f725fa1b3b001ae366",
+        "tests/oscillator_frequency_cache.cpp": "fe9a9a875601687351ec5a5eda171ab2532b55d58bc92a0e9a7b07f4cd77949a",
+        "third_party/DaisySP/Source/Synthesis/oscillator.h": "334385ef766a8d1e10e292ab58457f8306e55e22517e9eec9888a07044938b4c",
+        "third_party/DaisySP/Source/Synthesis/oscillator.cpp": "6c0ed4e7db0e155b27847ff6319d5a9ec3234a5e90c535da4fb430aaa73a8a6f",
+        "third_party/DaisySP/Source/Utility/dsp.h": "534f0f76b7794939a5fff9b128b8fddb23ae0e63ad3354f663445d417924099a"
+      },
+      "compiler_files_sha256": {
+        "compiler/CMakeCXXCompiler.cmake": "66ff634d7b84f4018e91288a10aca879e3c26f8a6d4bec58ba2544a1fee73154"
+      },
+      "oscillators": 32,
+      "voices_represented": 16,
+      "frames_per_path_and_pair": 8192,
+      "warmup_seconds": 0.25,
+      "native_host_acceptance": false,
+      "scope": "isolated-oscillator-bank",
+      "ratio_direction": "study/reference",
+      "timed_work": "bank processing, pitch setters/sine when modulated, energy accumulation",
+      "production_activation": false
+    },
+    "summary": [
+      {
+        "rate": 48000,
+        "waveform": 0,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.9639238345132386,
+        "paired_ratios": [
+          0.9632986476031141,
+          0.9645490214233631,
+          1.0519884309097844,
+          0.6465867669230329
+        ]
+      },
+      {
+        "rate": 48000,
+        "waveform": 0,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 1.086571135863333,
+        "paired_ratios": [
+          1.0913911584393374,
+          1.3055232783547488,
+          0.7870629250689875,
+          1.0817511132873285
+        ]
+      },
+      {
+        "rate": 48000,
+        "waveform": 1,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 1.090385485383865,
+        "paired_ratios": [
+          0.8453298530176648,
+          1.2354969787234922,
+          1.2202090171421163,
+          0.9605619536256138
+        ]
+      },
+      {
+        "rate": 48000,
+        "waveform": 1,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.953532105347269,
+        "paired_ratios": [
+          1.1815446506097853,
+          1.1100020648243742,
+          0.7970621458701636,
+          0.6535285254311071
+        ]
+      },
+      {
+        "rate": 48000,
+        "waveform": 2,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.8137904844146642,
+        "paired_ratios": [
+          0.8704055435154775,
+          0.757175425313851,
+          0.7481268463925345,
+          1.2987005111342855
+        ]
+      },
+      {
+        "rate": 48000,
+        "waveform": 2,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.8923768674760297,
+        "paired_ratios": [
+          0.8598391844909867,
+          0.710055509262517,
+          1.5272964339917698,
+          0.9249145504610726
+        ]
+      },
+      {
+        "rate": 48000,
+        "waveform": 3,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 1.2276241697899184,
+        "paired_ratios": [
+          1.3554340091176627,
+          1.0998143304621741,
+          1.4889598481409447,
+          0.9473384443750205
+        ]
+      },
+      {
+        "rate": 48000,
+        "waveform": 3,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.9874697917496669,
+        "paired_ratios": [
+          0.9442769556252669,
+          1.1088860859519178,
+          1.0306626278740667,
+          0.8157691673797977
+        ]
+      },
+      {
+        "rate": 96000,
+        "waveform": 0,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.7311990970629976,
+        "paired_ratios": [
+          0.5720405737818193,
+          1.2105779873429945,
+          0.8682433686609503,
+          0.594154825465045
+        ]
+      },
+      {
+        "rate": 96000,
+        "waveform": 0,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 1.1107968015370133,
+        "paired_ratios": [
+          1.4567314175607595,
+          1.060901245277527,
+          1.1606923577964998,
+          0.7391944795961849
+        ]
+      },
+      {
+        "rate": 96000,
+        "waveform": 1,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.742165538000268,
+        "paired_ratios": [
+          0.733837884295153,
+          0.8631370922466665,
+          0.750493191705383,
+          0.5429233467584681
+        ]
+      },
+      {
+        "rate": 96000,
+        "waveform": 1,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.9077640355477437,
+        "paired_ratios": [
+          0.7669774075073372,
+          1.2244520647146273,
+          0.8971578976289933,
+          0.9183701734664939
+        ]
+      },
+      {
+        "rate": 96000,
+        "waveform": 2,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.8368696572487686,
+        "paired_ratios": [
+          1.0648423221207948,
+          0.7953152196161389,
+          0.7225929293652412,
+          0.8784240948813983
+        ]
+      },
+      {
+        "rate": 96000,
+        "waveform": 2,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.9685925905937569,
+        "paired_ratios": [
+          0.8563491669226658,
+          1.031443068537242,
+          0.9057421126502717,
+          1.3819117021647034
+        ]
+      },
+      {
+        "rate": 96000,
+        "waveform": 3,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 1.0683524897294603,
+        "paired_ratios": [
+          0.7405130416510594,
+          0.639042052764687,
+          1.396191937807861,
+          1.5077804340092493
+        ]
+      },
+      {
+        "rate": 96000,
+        "waveform": 3,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.9663741941555226,
+        "paired_ratios": [
+          1.110259289732927,
+          0.8224890985781182,
+          1.4578426673709963,
+          0.764441499118272
+        ]
+      },
+      {
+        "rate": 192000,
+        "waveform": 0,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.8180550248724368,
+        "paired_ratios": [
+          0.8043741341585603,
+          0.6253343182410707,
+          0.8317359155863132,
+          1.1654315032846472
+        ]
+      },
+      {
+        "rate": 192000,
+        "waveform": 0,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.9999674976278109,
+        "paired_ratios": [
+          1.2645150194909425,
+          1.2294637900609218,
+          0.7704712051947,
+          0.6693467541762474
+        ]
+      },
+      {
+        "rate": 192000,
+        "waveform": 1,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.8822242294163756,
+        "paired_ratios": [
+          0.9889701953067777,
+          0.8553561562182538,
+          0.8743497366148313,
+          0.89009872221792
+        ]
+      },
+      {
+        "rate": 192000,
+        "waveform": 1,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.97686333080394,
+        "paired_ratios": [
+          0.7518443706571032,
+          1.1530099962333034,
+          0.8007166653745769,
+          1.602688066710669
+        ]
+      },
+      {
+        "rate": 192000,
+        "waveform": 2,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.7906311689086024,
+        "paired_ratios": [
+          0.755031578227688,
+          0.8262307595895169,
+          1.209749843488775,
+          0.7461211999300909
+        ]
+      },
+      {
+        "rate": 192000,
+        "waveform": 2,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.7853113463736641,
+        "paired_ratios": [
+          1.010199861046339,
+          0.6744022854271359,
+          0.6133849403098253,
+          0.8962204073201921
+        ]
+      },
+      {
+        "rate": 192000,
+        "waveform": 3,
+        "modulated": false,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 1.149168423273803,
+        "paired_ratios": [
+          0.9514068595262735,
+          1.3618468944164395,
+          1.3469299870213325,
+          0.6680809812200396
+        ]
+      },
+      {
+        "rate": 192000,
+        "waveform": 3,
+        "modulated": true,
+        "paired_observations": 4,
+        "median_paired_seconds_ratio": 0.9905901391404364,
+        "paired_ratios": [
+          0.9686649659638412,
+          0.709912766329691,
+          1.4588908346841796,
+          1.0125153123170316
+        ]
+      }
+    ]
+  }
+}
