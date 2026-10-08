@@ -123,6 +123,8 @@ def report(folder, source_sha, emit_ci=False, variant="held-saw-tuning-v2",
                'qualification': decision}
     (folder / 'report.json').write_text(json.dumps(payload, indent=2, allow_nan=False) + '\n', encoding='utf-8')
     title = 'frequency sharing' if variant == 'shared-frequency-v1' else 'frequency cache'
+    if comparison == 'reference-repeat':
+        title = 'unchanged reference repeat'
     lines = [f'# Isolated oscillator {title} study', '', f'Source: {source_sha}',
              '32 oscillator banks represent OSC1 + OSC2 for 16 voices; no engine, filter or FX timing.',
              f'{pairs} alternating pairs of {frames} frames. Ratios are study/reference; smaller is favorable.',
