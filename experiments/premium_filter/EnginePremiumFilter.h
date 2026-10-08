@@ -60,4 +60,6 @@ using RateScaledEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledPremium
 using RateScaledSimdEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledSimdPremiumDrive>;
 using RateScaledGainEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledGainPremiumDrive>;
 using RateScaledLookupEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledLookupPremiumDrive>;
+using RateScaledUnrolledEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledUnrolledPremiumDrive>;
 }
+

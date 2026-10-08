@@ -1,20 +1,33 @@
 // SPDX-License-Identifier: MIT
 // Synth API control timeline only: not VST3 automation or native acceptance.
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+#include "UnrolledPremiumSynth.h"
+#else
 #include "RateGainPremiumSynth.h"
+#endif
 #include "LookupPremiumSynth.h"
 #include <cmath>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+using Reference = sawstar::experimental_lookup_engine::Synth;
+using Study = sawstar::experimental_unrolled_engine::Synth;
+#else
 using Reference = sawstar::experimental_rate_gain_engine::Synth;
 using Study = sawstar::experimental_lookup_engine::Synth;
+#endif
 void Require(bool ok, const char* why) { if (!ok) throw std::runtime_error(why); }
 struct Error {
   double peak = 0, squared = 0, energy = 0;
   void Add(sawstar::StereoSample a, sawstar::StereoSample b) {
     for (auto pair : {std::pair<float, float>{a.left, b.left}, {a.right, b.right}}) {
       Require(std::isfinite(pair.first) && std::isfinite(pair.second), "Nonfinite engine comparison");
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+      Require(std::memcmp(&pair.first, &pair.second, sizeof(float)) == 0, "Unrolled engine bit identity");
+#endif
       const double delta = double(pair.first) - pair.second;
       peak = std::max(peak, std::abs(delta)); squared += delta * delta;
       energy += double(pair.second) * pair.second;
@@ -107,3 +120,4 @@ int main() {
     Require(cases == 120, "Incomplete engine grid");
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
+

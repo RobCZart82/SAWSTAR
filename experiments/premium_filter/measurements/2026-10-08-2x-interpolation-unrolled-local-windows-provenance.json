@@ -1,0 +1,60 @@
+{
+  "base_source_commit": "6c87906a4f427c13baf9b3e49745ccae3202080a",
+  "scope": "2x-interpolation-only-v1",
+  "compiler": "MSVC 19.44.35229 x64 Release",
+  "raw_sha256": "ae2502a15497576556401fb42ffbc013b287235d1aee6884e9bdb34eb43272b5",
+  "raw_rows": 48,
+  "warmup_seconds": 0.25,
+  "frames_per_path": 8192,
+  "pairs_per_case": 4,
+  "bank_instances": 16,
+  "timed_instrumentation": "bank loops and energy accumulation",
+  "compiler_file_sha256": "1da43991d0fa17c1b38eface755f997e7ce258546919ef9a4f1b15b8e77869c8",
+  "executable_sha256": "14f549c49d1367156f39c9253b2fb77cb4ae5e9cd84c8121f46fdcd209ebbd67",
+  "source_file_sha256": {
+    "experiments/premium_filter/PremiumDrive.h": "ca4348c7ddf4536fca9f82bc22c9b0ecc3ba31dfe49911c926b43f2a283a38a5",
+    "experiments/premium_filter/LoopReferencePremiumDrive.h": "0be64f6b0181a25dbc4c72663433a454355b350365e1ee8abe282ad207b91e12",
+    "experiments/premium_filter/RateScaledPremiumDrive.h": "38e3003edf69c0a240fe9957822263d7008812f804205e88bd9be95d6c9dd048",
+    "experiments/premium_filter/FirLanes4.h": "8f32225ac14cfdeaeb9ec274fec40fb7680fd98f30e50ba8da6a76017dddda42",
+    "experiments/premium_filter/LookupTanh.h": "e7ab979f845344e5d8129ef49d309b479909bfb9e09ad025a1992621f9da750f",
+    "experiments/premium_filter/ResearchTanh.h": "2d3d602683a23ab2a204a05f81e96b54230e7f52384bde243d655d9ddfa069c1",
+    "tests/premium_drive_unrolled.cpp": "f56a2e04c15484bf3b5693082433f3d0eaf6db2874dbfc827d313e868a2660c5",
+    "src/dsp/Safety.h": "d321d3c1f4d95e6109fe0c9a17b1168c172ef42dce2880991198aab30c8f2aa3",
+    "local-check/CMakeLists.txt": "e646a7d098f15b329ee0fc58e47d83b4099116805536d49083e07ecef32f015f"
+  },
+  "ratios": [
+    {
+      "rate": 48000,
+      "factor": 2,
+      "median_unrolled_over_loop": 0.987894343627759
+    },
+    {
+      "rate": 96000,
+      "factor": 2,
+      "median_unrolled_over_loop": 1.0066440159243706
+    },
+    {
+      "rate": 192000,
+      "factor": 2,
+      "median_unrolled_over_loop": 0.9213703958322925
+    },
+    {
+      "rate": 48000,
+      "factor": 4,
+      "median_unrolled_over_loop": 1.0386023625043128
+    },
+    {
+      "rate": 96000,
+      "factor": 4,
+      "median_unrolled_over_loop": 1.0053390186442586
+    },
+    {
+      "rate": 192000,
+      "factor": 4,
+      "median_unrolled_over_loop": 1.01204049901011
+    }
+  ],
+  "native_host_acceptance": false,
+  "complete_engine_measurement": false,
+  "local_build_configuration_text": "cmake_minimum_required(VERSION 3.21)\nproject(UnrolledFirLocalCheck LANGUAGES CXX)\nadd_executable(unrolled ../tests/premium_drive_unrolled.cpp)\ntarget_include_directories(unrolled PRIVATE ../src)\ntarget_compile_features(unrolled PRIVATE cxx_std_17)\nenable_testing()\nadd_test(NAME bit_identity COMMAND unrolled)\n"
+}

@@ -26,3 +26,14 @@ nem nyitjuk újra. A következő mérföldkő állapotát a PR/CI és a mérési
 forrásazonosító rögzíti, nem a tervezett feladat készre jelölése.
 
 A 2. lépés módszere: [komponensprofil](PREMIUM_COMPONENT_PROFILE.md).
+
+## A 2–3. lépés aktuális állapota
+
+A Windows/macOS komponensprofil két teljes adatsora és provenance-a
+rögzített; a nyers és összesítő byte-hash ellenőrzött. 48/96 kHz-en a
+Drive/FIR, 192 kHz-en az oszcillátorok költsége is érdemi célpont.
+A következő opt-in jelölt a 2× SIMD interpoláció cikluskibontása, változatlan műveleti
+sorrenddel és befagyasztott bitazonossági oracle-lel. A teljesmotoros
+platformmérés és minőségkapu még nyitott; gyorsulást/production aktiválást
+nem feltételezünk. Részletek: [FIR cikluskibontás](PREMIUM_FIR_UNROLL_STUDY.md).
+

@@ -70,16 +70,18 @@ def report(folder):
     if set(summaries) != expected:
         raise ValueError("Incomplete summary grid")
     study_kind = os.environ.get("SAWSTAR_PREMIUM_STUDY", "tanh")
-    if study_kind not in ("tanh", "simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization", "rate-lookup"):
+    if study_kind not in ("tanh", "simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir"):
         raise ValueError("Unknown study kind")
+    if study_kind == "rate-unrolled-fir" and (folder / "study.txt").read_text(encoding="utf-8").strip() != '2x-interpolation-unroll-v1':
+        raise ValueError("Compiled FIR study disagrees with requested label")
     backend = (folder / "backend.txt").read_text(encoding="utf-8").strip()
     if backend not in ("SSE2", "NEON", "scalar-fallback", "scalar-source"):
         raise ValueError("Unknown FIR backend")
     if study_kind == "tanh" and backend != "scalar-source":
         raise ValueError("Incorrect tanh backend")
-    if study_kind in ("simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization", "rate-lookup") and backend == "scalar-source":
+    if study_kind in ("simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir") and backend == "scalar-source":
         raise ValueError("Incorrect SIMD study backend")
-    adaptive = study_kind in ("rate-simd-fir", "rate-gain-normalization", "rate-lookup")
+    adaptive = study_kind in ("rate-simd-fir", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir")
     factors = {str(rate): (2 if adaptive and rate >= 176400 else 4)
                for rate in (48000, 96000, 192000)}
     with (folder / "factors.csv").open(newline="") as f:
@@ -104,6 +106,11 @@ def report(folder):
                 "measurement_sha256": {name: hashlib.sha256((folder / name).read_bytes()).hexdigest()
                                         for name in ("summary.csv", "blocks.csv", "factors.csv", "backend.txt", "workload.txt")},
                 "native_host_acceptance": False}
+    if study_kind == "rate-unrolled-fir":
+        metadata['reference_variant'] = 'rate-lookup-loop'
+        metadata['study_variant'] = 'rate-lookup-unrolled'
+        metadata['fir_unroll_scope'] = '2x-interpolation-only-v1'
+        metadata['measurement_sha256']['study.txt'] = hashlib.sha256((folder / 'study.txt').read_bytes()).hexdigest()
     (folder / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     lines = ["# Offline paired premium engine deadline study", "",
              f"Source: {metadata['source_sha']}; {metadata['platform']}; {metadata['machine']}; Release.", "",
@@ -142,3 +149,4 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         raise SystemExit("Usage: report-premium-deadline.py measurement-directory")
     report(sys.argv[1])
+

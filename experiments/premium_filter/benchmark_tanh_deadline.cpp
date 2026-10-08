@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Offline paired complete-engine study. Timings never gate CI.
-#if defined(SAWSTAR_RATE_LOOKUP_STUDY)
+#if defined(SAWSTAR_UNROLLED_FIR_STUDY)
+#include "LookupPremiumSynth.h"
+#include "UnrolledPremiumSynth.h"
+#elif defined(SAWSTAR_RATE_LOOKUP_STUDY)
 #include "RateGainPremiumSynth.h"
 #include "LookupPremiumSynth.h"
 #elif defined(SAWSTAR_RATE_GAIN_STUDY)
@@ -24,6 +27,7 @@
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -35,7 +39,10 @@
 #include <vector>
 #include "DeadlineModulation.h"
 
-#if defined(SAWSTAR_RATE_LOOKUP_STUDY)
+#if defined(SAWSTAR_UNROLLED_FIR_STUDY)
+using Reference = sawstar::experimental_lookup_engine::Synth;
+using Study = sawstar::experimental_unrolled_engine::Synth;
+#elif defined(SAWSTAR_RATE_LOOKUP_STUDY)
 using Reference = sawstar::experimental_rate_gain_engine::Synth;
 using Study = sawstar::experimental_lookup_engine::Synth;
 #elif defined(SAWSTAR_RATE_GAIN_STUDY)
@@ -115,6 +122,14 @@ void Contract(bool modulated = false) {
         sawstar::experimental::DeadlineModulationEvent(*b,n,mode);
       }
       const auto x=a->ProcessStereo(),y=b->ProcessStereo();Check(x);Check(y);
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+      const auto px=a->PreFX(),py=b->PreFX();
+      for(const auto pair:{std::pair<float,float>{x.left,y.left},{x.right,y.right},
+                          {px.left,py.left},{px.right,py.right}})
+        if(!std::isfinite(pair.first)||!std::isfinite(pair.second)||
+           std::memcmp(&pair.first,&pair.second,sizeof(float))!=0)
+          throw std::runtime_error("Unrolled deadline output/preFX bit identity");
+#endif
       if(n<warmup)continue;
       maximum=std::max({maximum,std::abs(double(x.left)-y.left),std::abs(double(x.right)-y.right)});
       squared+=(double(x.left)-y.left)*(double(x.left)-y.left)+(double(x.right)-y.right)*(double(x.right)-y.right);
@@ -184,6 +199,10 @@ void Row(std::ostream& summary,std::ostream& raw,const char* label,double rate,
 }
 void Benchmark(const std::filesystem::path& folder,bool modulated=false) {
   std::filesystem::create_directories(folder);
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+  std::ofstream identity(folder/"study.txt"); identity<<"2x-interpolation-unroll-v1\n"; identity.close();
+  if(!identity)throw std::runtime_error("Cannot record compiled FIR study");
+#endif
   std::ofstream workload(folder/"workload.txt");
   workload<<(modulated?"modulated-v1":"stationary-v1")<<'\n';
   workload.close();
@@ -192,8 +211,11 @@ void Benchmark(const std::filesystem::path& folder,bool modulated=false) {
   std::ofstream factors(folder/"factors.csv");
   factors << "rate,reference_factor,study_factor\n";
   for (double rate : {48000., 96000., 192000.}) {
-#if defined(SAWSTAR_RATE_SIMD_FIR_STUDY) || defined(SAWSTAR_RATE_GAIN_STUDY) || defined(SAWSTAR_RATE_LOOKUP_STUDY)
-#if defined(SAWSTAR_RATE_LOOKUP_STUDY)
+#if defined(SAWSTAR_RATE_SIMD_FIR_STUDY) || defined(SAWSTAR_RATE_GAIN_STUDY) || defined(SAWSTAR_RATE_LOOKUP_STUDY) || defined(SAWSTAR_UNROLLED_FIR_STUDY)
+#if defined(SAWSTAR_UNROLLED_FIR_STUDY)
+    sawstar::experimental::RateScaledLookupPremiumDrive reference;
+    sawstar::experimental::RateScaledUnrolledPremiumDrive study;
+#elif defined(SAWSTAR_RATE_LOOKUP_STUDY)
     sawstar::experimental::RateScaledGainPremiumDrive reference;
     sawstar::experimental::RateScaledLookupPremiumDrive study;
 #elif defined(SAWSTAR_RATE_GAIN_STUDY)
@@ -212,7 +234,7 @@ void Benchmark(const std::filesystem::path& folder,bool modulated=false) {
   factors.close();
   if (!factors) throw std::runtime_error("Cannot record compiled routing");
   std::ofstream backend(folder/"backend.txt");
-#if defined(SAWSTAR_SIMD_FIR_STUDY) || defined(SAWSTAR_RATE_SIMD_FIR_STUDY) || defined(SAWSTAR_GAIN_NORMALIZATION_STUDY) || defined(SAWSTAR_RATE_GAIN_STUDY) || defined(SAWSTAR_RATE_LOOKUP_STUDY)
+#if defined(SAWSTAR_SIMD_FIR_STUDY) || defined(SAWSTAR_RATE_SIMD_FIR_STUDY) || defined(SAWSTAR_GAIN_NORMALIZATION_STUDY) || defined(SAWSTAR_RATE_GAIN_STUDY) || defined(SAWSTAR_RATE_LOOKUP_STUDY) || defined(SAWSTAR_UNROLLED_FIR_STUDY)
   backend<<sawstar::experimental::detail::FirLanes4::Backend<<'\n';
 #else
   backend<<"scalar-source\n";
@@ -246,3 +268,4 @@ int main(int argc,char** argv) {
     else throw std::runtime_error("Usage: premium_tanh_deadline [--modulation-contract | --deadline output-directory | --deadline-modulated output-directory]");
   }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }
+

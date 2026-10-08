@@ -12,8 +12,13 @@
 #include <vector>
 using namespace sawstar::experimental;
 #ifdef SAWSTAR_COMPLEX_LOOKUP_STUDY
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+using CandidateDrive = RateScaledUnrolledPremiumDrive;
+using ComparisonDrive = RateScaledLookupPremiumDrive;
+#else
 using CandidateDrive = RateScaledLookupPremiumDrive;
 using ComparisonDrive = RateScaledGainPremiumDrive;
+#endif
 constexpr std::array<double, 3> Rates{176400., 192000., 384000.};
 #elif defined(SAWSTAR_COMPLEX_GAIN_STUDY)
 using ComparisonDrive = RateScaledSimdPremiumDrive;
@@ -89,7 +94,11 @@ int main() {
     std::cout << "rate,scene,filter_mode,drive_control,rate_to_4x_rms,rate_to_8x_rms,4x_to_8x_rms,filtered_rate_to_8x_rms,filtered_4x_to_8x_rms,rate_to_8x_peak";
 #if defined(SAWSTAR_COMPLEX_GAIN_STUDY) || defined(SAWSTAR_COMPLEX_LOOKUP_STUDY)
 #ifdef SAWSTAR_COMPLEX_LOOKUP_STUDY
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+    std::cout << ",rate_to_loop_lookup_rms,filtered_rate_to_loop_lookup_rms,rate_to_loop_lookup_peak,filtered_rate_to_loop_lookup_peak";
+#else
     std::cout << ",rate_to_std_tanh_rms,filtered_rate_to_std_tanh_rms,rate_to_std_tanh_peak,filtered_rate_to_std_tanh_peak";
+#endif
 #else
     std::cout << ",rate_to_division_rms,filtered_rate_to_division_rms,rate_to_division_peak,filtered_rate_to_division_peak";
 #endif
@@ -154,6 +163,9 @@ int main() {
                 "complex normalization numerical bounds");
         Require(filteredToDivision.peak <= 2e-6 && filteredToDivision.Relative() <= 1e-7,
                 "filtered complex normalization numerical bounds");
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+        Require(toDivision.peak == 0 && filteredToDivision.peak == 0, "Unrolled complex identity");
+#endif
 #endif
         std::cout << '\n';
         // Diagnostic failure bounds, not a claim of transparent or alias-free audio.
@@ -169,3 +181,4 @@ int main() {
 #endif
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
+

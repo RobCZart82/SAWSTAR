@@ -985,6 +985,34 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     target_include_directories(sawstar_premium_lookup_probe PUBLIC "${_premium_engine}"
       "${CMAKE_CURRENT_SOURCE_DIR}/experiments/premium_filter")
     target_link_libraries(sawstar_premium_lookup_probe PUBLIC sawstar_engine)
+    # Opt-in loop-dispatch study, with distinct Synth/filter symbols.
+    foreach(_part IN ITEMS h cpp)
+      file(READ "${_premium_engine}/LookupPremiumSynth.${_part}" _unrolled_probe)
+      if(_part STREQUAL "h" AND NOT _unrolled_probe MATCHES "experimental::RateScaledLookupEnginePremiumFilter filter;")
+        message(FATAL_ERROR "Unrolled probe cannot find lookup per-voice filter")
+      endif()
+      string(REPLACE "sawstar::experimental_lookup_engine" "sawstar::experimental_unrolled_engine" _unrolled_probe "${_unrolled_probe}")
+      string(REPLACE "experimental::RateScaledLookupEnginePremiumFilter" "experimental::RateScaledUnrolledEnginePremiumFilter" _unrolled_probe "${_unrolled_probe}")
+      string(REPLACE "LookupPremiumSynth.h" "UnrolledPremiumSynth.h" _unrolled_probe "${_unrolled_probe}")
+      file(WRITE "${_premium_engine}/UnrolledPremiumSynth.${_part}" "${_unrolled_probe}")
+    endforeach()
+    add_library(sawstar_premium_unrolled_probe STATIC "${_premium_engine}/UnrolledPremiumSynth.cpp")
+    target_include_directories(sawstar_premium_unrolled_probe PUBLIC "${_premium_engine}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/experiments/premium_filter")
+    target_link_libraries(sawstar_premium_unrolled_probe PUBLIC sawstar_engine)
+    add_executable(sawstar_premium_unrolled_deadline experiments/premium_filter/benchmark_tanh_deadline.cpp)
+    target_compile_definitions(sawstar_premium_unrolled_deadline PRIVATE SAWSTAR_UNROLLED_FIR_STUDY=1)
+    target_link_libraries(sawstar_premium_unrolled_deadline PRIVATE sawstar_premium_lookup_probe sawstar_premium_unrolled_probe)
+    add_test(NAME premium_unrolled_deadline_fixture COMMAND sawstar_premium_unrolled_deadline)
+    add_executable(sawstar_premium_unrolled_engine_tests tests/premium_lookup_engine.cpp)
+    target_compile_definitions(sawstar_premium_unrolled_engine_tests PRIVATE SAWSTAR_UNROLLED_FIR_STUDY=1)
+    target_link_libraries(sawstar_premium_unrolled_engine_tests PRIVATE sawstar_premium_lookup_probe sawstar_premium_unrolled_probe)
+    add_test(NAME premium_unrolled_engine_modulation COMMAND sawstar_premium_unrolled_engine_tests)
+    add_executable(sawstar_premium_unrolled_complex_tests tests/premium_drive_complex.cpp)
+    target_compile_definitions(sawstar_premium_unrolled_complex_tests PRIVATE SAWSTAR_COMPLEX_LOOKUP_STUDY=1 SAWSTAR_UNROLLED_FIR_STUDY=1)
+    target_link_libraries(sawstar_premium_unrolled_complex_tests PRIVATE sawstar_engine)
+    # Independent 8x qualification runs in the dedicated Release workflow.
+    # Existing global 8x controls are retained without duplicating slow Debug work.
     # Independent descriptive component workloads, never a timing pass/fail gate.
     add_executable(sawstar_premium_lookup_components experiments/premium_filter/benchmark_engine.cpp)
     target_compile_definitions(sawstar_premium_lookup_components PRIVATE SAWSTAR_PREMIUM_LOOKUP_COMPONENT_STUDY=1)
@@ -1392,6 +1420,9 @@ endif()
 
 if(BUILD_TESTING)
   # Header-only ring study also works without DaisySP or the plugin wrapper.
+  add_executable(sawstar_premium_unrolled_tests tests/premium_drive_unrolled.cpp)
+  target_link_libraries(sawstar_premium_unrolled_tests PRIVATE sawstar_foundation)
+  add_test(NAME premium_unrolled_bit_identity COMMAND sawstar_premium_unrolled_tests)
   add_executable(sawstar_premium_deadline_timeline_tests tests/premium_deadline_timeline.cpp)
   target_link_libraries(sawstar_premium_deadline_timeline_tests PRIVATE sawstar_foundation)
   add_test(NAME premium_deadline_timeline COMMAND sawstar_premium_deadline_timeline_tests)
@@ -1426,3 +1457,4 @@ if(BUILD_TESTING)
   add_test(NAME premium_components_report
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/report-premium-components.py" --self-test)
 endif()
+
