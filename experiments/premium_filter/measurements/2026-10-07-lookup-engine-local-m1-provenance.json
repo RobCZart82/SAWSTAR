@@ -1,0 +1,70 @@
+{
+  "study_kind": "rate-lookup",
+  "fir_backend": "NEON",
+  "source_sha": "15f0a02b815b28f99270fdc213e2d5f138833ed3",
+  "platform": "macOS-26.7-arm64-arm-64bit",
+  "machine": "arm64",
+  "runner_os": null,
+  "runner_arch": null,
+  "configuration": "Release",
+  "blocks_per_path": 36864,
+  "pairs_per_scene": 4,
+  "warmup_seconds_per_path": 0.25,
+  "timed_blocks_per_path_and_pair": 256,
+  "drive_factor": null,
+  "drive_factors_by_rate": {
+    "48000": 4,
+    "96000": 4,
+    "192000": 2
+  },
+  "rate_policy": "normalized-176400-boundary",
+  "clock": "C++ steady_clock wall time",
+  "native_host_acceptance": false,
+  "measurement_source_sha": "15f0a02b815b28f99270fdc213e2d5f138833ed3",
+  "machine_model": "Macmini9,1",
+  "cpu_brand": "Apple M1",
+  "compiler_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "compile_flags": "-O3 -DNDEBUG",
+  "macos_deployment_target": "11.0",
+  "table_bytes_shared": 65536,
+  "extra_drive_pointers_per_routed_filter": 2,
+  "test_summary": {
+    "release_ctest": 109,
+    "release_pass": 109,
+    "asan_ubsan_targeted": 5,
+    "asan_ubsan_pass": 5
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "84508c903663a75c6289f00703eed086bd24255099628247d4b89fb1ef70f4da",
+    "experiments/premium_filter/LookupTanh.h": "d21d25356cb47a40dc4f5791589f3464ed68288d3e044c1e324f640e2226dc77",
+    "experiments/premium_filter/PremiumDrive.h": "7d15c2a142f77aad6e6479d187794df64fcade17c1930898117d51090ddd1b03",
+    "experiments/premium_filter/RateScaledPremiumDrive.h": "b3049d5224eb435003d60ce2744c1a1cbfcffbf5b9763921407e462da420bb7e",
+    "experiments/premium_filter/EnginePremiumFilter.h": "7e7c5c2ea97f9809c57f42fbfe2bef88900bf34fdc340baaeda7322c9c99f91a",
+    "experiments/premium_filter/FirLanes4.h": "b218369d25c122337783cfdef490ecd62bfc34dffefeb3c8657f3d6deeef4b1d",
+    "experiments/premium_filter/PremiumLowPass.h": "8af8790e249ea058ee2f988192bcd827804fff3bba13b8766ea7693ffc157844",
+    "experiments/premium_filter/benchmark_tanh_deadline.cpp": "f49f663d087717a7e1ccfc82e87b223ea001a677f3d9cc2f5d8f56d3f5b5464f",
+    "src/engine/Synth.cpp": "76047659c870238fccf1cbb6eebf215f39d2ac6c01ef05d25c2f453f8bf678db",
+    "src/engine/Synth.h": "cb51f02474dd451d21dceaea75db3625380672deb8bbeb87a8ef9d056206c28a",
+    "tests/premium_lookup_engine.cpp": "1825d0f99b0beea1a1e6208ce7fd55464b8cb526bf83523f3878ef907ebd92e3",
+    "tests/premium_drive_complex.cpp": "c441004613524aa4ec12cdb1aaf4a74e7c32f3623e4fd44a69316da491edb03a",
+    "tests/premium_drive_rate_gain.cpp": "39794402b3663022d6d6ef32276e48ca8e8c4ff269cb8d71f50e3db56d30ac07",
+    "scripts/report-premium-deadline.py": "d81762782c704131d3c330da03d125d30ff0fac15a11171cc1ffa07306e2065f"
+  },
+  "generated_probe_sha256": {
+    "RateGainPremiumSynth.cpp": "8845b58136ae22e90d225f6da6e8dce0b55a201bd7554e28e6648a5aa16b5026",
+    "LookupPremiumSynth.cpp": "b32d8d5d08b224f411158be1605ea8d8c64276148e288c92867710881001017c",
+    "RateGainPremiumSynth.h": "b3c5e5694b50989d245ce574b2bf3cd6658be1c967ee40f0e85b561643edebdb",
+    "LookupPremiumSynth.h": "34279d0e77fa802e24816bce6ab2d2b880c0b711be1576b695348f4ef7c82ec4"
+  },
+  "data_sha256": {
+    "summary.csv": "f3af971e413e0392990ff6cd53d22d13d54ea8335633515384312433c08c0840",
+    "blocks.csv": "e951a7981b00df0542e9d6dc8b3473a50af4ca4645903c09e5271b9852b11185",
+    "factors.csv": "00bd2b1ebc1805dbb0e935b593a0bfa9ddee2cc0765acfb2dd851698707144d9",
+    "backend.txt": "0e18aea3bbc2a90e8443299891c8e78603257e12fb4397ac24a79218568ce2b7",
+    "engine-contract.csv": "0d554d529e75012b38953e0b32dd7631276c612106f02e55daaa5fac021ba6e5",
+    "complex-controls.csv": "d4d24731ee343b1df365edcd3e5c11fe13acaed9121ec4794c647be20b24e6e7",
+    "compiler/CMakeCXXCompiler.cmake": "0d921ce4d16c8ee29671fd52fbb563fa433e387924e8d26844fdb26010998da1",
+    "release-tests.txt": "c4420a6996151ae7356e34f81e17a353669143f66ff0f7a9b1f2442577d5a110",
+    "asan-tests.txt": "40f7995e9264ae338c4b058eb073860d926bf36636b3e01c321f9d2022894133"
+  }
+}

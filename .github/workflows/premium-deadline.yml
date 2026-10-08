@@ -12,6 +12,8 @@ on:
       - 'tests/premium_drive_simd.cpp'
       - 'tests/premium_drive_rate_simd.cpp'
       - 'tests/premium_drive_rate_gain.cpp'
+      - 'tests/premium_lookup_engine.cpp'
+      - 'experiments/premium_filter/benchmark_tanh_deadline.cpp'
       - 'tests/premium_drive_complex.cpp'
       - 'tests/premium_deadline_report.py'
   workflow_dispatch:
@@ -69,6 +71,14 @@ jobs:
             study: rate-gain-normalization
             target: sawstar_premium_rate_gain_deadline
             contract: premium_rate_gain_deadline_fixture
+          - os: windows-2022
+            study: rate-lookup
+            target: sawstar_premium_lookup_deadline
+            contract: premium_lookup_deadline_fixture
+          - os: macos-14
+            study: rate-lookup
+            target: sawstar_premium_lookup_deadline
+            contract: premium_lookup_deadline_fixture
     env:
       SAWSTAR_PREMIUM_STUDY: ${{ matrix.study }}
     defaults:
@@ -87,6 +97,12 @@ jobs:
         run: cmake --build build --config Release --target ${{ matrix.target }} sawstar_premium_simd_tests sawstar_premium_rate_simd_tests sawstar_premium_rate_gain_tests sawstar_premium_gain_complex_tests --parallel 2
       - name: Validate sounding fixture and percentile controls
         run: ctest --test-dir build -C Release -R '^(premium_drive_simd_identity|premium_drive_rate_simd_identity|premium_drive_rate_gain_contract|premium_gain_complex_controls|premium_deadline_report|${{ matrix.contract }})$' --verbose
+      - name: Build lookup engine controls
+        if: matrix.study == 'rate-lookup'
+        run: cmake --build build --config Release --target sawstar_premium_lookup_engine_tests sawstar_premium_lookup_rate_tests sawstar_premium_lookup_complex_tests --parallel 2
+      - name: Validate lookup modulation, routing and independent reference
+        if: matrix.study == 'rate-lookup'
+        run: ctest --test-dir build -C Release -R '^(premium_lookup_engine_modulation|premium_lookup_rate_contract|premium_lookup_complex_controls)$' --verbose | tee lookup-controls.txt
       - name: Record paired wall time distributions
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -96,6 +112,9 @@ jobs:
           fi
       - name: Verify raw data and report paired ratios
         run: python scripts/report-premium-deadline.py deadline-results
+      - name: Preserve lookup numerical control log
+        if: matrix.study == 'rate-lookup'
+        run: cp lookup-controls.txt deadline-results/lookup-controls.txt
       - name: Measure isolated Drive cost
         if: matrix.study == 'rate-simd-fir'
         run: |

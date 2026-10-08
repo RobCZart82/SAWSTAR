@@ -59,4 +59,5 @@ using GainStudyEnginePremiumFilter = BasicEnginePremiumFilter<FixedRatePremiumDr
 using RateScaledEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledPremiumDrive>;
 using RateScaledSimdEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledSimdPremiumDrive>;
 using RateScaledGainEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledGainPremiumDrive>;
+using RateScaledLookupEnginePremiumFilter = BasicEnginePremiumFilter<RateScaledLookupPremiumDrive>;
 }

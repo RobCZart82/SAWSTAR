@@ -53,9 +53,12 @@ class DeadlineReport(unittest.TestCase):
         self.assertEqual(adaptive["drive_factors_by_rate"], {"48000": 4, "96000": 4, "192000": 2})
         self.assertEqual(adaptive["rate_policy"], "normalized-176400-boundary")
         self.assertFalse(adaptive["native_host_acceptance"])
+        lookup = self.run_report("rate-lookup", 2)
+        self.assertEqual(lookup["study_kind"], "rate-lookup")
+        self.assertEqual(lookup["drive_factors_by_rate"], adaptive["drive_factors_by_rate"])
 
     def test_incorrect_compiled_routing_rejected(self):
-        for study, wrong in (("gain-normalization", 2), ("rate-gain-normalization", 4), ("rate-simd-fir", 4)):
+        for study, wrong in (("gain-normalization", 2), ("rate-gain-normalization", 4), ("rate-simd-fir", 4), ("rate-lookup", 4)):
             with self.subTest(study=study), self.assertRaisesRegex(ValueError, "routing"):
                 self.run_report(study, wrong)
 
@@ -64,6 +67,8 @@ class DeadlineReport(unittest.TestCase):
             self.run_report("unknown")
         with self.assertRaisesRegex(ValueError, "backend"):
             self.run_report("rate-gain-normalization", 2, "scalar-source")
+        with self.assertRaisesRegex(ValueError, "backend"):
+            self.run_report("rate-lookup", 2, "scalar-source")
 
 
 if __name__ == "__main__":

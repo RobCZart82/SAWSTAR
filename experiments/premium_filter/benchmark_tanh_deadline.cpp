@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Offline paired complete-engine study. Timings never gate CI.
-#if defined(SAWSTAR_RATE_GAIN_STUDY)
+#if defined(SAWSTAR_RATE_LOOKUP_STUDY)
+#include "RateGainPremiumSynth.h"
+#include "LookupPremiumSynth.h"
+#elif defined(SAWSTAR_RATE_GAIN_STUDY)
 #include "RateSimdPremiumSynth.h"
 #include "RateGainPremiumSynth.h"
 #elif defined(SAWSTAR_GAIN_NORMALIZATION_STUDY)
@@ -30,7 +33,10 @@
 #include <string>
 #include <vector>
 
-#if defined(SAWSTAR_RATE_GAIN_STUDY)
+#if defined(SAWSTAR_RATE_LOOKUP_STUDY)
+using Reference = sawstar::experimental_rate_gain_engine::Synth;
+using Study = sawstar::experimental_lookup_engine::Synth;
+#elif defined(SAWSTAR_RATE_GAIN_STUDY)
 using Reference = sawstar::experimental_rate_simd_engine::Synth;
 using Study = sawstar::experimental_rate_gain_engine::Synth;
 #elif defined(SAWSTAR_GAIN_NORMALIZATION_STUDY)
@@ -145,8 +151,11 @@ void Benchmark(const std::filesystem::path& folder) {
   std::ofstream factors(folder/"factors.csv");
   factors << "rate,reference_factor,study_factor\n";
   for (double rate : {48000., 96000., 192000.}) {
-#if defined(SAWSTAR_RATE_SIMD_FIR_STUDY) || defined(SAWSTAR_RATE_GAIN_STUDY)
-#if defined(SAWSTAR_RATE_GAIN_STUDY)
+#if defined(SAWSTAR_RATE_SIMD_FIR_STUDY) || defined(SAWSTAR_RATE_GAIN_STUDY) || defined(SAWSTAR_RATE_LOOKUP_STUDY)
+#if defined(SAWSTAR_RATE_LOOKUP_STUDY)
+    sawstar::experimental::RateScaledGainPremiumDrive reference;
+    sawstar::experimental::RateScaledLookupPremiumDrive study;
+#elif defined(SAWSTAR_RATE_GAIN_STUDY)
     sawstar::experimental::RateScaledSimdPremiumDrive reference;
     sawstar::experimental::RateScaledGainPremiumDrive study;
 #else
@@ -162,7 +171,7 @@ void Benchmark(const std::filesystem::path& folder) {
   factors.close();
   if (!factors) throw std::runtime_error("Cannot record compiled routing");
   std::ofstream backend(folder/"backend.txt");
-#if defined(SAWSTAR_SIMD_FIR_STUDY) || defined(SAWSTAR_RATE_SIMD_FIR_STUDY) || defined(SAWSTAR_GAIN_NORMALIZATION_STUDY) || defined(SAWSTAR_RATE_GAIN_STUDY)
+#if defined(SAWSTAR_SIMD_FIR_STUDY) || defined(SAWSTAR_RATE_SIMD_FIR_STUDY) || defined(SAWSTAR_GAIN_NORMALIZATION_STUDY) || defined(SAWSTAR_RATE_GAIN_STUDY) || defined(SAWSTAR_RATE_LOOKUP_STUDY)
   backend<<sawstar::experimental::detail::FirLanes4::Backend<<'\n';
 #else
   backend<<"scalar-source\n";

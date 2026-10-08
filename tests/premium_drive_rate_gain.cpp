@@ -9,6 +9,15 @@
 namespace {
 using namespace sawstar::experimental;
 using Frame = std::array<float, 2>;
+#ifdef SAWSTAR_RATE_LOOKUP_STUDY
+using Candidate = RateScaledLookupPremiumDrive;
+using Control = RateScaledGainPremiumDrive;
+constexpr bool Lookup = true;
+#else
+using Candidate = RateScaledGainPremiumDrive;
+using Control = RateScaledSimdPremiumDrive;
+constexpr bool Lookup = false;
+#endif
 unsigned long long compared = 0;
 void Require(bool ok, const char* why) { if (!ok) throw std::runtime_error(why); }
 struct Error {
@@ -30,9 +39,9 @@ void Equal(Frame a, Frame b) {
   Require(std::memcmp(a.data(), b.data(), sizeof(a)) == 0, "Wrong factor or stale routed state");
 }
 template<unsigned Factor> void Case(double rate) {
-  RateScaledGainPremiumDrive candidate;
-  RateScaledSimdPremiumDrive reference;
-  FixedRatePremiumDrive<Factor, true, false, true, true> oracle;
+  Candidate candidate;
+  Control reference;
+  FixedRatePremiumDrive<Factor, true, false, true, true, Lookup> oracle;
   candidate.Init(rate); reference.Init(rate); oracle.Init(rate);
   Require(candidate.Factor() == Factor && reference.Factor() == Factor, "Normalized boundary routing");
   uint32_t random = 31;
@@ -71,18 +80,18 @@ template<unsigned Factor> void Case(double rate) {
   }
 }
 void Reinitialize() {
-  RateScaledGainPremiumDrive drive;
+  Candidate drive;
   drive.Init(48000); drive.Set(24); drive.SnapToTargets();
   for (int n = 0; n < 257; ++n) drive.Process({.7f, -.5f});
   for (double rate : {192000., 48000., 176400., 176399., 384000., 8000.}) {
-    drive.Init(rate); RateScaledGainPremiumDrive fresh; fresh.Init(rate);
+    drive.Init(rate); Candidate fresh; fresh.Init(rate);
     for (int n = 0; n < 512; ++n) Equal(drive.Process({.2f, -.3f}), fresh.Process({.2f, -.3f}));
   }
 }
 }
 int main() {
   try {
-    static_assert(sizeof(RateScaledGainPremiumDrive) == sizeof(RateScaledSimdPremiumDrive));
+    static_assert(sizeof(Candidate) == sizeof(Control) + (Lookup ? 2 * sizeof(void*) : 0));
     static_assert(RateScaledGainPremiumDrive::Latency == 32);
     Error wrong; wrong.Add({.1f, 0}, {.09f, 0}); bool rejected = false;
     try { wrong.Check(); } catch (const std::runtime_error&) { rejected = true; }
