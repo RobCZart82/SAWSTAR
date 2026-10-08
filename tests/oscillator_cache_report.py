@@ -72,5 +72,30 @@ class ReportTest(unittest.TestCase):
     def test_requires_exact_source(self):
         with self.assertRaisesRegex(ValueError, 'source SHA'): self.run_report('main')
 
+    def test_slowdown_observations_include_modulation(self):
+        result = self.run_report()
+        decision = result['qualification']
+        self.assertEqual(result['schema_version'], 2)
+        self.assertEqual(len(decision['median_slowdown_cells']), 24)
+        self.assertEqual(len(decision['all_pairs_slowdown_cells']), 24)
+        self.assertEqual(sum(cell['modulated'] for cell in decision['median_slowdown_cells']), 12)
+        self.assertFalse(decision['production_promotion_allowed'])
+        self.assertIn('CPU acceptance: not established', self.output)
+
+    def test_favorable_or_mixed_pairs_never_promote(self):
+        for row in self.rows:
+            row['seconds'] = 1 if row['path'] == 'reference' else .5
+        result = self.run_report()
+        self.assertEqual(result['qualification']['median_slowdown_cells'], [])
+        self.assertEqual(result['qualification']['all_pairs_slowdown_cells'], [])
+        self.assertFalse(result['qualification']['production_promotion_allowed'])
+        self.assertEqual(result['qualification']['cpu_acceptance'], 'not-established')
+        for row in self.rows:
+            if row['path'] == 'study':
+                row['seconds'] = (.5, 1.1, 1.2, 1.3)[row['pair']]
+        mixed = self.run_report()['qualification']
+        self.assertEqual(len(mixed['median_slowdown_cells']), 24)
+        self.assertEqual(mixed['all_pairs_slowdown_cells'], [])
+
 if __name__ == '__main__':
     unittest.main()

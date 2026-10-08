@@ -12,6 +12,26 @@ import platform
 import re
 import statistics
 
+def qualification(summaries):
+    """Describe isolated observations, never promote a candidate from timing alone."""
+    slower = []
+    all_pairs_slower = []
+    for row in summaries:
+        cell = {key: row[key] for key in ('rate', 'waveform', 'modulated')}
+        if row['median_paired_seconds_ratio'] > 1:
+            slower.append(cell)
+        if all(ratio > 1 for ratio in row['paired_ratios']):
+            all_pairs_slower.append(cell)
+    return {
+        'cpu_acceptance': 'not-established',
+        'production_promotion_allowed': False,
+        'median_slowdown_cells': slower,
+        'all_pairs_slowdown_cells': all_pairs_slower,
+        'interpretation': 'Observed ratios, not statistical significance or a native realtime gate.',
+        'remaining_gates': ['controlled-target-repeat', 'full-engine-modulated-deadline',
+                            'native-host-realtime'],
+    }
+
 def report(folder, source_sha, emit_ci=False):
     folder = Path(folder)
     if not re.fullmatch(r'[0-9a-f]{40}', source_sha):
@@ -69,12 +89,18 @@ def report(folder, source_sha, emit_ci=False):
                 'ratio_direction': 'study/reference',
                 'timed_work': 'bank processing, pitch setters/sine when modulated, energy accumulation',
                 'production_activation': False}
-    payload = {'schema_version': 1, 'metadata': metadata, 'summary': summaries}
+    decision = qualification(summaries)
+    payload = {'schema_version': 2, 'metadata': metadata, 'summary': summaries,
+               'qualification': decision}
     (folder / 'report.json').write_text(json.dumps(payload, indent=2, allow_nan=False) + '\n', encoding='utf-8')
     lines = ['# Isolated frequency-cache oscillator study', '', f'Source: {source_sha}',
              '32 oscillator banks represent OSC1 + OSC2 for 16 voices; no engine, filter or FX timing.',
              'Four alternating pairs. Ratios are study/reference; smaller is favorable.',
              'Static and audio-rate pitch modulation are separate controls. No native realtime acceptance.', '',
+             'CPU acceptance: not established. Production promotion: not allowed by this isolated study.',
+             f"Median slowdown cells: {len(decision['median_slowdown_cells'])}/24; "
+             f"all four pairs slower: {len(decision['all_pairs_slowdown_cells'])}/24.",
+             'These are observations, not statistical significance; green CI validates the study only.', '',
              '| Rate | Waveform | Pitch modulation | Median paired time ratio |', '| --- | --- | --- | --- |']
     for row in summaries:
         lines.append(f"| {row['rate']} | {row['waveform']} | {row['modulated']} | {row['median_paired_seconds_ratio']:.6f} |")

@@ -161,3 +161,41 @@ Következő döntés: platformeredmények értékelése, majd megfelelő eredmé
 esetén külön teljesmotoros lookup-kontroll és modulált deadline mérés.
 Production aktiválás, magasrátás policy és natív REAPER továbbra is
 külön, nyitott kapuk; nem következnek a zöld izolált tesztből.
+
+## V2 platformeredmények és döntés — 2026-10-08
+
+A `674f66bdb7ccb321f9e61dc49562812ec58b972a` PR-head minden ellenőrzése
+sikeres. Ez funkcionális és build-kapu, nem CPU-elfogadás.
+A két izolált platformmérés naplóból kiemelt, változatlan schema-1 JSON-ja:
+[Windows](../experiments/oscillator/measurements/2026-10-08-cache-v2-ci-windows.json),
+[macOS](../experiments/oscillator/measurements/2026-10-08-cache-v2-ci-macos.json).
+A nyers CSV-ket nem töltöttük le újra; az összes páros arány és a CI által
+közölt raw/source/compiler hash megmarad az összesítésekben.
+
+| Platform | SAW 48 kHz statikus / modulált | SAW 96 kHz statikus / modulált | SAW 192 kHz statikus / modulált |
+| --- | --- | --- | --- |
+| Windows | 0.931259 / 1.045345 | 0.938845 / 1.050838 | 0.936462 / 1.056853 |
+| macOS arm64 | 0.833299 / 0.892990 | 0.784961 / 0.887875 | 0.927653 / 0.966164 |
+
+Windows alatt a statikus SAW 6–7% javulási jele mellett a modulált SAW
+4,5–5,7% lassult. A 192 kHz-es modulált SAW mind a négy párban lassabb.
+macOS-en több cella nagy szórású: a 192 kHz statikus SAW páros arányai
+0.518–1.693 közé esnek. Az eltérő platform- és helyi eredményekből
+nem következik igazolt, általános teljesmotoros nyereség.
+
+Döntés: a held-saw-tuning-v2 production bevezetését elhalasztjuk;
+a kísérleti referencia, tesztek és negatív eredmények megőrzendők.
+Nincs teljesmotoros cache-integráció vagy új magasrátás CPU-policy.
+A következő hipotézis a mintán belül ismételt frekvenciaszámítás
+megosztása legyen, cache-állapot és változásfigyelő ágak nélkül.
+Előbb ugyanilyen bitazonossági/platformos kontroll, majd igazolt
+izolált eredménynél teljesmotoros modulált deadline mérés szükséges.
+
+A reporter schema-2 kimenete külön `qualification` mezőben rögzíti a
+medián szerint lassabb cellákat és az összes párban lassabb cellákat.
+Ezek leíró megfigyelések, nem statisztikai szignifikancia vagy CPU-küszöb.
+Kedvező időarányok esetén is `cpu_acceptance=not-established` és
+`production_promotion_allowed=false`: az izolált mérés nem jogosít
+production bevezetésre. A Markdown/CI összesítő ezt kifejezetten jelzi.
+Két új negatív kontroll különíti el az összes párban és csak a mediánban
+látható lassulást, és ellenőrzi, hogy a kedvező grid sem engedélyez aktiválást.
