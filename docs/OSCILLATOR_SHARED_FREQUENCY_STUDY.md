@@ -53,3 +53,34 @@ Mac mini M1, Apple Clang Release: a 96 jelenet / 795 648 frame bitazonos.
 A shipping SevenSaw, a korábbi cache és a hét Python riportteszt is sikeres.
 A külön új jelölt ASan/UBSan alatt is megfelelt. A CPU-adat és a platformos
 CI külön következő eredmény; ezek nélkül nincs teljesmotoros aktiválás.
+
+## Két helyi CPU-mérési kör
+
+Mért forrás: `d8513f9fbcde08a5783edc46dfc7236525f186f1`, Mac mini M1,
+Apple Clang 21.0.0, Release `-O3 -DNDEBUG`. Mind a 118 Release teszt sikeres.
+Két egymás utáni kampány ugyanazt az executable-t használta, fordítás és
+tesztfuttatás befejezése után; nincs CPU-affinitás vagy realtime prioritás.
+A háttérben futó OS-munkák nem kontrolláltak.
+
+Mindkét 192 soros gridben pontosan egyezett a páros energia, és a 24 cella
+medián study/reference időaránya egy alatt volt. A két kampány celláinak
+szélsőértékei, három ráta és statikus/modulált pitch szerint:
+
+| Hullámforma | Medián időarány tartománya |
+| --- | ---: |
+| SAW | 0,980374–0,997881 |
+| Square | 0,903664–0,973859 |
+| Triangle | 0,870323–0,992741 |
+| Sine | 0,972130–0,986670 |
+
+A SAW út eleve csak egyszer számolta a frekvenciát, ezért kis eltérése
+kódelrendezési/mérési kontroll, nem az új megosztás bizonyított nyeresége.
+Egyes párok lassabbak voltak; a teljes páros adatok megmaradnak, a medián
+nem szignifikanciateszt. A korábbi cache Windows-eredménye nem vihető át
+az új algoritmusra. Friss Windows/macOS CI és kontrollált platformismétlés
+kell a továbblépéshez. Ez nem teljesmotoros CPU- vagy natív elfogadás.
+
+[Nyers első kör](../experiments/oscillator/measurements/2026-10-08-shared-frequency-local-m1-first.csv),
+[ismétlés](../experiments/oscillator/measurements/2026-10-08-shared-frequency-local-m1-repeat.csv)
+és [eredetjegyzék](../experiments/oscillator/measurements/2026-10-08-shared-frequency-local-m1-provenance.json).
+A két JSON-riport mind a 24 cellát és négy páros arányát megőrzi.
