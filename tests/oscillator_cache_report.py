@@ -1,0 +1,101 @@
+# SPDX-License-Identifier: MIT
+import contextlib
+import csv
+import importlib.util
+import io
+import json
+from pathlib import Path
+import tempfile
+import unittest
+
+spec = importlib.util.spec_from_file_location('report', Path(__file__).resolve().parents[1] / 'scripts/report-oscillator-cache.py')
+reporter = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(reporter)
+
+class ReportTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.rows = []
+        for path in ('reference', 'study'):
+            for rate in (48000, 96000, 192000):
+                for wave in range(4):
+                    for moving in range(2):
+                        for pair in range(4):
+                            self.rows.append(dict(path=path, rate=rate, waveform=wave, modulated=moving,
+                                pair=pair, order='study-first' if pair % 2 else 'reference-first',
+                                oscillators=32, frames=8192,
+                                seconds=((2, 8, 30, 100) if path == 'study' else (1, 2, 10, 20))[pair], energy=10,
+                                variant='held-saw-tuning-v2'))
+    def tearDown(self):
+        self.temp.cleanup()
+    def run_report(self, source_sha='0' * 40):
+        with (self.root / 'oscillators.csv').open('w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=self.rows[0].keys())
+            writer.writeheader(); writer.writerows(self.rows)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            result = reporter.report(self.root, source_sha, True)
+        self.output = output.getvalue()
+        return result
+    def test_pairs_and_provenance(self):
+        result = self.run_report()
+        self.assertEqual(len(result['summary']), 24)
+        self.assertEqual({row['median_paired_seconds_ratio'] for row in result['summary']}, {3.5})
+        self.assertEqual(result['summary'][0]['paired_ratios'], [2, 4, 3, 5])
+        self.assertFalse(result['metadata']['native_host_acceptance'])
+        self.assertFalse(result['metadata']['production_activation'])
+        self.assertEqual(result['metadata']['ratio_direction'], 'study/reference')
+        self.assertEqual(result['metadata']['candidate_variant'], 'held-saw-tuning-v2')
+        self.assertEqual(len(result['metadata']['raw_sha256']), 64)
+        self.assertEqual(len(result['metadata']['source_file_sha256']), 9)
+        self.assertEqual(json.loads((self.root / 'report.json').read_text()), result)
+        line = next(line for line in self.output.splitlines() if line.startswith('OSCILLATOR_CI_REPORT='))
+        self.assertEqual(json.loads(line.split('=', 1)[1]), result)
+    def test_missing_and_duplicate_pairs(self):
+        removed = self.rows.pop()
+        with self.assertRaisesRegex(ValueError, 'Incomplete'): self.run_report()
+        self.rows.append(removed); self.rows.append(self.rows[0])
+        with self.assertRaisesRegex(ValueError, 'duplicate'): self.run_report()
+    def test_bad_signal_order_and_duration(self):
+        original = self.rows[0].copy()
+        for key, value, message in [('seconds', 0, 'measurement'), ('seconds', 'nan', 'measurement'),
+                                    ('energy', 'inf', 'measurement'), ('order', 'study-first', 'order'),
+                                    ('frames', 1, 'frame count'), ('oscillators', 1, 'bank'),
+                                    ('variant', 'all-waveforms-v1', 'variant')]:
+            with self.subTest(key=key, value=value):
+                self.rows[0] = dict(original, **{key: value})
+                with self.assertRaisesRegex(ValueError, message): self.run_report()
+        self.rows[0] = original
+        self.rows[-1]['energy'] = 11
+        with self.assertRaisesRegex(ValueError, 'energy differs'): self.run_report()
+    def test_requires_exact_source(self):
+        with self.assertRaisesRegex(ValueError, 'source SHA'): self.run_report('main')
+
+    def test_slowdown_observations_include_modulation(self):
+        result = self.run_report()
+        decision = result['qualification']
+        self.assertEqual(result['schema_version'], 2)
+        self.assertEqual(len(decision['median_slowdown_cells']), 24)
+        self.assertEqual(len(decision['all_pairs_slowdown_cells']), 24)
+        self.assertEqual(sum(cell['modulated'] for cell in decision['median_slowdown_cells']), 12)
+        self.assertFalse(decision['production_promotion_allowed'])
+        self.assertIn('CPU acceptance: not established', self.output)
+
+    def test_favorable_or_mixed_pairs_never_promote(self):
+        for row in self.rows:
+            row['seconds'] = 1 if row['path'] == 'reference' else .5
+        result = self.run_report()
+        self.assertEqual(result['qualification']['median_slowdown_cells'], [])
+        self.assertEqual(result['qualification']['all_pairs_slowdown_cells'], [])
+        self.assertFalse(result['qualification']['production_promotion_allowed'])
+        self.assertEqual(result['qualification']['cpu_acceptance'], 'not-established')
+        for row in self.rows:
+            if row['path'] == 'study':
+                row['seconds'] = (.5, 1.1, 1.2, 1.3)[row['pair']]
+        mixed = self.run_report()['qualification']
+        self.assertEqual(len(mixed['median_slowdown_cells']), 24)
+        self.assertEqual(mixed['all_pairs_slowdown_cells'], [])
+
+if __name__ == '__main__':
+    unittest.main()

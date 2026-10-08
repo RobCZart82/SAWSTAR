@@ -1185,6 +1185,18 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
       COMMAND sawstar_sevensaw_tests
     )
 
+    # Separate research candidate; shipping SevenSaw remains the reference.
+    add_library(sawstar_oscillator_cache_probe STATIC
+      experiments/oscillator/CachedSevenSaw.cpp)
+    target_link_libraries(sawstar_oscillator_cache_probe PUBLIC sawstar_engine)
+    target_compile_features(sawstar_oscillator_cache_probe PUBLIC cxx_std_17)
+    add_executable(sawstar_oscillator_cache_tests tests/oscillator_frequency_cache.cpp)
+    target_link_libraries(sawstar_oscillator_cache_tests PRIVATE sawstar_oscillator_cache_probe)
+    add_test(NAME oscillator_cache_bit_identity COMMAND sawstar_oscillator_cache_tests)
+    add_executable(sawstar_oscillator_cache_benchmark
+      experiments/oscillator/benchmark_frequency_cache.cpp)
+    target_link_libraries(sawstar_oscillator_cache_benchmark PRIVATE sawstar_oscillator_cache_probe)
+
 
     add_executable(
       sawstar_engine_tests
@@ -1456,5 +1468,8 @@ if(BUILD_TESTING)
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/premium_deadline_report.py")
   add_test(NAME premium_components_report
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/report-premium-components.py" --self-test)
+  if(SAWSTAR_CHECK_DAISYSP)
+    add_test(NAME oscillator_cache_report
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/oscillator_cache_report.py")
+  endif()
 endif()
-
