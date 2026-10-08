@@ -51,10 +51,12 @@ jobs:
             build-components/sawstar_premium_lookup_components --components > component-results/components.csv 2> component-results/backend.txt
           fi
           find build-components/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' component-results/compiler/ \;
-          python scripts/report-premium-components.py component-results --source-sha "$(git rev-parse HEAD)"
+          python scripts/report-premium-components.py component-results --source-sha "$(git rev-parse HEAD)" --emit-ci
+          cat component-results/report.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: premium-components-${{ matrix.os }}-components-v1
           path: component-results/
           if-no-files-found: error
           retention-days: 90
+
