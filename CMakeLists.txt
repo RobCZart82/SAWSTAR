@@ -985,6 +985,10 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     target_include_directories(sawstar_premium_lookup_probe PUBLIC "${_premium_engine}"
       "${CMAKE_CURRENT_SOURCE_DIR}/experiments/premium_filter")
     target_link_libraries(sawstar_premium_lookup_probe PUBLIC sawstar_engine)
+    # Independent descriptive component workloads, never a timing pass/fail gate.
+    add_executable(sawstar_premium_lookup_components experiments/premium_filter/benchmark_engine.cpp)
+    target_compile_definitions(sawstar_premium_lookup_components PRIVATE SAWSTAR_PREMIUM_LOOKUP_COMPONENT_STUDY=1)
+    target_link_libraries(sawstar_premium_lookup_components PRIVATE sawstar_premium_lookup_probe)
     add_executable(sawstar_premium_lookup_deadline experiments/premium_filter/benchmark_tanh_deadline.cpp)
     target_compile_definitions(sawstar_premium_lookup_deadline PRIVATE SAWSTAR_RATE_LOOKUP_STUDY=1)
     target_link_libraries(sawstar_premium_lookup_deadline PRIVATE sawstar_premium_rate_gain_probe sawstar_premium_lookup_probe)
@@ -1419,4 +1423,6 @@ endif()
 if(BUILD_TESTING)
   add_test(NAME premium_deadline_report
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/premium_deadline_report.py")
+  add_test(NAME premium_components_report
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/report-premium-components.py" --self-test)
 endif()

@@ -1,0 +1,60 @@
+name: Premium component CPU research
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/premium-components.yml'
+      - 'CMakeLists.txt'
+      - 'experiments/premium_filter/**'
+      - 'src/dsp/**'
+      - 'src/engine/**'
+      - 'tests/premium_lookup_engine.cpp'
+      - 'tests/premium_drive_rate_gain.cpp'
+      - 'tests/premium_drive_complex.cpp'
+      - 'scripts/report-premium-components.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: premium-components-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    name: Premium components / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-14]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          submodules: recursive
+      - name: Configure Release component probe
+        run: cmake -S . -B build-components -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON
+      - name: Build component and numerical contracts
+        run: cmake --build build-components --config Release --target sawstar_premium_lookup_components sawstar_premium_lookup_engine_tests sawstar_premium_lookup_rate_tests sawstar_premium_lookup_complex_tests --parallel 2
+      - name: Qualify before collecting timings
+        run: ctest --test-dir build-components -C Release -R '^premium_(lookup_engine_modulation|lookup_rate_contract|lookup_complex_controls|components_report)$' --verbose --timeout 600
+      - name: Collect independent component workloads
+        run: |
+          mkdir -p component-results/compiler
+          cp build-components/Testing/Temporary/LastTest.log component-results/contracts.txt
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            build-components/Release/sawstar_premium_lookup_components.exe --components > component-results/components.csv 2> component-results/backend.txt
+          else
+            build-components/sawstar_premium_lookup_components --components > component-results/components.csv 2> component-results/backend.txt
+          fi
+          find build-components/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' component-results/compiler/ \;
+          python scripts/report-premium-components.py component-results --source-sha "$(git rev-parse HEAD)"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: premium-components-${{ matrix.os }}-components-v1
+          path: component-results/
+          if-no-files-found: error
+          retention-days: 90
