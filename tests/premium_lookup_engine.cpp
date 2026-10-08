@@ -81,8 +81,12 @@ template<class S> void Event(S& s, int n, int filter, int voice) {
 }
 int main() {
   try {
-    Error altered; altered.Add({.1f, .1f}, {.09f, .09f});
-    bool rejected = false; try { altered.Check(); } catch (const std::runtime_error&) { rejected = true; }
+    // Exact comparison rejects in Add; bounded comparison rejects in Check.
+    // Both rejection paths belong inside the negative control's handler.
+    bool rejected = false;
+    try {
+      Error altered; altered.Add({.1f, .1f}, {.09f, .09f}); altered.Check();
+    } catch (const std::runtime_error&) { rejected = true; }
     Require(rejected, "Engine comparison accepted altered audio");
     int cases = 0;
     std::cout << std::setprecision(17) << "rate,filter_mode,voice_mode,fx,output_peak_error,output_relative_rms,prefx_peak_error,prefx_relative_rms\n";
