@@ -1,0 +1,54 @@
+Start testing: Oct 08 19:07 Coordinated Universal Time
+----------------------------------------------------------
+72/118 Testing: seven_saw
+72/118 Test: seven_saw
+Command: "D:/a/SAWSTAR/SAWSTAR/build-oscillator/Release/sawstar_sevensaw_tests.exe"
+Directory: D:/a/SAWSTAR/SAWSTAR/build-oscillator
+"seven_saw" start time: Oct 08 19:07 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.67 sec
+----------------------------------------------------------
+Test Passed.
+"seven_saw" end time: Oct 08 19:07 Coordinated Universal Time
+"seven_saw" time elapsed: 00:00:00
+----------------------------------------------------------
+
+74/118 Testing: oscillator_shared_bit_identity
+74/118 Test: oscillator_shared_bit_identity
+Command: "D:/a/SAWSTAR/SAWSTAR/build-oscillator/Release/sawstar_oscillator_shared_tests.exe"
+Directory: D:/a/SAWSTAR/SAWSTAR/build-oscillator
+"oscillator_shared_bit_identity" start time: Oct 08 19:07 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+96 scenes, 795648 stereo frames, bit identity PASS; energy=92724.7
+<end of output>
+Test time =   0.25 sec
+----------------------------------------------------------
+Test Passed.
+"oscillator_shared_bit_identity" end time: Oct 08 19:07 Coordinated Universal Time
+"oscillator_shared_bit_identity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+118/118 Testing: oscillator_cache_report
+118/118 Test: oscillator_cache_report
+Command: "C:/hostedtoolcache/windows/Python/3.14.8/x64/python3.exe" "D:/a/SAWSTAR/SAWSTAR/tests/oscillator_cache_report.py"
+Directory: D:/a/SAWSTAR/SAWSTAR/build-oscillator
+"oscillator_cache_report" start time: Oct 08 19:07 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.147s
+
+OK
+<end of output>
+Test time =   2.11 sec
+----------------------------------------------------------
+Test Passed.
+"oscillator_cache_report" end time: Oct 08 19:07 Coordinated Universal Time
+"oscillator_cache_report" time elapsed: 00:00:02
+----------------------------------------------------------
+
+End testing: Oct 08 19:07 Coordinated Universal Time

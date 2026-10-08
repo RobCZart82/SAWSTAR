@@ -1,2 +1,5 @@
 
 *.pdf binary
+
+# Preserve downloaded evidence byte-for-byte, including Windows CRLF hashes.
+experiments/oscillator/measurements/2026-10-08-shared-frequency-ci/** -text whitespace=cr-at-eol

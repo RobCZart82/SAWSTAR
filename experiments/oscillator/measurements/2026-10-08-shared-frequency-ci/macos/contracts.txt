@@ -1,0 +1,54 @@
+Start testing: Oct 08 19:17 UTC
+----------------------------------------------------------
+72/118 Testing: seven_saw
+72/118 Test: seven_saw
+Command: "/Users/runner/work/SAWSTAR/SAWSTAR/build-oscillator/sawstar_sevensaw_tests"
+Directory: /Users/runner/work/SAWSTAR/SAWSTAR/build-oscillator
+"seven_saw" start time: Oct 08 19:17 UTC
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.53 sec
+----------------------------------------------------------
+Test Passed.
+"seven_saw" end time: Oct 08 19:17 UTC
+"seven_saw" time elapsed: 00:00:00
+----------------------------------------------------------
+
+74/118 Testing: oscillator_shared_bit_identity
+74/118 Test: oscillator_shared_bit_identity
+Command: "/Users/runner/work/SAWSTAR/SAWSTAR/build-oscillator/sawstar_oscillator_shared_tests"
+Directory: /Users/runner/work/SAWSTAR/SAWSTAR/build-oscillator
+"oscillator_shared_bit_identity" start time: Oct 08 19:17 UTC
+Output:
+----------------------------------------------------------
+96 scenes, 795648 stereo frames, bit identity PASS; energy=92724.5
+<end of output>
+Test time =   0.23 sec
+----------------------------------------------------------
+Test Passed.
+"oscillator_shared_bit_identity" end time: Oct 08 19:17 UTC
+"oscillator_shared_bit_identity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+118/118 Testing: oscillator_cache_report
+118/118 Test: oscillator_cache_report
+Command: "/opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14" "/Users/runner/work/SAWSTAR/SAWSTAR/tests/oscillator_cache_report.py"
+Directory: /Users/runner/work/SAWSTAR/SAWSTAR/build-oscillator
+"oscillator_cache_report" start time: Oct 08 19:17 UTC
+Output:
+----------------------------------------------------------
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.077s
+
+OK
+<end of output>
+Test time =   0.32 sec
+----------------------------------------------------------
+Test Passed.
+"oscillator_cache_report" end time: Oct 08 19:17 UTC
+"oscillator_cache_report" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 08 19:17 UTC

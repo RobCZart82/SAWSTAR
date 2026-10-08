@@ -1,8 +1,8 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
 **Aktuális sorrend (2026-10-08): [elfogadott fejlesztési roadmap](DEVELOPMENT_ROADMAP.md).**
-A korábbi dátumozott sorrendek történeti naplóként értendők. A lookup motor komponensprofilja elkészült. A következő munkacsomag a
-[cache nélküli frekvenciaszámítás-megosztás](OSCILLATOR_SHARED_FREQUENCY_STUDY.md);
+A korábbi dátumozott sorrendek történeti naplóként értendők. A lookup motor komponensprofilja elkészült. A #88 frekvenciamegosztási próba beolvadt, de a platformos CPU-adatok vegyesek.
+A következő munkacsomag a [hosszabb páros mérés és referenciaismétlés](OSCILLATOR_SHARED_FREQUENCY_STUDY.md);
 a korai natív REAPER-próba a 4., a végső production-elfogadás a 8. lépés.
 
 Frissítve: 2026-10-08. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.

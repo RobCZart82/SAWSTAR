@@ -42,21 +42,29 @@ jobs:
       - name: Qualify before timing
         run: |
           ctest --test-dir build-oscillator -C Release -R '^(seven_saw|oscillator_shared_bit_identity|oscillator_cache_report)$' --verbose --timeout 600
-      - name: Measure paired banks
+      - name: Measure extended paired banks and unchanged-reference control
         run: |
-          mkdir -p oscillator-results/compiler
-          cp build-oscillator/Testing/Temporary/LastTest.log oscillator-results/contracts.txt
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            build-oscillator/Release/sawstar_oscillator_shared_benchmark.exe > oscillator-results/oscillators.csv
+            benchmark=build-oscillator/Release/sawstar_oscillator_shared_benchmark.exe
           else
-            build-oscillator/sawstar_oscillator_shared_benchmark > oscillator-results/oscillators.csv
+            benchmark=build-oscillator/sawstar_oscillator_shared_benchmark
           fi
-          find build-oscillator/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' oscillator-results/compiler/ \;
-          python scripts/report-oscillator-cache.py oscillator-results --source-sha "$(git rev-parse HEAD)" --variant shared-frequency-v1 --emit-ci
-          cat oscillator-results/report.md >> "$GITHUB_STEP_SUMMARY"
+          for comparison in reference-repeat candidate; do
+            result="oscillator-results/$comparison"
+            mkdir -p "$result/compiler"
+            cp build-oscillator/Testing/Temporary/LastTest.log "$result/contracts.txt"
+            if [[ "$comparison" == "reference-repeat" ]]; then
+              "$benchmark" --extended --reference-repeat > "$result/oscillators.csv"
+            else
+              "$benchmark" --extended > "$result/oscillators.csv"
+            fi
+            find build-oscillator/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' "$result/compiler/" \;
+            python scripts/report-oscillator-cache.py "$result" --source-sha "$(git rev-parse HEAD)" --variant shared-frequency-v1 --campaign extended-v1 --comparison "$comparison" --emit-ci
+            cat "$result/report.md" >> "$GITHUB_STEP_SUMMARY"
+          done
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: oscillator-shared-${{ matrix.os }}
+          name: oscillator-shared-extended-${{ matrix.os }}
           path: oscillator-results/
           if-no-files-found: error
           retention-days: 90

@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: MIT
 import contextlib
 import csv
+import hashlib
 import importlib.util
 import io
 import json
+import statistics
 from pathlib import Path
 import tempfile
 import unittest
@@ -17,6 +19,8 @@ class ReportTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
         self.variant = "held-saw-tuning-v2"
+        self.campaign = "short-v1"
+        self.comparison = "candidate"
         self.rows = []
         for path in ('reference', 'study'):
             for rate in (48000, 96000, 192000):
@@ -36,7 +40,7 @@ class ReportTest(unittest.TestCase):
             writer.writeheader(); writer.writerows(self.rows)
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
-            result = reporter.report(self.root, source_sha, True, self.variant)
+            result = reporter.report(self.root, source_sha, True, self.variant, self.campaign, self.comparison)
         self.output = output.getvalue()
         return result
     def test_pairs_and_provenance(self):
@@ -88,6 +92,90 @@ class ReportTest(unittest.TestCase):
 
     def test_requires_exact_source(self):
         with self.assertRaisesRegex(ValueError, 'source SHA'): self.run_report('main')
+
+    def extended_rows(self):
+        self.variant = 'shared-frequency-v1'
+        self.campaign = 'extended-v1'
+        original = self.rows[:]
+        self.rows = []
+        for extra in (0, 4):
+            for row in original:
+                self.rows.append(dict(row, pair=row['pair'] + extra, variant=self.variant,
+                                      frames=131072, campaign=self.campaign,
+                                      comparison=self.comparison, warmup_frames=row['rate'] // 4))
+
+    def test_extended_pairs_and_ranges(self):
+        self.extended_rows()
+        result = self.run_report()
+        self.assertEqual(result['schema_version'], 3)
+        self.assertEqual(result['metadata']['frames_per_path_and_pair'], 131072)
+        self.assertEqual(result['metadata']['pairs_per_cell'], 8)
+        self.assertEqual(result['metadata']['timed_study_type'], 'SharedFrequencySevenSaw')
+        row = result['summary'][0]
+        self.assertEqual(row['paired_ratios'], [2, 4, 3, 5] * 2)
+        self.assertEqual(row['min_paired_seconds_ratio'], 2)
+        self.assertEqual(row['max_paired_seconds_ratio'], 5)
+        self.assertEqual(row['paired_observations'], 8)
+        self.rows.pop()
+        with self.assertRaisesRegex(ValueError, 'Incomplete'): self.run_report()
+
+    def test_extended_cannot_masquerade_as_short_or_other_comparison(self):
+        self.extended_rows()
+        self.campaign = 'short-v1'
+        with self.assertRaisesRegex(ValueError, 'columns'): self.run_report()
+        self.campaign = 'extended-v1'
+        original = self.rows[0].copy()
+        for key, value in [('campaign', 'short-v1'), ('comparison', 'reference-repeat'),
+                           ('warmup_frames', 0), ('frames', 8192)]:
+            self.rows[0] = dict(original, **{key: value})
+            with self.subTest(key=key), self.assertRaises(ValueError): self.run_report()
+        self.rows[0] = original
+        self.variant = 'held-saw-tuning-v2'
+        with self.assertRaisesRegex(ValueError, 'Incompatible'): self.run_report()
+
+    def test_reference_repeat_is_a_control_and_never_promotes(self):
+        self.comparison = 'reference-repeat'
+        with self.assertRaisesRegex(ValueError, 'Incompatible'): self.run_report()
+        self.extended_rows()
+        for row in self.rows:
+            row['seconds'] = 1
+        result = self.run_report()
+        self.assertEqual(result['metadata']['comparison'], 'reference-repeat')
+        self.assertEqual(result['metadata']['timed_study_type'], 'SevenSaw')
+        self.assertFalse(result['metadata']['noise_correction_applied'])
+        self.assertFalse(result['metadata']['background_load_controlled'])
+        self.assertFalse(result['qualification']['production_promotion_allowed'])
+        self.assertEqual(result['qualification']['cpu_acceptance'], 'not-established')
+        self.assertEqual({x['median_paired_seconds_ratio'] for x in result['summary']}, {1})
+        self.comparison = 'candidate'
+        with self.assertRaisesRegex(ValueError, 'comparison'): self.run_report()
+
+    def test_archived_platform_bytes_and_pairs(self):
+        archive = Path(__file__).resolve().parents[1] / 'experiments/oscillator/measurements/2026-10-08-shared-frequency-ci'
+        manifest = json.loads((archive / 'provenance.json').read_text())
+        for platform, provenance in manifest['platforms'].items():
+            folder = archive / platform
+            for name, digest in provenance['files_sha256'].items():
+                self.assertEqual(hashlib.sha256((folder / name).read_bytes()).hexdigest(), digest)
+            result = json.loads((folder / 'report.json').read_bytes())
+            self.assertEqual(result['metadata']['source_sha'], manifest['source_sha'])
+            self.assertEqual(result['metadata']['raw_sha256'], provenance['files_sha256']['oscillators.csv'])
+            with (folder / 'oscillators.csv').open(newline='') as stream:
+                rows = list(csv.DictReader(stream))
+            samples = {(r['path'], int(r['rate']), int(r['waveform']), int(r['modulated']), int(r['pair'])):
+                       (float(r['seconds']), float(r['energy'])) for r in rows}
+            self.assertEqual(len(rows), 192)
+            self.assertEqual(len(samples), 192)
+            for row in result['summary']:
+                ratios = []
+                for pair in range(4):
+                    key = row['rate'], row['waveform'], int(row['modulated']), pair
+                    reference, study = samples[('reference',) + key], samples[('study',) + key]
+                    self.assertEqual(reference[1], study[1])
+                    ratios.append(study[0] / reference[0])
+                self.assertEqual(row['paired_ratios'], ratios)
+                self.assertEqual(row['median_paired_seconds_ratio'], statistics.median(ratios))
+            self.assertEqual(reporter.qualification(result['summary']), result['qualification'])
 
     def test_slowdown_observations_include_modulation(self):
         result = self.run_report()
