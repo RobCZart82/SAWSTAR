@@ -16,6 +16,7 @@ on:
       - 'experiments/premium_filter/benchmark_tanh_deadline.cpp'
       - 'tests/premium_drive_complex.cpp'
       - 'tests/premium_deadline_report.py'
+      - 'tests/premium_deadline_timeline.cpp'
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,7 +25,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   measure:
-    name: Premium deadline / ${{ matrix.study }} / ${{ matrix.os }}
+    name: Premium deadline / ${{ matrix.study }} / ${{ matrix.workload || 'stationary-v1' }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
@@ -79,8 +80,19 @@ jobs:
             study: rate-lookup
             target: sawstar_premium_lookup_deadline
             contract: premium_lookup_deadline_fixture
+          - os: windows-2022
+            study: rate-lookup
+            workload: modulated-v1
+            target: sawstar_premium_lookup_deadline
+            contract: premium_lookup_modulated_deadline_fixture
+          - os: macos-14
+            study: rate-lookup
+            workload: modulated-v1
+            target: sawstar_premium_lookup_deadline
+            contract: premium_lookup_modulated_deadline_fixture
     env:
       SAWSTAR_PREMIUM_STUDY: ${{ matrix.study }}
+      SAWSTAR_PREMIUM_WORKLOAD: ${{ matrix.workload || 'stationary-v1' }}
     defaults:
       run:
         shell: bash
@@ -94,9 +106,9 @@ jobs:
       - name: Configure Release research probes
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON
       - name: Build paired probe only
-        run: cmake --build build --config Release --target ${{ matrix.target }} sawstar_premium_simd_tests sawstar_premium_rate_simd_tests sawstar_premium_rate_gain_tests sawstar_premium_gain_complex_tests --parallel 2
+        run: cmake --build build --config Release --target ${{ matrix.target }} sawstar_premium_simd_tests sawstar_premium_rate_simd_tests sawstar_premium_rate_gain_tests sawstar_premium_gain_complex_tests sawstar_premium_deadline_timeline_tests --parallel 2
       - name: Validate sounding fixture and percentile controls
-        run: ctest --test-dir build -C Release -R '^(premium_drive_simd_identity|premium_drive_rate_simd_identity|premium_drive_rate_gain_contract|premium_gain_complex_controls|premium_deadline_report|${{ matrix.contract }})$' --verbose
+        run: ctest --test-dir build -C Release -R '^(premium_drive_simd_identity|premium_drive_rate_simd_identity|premium_drive_rate_gain_contract|premium_gain_complex_controls|premium_deadline_report|premium_deadline_timeline|${{ matrix.contract }})$' --verbose
       - name: Build lookup engine controls
         if: matrix.study == 'rate-lookup'
         run: cmake --build build --config Release --target sawstar_premium_lookup_engine_tests sawstar_premium_lookup_rate_tests sawstar_premium_lookup_complex_tests --parallel 2
@@ -105,10 +117,14 @@ jobs:
         run: ctest --test-dir build -C Release -R '^(premium_lookup_engine_modulation|premium_lookup_rate_contract|premium_lookup_complex_controls)$' --verbose | tee lookup-controls.txt
       - name: Record paired wall time distributions
         run: |
+          deadline_arg=--deadline
+          if [[ "$SAWSTAR_PREMIUM_WORKLOAD" == "modulated-v1" ]]; then
+            deadline_arg=--deadline-modulated
+          fi
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            build/Release/${{ matrix.target }}.exe --deadline deadline-results
+            build/Release/${{ matrix.target }}.exe "$deadline_arg" deadline-results
           else
-            build/${{ matrix.target }} --deadline deadline-results
+            build/${{ matrix.target }} "$deadline_arg" deadline-results
           fi
       - name: Verify raw data and report paired ratios
         run: python scripts/report-premium-deadline.py deadline-results
@@ -132,7 +148,7 @@ jobs:
           find build/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' deadline-results/compiler/ \;
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: premium-deadline-${{ matrix.study }}-${{ matrix.os }}
+          name: premium-deadline-${{ matrix.study }}-${{ matrix.workload || 'stationary-v1' }}-${{ matrix.os }}
           path: deadline-results/
           if-no-files-found: error
           retention-days: 90

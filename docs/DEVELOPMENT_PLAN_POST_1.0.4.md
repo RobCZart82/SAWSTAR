@@ -659,3 +659,30 @@ komponensenkénti Windows költségvizsgálatot és moduláció alatti blokkidő
 A ritka lassú blokkok/p99 és a magasrátás terhelés együtt vezesse a policy-t;
 a szűrő/FIR minőségi korlátjain nem lazítunk pusztán a gyorsulásért.
 A sorrend többi pontja és a production/natív elfogadási kapuk változatlanok.
+
+### 2026-10-08: #81 után, moduláció alatti blokkidő
+
+A #81 beolvadt (`0b2b8ab`): mind a 35 pontos-head ellenőrzés
+(28 különböző ellenőrzés) és nyolc workflow sikeres. A friss Windows mérésben
+192 kHz-en 12 288/12 288 jelöltblokk túllépte az audioidőt; a jobb medián
+nem zárja le a CPU-kaput. A production policy továbbra is nyitott.
+
+A következő munkacsomag a rátafüggő lookup és std::tanh motor páros
+modulációs CPU-vizsgálata. Azonos, mintapozícióhoz kötött cutoff/Drive/mix,
+LFO és MIDI-vezérlési timeline fut mindkettőben. A setterek és a vezérlés
+költsége is a timeren belül van. A `stationary-v1` és `modulated-v1`
+terhelés külön fájlban, metadata-ban és CI-artifactban szerepel; a riport
+elutasítja a hiányzó vagy rosszul címkézett terhelést.
+
+1. A függőségmentes timeline és riport kontrolljai, majd a teljes warmup/
+   mérési szekvenciát lefedő numerikus fixture és Windows/macOS páros CI.
+   Az új teljesmotor-eredmény friss CI-kapu; helyi CPU-nyereséget nem állítunk.
+2. A p99/túllépés/modulációs eredmények alapján komponensenkénti Windows
+   költségprofil és kontrollált célgépes ismétlés. A statikus és modulált
+   futamok más terhelések, nem ugyanazon optimalizálás előtte/utána arányai.
+3. Magasrátás költség/minőségpolicy és natív REAPER/import-lifecycle elfogadás.
+4. Csak utána production filtercsere, latency/state/automation, presetkoherencia,
+   factory presetek, kézikönyvek, RC/csomagkapuk és kiadás.
+
+Részletek: [modulációs blokkidő-vizsgálat](PREMIUM_MODULATED_DEADLINES.md).
+Linux/32 voice és a lezárt click/pop kutatás státusza változatlan.
