@@ -48,19 +48,22 @@ konkrét algoritmust. A 4. lépés natív REAPER-próbája és az 5. lépés
 production integrációja továbbra is nyitott.
 
 
-## Következő oszcillátor-költségvizsgálat
+## Oszcillátorvizsgálat és következő munkacsomag
 
-A #86 gépi deadline-riportja elkészült és beolvadt (`645cab8`), mind a
-35 exact-head ellenőrzés sikeres. A következő külön kutatási jelölt a
-változatlan oszcillátorfrekvencia ismételt beállításának elhagyása.
-Helyi, rögzített DaisySP-vel végzett 72 jelenet / 596 736 frame
-bitazonos; négy riportteszt sikeres. A platformos páros költségmérés,
-a teljesmotoros összevetés és a célgépes elfogadás továbbra is kapu.
-Részletek: [oszcillátor-frekvencia cache](OSCILLATOR_FREQUENCY_CACHE_STUDY.md).
+A #87 beolvadt (`e830145`); a végleges `f8609b0` PR-head mind a 45
+ellenőrzése és a main Windows/macOS/Code quality futása sikeres.
+A cache v2 statikus SAW-nál gyorsulási jelet adott, de Windows alatt
+modulált SAW-nál 4,5–5,7% lassulást mutatott. A teljesmotoros elfogadás
+nem teljesült: a cache kísérleti marad. A v1/v2 nyers és platformos
+negatív eredmények megőrzendők; nem kerülnek más jelölt mérésébe.
+Részletek: [cache-vizsgálat](OSCILLATOR_FREQUENCY_CACHE_STUDY.md).
 
-A #87 v1 platformpróbája statikus SAW-nál nyereséget, modulált Windows
-SAW-nál regressziót mutatott; a macOS párok erősen szórnak. A jelölt ezért
-`held-saw-tuning-v2` scope-ra szűkült: az alternatív waveformok setterei
-változatlanok, mozgó pitch/detune eredeti frekvenciafrissítést kap. A helyi
-bitazonossági és riportkapuk újra sikeresek; a friss CI és teljesmotoros
-elfogadás nyitott. A v1 és v2 méréseket nem tekintjük ugyanazon jelöltnek.
+A következő izolált hipotézis a mintán belül ismételt frekvenciaszámítás
+megosztása. Minden setter továbbra is fut; nincs cache-állapot, feltételes
+frekvenciafrissítés vagy új pitch-simítás. Az új jelölt külön variánsjelzést,
+bitazonossági kontrollt és statikus/audio-rate pitch-modulált páros
+Windows/macOS mérést kap. Ha ez nem ad következetes nyereséget, nem
+integráljuk a teljes motorba. Kedvező izolált eredmény után is külön
+numerikus és modulált teljesmotor-deadline kapu, célgépes ismétlés,
+minőség/rátapolicy és natív REAPER-elfogadás következik.
+Részletek: [frekvenciaszámítás-megosztás](OSCILLATOR_SHARED_FREQUENCY_STUDY.md).

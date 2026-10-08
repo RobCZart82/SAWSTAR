@@ -1198,6 +1198,18 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     target_link_libraries(sawstar_oscillator_cache_benchmark PRIVATE sawstar_oscillator_cache_probe)
 
 
+    # Independent arithmetic-sharing hypothesis; no cache or shipping activation.
+    add_library(sawstar_oscillator_shared_probe STATIC
+      experiments/oscillator/SharedFrequencySevenSaw.cpp)
+    target_link_libraries(sawstar_oscillator_shared_probe PUBLIC sawstar_engine)
+    add_executable(sawstar_oscillator_shared_tests tests/oscillator_frequency_cache.cpp)
+    target_compile_definitions(sawstar_oscillator_shared_tests PRIVATE SAWSTAR_SHARED_FREQUENCY_STUDY=1)
+    target_link_libraries(sawstar_oscillator_shared_tests PRIVATE sawstar_oscillator_shared_probe)
+    add_test(NAME oscillator_shared_bit_identity COMMAND sawstar_oscillator_shared_tests)
+    add_executable(sawstar_oscillator_shared_benchmark experiments/oscillator/benchmark_frequency_cache.cpp)
+    target_compile_definitions(sawstar_oscillator_shared_benchmark PRIVATE SAWSTAR_SHARED_FREQUENCY_STUDY=1)
+    target_link_libraries(sawstar_oscillator_shared_benchmark PRIVATE sawstar_oscillator_shared_probe)
+
     add_executable(
       sawstar_engine_tests
       tests/engine.cpp
