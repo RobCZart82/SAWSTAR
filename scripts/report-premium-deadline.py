@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Validate paired offline research measurements and report descriptive ratios."""
 import csv
+import hashlib
 import json
 import math
 import os
@@ -13,6 +14,12 @@ import sys
 
 def report(folder):
     folder = Path(folder)
+    workload = (folder / "workload.txt").read_text(encoding="utf-8").strip()
+    if workload not in ("stationary-v1", "modulated-v1"):
+        raise ValueError("Unknown compiled workload")
+    expected_workload = os.environ.get("SAWSTAR_PREMIUM_WORKLOAD", "stationary-v1")
+    if workload != expected_workload:
+        raise ValueError("Compiled workload disagrees with requested workload")
     with (folder / "summary.csv").open(newline="") as f:
         rows = list(csv.DictReader(f))
     with (folder / "blocks.csv").open(newline="") as f:
@@ -82,7 +89,11 @@ def report(folder):
     for row in recorded:
         if (int(row["reference_factor"]), int(row["study_factor"])) != (factors[row["rate"]],) * 2:
             raise ValueError("Compiled routing disagrees with study label")
-    metadata = {"study_kind": study_kind, "fir_backend": backend,"source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+    metadata = {"study_kind": study_kind, "workload": workload,
+                "timed_control_events": workload == "modulated-v1",
+                "setup_drive_db": 20,
+                "drive_targets_db": [0, 12, 24] if workload == "modulated-v1" else [20],
+                "fir_backend": backend,"source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
                 "platform": platform.platform(), "machine": platform.machine(),
                 "runner_os": os.environ.get("RUNNER_OS"), "runner_arch": os.environ.get("RUNNER_ARCH"),
                 "configuration": "Release", "blocks_per_path": 36864, "pairs_per_scene": 4,
@@ -90,13 +101,17 @@ def report(folder):
                 "drive_factor": None if adaptive else 4, "drive_factors_by_rate": factors,
                 "rate_policy": "normalized-176400-boundary" if adaptive else "fixed-4x",
                 "clock": "C++ steady_clock wall time",
+                "measurement_sha256": {name: hashlib.sha256((folder / name).read_bytes()).hexdigest()
+                                        for name in ("summary.csv", "blocks.csv", "factors.csv", "backend.txt", "workload.txt")},
                 "native_host_acceptance": False}
     (folder / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     lines = ["# Offline paired premium engine deadline study", "",
              f"Source: {metadata['source_sha']}; {metadata['platform']}; {metadata['machine']}; Release.", "",
              f"Candidate: {study_kind}; explicit FIR backend: {backend}.",
+             f"Compiled workload: {workload}; timed control setters: {metadata['timed_control_events']}.",
              f"Both paths use Drive factors by rate: {factors}.",
-             "16 Poly voices, 20 dB, FX, four filter modes. Ratios are study/reference.",
+             "16 Poly voices, FX, four filter modes. Ratios are study/reference.",
+             f"Setup Drive: 20 dB; workload targets: {metadata['drive_targets_db']} dB. CSV drive_db identifies setup, not the changing timeline.",
              "Each table row uses 16 paired scene observations (four modes x four pairs).",
              "Percentages use host audio time; counts combine the measured scenes only.",
              "Offline wall time, buffer stores included, output checks outside timing.",

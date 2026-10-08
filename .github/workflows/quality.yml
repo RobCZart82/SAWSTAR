@@ -21,7 +21,8 @@ jobs:
   coverage:
     name: Linux code coverage
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    # O0 coverage executes the full modulation sequence (~143 s) plus gcovr.
+    timeout-minutes: 35
 
     steps:
       - name: Checkout

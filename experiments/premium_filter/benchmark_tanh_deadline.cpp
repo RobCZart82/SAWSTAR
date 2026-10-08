@@ -31,7 +31,9 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
+#include "DeadlineModulation.h"
 
 #if defined(SAWSTAR_RATE_LOOKUP_STUDY)
 using Reference = sawstar::experimental_rate_gain_engine::Synth;
@@ -82,7 +84,7 @@ void Check(sawstar::StereoSample y) {
      std::abs(y.left)>.98001f||std::abs(y.right)>.98001f)
     throw std::runtime_error("Invalid protected engine output");
 }
-void Contract() {
+void Contract(bool modulated = false) {
   const auto d=Summarize({150,25,100,50});
   if(d.median!=75||d.p95!=150||d.p99!=150||d.worst!=150||d.over!=1)
     throw std::runtime_error("Distribution endpoints/strict budget");
@@ -97,33 +99,68 @@ void Contract() {
     bool rejected=false;try{Summarize(invalid);}catch(const std::runtime_error&){rejected=true;}
     if(!rejected)throw std::runtime_error("Invalid distribution accepted");
   }
-  double maximum=0;
+  double maximum=0,preMaximum=0;
   for(double rate:{48000.,96000.,192000.})for(int mode=0;mode<4;++mode) {
     auto a=std::make_unique<Reference>();auto b=std::make_unique<Study>();
-    Setup(*a,rate,mode);Setup(*b,rate,mode);double energy=0;
-    for(int n=0;n<4096;++n) {
-      const auto x=a->ProcessStereo(),y=b->ProcessStereo();Check(x);Check(y);
-      maximum=std::max({maximum,std::abs(double(x.left)-y.left),std::abs(double(x.right)-y.right)});
-      energy+=double(x.left)*x.left+double(x.right)*x.right;
+    Setup(*a,rate,mode);Setup(*b,rate,mode);double energy=0,squared=0,preEnergy=0,preSquared=0;
+    if(modulated) {
+      sawstar::experimental::PrepareDeadlineModulation(*a);
+      sawstar::experimental::PrepareDeadlineModulation(*b);
     }
-    if(a->ActiveVoices()!=16||b->ActiveVoices()!=16||energy<=1e-12||maximum>2e-6)
+    const int warmup=modulated?static_cast<int>(rate/4):0;
+    const int frames=modulated?warmup+256*128:4096;
+    for(int n=0;n<frames;++n) {
+      if(modulated) {
+        sawstar::experimental::DeadlineModulationEvent(*a,n,mode);
+        sawstar::experimental::DeadlineModulationEvent(*b,n,mode);
+      }
+      const auto x=a->ProcessStereo(),y=b->ProcessStereo();Check(x);Check(y);
+      if(n<warmup)continue;
+      maximum=std::max({maximum,std::abs(double(x.left)-y.left),std::abs(double(x.right)-y.right)});
+      squared+=(double(x.left)-y.left)*(double(x.left)-y.left)+(double(x.right)-y.right)*(double(x.right)-y.right);
+      energy+=double(x.left)*x.left+double(x.right)*x.right;
+      if(modulated) {
+        const auto px=a->PreFX(),py=b->PreFX();
+        for(const auto pair:{std::pair<float,float>{px.left,py.left},{px.right,py.right}}) {
+          if(!std::isfinite(pair.first)||!std::isfinite(pair.second))
+            throw std::runtime_error("Nonfinite pre-FX modulation fixture");
+          const double delta=double(pair.first)-pair.second;
+          preMaximum=std::max(preMaximum,std::abs(delta));
+          preSquared+=delta*delta;preEnergy+=double(pair.first)*pair.first;
+        }
+      }
+    }
+    if(a->ActiveVoices()!=16||b->ActiveVoices()!=16||energy<=1e-12||maximum>2e-6||
+       (modulated && (std::sqrt(squared/energy)>1e-7||preEnergy<=1e-12||preMaximum>2e-6||std::sqrt(preSquared/preEnergy)>1e-7)))
       throw std::runtime_error("Paired sounding fixture contract");
   }
-  std::cout<<"Paired deadline fixture and percentile contracts PASS; max difference "<<maximum<<'\n';
+  std::cout<<"Paired deadline fixture and percentile contracts PASS; modulated="<<modulated<<" max difference "<<maximum<<" preFX difference "<<preMaximum<<'\n';
 }
 struct Result {
   std::vector<double> times;
   double peak=0,energy=0,sum=0;
 };
-template<class S> Result Measure(double rate,int mode,int buffer) {
+template<class S> Result Measure(double rate,int mode,int buffer,bool modulated) {
   constexpr int blocks=256;
   auto s=std::make_unique<S>();Setup(*s,rate,mode);
-  for(int n=0;n<static_cast<int>(rate/4);++n)Check(s->ProcessStereo());
+  if(modulated) sawstar::experimental::PrepareDeadlineModulation(*s);
+  std::uint64_t sample=0;
+  for(int n=0;n<static_cast<int>(rate/4);++n,++sample) {
+    if(modulated) sawstar::experimental::DeadlineModulationEvent(*s,sample,mode);
+    Check(s->ProcessStereo());
+  }
   Result r;r.times.resize(blocks);
   std::vector<sawstar::StereoSample> output(buffer);
   for(auto& time:r.times) {
     const auto start=std::chrono::steady_clock::now();
-    for(auto& y:output)y=s->ProcessStereo();
+    if(modulated) {
+      for(auto& y:output) {
+        sawstar::experimental::DeadlineModulationEvent(*s,sample++,mode);
+        y=s->ProcessStereo();
+      }
+    } else {
+      for(auto& y:output)y=s->ProcessStereo();
+    }
     time=100.*rate/buffer*std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
     // Validation and diagnostic arithmetic are outside each timed block.
     for(const auto y:output) {
@@ -145,8 +182,12 @@ void Row(std::ostream& summary,std::ostream& raw,const char* label,double rate,
   for(size_t block=0;block<r.times.size();++block)
     raw<<label<<','<<rate<<','<<mode<<','<<buffer<<','<<pair<<','<<block<<','<<r.times[block]<<'\n';
 }
-void Benchmark(const std::filesystem::path& folder) {
+void Benchmark(const std::filesystem::path& folder,bool modulated=false) {
   std::filesystem::create_directories(folder);
+  std::ofstream workload(folder/"workload.txt");
+  workload<<(modulated?"modulated-v1":"stationary-v1")<<'\n';
+  workload.close();
+  if(!workload)throw std::runtime_error("Cannot record compiled workload");
   // Record compiled routing separately from the workflow's study label.
   std::ofstream factors(folder/"factors.csv");
   factors << "rate,reference_factor,study_factor\n";
@@ -186,8 +227,8 @@ void Benchmark(const std::filesystem::path& folder) {
   for(double rate:{48000.,96000.,192000.})for(int mode=0;mode<4;++mode)
     for(int buffer:{32,64,128})for(int pair=0;pair<4;++pair) {
       Result a,b;
-      if(pair%2){b=Measure<Study>(rate,mode,buffer);a=Measure<Reference>(rate,mode,buffer);}
-      else{a=Measure<Reference>(rate,mode,buffer);b=Measure<Study>(rate,mode,buffer);}
+      if(pair%2){b=Measure<Study>(rate,mode,buffer,modulated);a=Measure<Reference>(rate,mode,buffer,modulated);}
+      else{a=Measure<Reference>(rate,mode,buffer,modulated);b=Measure<Study>(rate,mode,buffer,modulated);}
       Row(summary,raw,"reference",rate,mode,buffer,pair,a);
       Row(summary,raw,"study",rate,mode,buffer,pair,b);
     }
@@ -199,7 +240,9 @@ void Benchmark(const std::filesystem::path& folder) {
 int main(int argc,char** argv) {
   try {
     if(argc==1)Contract();
+    else if(argc==2&&std::string(argv[1])=="--modulation-contract")Contract(true);
     else if(argc==3&&std::string(argv[1])=="--deadline")Benchmark(argv[2]);
-    else throw std::runtime_error("Usage: premium_tanh_deadline [--deadline output-directory]");
+    else if(argc==3&&std::string(argv[1])=="--deadline-modulated")Benchmark(argv[2],true);
+    else throw std::runtime_error("Usage: premium_tanh_deadline [--modulation-contract | --deadline output-directory | --deadline-modulated output-directory]");
   }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

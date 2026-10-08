@@ -993,6 +993,7 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     target_compile_definitions(sawstar_premium_lookup_deadline PRIVATE SAWSTAR_RATE_LOOKUP_STUDY=1)
     target_link_libraries(sawstar_premium_lookup_deadline PRIVATE sawstar_premium_rate_gain_probe sawstar_premium_lookup_probe)
     add_test(NAME premium_lookup_deadline_fixture COMMAND sawstar_premium_lookup_deadline)
+    add_test(NAME premium_lookup_modulated_deadline_fixture COMMAND sawstar_premium_lookup_deadline --modulation-contract)
     add_executable(sawstar_premium_lookup_engine_tests tests/premium_lookup_engine.cpp)
     target_link_libraries(sawstar_premium_lookup_engine_tests PRIVATE sawstar_premium_rate_gain_probe sawstar_premium_lookup_probe)
     add_test(NAME premium_lookup_engine_modulation COMMAND sawstar_premium_lookup_engine_tests)
@@ -1391,6 +1392,9 @@ endif()
 
 if(BUILD_TESTING)
   # Header-only ring study also works without DaisySP or the plugin wrapper.
+  add_executable(sawstar_premium_deadline_timeline_tests tests/premium_deadline_timeline.cpp)
+  target_link_libraries(sawstar_premium_deadline_timeline_tests PRIVATE sawstar_foundation)
+  add_test(NAME premium_deadline_timeline COMMAND sawstar_premium_deadline_timeline_tests)
   add_executable(sawstar_premium_lookup_tests tests/premium_lookup_tanh.cpp)
   target_link_libraries(sawstar_premium_lookup_tests PRIVATE sawstar_foundation)
   add_test(NAME premium_lookup_scalar_contract COMMAND sawstar_premium_lookup_tests)
@@ -1422,4 +1426,3 @@ if(BUILD_TESTING)
   add_test(NAME premium_components_report
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/report-premium-components.py" --self-test)
 endif()
-
