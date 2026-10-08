@@ -38,10 +38,11 @@ class DeadlineReport(unittest.TestCase):
     def tearDownClass(cls):
         cls.temp.cleanup()
 
-    def run_report(self, study, high_factor=4, backend="SSE2"):
+    def run_report(self, study, high_factor=4, backend="SSE2", workload="stationary-v1", requested="stationary-v1"):
+        (self.root / "workload.txt").write_text(workload)
         (self.root / "backend.txt").write_text(backend)
         (self.root / "factors.csv").write_text("rate,reference_factor,study_factor\n48000,4,4\n96000,4,4\n192000," + str(high_factor) + "," + str(high_factor) + "\n")
-        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY=study), patch.object(deadline.subprocess, "check_output", return_value="0" * 40), patch.object(deadline.platform, "platform", return_value="test-platform"), contextlib.redirect_stdout(io.StringIO()):
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY=study, SAWSTAR_PREMIUM_WORKLOAD=requested), patch.object(deadline.subprocess, "check_output", return_value="0" * 40), patch.object(deadline.platform, "platform", return_value="test-platform"), contextlib.redirect_stdout(io.StringIO()):
             deadline.report(self.root)
         return json.loads((self.root / "metadata.json").read_text())
 
@@ -56,6 +57,21 @@ class DeadlineReport(unittest.TestCase):
         lookup = self.run_report("rate-lookup", 2)
         self.assertEqual(lookup["study_kind"], "rate-lookup")
         self.assertEqual(lookup["drive_factors_by_rate"], adaptive["drive_factors_by_rate"])
+        self.assertEqual(lookup["workload"], "stationary-v1")
+        self.assertFalse(lookup["timed_control_events"])
+
+    def test_workload_labels_and_mismatches(self):
+        result = self.run_report("rate-lookup", 2, workload="modulated-v1", requested="modulated-v1")
+        self.assertEqual(result["workload"], "modulated-v1")
+        self.assertTrue(result["timed_control_events"])
+        self.assertEqual(result["drive_targets_db"], [0, 12, 24])
+        self.assertEqual(set(result["measurement_sha256"]), {"summary.csv", "blocks.csv", "factors.csv", "backend.txt", "workload.txt"})
+        for compiled, requested in (("modulated-v1", "stationary-v1"), ("stationary-v1", "modulated-v1"), ("unknown", "unknown")):
+            with self.subTest(compiled=compiled, requested=requested), self.assertRaisesRegex(ValueError, "workload"):
+                self.run_report("rate-lookup", 2, workload=compiled, requested=requested)
+        (self.root / "workload.txt").unlink()
+        with self.assertRaises(FileNotFoundError):
+            deadline.report(self.root)
 
     def test_incorrect_compiled_routing_rejected(self):
         for study, wrong in (("gain-normalization", 2), ("rate-gain-normalization", 4), ("rate-simd-fir", 4), ("rate-lookup", 4)):
