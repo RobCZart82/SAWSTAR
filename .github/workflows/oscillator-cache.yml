@@ -1,0 +1,62 @@
+name: Oscillator frequency cache research
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/oscillator-cache.yml'
+      - 'CMakeLists.txt'
+      - 'experiments/oscillator/**'
+      - 'src/dsp/SevenSaw.*'
+      - 'src/dsp/Safety.h'
+      - 'third_party/DaisySP'
+      - 'tests/oscillator_frequency_cache.cpp'
+      - 'tests/oscillator_cache_report.py'
+      - 'scripts/report-oscillator-cache.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: oscillator-cache-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    name: Oscillator cache / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-14]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          submodules: recursive
+      - name: Build separate candidate and controls
+        run: |
+          cmake -S . -B build-oscillator -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON
+          cmake --build build-oscillator --config Release --target sawstar_oscillator_cache_tests sawstar_oscillator_cache_benchmark sawstar_sevensaw_tests --parallel 2
+      - name: Qualify before timing
+        run: |
+          ctest --test-dir build-oscillator -C Release -R '^(seven_saw|oscillator_cache_bit_identity|oscillator_cache_report)$' --verbose --timeout 600
+      - name: Measure paired banks
+        run: |
+          mkdir -p oscillator-results/compiler
+          cp build-oscillator/Testing/Temporary/LastTest.log oscillator-results/contracts.txt
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            build-oscillator/Release/sawstar_oscillator_cache_benchmark.exe > oscillator-results/oscillators.csv
+          else
+            build-oscillator/sawstar_oscillator_cache_benchmark > oscillator-results/oscillators.csv
+          fi
+          find build-oscillator/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' oscillator-results/compiler/ \;
+          python scripts/report-oscillator-cache.py oscillator-results --source-sha "$(git rev-parse HEAD)" --emit-ci
+          cat oscillator-results/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: oscillator-cache-${{ matrix.os }}
+          path: oscillator-results/
+          if-no-files-found: error
+          retention-days: 90

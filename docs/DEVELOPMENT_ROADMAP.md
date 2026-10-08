@@ -47,3 +47,13 @@ komponensprofil és teljesmotoros eredmények alapján kell kiválasztani a
 konkrét algoritmust. A 4. lépés natív REAPER-próbája és az 5. lépés
 production integrációja továbbra is nyitott.
 
+
+## Következő oszcillátor-költségvizsgálat
+
+A #86 gépi deadline-riportja elkészült és beolvadt (`645cab8`), mind a
+35 exact-head ellenőrzés sikeres. A következő külön kutatási jelölt a
+változatlan oszcillátorfrekvencia ismételt beállításának elhagyása.
+Helyi, rögzített DaisySP-vel végzett 72 jelenet / 596 736 frame
+bitazonos; négy riportteszt sikeres. A platformos páros költségmérés,
+a teljesmotoros összevetés és a célgépes elfogadás továbbra is kapu.
+Részletek: [oszcillátor-frekvencia cache](OSCILLATOR_FREQUENCY_CACHE_STUDY.md).
