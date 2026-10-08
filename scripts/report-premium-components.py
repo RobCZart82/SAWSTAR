@@ -98,7 +98,10 @@ def report(directory, source_sha, source_root):
     if not re.fullmatch(r'[0-9a-f]{40}', source_sha):
         raise ValueError('source SHA must be a full commit identifier')
     with (directory / 'components.csv').open(newline='', encoding='utf-8') as stream:
-        rows = validate(list(csv.DictReader(stream)))
+        reader = csv.DictReader(stream)
+        if tuple(reader.fieldnames or ()) != FIELDS:
+            raise ValueError('unexpected or duplicate CSV columns')
+        rows = validate(list(reader))
     compiled_backend = backend((directory / 'backend.txt').read_text(encoding='utf-8'))
     inputs = [directory / 'components.csv', directory / 'backend.txt', directory / 'contracts.txt']
     compilers = sorted((directory / 'compiler').glob('**/CMakeCXXCompiler.cmake'))

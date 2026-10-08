@@ -247,6 +247,10 @@ template<class Synth> void EngineComponent(const char* engine, const char* stage
                                           double rate, int mode, bool fx) {
   Component(engine, stage, rate, mode, [=] {
     auto synth = std::make_unique<Synth>(); Setup(*synth, rate, 16, 20, fx, mode);
+    if (synth->ActiveVoices() != 16)
+      throw std::runtime_error("Engine component must start with 16 active voices");
+    for (int note = 48; note < 64; ++note) if (!synth->Held(note))
+      throw std::runtime_error("Engine component must hold its 16 MIDI notes");
     return [s = std::move(synth)](int) {
       const auto y = s->ProcessStereo();
       return double(y.left) * y.left + double(y.right) * y.right;
