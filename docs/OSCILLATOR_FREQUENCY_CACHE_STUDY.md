@@ -62,6 +62,39 @@ a JSON a CI-naplóban is megjelenik. Nincs CPU pass/fail küszöb.
 Jobb izolált idő nem bizonyít teljesmotoros nyereséget; a modulált
 kontrollban regresszió is lehetséges a cache-ellenőrzés többletköltsége miatt.
 
+## Első helyi eredmény — negatív/semleges
+
+MSVC 19.44 x64 Release, a végleges byte-összehasonlító cache-sel.
+Az alábbi feltáró összevonás négy hullámforma × négy pár időarányának
+mediánja; a 24 külön waveform/workload cella és 192 nyers sor is megmarad.
+
+| Ráta | Statikus pitch | Modulált pitch |
+| --- | ---: | ---: |
+| 48 kHz | 1.013395 | 1.012916 |
+| 96 kHz | 1.025308 | 0.994427 |
+| 192 kHz | 1.009815 | 0.994977 |
+
+Nincs minden hullámformára érvényes helyi CPU-nyereség; a statikus
+összevonások kb. 1–2,5% lassulást mutatnak. A kisebb modulált különbségből
+nem következik stabil gyorsulás. A többletágazás vagy kódelrendezés szerepe hipotézis, nem
+profilozással bizonyított ok. Ezeket az eredményeket nem cseréljük
+kedvezőbb kiválasztott mintákra, és nem indokolnak production aktiválást.
+
+A külön SAW (waveform=0) statikus cellák ugyanebben a teljes gridben
+0.860448 / 0.863677 / 0.857075 arányt adtak 48/96/192 kHz-en: kb.
+14% kisebb izolált bankidő. Modulált SAW: 0.992635 / 0.986464 / 0.980758.
+Ezzel szemben több más hullámforma lassult, például a 192 kHz-es modulált
+triangle 1.119223 és sine 1.099469 arányt adott. Ezért a pozitív SAW
+eredmény célzott következő hipotézis, nem a négy mód közös elfogadása:
+előbb platformismétlés, majd szükség esetén szűkített cache-scope,
+waveformváltási kontroll és teljesmotoros SAW-próba következzen.
+
+[Nyers helyi mérés](../experiments/oscillator/measurements/2026-10-08-cache-local-windows.csv)
+és [eredetjegyzék](../experiments/oscillator/measurements/2026-10-08-cache-local-windows-provenance.json):
+forráscommit, raw/source/compiler/executable hash-ek, helyi buildleírás
+és a 24 cella mind a négy páros aránya. A mérés izolált helyi bankpróba,
+nem azonos workload a korábbi teljesmotor-profillal.
+
 Következő döntés: platformeredmények értékelése, majd megfelelő eredmény
 esetén külön teljesmotoros lookup-kontroll és modulált deadline mérés.
 Production aktiválás, magasrátás policy és natív REAPER továbbra is
