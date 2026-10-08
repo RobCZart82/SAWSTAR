@@ -30,9 +30,15 @@ class DeadlineReport(unittest.TestCase):
                     for mode in range(4):
                         for buffer in (32, 64, 128):
                             for pair in range(4):
+                                percent = 2 if engine == "study" else 1
+                                if rate == 192000 and buffer == 32:
+                                    # Median of paired ratios = 3.5; ratio of medians differs.
+                                    percent = ((2, 8, 30, 101) if engine == "study" else (1, 2, 10, 20))[pair]
+                                if engine == "study" and rate == 96000 and buffer == 32 and pair == 3:
+                                    percent = 100  # Exactly at budget is not a miss.
                                 out.writerow((engine, rate, 16, mode, 20, 1, buffer, 256, pair,
-                                              "study-first" if pair % 2 else "reference-first", 1, 1, 1, 1, 0, .1, .01, 0))
-                                blocks.writerows((engine, rate, mode, buffer, pair, block, 1) for block in range(256))
+                                              "study-first" if pair % 2 else "reference-first", percent, percent, percent, percent, 256 if percent > 100 else 0, .1, .01, 0))
+                                blocks.writerows((engine, rate, mode, buffer, pair, block, percent) for block in range(256))
 
     @classmethod
     def tearDownClass(cls):
@@ -44,9 +50,40 @@ class DeadlineReport(unittest.TestCase):
         (self.root / "workload.txt").write_text(workload)
         (self.root / "backend.txt").write_text(backend)
         (self.root / "factors.csv").write_text("rate,reference_factor,study_factor\n48000,4,4\n96000,4,4\n192000," + str(high_factor) + "," + str(high_factor) + "\n")
-        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY=study, SAWSTAR_PREMIUM_WORKLOAD=requested), patch.object(deadline.subprocess, "check_output", return_value="0" * 40), patch.object(deadline.platform, "platform", return_value="test-platform"), contextlib.redirect_stdout(io.StringIO()):
+        captured = io.StringIO()
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY=study, SAWSTAR_PREMIUM_WORKLOAD=requested), patch.object(deadline.subprocess, "check_output", return_value="0" * 40), patch.object(deadline.platform, "platform", return_value="test-platform"), contextlib.redirect_stdout(captured):
             deadline.report(self.root)
+        self.output = captured.getvalue()
         return json.loads((self.root / "metadata.json").read_text())
+
+    def test_machine_report_preserves_pairs_and_provenance(self):
+        for workload in ('stationary-v1', 'modulated-v1'):
+            with self.subTest(workload=workload):
+                metadata = self.run_report('rate-unrolled-fir', 2, workload=workload, requested=workload)
+                payload = json.loads((self.root / 'paired-results.json').read_text())
+                emitted = [line for line in self.output.splitlines() if line.startswith('DEADLINE_CI_REPORT=')]
+                self.assertEqual(len(emitted), 1)
+                self.assertEqual(json.loads(emitted[0].split('=', 1)[1]), payload)
+                self.assertEqual(payload['metadata'], metadata)
+                self.assertEqual(payload['schema_version'], 1)
+                self.assertEqual(payload['ratio_direction'], 'study/reference')
+                self.assertFalse(payload['native_host_acceptance'])
+                rows = payload['paired_results']
+                self.assertEqual({(row['rate'], row['buffer']) for row in rows},
+                                 {(rate, buffer) for rate in (48000, 96000, 192000) for buffer in (32, 64, 128)})
+                self.assertEqual(len(rows), 9)
+                for row in rows:
+                    expected = 3.5 if (row['rate'], row['buffer']) == (192000, 32) else 2
+                    self.assertEqual(row['median_paired_p50_ratio'], expected)
+                    self.assertEqual(row['median_paired_p99_ratio'], expected)
+                    self.assertEqual(row['paired_observations'], 16)
+                    self.assertEqual(row['blocks_per_path'], 4096)
+                    self.assertEqual(row['reference_over_budget_blocks'], 0)
+                    expected_misses = 1024 if (row['rate'], row['buffer']) == (192000, 32) else 0
+                    self.assertEqual(row['study_over_budget_blocks'], expected_misses)
+                    self.assertIn(f"| {row['rate']} | {row['buffer']} | {expected:.6f} | {expected:.6f} | 0 | {expected_misses} |", self.output)
+        self.run_report('rate-lookup', 2)
+        self.assertNotIn('DEADLINE_CI_REPORT=', self.output)
 
     def test_fixed_and_adaptive_normalization_are_distinct(self):
         fixed = self.run_report("gain-normalization")

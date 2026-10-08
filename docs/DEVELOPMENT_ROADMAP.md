@@ -32,8 +32,18 @@ A 2. lépés módszere: [komponensprofil](PREMIUM_COMPONENT_PROFILE.md).
 A Windows/macOS komponensprofil két teljes adatsora és provenance-a
 rögzített; a nyers és összesítő byte-hash ellenőrzött. 48/96 kHz-en a
 Drive/FIR, 192 kHz-en az oszcillátorok költsége is érdemi célpont.
-A következő opt-in jelölt a 2× SIMD interpoláció cikluskibontása, változatlan műveleti
-sorrenddel és befagyasztott bitazonossági oracle-lel. A teljesmotoros
-platformmérés és minőségkapu még nyitott; gyorsulást/production aktiválást
-nem feltételezünk. Részletek: [FIR cikluskibontás](PREMIUM_FIR_UNROLL_STUDY.md).
+A #85-ben a 2× SIMD interpoláció cikluskibontása elkészült, változatlan
+műveleti sorrenddel és befagyasztott bitazonossági oracle-lel. Az
+`a427081` forrás mind a 43 ellenőrzése sikeres; main: `6d7c2ac`.
+A teljesmotoros és független referencia-minősítés sikeres, a CPU-elfogadás
+viszont nem teljesült: Windows 192 kHz-en 1–2% mediánregresszió, macOS-en
+vegyes p99/túllépés. A jelölt kísérleti marad. Részletek és mind a négy
+platform/workload riport: [FIR cikluskibontás](PREMIUM_FIR_UNROLL_STUDY.md).
+
+A 3. lépés következő kapuja reprodukálható, azonos forrású célgépes
+CPU-ismétlés; a géppel feldolgozható páros riport ezt támogatja. Az
+oszcillátorköltség a következő optimalizálási hipotézis, de előbb a
+komponensprofil és teljesmotoros eredmények alapján kell kiválasztani a
+konkrét algoritmust. A 4. lépés natív REAPER-próbája és az 5. lépés
+production integrációja továbbra is nyitott.
 

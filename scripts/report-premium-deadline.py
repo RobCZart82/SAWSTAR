@@ -125,6 +125,7 @@ def report(folder):
              "No native host or portable realtime acceptance; no timing pass/fail threshold.", "",
              "| Rate | Buffer | Median paired p50 ratio | Median paired p99 ratio | Reference over/4096 | Study over/4096 |",
              "| --- | --- | --- | --- | --- | --- |"]
+    paired_results = []
     for rate in (48000, 96000, 192000):
         for buffer in (32, 64, 128):
             ratios = {name: [] for name in ("median_block_percent", "p99_block_percent")}
@@ -137,13 +138,27 @@ def report(folder):
                         ratios[name].append(float(b[name]) / float(a[name]))
                     for engine, row in (("reference", a), ("study", b)):
                         counts[engine] += int(row["over_budget_blocks"])
-            lines.append(f"| {rate} | {buffer} | {statistics.median(ratios['median_block_percent']):.6f} | "
-                         f"{statistics.median(ratios['p99_block_percent']):.6f} | "
+            p50_ratio = statistics.median(ratios['median_block_percent'])
+            p99_ratio = statistics.median(ratios['p99_block_percent'])
+            paired_results.append({"rate": rate, "buffer": buffer,
+                                   "paired_observations": 16, "blocks_per_path": 4096,
+                                   "median_paired_p50_ratio": p50_ratio,
+                                   "median_paired_p99_ratio": p99_ratio,
+                                   "reference_over_budget_blocks": counts['reference'],
+                                   "study_over_budget_blocks": counts['study']})
+            lines.append(f"| {rate} | {buffer} | {p50_ratio:.6f} | "
+                         f"{p99_ratio:.6f} | "
                          f"{counts['reference']} | {counts['study']} |")
     text = "\n".join(lines) + "\n"
     (folder / "report.md").write_text(text, encoding="utf-8")
+    payload = {"schema_version": 1, "metadata": metadata,
+               "ratio_direction": "study/reference", "native_host_acceptance": False,
+               "paired_results": paired_results}
+    (folder / "paired-results.json").write_text(json.dumps(payload, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     print(text)
     print("Validated 288 summary rows and 73728 raw blocks.")
+    if study_kind == "rate-unrolled-fir":
+        print("DEADLINE_CI_REPORT=" + json.dumps(payload, separators=(",", ":"), allow_nan=False))
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
