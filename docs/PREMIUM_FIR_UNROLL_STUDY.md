@@ -49,13 +49,13 @@ A méret és a 32 mintás latency fordítási kontroll.
 ## Kapuk és eredmények
 
 - Helyi MSVC 19.44 x64 Release: 427 008 sztereó frame bitazonos; a célzott C++ teszt sikeres.
-- Mind az öt Python riportteszt sikeres, a rossz routing/backend és hiányzó/hibás compiled study marker elutasításával.
+- Mind a hat Python riportteszt sikeres, a rossz routing/backend és hiányzó/hibás compiled study marker elutasításával, a gépi riport páros aggregálásának kontrolljával.
 - Teljes motor: 120 lifecycle/modulációs eset explicit float-byte egyezéssel; külön páros fixture a teljes negyedmásodperces warmup és leghosszabb modulált mérési szekvencia output/PreFX bytejait is ellenőrzi.
 - Független 8× referencia: ugyanaz a 144 komplexforrás-korlát, plusz nulla eltérés a lookup loop kontrollhoz képest. A korábbi minőségi határok változatlanok.
 - Windows/macOS Release: fix 2×/4× izolált Drive-párok, majd külön `stationary-v1` és `modulated-v1` teljesmotor-adatok, négy váltakozó párral, p50/p95/p99/max és túllépésszámmal.
 
-A teljesmotor-fordítás, új numerikus/8× minősítés és platformos CPU-eredmény
-friss CI-kapu; a helyi környezetben nincs pinned DaisySP. A cikluskibontás
+A teljesmotor-fordítás és numerikus/8× minősítés a #85 CI-futásában
+sikeres; a CPU-elfogadás nyitott. A helyi környezetben nincs pinned DaisySP. A cikluskibontás
 gyorsulási hipotézis: a compiler már kibonthatta a loopot, és a nagyobb
 utasításállomány ronthat is. A rosszabb eredményt is megőrizzük. Aktiválás
 csak megismételt teljesmotor/célgépes eredmény és minőségelfogadás után.
@@ -89,3 +89,63 @@ executable byte-hash jegyzéke rögzített. Arány: unrolled / loop, kisebb kedv
 
 A 4× párok szórása változatlan kód melletti kontroll. Ez egy izolált helyi
 CPU-kör; a kis különbségekből nem következik stabil nyereség vagy teljesmotoros elfogadás.
+
+## #85 teljesmotoros eredmény és döntés
+
+Forrás: `a4270816229b848ed704dcdaf4ed9a20b709be11`; main-be olvasztva:
+`6d7c2ac13482c289d45144bd677f6aa309a5ca6a`. Mind a 43 exact-head
+ellenőrzés sikeres, beleértve a Windows/macOS Debug/Release és VST3
+fordítást, valamint a Linux sanitizer/coverage futásokat. Az új jelölt
+négy Release kutatási jobja lefuttatta a 120 teljesmotoros lifecycle/
+modulációs esetet, a független 144 komplexforrás-kontrollt és a teljes
+mért modulációs timeline-t. A szándékos eltérés negatív kontrolljának
+kivételkezelése javítva; a bitazonossági követelmény nem enyhült.
+
+Az archivált táblázatok sikeres CI-jobok naplóiból kiemelt riportok.
+A jobok 288 summary-sort és 73 728 nyers blokkot validáltak egyenként.
+Ez az archívum nem tartalmazza a nyers block CSV-t vagy annak külön,
+helyi hash-újraellenőrzését; a teljes adat az adott futás artifactja.
+
+| Platform / workload | Archivált riport |
+| --- | --- |
+| Windows / stationary-v1 | [riport](../measurements/premium-unrolled-ci/windows-stationary.md) |
+| Windows / modulated-v1 | [riport](../measurements/premium-unrolled-ci/windows-modulated.md) |
+| macOS arm64 / stationary-v1 | [riport](../measurements/premium-unrolled-ci/macos-stationary.md) |
+| macOS arm64 / modulated-v1 | [riport](../measurements/premium-unrolled-ci/macos-modulated.md) |
+
+A [manifest](../measurements/premium-unrolled-ci/manifest.json) a futás,
+jobok és riportok kapcsolatát rögzíti. Study/reference arány: kisebb
+kedvezőbb. 192 kHz-en a Windows p50 arányok stationary esetben
+1.018972–1.021967, modulált esetben 1.009016–1.010422: a teljesmotoros
+eredmény rosszabb a kontrollnál. macOS-en a 192 kHz-es p50 arányok
+0.983557–1.004890 közöttiek, a p99/túllépésszámok vegyesek. Például
+modulált 192 kHz/128 mellett a túllépések száma 580-ról 662-re nőtt.
+
+48/96 kHz-en mindkét út változatlan 4× kódot használ: az ottani
+eltérés kontroll a compiler/kódelrendezés/runner szórására, nem a 2×
+kibontás előnye. Windows 96/192 kHz-en mindkét út összesített
+4096/4096 túllépése sem realtime elfogadás, sem új funkcionális bug
+bizonyítéka: a mért kutatási workload nem fér a runner audioidejébe.
+Zöld CI itt numerikus/fixture-helyességet igazol, nem CPU-elfogadást.
+
+Döntés: a jelölt kísérleti marad; ebből a futásból nem indokolt
+production aktiválás. A 3. roadmap-lépés teljesítménykapuja nyitott.
+Azonos forrású, nyugodt célgépes ismétlés és p99/túllépés-értékelés
+szükséges; a következő algoritmikus hipotézis az oszcillátorköltség
+csökkentése a komponensprofil alapján. A natív REAPER-próba külön kapu.
+
+## Géppel feldolgozható mérési riport
+
+A deadline-reporter `paired-results.json` fájlt is készít a már
+validált adatokból, `schema_version: 1` formátumban. A `metadata`
+megőrzi a source SHA-t, workload/backend/routing azonosítókat és a
+mérési fájlok byte-hash-eit. A kilenc `paired_results` sor rátánként/
+bufferenként 16 páros megfigyelés medián p50/p99 arányát és mindkét
+út 4096 blokkjának szigorúan 100% feletti túllépésszámát tartalmazza.
+Az arány iránya explicit `study/reference`; natív hostelfogadás false.
+
+A FIR-kibontás vizsgálata egy `DEADLINE_CI_REPORT=` prefixű kompakt
+JSON-sort is kiír. A workflow meglévő artifactja a JSON-fájlt is
+megőrzi. Így a későbbi értékeléshez nem kell a kerekített Markdown-
+táblázatot parse-olni. A JSON nem minősít automatikusan gyorsulást,
+és nem helyettesíti a nyers blokkok megőrzését.

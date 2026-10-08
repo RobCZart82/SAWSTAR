@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "source_sha": "a4270816229b848ed704dcdaf4ed9a20b709be11",
+  "merged_main_sha": "6d7c2ac13482c289d45144bd677f6aa309a5ca6a",
+  "workflow_run_id": 37753501491,
+  "extraction": "Report section extracted from successful job logs; not the raw block CSV or a revalidation of its hash.",
+  "native_host_acceptance": false,
+  "jobs": [
+    {
+      "label": "macos-stationary",
+      "job_id": 113232260767,
+      "report_file": "macos-stationary.md",
+      "url": "https://github.com/RobCZart82/SAWSTAR/actions/runs/37753501491/job/113232260767",
+      "validated_summary_rows": 288,
+      "validated_raw_blocks": 73728
+    },
+    {
+      "label": "windows-stationary",
+      "job_id": 113232260652,
+      "report_file": "windows-stationary.md",
+      "url": "https://github.com/RobCZart82/SAWSTAR/actions/runs/37753501491/job/113232260652",
+      "validated_summary_rows": 288,
+      "validated_raw_blocks": 73728
+    },
+    {
+      "label": "windows-modulated",
+      "job_id": 113232260620,
+      "report_file": "windows-modulated.md",
+      "url": "https://github.com/RobCZart82/SAWSTAR/actions/runs/37753501491/job/113232260620",
+      "validated_summary_rows": 288,
+      "validated_raw_blocks": 73728
+    },
+    {
+      "label": "macos-modulated",
+      "job_id": 113232260296,
+      "report_file": "macos-modulated.md",
+      "url": "https://github.com/RobCZart82/SAWSTAR/actions/runs/37753501491/job/113232260296",
+      "validated_summary_rows": 288,
+      "validated_raw_blocks": 73728
+    }
+  ]
+}
