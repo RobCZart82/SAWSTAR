@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Offline complete engine probe; elapsed time is not a CI pass/fail gate.
-#ifdef SAWSTAR_PREMIUM_HIGH_RATE_STUDY
+#if defined(SAWSTAR_PREMIUM_LOOKUP_COMPONENT_STUDY)
+#include "LookupPremiumSynth.h"
+namespace ProbeEngine = sawstar::experimental_lookup_engine;
+#elif defined(SAWSTAR_PREMIUM_HIGH_RATE_STUDY)
 #include "RatePremiumSynth.h"
 namespace ProbeEngine = sawstar::experimental_rate_engine;
 #else
@@ -21,8 +24,8 @@ template<class Synth> void Setup(Synth& s, double rate, int voices, double drive
   s.SetMixer(70, 50, 20, 5, 0, -1, 0, 0);
   s.SetFilter(1800, 50, 100); s.SetFilterCharacter(static_cast<float>(drive), filterMode);
   if (fx) {
-    s.SetChorus(true, 20, .3, 30); s.SetDelay(true, 15, 250, 30, 60, true, false, 2, 120);
-    s.SetReverb(true, 15, 50, 40, 50);
+    s.SetChorus(true, 20, .3, 30); s.SetDelay(true, 15, 250, 30, 2000, true, false, 2, 120);
+    s.SetReverb(true, 15, 50, 2, 6000);
   }
   for (int n = 0; n < voices; ++n) s.Midi(0x90, 48 + n, 100);
 }
@@ -224,10 +227,11 @@ template<class Factory> void Component(const char* engine, const char* stage,
   using Clock = std::chrono::steady_clock;
   for (int repeat = 0; repeat < 3; ++repeat) {
     auto process = factory();
-    for (int n = 0; n < 4096; ++n) process(n);
+    const int warmup = static_cast<int>(rate / 4);
+    for (int n = 0; n < warmup; ++n) process(n % frames);
     double energy = 0;
     const auto start = Clock::now();
-    for (int n = 0; n < frames; ++n) energy += process(n);
+    for (int n = 0; n < frames; ++n) energy += process((n + warmup) % frames);
     const double seconds = std::chrono::duration<double>(Clock::now() - start).count();
     if (!std::isfinite(energy) || energy <= 0 || !std::isfinite(seconds) || seconds <= 0)
       throw std::runtime_error("Component must have finite timing and audible output");
@@ -250,7 +254,14 @@ template<class Synth> void EngineComponent(const char* engine, const char* stage
   });
 }
 void Components() {
-#ifdef SAWSTAR_PREMIUM_HIGH_RATE_STUDY
+#if defined(SAWSTAR_PREMIUM_LOOKUP_COMPONENT_STUDY)
+  using Drive = sawstar::experimental::RateScaledLookupPremiumDrive;
+  using Adapter = sawstar::experimental::RateScaledLookupEnginePremiumFilter;
+  const char* label = "rate-lookup";
+  Drive routing; routing.Init(192000);
+  std::cerr << "fir_backend=" << sawstar::experimental::detail::FirLanes4::Backend
+            << ";factor_192000=" << routing.Factor() << ";study=rate-lookup\n";
+#elif defined(SAWSTAR_PREMIUM_HIGH_RATE_STUDY)
   using Drive = sawstar::experimental::RateScaledPremiumDrive;
   using Adapter = sawstar::experimental::RateScaledEnginePremiumFilter;
   const char* label = "rate-scaled";
@@ -266,6 +277,57 @@ void Components() {
       input[n] = {static_cast<float>(.4 * std::sin(6.283185307179586 * 440 * n / rate)),
                   static_cast<float>(.4 * std::cos(6.283185307179586 * 660 * n / rate))};
     for (int mode : {0, 1, 2, 3}) {
+#ifdef SAWSTAR_PREMIUM_LOOKUP_COMPONENT_STUDY
+      Component(label, "oscillators", rate, mode, [=] {
+        struct Sources { sawstar::SevenSaw one, two; sawstar::SubOscillator sub; };
+        auto bank = std::make_unique<std::array<Sources, 16>>();
+        for (int v = 0; v < 16; ++v) {
+          auto& s = (*bank)[v]; const float hz = float(440 * std::exp2((48 + v - 69) / 12.));
+          s.one.Init(float(rate)); s.two.Init(float(rate)); s.sub.Init(float(rate));
+          s.one.SetFreq(hz); s.two.SetFreq(hz); s.sub.SetFreq(hz * .5f);
+          s.one.SetShape(25, .7f, .7f); s.two.SetShape(19, .6f, .8f);
+          s.one.SnapToTargets(); s.two.SnapToTargets();
+        }
+        return [bank = std::move(bank)](int) {
+          double energy = 0;
+          for (auto& s : *bank) {
+            const auto a = s.one.Process(), b = s.two.Process(); const float sub = s.sub.Process();
+            energy += Energy({a.left * .7f + b.left * .5f + sub * .2f,
+                              a.right * .7f + b.right * .5f + sub * .2f});
+          }
+          return energy;
+        };
+      });
+      Component(label, "modulation", rate, mode, [=] {
+        struct Controls { sawstar::Lfo one, two; sawstar::Modulation matrix; };
+        auto c = std::make_unique<Controls>();
+        c->one.Init(float(rate)); c->two.Init(float(rate)); c->matrix.Init(float(rate));
+        c->one.Set(20, 70, 3, 0, false, 0, 120, true);
+        c->two.Set(17, 50, 2, 1, false, 0, 120, false);
+        c->matrix.Set(0, 3, 0, 100); c->matrix.Set(1, 4, 0, -50); c->matrix.Set(2, 5, 1, 20);
+        return [c = std::move(c)](int) {
+          const auto a = c->one.Process(), b = c->two.Process(); c->matrix.Process();
+          double energy = double(a.cutoff) * a.cutoff + double(b.pitch) * b.pitch;
+          for (int v = 0; v < 16; ++v) {
+            const auto route = c->matrix.Evaluate({c->one.Value(), c->two.Value(), .5f, .5f + v * .02f, .3f});
+            for (const auto value : route) energy += double(value) * value;
+          }
+          return energy;
+        };
+      });
+      Component(label, "fx", rate, mode, [&] {
+        struct Effects { sawstar::Chorus chorus; sawstar::Delay delay; sawstar::Reverb reverb; };
+        auto f = std::make_unique<Effects>();
+        f->chorus.Init(float(rate)); f->delay.Init(float(rate)); f->reverb.Init(float(rate));
+        f->chorus.Set(true, 20, .3f, 30); f->delay.Set(true, 15, 250, 30, 2000, true, false, 2, 120);
+        f->reverb.Set(true, 15, 50, 2, 6000);
+        return [f = std::move(f), &input](int n) {
+          const auto x = input[n];
+          const auto y = f->reverb.Process(f->delay.Process(f->chorus.Process({x[0], x[1]})));
+          return double(y.left) * y.left + double(y.right) * y.right;
+        };
+      });
+#endif
       Component(label, "drive", rate, mode, [&] {
         auto bank = std::make_unique<std::array<Drive, 16>>();
         for (auto& d : *bank) { d.Init(rate); d.Set(20); d.SnapToTargets(); }
@@ -308,6 +370,12 @@ void Components() {
 }
 int main(int argc, char** argv) {
   try {
+#ifdef SAWSTAR_PREMIUM_LOOKUP_COMPONENT_STUDY
+    if (argc != 2 || std::string(argv[1]) != "--components") {
+      std::cerr << "Usage: sawstar_premium_lookup_components --components\n";
+      return 1;
+    }
+#endif
     if (argc == 2 && std::string(argv[1]) == "--smoke") { Smoke(); return 0; }
     if (argc == 2 && std::string(argv[1]) == "--modulation") { ModulationSmoke(); return 0; }
     if (argc == 2 && std::string(argv[1]) == "--components") { Components(); return 0; }
