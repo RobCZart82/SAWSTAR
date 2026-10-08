@@ -7,9 +7,8 @@
 #include <array>
 #include <cmath>
 #include <type_traits>
-#include <utility>
 
-namespace sawstar::experimental {
+namespace sawstar::experimental::loop_reference {
 struct NoLookupTanh {};
 // Research-only fixed-factor waveshaper, with explicit interpolation and anti-alias FIRs.
 // Interpolation keeps only host-rate samples, never inserting/storing zeros.
@@ -17,11 +16,10 @@ struct NoLookupTanh {};
 // Nonlinear=false is an offline cost control, never a selectable sound mode.
 // VectorFir=true is a separately qualified research candidate; default remains scalar.
 // ReciprocalGain=true is opt-in research: normalization rounds differently from division.
-template<unsigned Factor, bool Nonlinear = true, bool Research = false, bool VectorFir = false, bool ReciprocalGain = false, bool Lookup = false, bool UnrolledFir = false>
+template<unsigned Factor, bool Nonlinear = true, bool Research = false, bool VectorFir = false, bool ReciprocalGain = false, bool Lookup = false>
 class FixedRatePremiumDrive : private std::conditional_t<Lookup, LookupTanh, NoLookupTanh> {
   static_assert(Factor == 2 || Factor == 4, "Research factors are 2x and 4x");
   static_assert(!(Research && Lookup), "Select only one research saturation implementation");
-  static_assert(!UnrolledFir || VectorFir, "Unrolled FIR study requires vector FIR");
   using TanhBase = std::conditional_t<Lookup, LookupTanh, NoLookupTanh>;
 public:
   static constexpr int Latency = 32;
@@ -76,25 +74,6 @@ public:
     return input;
   }
 private:
-  // Comma fold sequences the same four-lane calls in ascending tap order.
-  // The opt-in study changes loop dispatch only, never tap/reduction arithmetic.
-  template<unsigned Count, class Fn, size_t... Index>
-#ifdef _MSC_VER
-  static __forceinline void UnrollGroups(Fn&& fn, std::index_sequence<Index...>) {
-#else
-  static inline __attribute__((always_inline)) void UnrollGroups(Fn&& fn, std::index_sequence<Index...>) {
-#endif
-    static_assert(Count % 4 == 0);
-    (fn(std::integral_constant<unsigned, 4 * Index>{}), ...);
-  }
-  template<unsigned Count, class Fn>
-#ifdef _MSC_VER
-  static __forceinline void UnrollGroups(Fn&& fn) {
-#else
-  static inline __attribute__((always_inline)) void UnrollGroups(Fn&& fn) {
-#endif
-    UnrollGroups<Count>(std::forward<Fn>(fn), std::make_index_sequence<Count / 4>{});
-  }
   // At most 33 nonzero host samples are needed by every interpolation phase.
   // Mirroring 64 slots keeps the compact convolution contiguous through wrap.
   static constexpr unsigned HostRingSize = 64;
@@ -132,22 +111,14 @@ private:
       detail::FirLanes4 sums;
       if constexpr (((TapCount - 1 - Phase) % Factor) == Phase) {
         constexpr unsigned last = Phase == 0 ? PhaseTapCount - 1 : PhaseTapCount - 2;
-        if constexpr (UnrolledFir && Factor == 2) {
-          UnrollGroups<HalfPhase>([&](auto i) { sums.Symmetric(taps + i, history - i, history - last + i); });
-        } else {
-          for (unsigned i = 0; i < HalfPhase; i += 4)
-            sums.Symmetric(taps + i, history - i, history - last + i);
-        }
+        for (unsigned i = 0; i < HalfPhase; i += 4)
+          sums.Symmetric(taps + i, history - i, history - last + i);
         double y = sums.Sum();
         if constexpr (Phase == 0) y += taps[HalfPhase] * *(history - HalfPhase);
         return y;
       } else {
-        if constexpr (UnrolledFir && Factor == 2) {
-          UnrollGroups<PhaseTapCount - 1>([&](auto i) { sums.Straight(taps + i, history - i); });
-        } else {
-          for (unsigned i = 0; i < PhaseTapCount - 1; i += 4)
-            sums.Straight(taps + i, history - i);
-        }
+        for (unsigned i = 0; i < PhaseTapCount - 1; i += 4)
+          sums.Straight(taps + i, history - i);
         return sums.Sum();
       }
     }
@@ -186,7 +157,6 @@ private:
 
       if constexpr (VectorFir) {
         detail::FirLanes4 sums;
-        // Retain the larger decimator loop: full expansion regressed MSVC timing.
         for (unsigned i = 0; i < Center; i += 4)
           sums.Symmetric(taps_.data() + i, history - i, history - (TapCount - 1) + i);
         y = sums.Sum();

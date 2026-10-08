@@ -1,0 +1,77 @@
+name: Premium unrolled FIR research
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/premium-unrolled.yml'
+      - 'CMakeLists.txt'
+      - 'experiments/premium_filter/**'
+      - 'src/engine/**'
+      - 'src/dsp/**'
+      - 'tests/premium_drive_unrolled.cpp'
+      - 'tests/premium_lookup_engine.cpp'
+      - 'tests/premium_drive_complex.cpp'
+      - 'tests/premium_deadline_report.py'
+      - 'scripts/report-premium-deadline.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: premium-unrolled-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    name: Unrolled FIR / ${{ matrix.os }} / ${{ matrix.workload }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-14]
+        workload: [stationary-v1, modulated-v1]
+    defaults:
+      run:
+        shell: bash
+    env:
+      SAWSTAR_PREMIUM_STUDY: rate-unrolled-fir
+      SAWSTAR_PREMIUM_WORKLOAD: ${{ matrix.workload }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          submodules: recursive
+      - name: Configure and build Release controls
+        run: |
+          cmake -S . -B build-unrolled -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON
+          cmake --build build-unrolled --config Release --target sawstar_premium_unrolled_tests sawstar_premium_unrolled_deadline sawstar_premium_unrolled_engine_tests sawstar_premium_unrolled_complex_tests --parallel 2
+      - name: Qualify frozen reference and complete engine before timing
+        run: ctest --test-dir build-unrolled -C Release -R '^(premium_unrolled_(bit_identity|engine_modulation|deadline_fixture)|premium_deadline_report)$' --verbose --timeout 600
+      - name: Qualify independent 8x reference and measured timeline
+        run: |
+          mkdir -p deadline-results/compiler
+          cp build-unrolled/Testing/Temporary/LastTest.log deadline-results/contracts.txt
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            probe=build-unrolled/Release/sawstar_premium_unrolled_deadline.exe
+            drive_probe=build-unrolled/Release/sawstar_premium_unrolled_tests.exe
+            build-unrolled/Release/sawstar_premium_unrolled_complex_tests.exe > deadline-results/complex-controls.txt
+          else
+            probe=build-unrolled/sawstar_premium_unrolled_deadline
+            drive_probe=build-unrolled/sawstar_premium_unrolled_tests
+            build-unrolled/sawstar_premium_unrolled_complex_tests > deadline-results/complex-controls.txt
+          fi
+          "$probe" --modulation-contract > deadline-results/modulated-contract.txt
+          "$drive_probe" --benchmark > deadline-results/drive.csv
+          if [[ "$SAWSTAR_PREMIUM_WORKLOAD" == "modulated-v1" ]]; then
+            "$probe" --deadline-modulated deadline-results
+          else
+            "$probe" --deadline deadline-results
+          fi
+          find build-unrolled/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' deadline-results/compiler/ \;
+          python scripts/report-premium-deadline.py deadline-results
+          cat deadline-results/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: premium-unrolled-${{ matrix.os }}-${{ matrix.workload }}
+          path: deadline-results/
+          if-no-files-found: error
+          retention-days: 90

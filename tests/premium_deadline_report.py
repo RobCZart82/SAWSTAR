@@ -39,6 +39,8 @@ class DeadlineReport(unittest.TestCase):
         cls.temp.cleanup()
 
     def run_report(self, study, high_factor=4, backend="SSE2", workload="stationary-v1", requested="stationary-v1"):
+        if study == 'rate-unrolled-fir':
+            (self.root / 'study.txt').write_text('2x-interpolation-unroll-v1')
         (self.root / "workload.txt").write_text(workload)
         (self.root / "backend.txt").write_text(backend)
         (self.root / "factors.csv").write_text("rate,reference_factor,study_factor\n48000,4,4\n96000,4,4\n192000," + str(high_factor) + "," + str(high_factor) + "\n")
@@ -74,7 +76,7 @@ class DeadlineReport(unittest.TestCase):
             deadline.report(self.root)
 
     def test_incorrect_compiled_routing_rejected(self):
-        for study, wrong in (("gain-normalization", 2), ("rate-gain-normalization", 4), ("rate-simd-fir", 4), ("rate-lookup", 4)):
+        for study, wrong in (("gain-normalization", 2), ("rate-gain-normalization", 4), ("rate-simd-fir", 4), ("rate-lookup", 4), ("rate-unrolled-fir", 4)):
             with self.subTest(study=study), self.assertRaisesRegex(ValueError, "routing"):
                 self.run_report(study, wrong)
 
@@ -85,7 +87,25 @@ class DeadlineReport(unittest.TestCase):
             self.run_report("rate-gain-normalization", 2, "scalar-source")
         with self.assertRaisesRegex(ValueError, "backend"):
             self.run_report("rate-lookup", 2, "scalar-source")
+        with self.assertRaisesRegex(ValueError, "backend"):
+            self.run_report("rate-unrolled-fir", 2, "scalar-source")
+
+    def test_unrolled_study_identity_and_provenance(self):
+        result = self.run_report('rate-unrolled-fir', 2, workload='modulated-v1', requested='modulated-v1')
+        self.assertEqual(result['reference_variant'], 'rate-lookup-loop')
+        self.assertEqual(result['study_variant'], 'rate-lookup-unrolled')
+        self.assertEqual(result['fir_unroll_scope'], '2x-interpolation-only-v1')
+        self.assertIn('study.txt', result['measurement_sha256'])
+        (self.root / 'study.txt').write_text('rate-lookup')
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-unrolled-fir', SAWSTAR_PREMIUM_WORKLOAD='modulated-v1'):
+            with self.assertRaisesRegex(ValueError, 'Compiled FIR study'):
+                deadline.report(self.root)
+        (self.root / 'study.txt').unlink()
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-unrolled-fir', SAWSTAR_PREMIUM_WORKLOAD='modulated-v1'):
+            with self.assertRaises(FileNotFoundError):
+                deadline.report(self.root)
 
 
 if __name__ == "__main__":
     unittest.main()
+

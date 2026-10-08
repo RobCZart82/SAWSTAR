@@ -1,20 +1,33 @@
 // SPDX-License-Identifier: MIT
 // Synth API control timeline only: not VST3 automation or native acceptance.
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+#include "UnrolledPremiumSynth.h"
+#else
 #include "RateGainPremiumSynth.h"
+#endif
 #include "LookupPremiumSynth.h"
 #include <cmath>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+using Reference = sawstar::experimental_lookup_engine::Synth;
+using Study = sawstar::experimental_unrolled_engine::Synth;
+#else
 using Reference = sawstar::experimental_rate_gain_engine::Synth;
 using Study = sawstar::experimental_lookup_engine::Synth;
+#endif
 void Require(bool ok, const char* why) { if (!ok) throw std::runtime_error(why); }
 struct Error {
   double peak = 0, squared = 0, energy = 0;
   void Add(sawstar::StereoSample a, sawstar::StereoSample b) {
     for (auto pair : {std::pair<float, float>{a.left, b.left}, {a.right, b.right}}) {
       Require(std::isfinite(pair.first) && std::isfinite(pair.second), "Nonfinite engine comparison");
+#ifdef SAWSTAR_UNROLLED_FIR_STUDY
+      Require(std::memcmp(&pair.first, &pair.second, sizeof(float)) == 0, "Unrolled engine bit identity");
+#endif
       const double delta = double(pair.first) - pair.second;
       peak = std::max(peak, std::abs(delta)); squared += delta * delta;
       energy += double(pair.second) * pair.second;
@@ -68,8 +81,12 @@ template<class S> void Event(S& s, int n, int filter, int voice) {
 }
 int main() {
   try {
-    Error altered; altered.Add({.1f, .1f}, {.09f, .09f});
-    bool rejected = false; try { altered.Check(); } catch (const std::runtime_error&) { rejected = true; }
+    // Exact comparison rejects in Add; bounded comparison rejects in Check.
+    // Both rejection paths belong inside the negative control's handler.
+    bool rejected = false;
+    try {
+      Error altered; altered.Add({.1f, .1f}, {.09f, .09f}); altered.Check();
+    } catch (const std::runtime_error&) { rejected = true; }
     Require(rejected, "Engine comparison accepted altered audio");
     int cases = 0;
     std::cout << std::setprecision(17) << "rate,filter_mode,voice_mode,fx,output_peak_error,output_relative_rms,prefx_peak_error,prefx_relative_rms\n";
@@ -107,3 +124,4 @@ int main() {
     Require(cases == 120, "Incomplete engine grid");
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
+
