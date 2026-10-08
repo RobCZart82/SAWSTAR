@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "source_sha": "55c42f68b40cd2485fcf6abfd35fed7848fce1c6",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "machine": "AMD64",
+    "runner_os": null,
+    "configuration": "Release",
+    "raw_sha256": "f5d9d57981165c7f36e0ac2bf2a71007cdd687a065ca94ac6371dcf9d61363cd",
+    "source_file_sha256": {
+      "src/dsp/SevenSaw.h": "b2d4c2e910e929822d3a306a421599df43e8254022b128ac4dac42e4dce794b6",
+      "src/dsp/SevenSaw.cpp": "676e713324b6acd01ff9f93c8185cc2cb62dbd9e32407162d73c61304198f1e0",
+      "experiments/oscillator/CachedSevenSaw.h": "cb80f59e38451feee5862d59f4ca6f623a34e490649a249a04a1053a1b4eebda",
+      "experiments/oscillator/CachedSevenSaw.cpp": "86fc3c8a7028a6175aa4e40ef49217fb04ec8edb3e492361ad816d7711f667d5",
+      "experiments/oscillator/benchmark_frequency_cache.cpp": "f7eae67c43dffdb72515bd6f2326b581e583f608cc39596f5e63e5dff23492f8",
+      "tests/oscillator_frequency_cache.cpp": "fe9a9a875601687351ec5a5eda171ab2532b55d58bc92a0e9a7b07f4cd77949a",
+      "third_party/DaisySP/Source/Synthesis/oscillator.h": "334385ef766a8d1e10e292ab58457f8306e55e22517e9eec9888a07044938b4c",
+      "third_party/DaisySP/Source/Synthesis/oscillator.cpp": "6c0ed4e7db0e155b27847ff6319d5a9ec3234a5e90c535da4fb430aaa73a8a6f",
+      "third_party/DaisySP/Source/Utility/dsp.h": "534f0f76b7794939a5fff9b128b8fddb23ae0e63ad3354f663445d417924099a"
+    },
+    "compiler_files_sha256": {
+      "compiler\\CMakeCXXCompiler.cmake": "1da43991d0fa17c1b38eface755f997e7ce258546919ef9a4f1b15b8e77869c8"
+    },
+    "oscillators": 32,
+    "voices_represented": 16,
+    "frames_per_path_and_pair": 8192,
+    "warmup_seconds": 0.25,
+    "native_host_acceptance": false,
+    "scope": "isolated-oscillator-bank",
+    "candidate_variant": "held-saw-tuning-v2",
+    "ratio_direction": "study/reference",
+    "timed_work": "bank processing, pitch setters/sine when modulated, energy accumulation",
+    "production_activation": false
+  },
+  "summary": [
+    {
+      "rate": 48000,
+      "waveform": 0,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9729381473451981,
+      "paired_ratios": [
+        0.9687312020422835,
+        0.929607806316058,
+        0.9771450926481127,
+        1.0070619412330004
+      ]
+    },
+    {
+      "rate": 48000,
+      "waveform": 0,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.1353367071388156,
+      "paired_ratios": [
+        1.1085694602145875,
+        1.0698132954566693,
+        1.2516628928344296,
+        1.1621039540630436
+      ]
+    },
+    {
+      "rate": 48000,
+      "waveform": 1,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9804305466328954,
+      "paired_ratios": [
+        0.9937603607870595,
+        0.9678611393692778,
+        0.9929999538965131,
+        0.9323342103321942
+      ]
+    },
+    {
+      "rate": 48000,
+      "waveform": 1,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.0345186915188234,
+      "paired_ratios": [
+        1.0361136462107174,
+        0.9798544889760432,
+        1.0355719674831305,
+        1.033465415554516
+      ]
+    },
+    {
+      "rate": 48000,
+      "waveform": 2,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.961328654348204,
+      "paired_ratios": [
+        0.9662097231431565,
+        0.9564475855532516,
+        1.026527160767459,
+        0.9555930393007404
+      ]
+    },
+    {
+      "rate": 48000,
+      "waveform": 2,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.0140110129288498,
+      "paired_ratios": [
+        1.0287137643020343,
+        1.0045613385732481,
+        0.939536711359868,
+        1.0234606872844514
+      ]
+    },
+    {
+      "rate": 48000,
+      "waveform": 3,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9779378224931875,
+      "paired_ratios": [
+        0.9791287769513463,
+        0.9819851660363831,
+        0.9671533209928146,
+        0.9767468680350287
+      ]
+    },
+    {
+      "rate": 48000,
+      "waveform": 3,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.0341985395455244,
+      "paired_ratios": [
+        1.033009009845811,
+        0.9846266926626488,
+        1.0580016443166562,
+        1.035388069245238
+      ]
+    },
+    {
+      "rate": 96000,
+      "waveform": 0,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9631767558177158,
+      "paired_ratios": [
+        0.9617724448450083,
+        0.9571123529144518,
+        0.9951020532527928,
+        0.9645810667904231
+      ]
+    },
+    {
+      "rate": 96000,
+      "waveform": 0,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.1219581832186702,
+      "paired_ratios": [
+        1.109433199453878,
+        1.1225267025606298,
+        1.1213896638767107,
+        1.170821289124793
+      ]
+    },
+    {
+      "rate": 96000,
+      "waveform": 1,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9675722061348258,
+      "paired_ratios": [
+        0.9685959390942095,
+        0.9617406392131497,
+        0.9782269382615651,
+        0.966548473175442
+      ]
+    },
+    {
+      "rate": 96000,
+      "waveform": 1,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.0335957421372264,
+      "paired_ratios": [
+        1.0341395712153547,
+        1.0294944246068303,
+        1.0330519130590983,
+        1.0357914441136937
+      ]
+    },
+    {
+      "rate": 96000,
+      "waveform": 2,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9964882423578598,
+      "paired_ratios": [
+        1.0466573557947818,
+        0.9706437862165428,
+        0.9531687848509721,
+        1.022332698499177
+      ]
+    },
+    {
+      "rate": 96000,
+      "waveform": 2,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.0254184799864567,
+      "paired_ratios": [
+        1.0299743304583153,
+        1.024937960303473,
+        1.0258989996694405,
+        1.0189346047801118
+      ]
+    },
+    {
+      "rate": 96000,
+      "waveform": 3,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9779044205981468,
+      "paired_ratios": [
+        0.9776708725219173,
+        0.9781379686743762,
+        0.9720954595395662,
+        0.9858944066484702
+      ]
+    },
+    {
+      "rate": 96000,
+      "waveform": 3,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.0261638440257523,
+      "paired_ratios": [
+        1.0293082934795288,
+        1.0119411934275007,
+        1.0304914758440933,
+        1.0230193945719757
+      ]
+    },
+    {
+      "rate": 192000,
+      "waveform": 0,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9602071155388132,
+      "paired_ratios": [
+        0.9562670980689914,
+        0.9974142707627901,
+        0.9586301548918371,
+        0.9617840761857893
+      ]
+    },
+    {
+      "rate": 192000,
+      "waveform": 0,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.1186103315572105,
+      "paired_ratios": [
+        1.1004869498751326,
+        1.2044464677624294,
+        1.1245105079876967,
+        1.1127101551267244
+      ]
+    },
+    {
+      "rate": 192000,
+      "waveform": 1,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9822991372458041,
+      "paired_ratios": [
+        0.9882494655852732,
+        0.9757386224215433,
+        0.9802805191524965,
+        0.9843177553391118
+      ]
+    },
+    {
+      "rate": 192000,
+      "waveform": 1,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.0353169763765004,
+      "paired_ratios": [
+        1.0371644710484764,
+        1.0224007774592612,
+        1.0334694817045245,
+        1.042335520859373
+      ]
+    },
+    {
+      "rate": 192000,
+      "waveform": 2,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9522415659385678,
+      "paired_ratios": [
+        0.8895925997550441,
+        0.9286738831089352,
+        0.9761177178061681,
+        0.9758092487682004
+      ]
+    },
+    {
+      "rate": 192000,
+      "waveform": 2,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.0238052717113633,
+      "paired_ratios": [
+        0.8289959550429823,
+        1.01986463422343,
+        1.0277459091992964,
+        1.0512648182753241
+      ]
+    },
+    {
+      "rate": 192000,
+      "waveform": 3,
+      "modulated": false,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 0.9752833552714891,
+      "paired_ratios": [
+        0.9740306117129423,
+        0.9816653454622515,
+        0.975453770570671,
+        0.9751129399723073
+      ]
+    },
+    {
+      "rate": 192000,
+      "waveform": 3,
+      "modulated": true,
+      "paired_observations": 4,
+      "median_paired_seconds_ratio": 1.0311727378427298,
+      "paired_ratios": [
+        1.0405201541902631,
+        1.0360351310237939,
+        1.0246401071309006,
+        1.0263103446616657
+      ]
+    }
+  ],
+  "local_build_configuration_text": "cmake_minimum_required(VERSION 3.21)\nproject(OscillatorCacheLocal LANGUAGES CXX)\nadd_library(probe ../src/dsp/SevenSaw.cpp ../experiments/oscillator/CachedSevenSaw.cpp ../third_party/DaisySP/Source/Synthesis/oscillator.cpp)\ntarget_include_directories(probe PUBLIC ../src ../third_party/DaisySP/Source PRIVATE ../third_party/DaisySP/Source/Utility)\ntarget_compile_features(probe PUBLIC cxx_std_17)\nadd_executable(contracts ../tests/oscillator_frequency_cache.cpp)\ntarget_link_libraries(contracts PRIVATE probe)\nadd_executable(benchmark ../experiments/oscillator/benchmark_frequency_cache.cpp)\ntarget_link_libraries(benchmark PRIVATE probe)\nenable_testing()\nadd_test(NAME bit_identity COMMAND contracts)\n",
+  "executable_sha256": {
+    "benchmark.exe": "065a3660390fc807796be3492133fc7e97bebdc2437463932e130da3f06948ca",
+    "contracts.exe": "427f9c87f64a98c708c9578e37e88bdd0b30f0946371c55e339bc679b7e69abb"
+  },
+  "compiler_configuration_text": "set(CMAKE_CXX_COMPILER \"C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe\")\nset(CMAKE_CXX_COMPILER_ARG1 \"\")\nset(CMAKE_CXX_COMPILER_ID \"MSVC\")\nset(CMAKE_CXX_COMPILER_VERSION \"19.44.35229.0\")\nset(CMAKE_CXX_COMPILER_VERSION_INTERNAL \"\")\nset(CMAKE_CXX_COMPILER_WRAPPER \"\")\nset(CMAKE_CXX_STANDARD_COMPUTED_DEFAULT \"14\")\nset(CMAKE_CXX_EXTENSIONS_COMPUTED_DEFAULT \"OFF\")\nset(CMAKE_CXX_STANDARD_LATEST \"23\")\nset(CMAKE_CXX_COMPILE_FEATURES \"cxx_std_98;cxx_template_template_parameters;cxx_std_11;cxx_alias_templates;cxx_alignas;cxx_alignof;cxx_attributes;cxx_auto_type;cxx_constexpr;cxx_decltype;cxx_decltype_incomplete_return_types;cxx_default_function_template_args;cxx_defaulted_functions;cxx_defaulted_move_initializers;cxx_delegating_constructors;cxx_deleted_functions;cxx_enum_forward_declarations;cxx_explicit_conversions;cxx_extended_friend_declarations;cxx_extern_templates;cxx_final;cxx_func_identifier;cxx_generalized_initializers;cxx_inheriting_constructors;cxx_inline_namespaces;cxx_lambdas;cxx_local_type_template_args;cxx_long_long_type;cxx_noexcept;cxx_nonstatic_member_init;cxx_nullptr;cxx_override;cxx_range_for;cxx_raw_string_literals;cxx_reference_qualified_functions;cxx_right_angle_brackets;cxx_rvalue_references;cxx_sizeof_member;cxx_static_assert;cxx_strong_enums;cxx_thread_local;cxx_trailing_return_types;cxx_unicode_literals;cxx_uniform_initialization;cxx_unrestricted_unions;cxx_user_literals;cxx_variadic_macros;cxx_variadic_templates;cxx_std_14;cxx_aggregate_default_initializers;cxx_attribute_deprecated;cxx_binary_literals;cxx_contextual_conversions;cxx_decltype_auto;cxx_digit_separators;cxx_generic_lambdas;cxx_lambda_init_captures;cxx_relaxed_constexpr;cxx_return_type_deduction;cxx_variable_templates;cxx_std_17;cxx_std_20;cxx_std_23\")\nset(CMAKE_CXX98_COMPILE_FEATURES \"cxx_std_98;cxx_template_template_parameters\")\nset(CMAKE_CXX11_COMPILE_FEATURES \"cxx_std_11;cxx_alias_templates;cxx_alignas;cxx_alignof;cxx_attributes;cxx_auto_type;cxx_constexpr;cxx_decltype;cxx_decltype_incomplete_return_types;cxx_default_function_template_args;cxx_defaulted_functions;cxx_defaulted_move_initializers;cxx_delegating_constructors;cxx_deleted_functions;cxx_enum_forward_declarations;cxx_explicit_conversions;cxx_extended_friend_declarations;cxx_extern_templates;cxx_final;cxx_func_identifier;cxx_generalized_initializers;cxx_inheriting_constructors;cxx_inline_namespaces;cxx_lambdas;cxx_local_type_template_args;cxx_long_long_type;cxx_noexcept;cxx_nonstatic_member_init;cxx_nullptr;cxx_override;cxx_range_for;cxx_raw_string_literals;cxx_reference_qualified_functions;cxx_right_angle_brackets;cxx_rvalue_references;cxx_sizeof_member;cxx_static_assert;cxx_strong_enums;cxx_thread_local;cxx_trailing_return_types;cxx_unicode_literals;cxx_uniform_initialization;cxx_unrestricted_unions;cxx_user_literals;cxx_variadic_macros;cxx_variadic_templates\")\nset(CMAKE_CXX14_COMPILE_FEATURES \"cxx_std_14;cxx_aggregate_default_initializers;cxx_attribute_deprecated;cxx_binary_literals;cxx_contextual_conversions;cxx_decltype_auto;cxx_digit_separators;cxx_generic_lambdas;cxx_lambda_init_captures;cxx_relaxed_constexpr;cxx_return_type_deduction;cxx_variable_templates\")\nset(CMAKE_CXX17_COMPILE_FEATURES \"cxx_std_17\")\nset(CMAKE_CXX20_COMPILE_FEATURES \"cxx_std_20\")\nset(CMAKE_CXX23_COMPILE_FEATURES \"cxx_std_23\")\nset(CMAKE_CXX26_COMPILE_FEATURES \"\")\n\nset(CMAKE_CXX_PLATFORM_ID \"Windows\")\nset(CMAKE_CXX_SIMULATE_ID \"\")\nset(CMAKE_CXX_COMPILER_FRONTEND_VARIANT \"MSVC\")\nset(CMAKE_CXX_SIMULATE_VERSION \"\")\nset(CMAKE_CXX_COMPILER_ARCHITECTURE_ID x64)\n\nset(MSVC_CXX_ARCHITECTURE_ID x64)\n\nset(CMAKE_AR \"C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/lib.exe\")\nset(CMAKE_CXX_COMPILER_AR \"\")\nset(CMAKE_RANLIB \":\")\nset(CMAKE_CXX_COMPILER_RANLIB \"\")\nset(CMAKE_LINKER \"C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/link.exe\")\nset(CMAKE_LINKER_LINK \"C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/link.exe\")\nset(CMAKE_LINKER_LLD \"lld-link\")\nset(CMAKE_CXX_COMPILER_LINKER \"C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/HostX64/x64/link.exe\")\nset(CMAKE_CXX_COMPILER_LINKER_ID \"MSVC\")\nset(CMAKE_CXX_COMPILER_LINKER_VERSION 14.44.35229.0)\nset(CMAKE_CXX_COMPILER_LINKER_FRONTEND_VARIANT MSVC)\nset(CMAKE_MT \"CMAKE_MT-NOTFOUND\")\nset(CMAKE_TAPI \"\")\nset(CMAKE_COMPILER_IS_GNUCXX )\nset(CMAKE_CXX_COMPILER_LOADED 1)\nset(CMAKE_CXX_COMPILER_WORKS TRUE)\nset(CMAKE_CXX_ABI_COMPILED TRUE)\n\nset(CMAKE_CXX_COMPILER_ENV_VAR \"CXX\")\n\nset(CMAKE_CXX_COMPILER_ID_RUN 1)\nset(CMAKE_CXX_SOURCE_FILE_EXTENSIONS C;M;c++;cc;cpp;cxx;m;mm;mpp;CPP;ixx;cppm;ccm;cxxm;c++m)\nset(CMAKE_CXX_IGNORE_EXTENSIONS inl;h;hpp;HPP;H;o;O;obj;OBJ;def;DEF;rc;RC)\n\nforeach (lang IN ITEMS C OBJC OBJCXX)\n  if (CMAKE_${lang}_COMPILER_ID_RUN)\n    foreach(extension IN LISTS CMAKE_${lang}_SOURCE_FILE_EXTENSIONS)\n      list(REMOVE_ITEM CMAKE_CXX_SOURCE_FILE_EXTENSIONS ${extension})\n    endforeach()\n  endif()\nendforeach()\n\nset(CMAKE_CXX_LINKER_PREFERENCE 30)\nset(CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES 1)\nset(CMAKE_CXX_LINKER_DEPFILE_SUPPORTED )\n\n# Save compiler ABI information.\nset(CMAKE_CXX_SIZEOF_DATA_PTR \"8\")\nset(CMAKE_CXX_COMPILER_ABI \"\")\nset(CMAKE_CXX_BYTE_ORDER \"LITTLE_ENDIAN\")\nset(CMAKE_CXX_LIBRARY_ARCHITECTURE \"\")\n\nif(CMAKE_CXX_SIZEOF_DATA_PTR)\n  set(CMAKE_SIZEOF_VOID_P \"${CMAKE_CXX_SIZEOF_DATA_PTR}\")\nendif()\n\nif(CMAKE_CXX_COMPILER_ABI)\n  set(CMAKE_INTERNAL_PLATFORM_ABI \"${CMAKE_CXX_COMPILER_ABI}\")\nendif()\n\nif(CMAKE_CXX_LIBRARY_ARCHITECTURE)\n  set(CMAKE_LIBRARY_ARCHITECTURE \"\")\nendif()\n\nset(CMAKE_CXX_CL_SHOWINCLUDES_PREFIX \"\")\nif(CMAKE_CXX_CL_SHOWINCLUDES_PREFIX)\n  set(CMAKE_CL_SHOWINCLUDES_PREFIX \"${CMAKE_CXX_CL_SHOWINCLUDES_PREFIX}\")\nendif()\n\n\n\n\n\nset(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES \"\")\nset(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES \"\")\nset(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES \"\")\nset(CMAKE_CXX_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES \"\")\nset(CMAKE_CXX_COMPILER_CLANG_RESOURCE_DIR \"\")\n\nset(CMAKE_CXX_COMPILER_IMPORT_STD \"\")\n### Imported target for C++23 standard library\nset(CMAKE_CXX23_COMPILER_IMPORT_STD_NOT_FOUND_MESSAGE \"Unsupported generator: Visual Studio 17 2022\")\n\n\n\n"
+}

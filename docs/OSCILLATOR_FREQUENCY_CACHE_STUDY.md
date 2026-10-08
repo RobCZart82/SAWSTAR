@@ -132,6 +132,31 @@ A helyi 72 jelenet / 596 736 frame újra bitazonos; mind a négy riportteszt
 sikeres a variánsazonosítás negatív kontrolljával is. A v2 friss platformos
 és teljesmotoros CPU-kapu marad; production aktiválás nincs.
 
+### V2 első helyi mérés — a modulációs regresszió megmaradt
+
+Mért forrás: `55c42f68b40cd2485fcf6abfd35fed7848fce1c6`, MSVC x64 Release.
+A 192 soros grid sikeresen validált, a páros energiák pontosan egyeznek.
+
+| Ráta | SAW statikus | SAW modulált |
+| --- | ---: | ---: |
+| 48 kHz | 0.972938 | 1.135337 |
+| 96 kHz | 0.963177 | 1.121958 |
+| 192 kHz | 0.960207 | 1.118610 |
+
+A statikus SAW 3–4% javulási jele mellett a modulált SAW 11,9–13,5%
+lassulása megmaradt. Más waveformok modulált cellái is kb. 1–3,5%
+lassulást mutatnak. A v1 és v2 helyi futása külön kampány, ezért ezek
+arányaiból nem állítunk kontrollált v1/v2 gyorsulást. Ez negatív v2
+kvalifikációs jel: jelen állás szerint teljesmotoros/production aktiválás
+nem indokolt. A cache-gate többletköltsége feltételezés, további
+profilozás nélkül nem bizonyított magyarázat.
+
+[V2 nyers adatok](../experiments/oscillator/measurements/2026-10-08-cache-v2-local-windows.csv)
+és [eredetjegyzék](../experiments/oscillator/measurements/2026-10-08-cache-v2-local-windows-provenance.json)
+megőrzi mind a 24 cellát, a párokat és a raw/source/compiler/executable
+hash-eket. A friss Windows/macOS CI a funkcionális és platformos
+vizsgálatot végzi; zöld job nem írja felül a lassulási megfigyelést.
+
 Következő döntés: platformeredmények értékelése, majd megfelelő eredmény
 esetén külön teljesmotoros lookup-kontroll és modulált deadline mérés.
 Production aktiválás, magasrátás policy és natív REAPER továbbra is
