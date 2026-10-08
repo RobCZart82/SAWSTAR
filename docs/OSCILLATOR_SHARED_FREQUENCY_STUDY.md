@@ -133,3 +133,30 @@ rövid timer érzékenységét, de CPU-affinitás, realtime prioritás és kontr
 OS-háttérterhelés nincs. Nincs párok eldobása vagy a kontroll automatikus
 kivonása; a kontroll nem számszerű hibakorlát. Az izolált grid továbbra sem
 helyettesít teljesmotoros p99/túllépés vagy natív REAPER-elfogadást.
+
+## Hosszabb helyi mérés eredménye
+
+Mért forrás: `e3994b657b33da088438972f40de0e662ad7bd50`, Mac mini M1,
+Apple Clang 21 Release. A teljes 118/118 CTest és a 11 Python
+riportellenőrzés sikeres. A kontroll és a jelölt ugyanazzal az executable-lel,
+egymás után, a tesztek befejezése után futott; nincs natív/realtime elfogadás.
+
+| Hullámforma | Referenciaismétlés mediánaránya | Jelölt mediánaránya |
+| --- | ---: | ---: |
+| SAW | 0,996240–1,001094 | 0,994258–1,009570 |
+| Square | 0,997060–1,000218 | 0,926423–0,935820 |
+| Triangle | 0,999602–1,002657 | 0,962414–0,966868 |
+| Sine | 1,000483–1,006677 | 0,970191–0,979231 |
+
+A tartományok a három ráta és két pitch-terhelés cellamediánjai; nem
+bizonytalansági intervallumok. A referenciaismétlés 192 egyedi párja
+0,807563–1,469024 között szóródott. A jelölt három cellája mediánban
+lassabb, 19/192 egyedi párja lassabb; egyetlen cellája sem lassabb mind
+a nyolc párban. Mindkét 384 soros grid teljes, véges és pontosan azonos
+páros energiájú. A nyers fájlok és a program hash-e
+[itt megőrzöttek](../experiments/oscillator/measurements/2026-10-08-shared-frequency-extended-local/provenance.json).
+
+Ez kedvező helyi jel az alternatív hullámformákra, a SAW továbbra is
+kontroll. A korábbi negatív Windows-adat ettől érvényes marad. Az új
+Windows/macOS workflow eredménye még szükséges; CPU-nyereség vagy
+teljesmotoros aktiválás nem tekinthető elfogadottnak.

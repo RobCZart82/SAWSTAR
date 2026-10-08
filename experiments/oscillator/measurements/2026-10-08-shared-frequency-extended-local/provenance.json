@@ -1,0 +1,27 @@
+{
+  "source_sha": "e3994b657b33da088438972f40de0e662ad7bd50",
+  "executable_sha256": "f46c0f752c445bd436fa5c08569a4459e365cff0fbaafcd46edec95f0afa3951",
+  "machine": "Macmini9,1 / Apple M1",
+  "compiler": "Apple Clang 21.0.0",
+  "configuration": "Release",
+  "production_activation": false,
+  "native_host_acceptance": false,
+  "conditions": "Control and candidate measured sequentially using the same executable after all 118 tests completed. No intentional parallel build or benchmark; OS background load uncontrolled.",
+  "files_sha256": {
+    "candidate/compiler/CMakeCXXCompiler.cmake": "0d921ce4d16c8ee29671fd52fbb563fa433e387924e8d26844fdb26010998da1",
+    "candidate/contracts.txt": "852262b0ad1ec06312ce3ea18f5b6f65a603d9733dbfb2ee4f4114a7060565e7",
+    "candidate/oscillators.csv": "39fa546577da6b3aa7ab7bc3ed715428ac50acd2567a0361c4296e7d4b16bc9c",
+    "candidate/report.json": "4fe64593148dd8a1539b11d27c00206abbcc12d8c01513bfa1c7091e27aefd1d",
+    "candidate/report.md": "9e241c3d694afdfe2ceb840037811710444fa99177946b180272072d5aa8d345",
+    "reference-repeat/compiler/CMakeCXXCompiler.cmake": "0d921ce4d16c8ee29671fd52fbb563fa433e387924e8d26844fdb26010998da1",
+    "reference-repeat/contracts.txt": "852262b0ad1ec06312ce3ea18f5b6f65a603d9733dbfb2ee4f4114a7060565e7",
+    "reference-repeat/oscillators.csv": "4291c6f3552b5a88233fac406a9707c65bc4da1dc2f6cc1c36ad4467ccd0f40a",
+    "reference-repeat/report.json": "2843848053e45da887df4b8322334d962ab8da68ee20ae2c6ac8c8def39ba928",
+    "reference-repeat/report.md": "3f03dd10950caf0f4998cd9de8829453861da2843cbaa02bfb1fb19fc16799e2"
+  },
+  "archive_omissions": [
+    "candidate/report.log",
+    "reference-repeat/report.log"
+  ],
+  "archive_note": "Omitted stdout logs duplicate report.md; original local output retains them. All raw CSV, JSON, Markdown reports, compiler records and contracts are archived unchanged."
+}

@@ -1,0 +1,247 @@
+Test project /Users/robert/Documents/Codex/2026-09-06/referenced-chatgpt-conversation-this-is-an/outputs/SAWSTAR-character-preserving/build-tail-contract
+        Start   1: meter_ballistics
+  1/118 Test   #1: meter_ballistics ............................   Passed    0.01 sec
+        Start   2: display_timing
+  2/118 Test   #2: display_timing ..............................   Passed    0.01 sec
+        Start   3: realtime_scope
+  3/118 Test   #3: realtime_scope ..............................   Passed    0.01 sec
+        Start   4: preset_reliability
+  4/118 Test   #4: preset_reliability ..........................   Passed    0.07 sec
+        Start   5: sub_waveform_transitions
+  5/118 Test   #5: sub_waveform_transitions ....................   Passed    0.02 sec
+        Start   6: preset_library_import
+  6/118 Test   #6: preset_library_import .......................   Passed    0.04 sec
+        Start   7: preset_import_index
+  7/118 Test   #7: preset_import_index .........................   Passed    0.02 sec
+        Start   8: preset_import_job
+  8/118 Test   #8: preset_import_job ...........................   Passed    0.01 sec
+        Start   9: user_preset_files
+  9/118 Test   #9: user_preset_files ...........................   Passed    0.13 sec
+        Start  10: state_compatibility
+ 10/118 Test  #10: state_compatibility .........................   Passed    0.01 sec
+        Start  11: state_roundtrip
+ 11/118 Test  #11: state_roundtrip .............................   Passed    0.01 sec
+        Start  12: preset_discrete_canonicalization
+ 12/118 Test  #12: preset_discrete_canonicalization ............   Passed    0.01 sec
+        Start  13: strict_preset_files
+ 13/118 Test  #13: strict_preset_files .........................   Passed    0.23 sec
+        Start  14: parameter_contract
+ 14/118 Test  #14: parameter_contract ..........................   Passed    0.01 sec
+        Start  15: idle_voice_start
+ 15/118 Test  #15: idle_voice_start ............................   Passed    0.01 sec
+        Start  16: dsp_safety
+ 16/118 Test  #16: dsp_safety ..................................   Passed    0.05 sec
+        Start  17: reset_lifecycle
+ 17/118 Test  #17: reset_lifecycle .............................   Passed    0.03 sec
+        Start  18: overlapping_notes
+ 18/118 Test  #18: overlapping_notes ...........................   Passed    0.02 sec
+        Start  19: engine_audit
+ 19/118 Test  #19: engine_audit ................................   Passed   15.45 sec
+        Start  20: parameter_transitions
+ 20/118 Test  #20: parameter_transitions .......................   Passed    0.30 sec
+        Start  21: voice_transitions
+ 21/118 Test  #21: voice_transitions ...........................   Passed    0.35 sec
+        Start  22: source_quality
+ 22/118 Test  #22: source_quality ..............................   Passed    0.25 sec
+        Start  23: arpeggiator
+ 23/118 Test  #23: arpeggiator .................................   Passed    0.05 sec
+        Start  24: dual_lfo_modulation
+ 24/118 Test  #24: dual_lfo_modulation .........................   Passed    0.51 sec
+        Start  25: short_note_release
+ 25/118 Test  #25: short_note_release ..........................   Passed    0.52 sec
+        Start  26: noise_sources_color
+ 26/118 Test  #26: noise_sources_color .........................   Passed    1.30 sec
+        Start  27: mono_legato_glide
+ 27/118 Test  #27: mono_legato_glide ...........................   Passed    0.45 sec
+        Start  28: stereo_reverb
+ 28/118 Test  #28: stereo_reverb ...............................   Passed    1.06 sec
+        Start  29: stereo_delay
+ 29/118 Test  #29: stereo_delay ................................   Passed    0.11 sec
+        Start  30: master_width
+ 30/118 Test  #30: master_width ................................   Passed    0.52 sec
+        Start  31: stereo_chorus
+ 31/118 Test  #31: stereo_chorus ...............................   Passed    3.68 sec
+        Start  32: lfo_waveforms
+ 32/118 Test  #32: lfo_waveforms ...............................   Passed    0.44 sec
+        Start  33: premium_filter_response
+ 33/118 Test  #33: premium_filter_response .....................   Passed    0.51 sec
+        Start  34: premium_filter_modes
+ 34/118 Test  #34: premium_filter_modes ........................   Passed    1.27 sec
+        Start  35: premium_filter_cache_identity
+ 35/118 Test  #35: premium_filter_cache_identity ...............   Passed    0.20 sec
+        Start  36: premium_drive_alias_and_latency
+ 36/118 Test  #36: premium_drive_alias_and_latency .............   Passed    0.14 sec
+        Start  37: premium_drive_polyphase_identity
+ 37/118 Test  #37: premium_drive_polyphase_identity ............   Passed    0.61 sec
+        Start  38: premium_drive_cost_controls
+ 38/118 Test  #38: premium_drive_cost_controls .................   Passed    0.03 sec
+        Start  39: premium_tanh_scalar_contract
+ 39/118 Test  #39: premium_tanh_scalar_contract ................   Passed    0.02 sec
+        Start  40: premium_drive_tanh_study
+ 40/118 Test  #40: premium_drive_tanh_study ....................   Passed    0.60 sec
+        Start  41: premium_drive_spectral_grid
+ 41/118 Test  #41: premium_drive_spectral_grid .................   Passed    0.11 sec
+        Start  42: premium_engine_probe_contract
+ 42/118 Test  #42: premium_engine_probe_contract ...............   Passed    1.83 sec
+        Start  43: premium_engine_modulation
+ 43/118 Test  #43: premium_engine_modulation ...................   Passed    3.62 sec
+        Start  44: premium_rate_engine_contract
+ 44/118 Test  #44: premium_rate_engine_contract ................   Passed    1.63 sec
+        Start  45: premium_rate_engine_modulation
+ 45/118 Test  #45: premium_rate_engine_modulation ..............   Passed    3.21 sec
+        Start  46: premium_tanh_engine_study
+ 46/118 Test  #46: premium_tanh_engine_study ...................   Passed    1.25 sec
+        Start  47: premium_tanh_deadline_fixture
+ 47/118 Test  #47: premium_tanh_deadline_fixture ...............   Passed    0.67 sec
+        Start  48: premium_drive_simd_identity
+ 48/118 Test  #48: premium_drive_simd_identity .................   Passed    0.33 sec
+        Start  49: premium_simd_deadline_fixture
+ 49/118 Test  #49: premium_simd_deadline_fixture ...............   Passed    0.65 sec
+        Start  50: premium_gain_deadline_fixture
+ 50/118 Test  #50: premium_gain_deadline_fixture ...............   Passed    0.60 sec
+        Start  51: premium_drive_rate_simd_identity
+ 51/118 Test  #51: premium_drive_rate_simd_identity ............   Passed    0.04 sec
+        Start  52: premium_rate_simd_deadline_fixture
+ 52/118 Test  #52: premium_rate_simd_deadline_fixture ..........   Passed    0.58 sec
+        Start  53: premium_rate_gain_deadline_fixture
+ 53/118 Test  #53: premium_rate_gain_deadline_fixture ..........   Passed    0.56 sec
+        Start  54: premium_drive_rate_gain_contract
+ 54/118 Test  #54: premium_drive_rate_gain_contract ............   Passed    0.04 sec
+        Start  55: premium_unrolled_deadline_fixture
+ 55/118 Test  #55: premium_unrolled_deadline_fixture ...........   Passed    0.51 sec
+        Start  56: premium_unrolled_engine_modulation
+ 56/118 Test  #56: premium_unrolled_engine_modulation ..........   Passed    5.07 sec
+        Start  57: premium_lookup_deadline_fixture
+ 57/118 Test  #57: premium_lookup_deadline_fixture .............   Passed    0.52 sec
+        Start  58: premium_lookup_modulated_deadline_fixture
+ 58/118 Test  #58: premium_lookup_modulated_deadline_fixture ...   Passed    8.13 sec
+        Start  59: premium_lookup_engine_modulation
+ 59/118 Test  #59: premium_lookup_engine_modulation ............   Passed    5.28 sec
+        Start  60: premium_lookup_rate_contract
+ 60/118 Test  #60: premium_lookup_rate_contract ................   Passed    0.04 sec
+        Start  61: premium_lookup_complex_controls
+ 61/118 Test  #61: premium_lookup_complex_controls .............   Passed    6.97 sec
+        Start  62: premium_drive_high_rate_controls
+ 62/118 Test  #62: premium_drive_high_rate_controls ............   Passed    0.23 sec
+        Start  63: premium_drive_complex_controls
+ 63/118 Test  #63: premium_drive_complex_controls ..............   Passed    4.61 sec
+        Start  64: premium_gain_complex_controls
+ 64/118 Test  #64: premium_gain_complex_controls ...............   Passed    6.97 sec
+        Start  65: filter_character
+ 65/118 Test  #65: filter_character ............................   Passed    0.71 sec
+        Start  66: source_mixer
+ 66/118 Test  #66: source_mixer ................................   Passed    1.99 sec
+        Start  67: output_level
+ 67/118 Test  #67: output_level ................................   Passed    1.32 sec
+        Start  68: factory_presets
+ 68/118 Test  #68: factory_presets .............................   Passed   17.90 sec
+        Start  69: performance_wheels
+ 69/118 Test  #69: performance_wheels ..........................   Passed    0.64 sec
+        Start  70: filter_modulation
+ 70/118 Test  #70: filter_modulation ...........................   Passed    0.12 sec
+        Start  71: low_pass
+ 71/118 Test  #71: low_pass ....................................   Passed    0.59 sec
+        Start  72: seven_saw
+ 72/118 Test  #72: seven_saw ...................................   Passed    0.51 sec
+        Start  73: oscillator_cache_bit_identity
+ 73/118 Test  #73: oscillator_cache_bit_identity ...............   Passed    0.15 sec
+        Start  74: oscillator_shared_bit_identity
+ 74/118 Test  #74: oscillator_shared_bit_identity ..............   Passed    0.22 sec
+        Start  75: voice_engine
+ 75/118 Test  #75: voice_engine ................................   Passed    0.12 sec
+        Start  76: daisy_primitives
+ 76/118 Test  #76: daisy_primitives ............................   Passed    0.01 sec
+        Start  77: daisy_adsr_long_time_convergence
+ 77/118 Test  #77: daisy_adsr_long_time_convergence ............   Passed    0.54 sec
+        Start  78: torture
+ 78/118 Test  #78: torture .....................................   Passed    0.53 sec
+        Start  79: torture_reject_negative
+ 79/118 Test  #79: torture_reject_negative .....................   Passed    0.00 sec
+        Start  80: torture_reject_suffix
+ 80/118 Test  #80: torture_reject_suffix .......................   Passed    0.01 sec
+        Start  81: torture_reject_excess
+ 81/118 Test  #81: torture_reject_excess .......................   Passed    0.01 sec
+        Start  82: editor_midi_tracker_counts_and_resets
+ 82/118 Test  #82: editor_midi_tracker_counts_and_resets .......   Passed    0.01 sec
+        Start  83: editor_wheel_mailbox
+ 83/118 Test  #83: editor_wheel_mailbox ........................   Passed    0.01 sec
+        Start  84: premium_filter_preview_contract
+ 84/118 Test  #84: premium_filter_preview_contract .............   Passed   18.44 sec
+        Start  85: host_midi_points
+ 85/118 Test  #85: host_midi_points ............................   Passed    0.00 sec
+        Start  86: editor_transport
+ 86/118 Test  #86: editor_transport ............................   Passed    0.01 sec
+        Start  87: editor_overflow_lifecycle
+ 87/118 Test  #87: editor_overflow_lifecycle ...................   Passed    0.06 sec
+        Start  88: editor_wheel_gesture
+ 88/118 Test  #88: editor_wheel_gesture ........................   Passed    0.01 sec
+        Start  89: tail_contract
+ 89/118 Test  #89: tail_contract ...............................   Passed    2.65 sec
+        Start  90: glide_history
+ 90/118 Test  #90: glide_history ...............................   Passed    0.60 sec
+        Start  91: release_order
+ 91/118 Test  #91: release_order ...............................   Passed    0.34 sec
+        Start  92: idle_voice_reuse
+ 92/118 Test  #92: idle_voice_reuse ............................   Passed    0.43 sec
+        Start  93: output_gain
+ 93/118 Test  #93: output_gain .................................   Passed    0.11 sec
+        Start  94: detune_continuity
+ 94/118 Test  #94: detune_continuity ...........................   Passed    0.01 sec
+        Start  95: delay_initial_time
+ 95/118 Test  #95: delay_initial_time ..........................   Passed    0.01 sec
+        Start  96: block_midi_queue
+ 96/118 Test  #96: block_midi_queue ............................   Passed    0.06 sec
+        Start  97: engine_controls
+ 97/118 Test  #97: engine_controls .............................   Passed    0.76 sec
+        Start  98: controller_lifecycle
+ 98/118 Test  #98: controller_lifecycle ........................   Passed    0.09 sec
+        Start  99: performance_policy
+ 99/118 Test  #99: performance_policy ..........................   Passed    0.33 sec
+        Start 100: parameter_registration_contract
+100/118 Test #100: parameter_registration_contract .............   Passed    0.01 sec
+        Start 101: editor_reset_queue
+101/118 Test #101: editor_reset_queue ..........................   Passed    0.01 sec
+        Start 102: editor_reset_iplug_queue
+102/118 Test #102: editor_reset_iplug_queue ....................   Passed    0.01 sec
+        Start 103: iplug2_midi_patch
+103/118 Test #103: iplug2_midi_patch ...........................   Passed    0.04 sec
+        Start 104: build_display_metadata
+104/118 Test #104: build_display_metadata ......................   Passed    0.10 sec
+        Start 105: release_guard
+105/118 Test #105: release_guard ...............................   Passed    4.05 sec
+        Start 106: benchmark_report
+106/118 Test #106: benchmark_report ............................   Passed    0.07 sec
+        Start 107: premium_unrolled_bit_identity
+107/118 Test #107: premium_unrolled_bit_identity ...............   Passed    0.13 sec
+        Start 108: premium_deadline_timeline
+108/118 Test #108: premium_deadline_timeline ...................   Passed    0.01 sec
+        Start 109: premium_lookup_scalar_contract
+109/118 Test #109: premium_lookup_scalar_contract ..............   Passed    0.02 sec
+        Start 110: premium_lookup_drive_contract
+110/118 Test #110: premium_lookup_drive_contract ...............   Passed    0.50 sec
+        Start 111: premium_lookup_report
+111/118 Test #111: premium_lookup_report .......................   Passed    0.05 sec
+        Start 112: premium_drive_ring_identity
+112/118 Test #112: premium_drive_ring_identity .................   Passed    0.13 sec
+        Start 113: premium_drive_ring_report
+113/118 Test #113: premium_drive_ring_report ...................   Passed    0.06 sec
+        Start 114: premium_gain_normalization
+114/118 Test #114: premium_gain_normalization ..................   Passed    0.47 sec
+        Start 115: premium_gain_report
+115/118 Test #115: premium_gain_report .........................   Passed    0.06 sec
+        Start 116: premium_deadline_report
+116/118 Test #116: premium_deadline_report .....................   Passed    3.58 sec
+        Start 117: premium_components_report
+117/118 Test #117: premium_components_report ...................   Passed    0.11 sec
+        Start 118: oscillator_cache_report
+118/118 Test #118: oscillator_cache_report .....................   Passed    0.14 sec
+
+100% tests passed out of 118
+
+Label Time Summary:
+cli       =   0.02 sec*proc (3 tests)
+render    =   2.65 sec*proc (1 test)
+stress    =   0.54 sec*proc (4 tests)
+tail      =   2.65 sec*proc (1 test)
+
+Total Test time (real) = 141.52 sec

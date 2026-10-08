@@ -87,3 +87,10 @@ levont gyorsulás vagy CPU-küszöb lazítása. A hosszabb timer nem kontrollál
 a runner háttérterhelését. Ha az új mérés sem támasztja alá a nyereséget,
 a jelölt kísérleti marad; a komponensprofil alapján más célpontot választunk.
 A 4–8. lépés és a natív/minőségi/CPU-kapuk változatlanul nyitottak.
+
+A hosszabb helyi M1-próba elkészült: 118/118 teszt sikeres; külön-külön
+384 soros referencia- és jelöltgrid, egyező páros energia. Square/Triangle/Sine
+mediánban kedvező, SAW vegyes (0,994258–1,009570). A kontroll mediánja
+−0,38% és +0,67% között, egyes párok jóval szélesebben szóródnak. A régi
+Windows-lassulás nem törlődik; az új platformos futam a következő döntési
+kapu. A teljes eredmény és korlátai a frekvenciamegosztási jegyzetben vannak.
