@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: MIT
+#if defined(SAWSTAR_SHARED_FREQUENCY_STUDY)
+#include "SharedFrequencySevenSaw.h"
+using Candidate = sawstar::experimental_oscillator::SharedFrequencySevenSaw;
+constexpr const char* Variant = "shared-frequency-v1";
+#else
 #include "CachedSevenSaw.h"
+using Candidate = sawstar::experimental_oscillator::CachedSevenSaw;
+constexpr const char* Variant = "held-saw-tuning-v2";
+#endif
 #include <array>
 #include <chrono>
 #include <cmath>
@@ -29,7 +37,7 @@ template<class S> void Measure(const char* path, int rate, int wave, int workloa
     throw std::runtime_error("Invalid oscillator measurement");
   std::cout << path << ',' << rate << ',' << wave << ',' << workload << ',' << pair << ','
             << (pair % 2 ? "study-first" : "reference-first") << ",32," << frames << ',' << seconds << ',' << energy
-            << ",held-saw-tuning-v2\n";
+            << ',' << Variant << '\n';
 }
 int main() {
   try {
@@ -37,7 +45,7 @@ int main() {
     for (int rate : {48000, 96000, 192000}) for (int wave = 0; wave < 4; ++wave)
       for (int workload = 0; workload < 2; ++workload) for (int pair = 0; pair < 4; ++pair) {
         if (pair % 2 == 0) Measure<sawstar::SevenSaw>("reference", rate, wave, workload, pair);
-        Measure<sawstar::experimental_oscillator::CachedSevenSaw>("study", rate, wave, workload, pair);
+        Measure<Candidate>("study", rate, wave, workload, pair);
         if (pair % 2) Measure<sawstar::SevenSaw>("reference", rate, wave, workload, pair);
       }
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }

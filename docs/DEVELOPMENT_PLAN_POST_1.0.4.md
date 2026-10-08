@@ -1,11 +1,11 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
 **Aktuális sorrend (2026-10-08): [elfogadott fejlesztési roadmap](DEVELOPMENT_ROADMAP.md).**
-A korábbi dátumozott sorrendek történeti naplóként értendők. A következő
-munkacsomag a [lookup motor komponensprofilja](PREMIUM_COMPONENT_PROFILE.md);
+A korábbi dátumozott sorrendek történeti naplóként értendők. A lookup motor komponensprofilja elkészült. A következő munkacsomag a
+[cache nélküli frekvenciaszámítás-megosztás](OSCILLATOR_SHARED_FREQUENCY_STUDY.md);
 a korai natív REAPER-próba a 4., a végső production-elfogadás a 8. lépés.
 
-Frissítve: 2026-10-07. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
+Frissítve: 2026-10-08. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
 Az akkori main Windows, macOS és Code quality workflow-ja sikeres volt. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.

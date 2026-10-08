@@ -32,7 +32,9 @@ def qualification(summaries):
                             'native-host-realtime'],
     }
 
-def report(folder, source_sha, emit_ci=False):
+def report(folder, source_sha, emit_ci=False, variant="held-saw-tuning-v2"):
+    if variant not in ("held-saw-tuning-v2", "shared-frequency-v1"):
+        raise ValueError("Unknown oscillator candidate variant")
     folder = Path(folder)
     if not re.fullmatch(r'[0-9a-f]{40}', source_sha):
         raise ValueError('Exact source SHA required')
@@ -43,7 +45,7 @@ def report(folder, source_sha, emit_ci=False):
                 for wave in range(4) for moving in range(2) for pair in range(4)}
     samples = {}
     for row in rows:
-        if row.get('variant') != 'held-saw-tuning-v2':
+        if row.get('variant') != variant:
             raise ValueError('Incorrect compiled candidate variant')
         key = row['path'], int(row['rate']), int(row['waveform']), int(row['modulated']), int(row['pair'])
         if key not in expected or key in samples:
@@ -73,8 +75,9 @@ def report(folder, source_sha, emit_ci=False):
                                   'paired_observations': 4, 'median_paired_seconds_ratio': statistics.median(ratios),
                                   'paired_ratios': ratios})
     root = Path(__file__).resolve().parents[1]
-    sources = ('src/dsp/SevenSaw.h', 'src/dsp/SevenSaw.cpp', 'experiments/oscillator/CachedSevenSaw.h',
-               'experiments/oscillator/CachedSevenSaw.cpp', 'experiments/oscillator/benchmark_frequency_cache.cpp',
+    candidate = 'SharedFrequencySevenSaw' if variant == 'shared-frequency-v1' else 'CachedSevenSaw'
+    sources = ('src/dsp/SevenSaw.h', 'src/dsp/SevenSaw.cpp', f'experiments/oscillator/{candidate}.h',
+               f'experiments/oscillator/{candidate}.cpp', 'experiments/oscillator/benchmark_frequency_cache.cpp',
                'tests/oscillator_frequency_cache.cpp', 'third_party/DaisySP/Source/Synthesis/oscillator.h',
                'third_party/DaisySP/Source/Synthesis/oscillator.cpp', 'third_party/DaisySP/Source/Utility/dsp.h')
     metadata = {'source_sha': source_sha, 'platform': platform.platform(), 'machine': platform.machine(),
@@ -85,7 +88,7 @@ def report(folder, source_sha, emit_ci=False):
                                           for p in sorted((folder / 'compiler').glob('*')) if p.is_file()},
                 'oscillators': 32, 'voices_represented': 16, 'frames_per_path_and_pair': 8192,
                 'warmup_seconds': .25, 'native_host_acceptance': False,
-                'scope': 'isolated-oscillator-bank', 'candidate_variant': 'held-saw-tuning-v2',
+                'scope': 'isolated-oscillator-bank', 'candidate_variant': variant,
                 'ratio_direction': 'study/reference',
                 'timed_work': 'bank processing, pitch setters/sine when modulated, energy accumulation',
                 'production_activation': False}
@@ -93,7 +96,8 @@ def report(folder, source_sha, emit_ci=False):
     payload = {'schema_version': 2, 'metadata': metadata, 'summary': summaries,
                'qualification': decision}
     (folder / 'report.json').write_text(json.dumps(payload, indent=2, allow_nan=False) + '\n', encoding='utf-8')
-    lines = ['# Isolated frequency-cache oscillator study', '', f'Source: {source_sha}',
+    title = 'frequency sharing' if variant == 'shared-frequency-v1' else 'frequency cache'
+    lines = [f'# Isolated oscillator {title} study', '', f'Source: {source_sha}',
              '32 oscillator banks represent OSC1 + OSC2 for 16 voices; no engine, filter or FX timing.',
              'Four alternating pairs. Ratios are study/reference; smaller is favorable.',
              'Static and audio-rate pitch modulation are separate controls. No native realtime acceptance.', '',
@@ -116,5 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('folder', type=Path)
     parser.add_argument('--source-sha', required=True)
     parser.add_argument('--emit-ci', action='store_true')
+    parser.add_argument('--variant', choices=('held-saw-tuning-v2', 'shared-frequency-v1'),
+                        default='held-saw-tuning-v2')
     args = parser.parse_args()
-    report(args.folder, args.source_sha, args.emit_ci)
+    report(args.folder, args.source_sha, args.emit_ci, args.variant)

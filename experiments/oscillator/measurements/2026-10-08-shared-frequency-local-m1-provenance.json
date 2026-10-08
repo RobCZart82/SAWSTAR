@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "source_commit": "d8513f9fbcde08a5783edc46dfc7236525f186f1",
+  "candidate_variant": "shared-frequency-v1",
+  "machine": "Macmini9,1",
+  "processor": "Apple M1",
+  "physical_cores": 8,
+  "compiler": "Apple Clang 21.0.0 (clang-2100.3.34.2)",
+  "configuration": "Release",
+  "flags": "-O3 -DNDEBUG -std=gnu++17 -mmacosx-version-min=11.0",
+  "native_host_acceptance": false,
+  "affinity_or_realtime_priority": false,
+  "measurement_conditions": "Two sequential campaigns with the same executable, after builds and tests completed; no deliberate concurrent benchmark/build. OS scheduling is uncontrolled.",
+  "executable_sha256": "b750d731d98df219fedeb0e7aa320d2ca50c3b1b4d28853ccf7a9ba67d28a2fe",
+  "compile_flags_sha256": "2bd88cee1dd9d12286aa9109179201b8ae4280f1d9c223df4edb5a63e5f7ed50",
+  "campaigns": {
+    "first": {
+      "raw_csv": "2026-10-08-shared-frequency-local-m1-first.csv",
+      "report_json": "2026-10-08-shared-frequency-local-m1-first.json",
+      "raw_sha256": "ac713e859d14fbf033b9ec36d52ea5ca57ab7d8c3e9c3e32ca80058ad3e1a11e",
+      "report_sha256": "094457550be9438cf1ee7778e353935c9eb306f5613b13a2792f198ef2eb9f5c",
+      "contract_log_sha256": "efa8f96eb778fe7f57aa3c535ebb9982845548c34a79d57e4098f1dccce13d23",
+      "median_slowdown_cells": 0,
+      "individual_slowdown_pairs": 12,
+      "pairs": 96
+    },
+    "repeat": {
+      "raw_csv": "2026-10-08-shared-frequency-local-m1-repeat.csv",
+      "report_json": "2026-10-08-shared-frequency-local-m1-repeat.json",
+      "raw_sha256": "fd63a865d210f4a923ee39a5127b959c40c527ddecb63eabe36d59f7fe937934",
+      "report_sha256": "c35512bee8dbd02840c30f6fc593a089385dd3b0528b8af3d72fe087f90ec700",
+      "contract_log_sha256": "efa8f96eb778fe7f57aa3c535ebb9982845548c34a79d57e4098f1dccce13d23",
+      "median_slowdown_cells": 0,
+      "individual_slowdown_pairs": 9,
+      "pairs": 96
+    }
+  }
+}

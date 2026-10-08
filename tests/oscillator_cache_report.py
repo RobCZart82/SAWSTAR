@@ -16,6 +16,7 @@ class ReportTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
+        self.variant = "held-saw-tuning-v2"
         self.rows = []
         for path in ('reference', 'study'):
             for rate in (48000, 96000, 192000):
@@ -35,7 +36,7 @@ class ReportTest(unittest.TestCase):
             writer.writeheader(); writer.writerows(self.rows)
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
-            result = reporter.report(self.root, source_sha, True)
+            result = reporter.report(self.root, source_sha, True, self.variant)
         self.output = output.getvalue()
         return result
     def test_pairs_and_provenance(self):
@@ -69,6 +70,22 @@ class ReportTest(unittest.TestCase):
         self.rows[0] = original
         self.rows[-1]['energy'] = 11
         with self.assertRaisesRegex(ValueError, 'energy differs'): self.run_report()
+    def test_shared_variant_is_distinct(self):
+        self.variant = 'shared-frequency-v1'
+        with self.assertRaisesRegex(ValueError, 'variant'): self.run_report()
+        for row in self.rows:
+            row['variant'] = self.variant
+        result = self.run_report()
+        self.assertEqual(result['metadata']['candidate_variant'], self.variant)
+        sources = result['metadata']['source_file_sha256']
+        self.assertIn('experiments/oscillator/SharedFrequencySevenSaw.cpp', sources)
+        self.assertNotIn('experiments/oscillator/CachedSevenSaw.cpp', sources)
+        self.assertFalse(result['qualification']['production_promotion_allowed'])
+        self.variant = 'held-saw-tuning-v2'
+        with self.assertRaisesRegex(ValueError, 'variant'): self.run_report()
+        self.variant = 'unknown'
+        with self.assertRaisesRegex(ValueError, 'variant'): self.run_report()
+
     def test_requires_exact_source(self):
         with self.assertRaisesRegex(ValueError, 'source SHA'): self.run_report('main')
 
