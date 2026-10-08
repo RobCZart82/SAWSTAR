@@ -12,7 +12,8 @@ jobs:
   foundation:
     name: windows-2022 / ${{ matrix.config }}
     runs-on: windows-2022
-    timeout-minutes: 15
+    # Full-sequence modulation adds ~173 s to Debug; retain the entire suite.
+    timeout-minutes: ${{ matrix.config == 'Debug' && 20 || 15 }}
     strategy:
       fail-fast: false
       matrix:
