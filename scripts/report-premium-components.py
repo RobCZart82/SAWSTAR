@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate descriptive component timings; never infer additive CPU shares."""
 import argparse
+import base64
 import copy
 import csv
 import hashlib
@@ -135,6 +136,7 @@ def report(directory, source_sha, source_root):
     summaries = summarize(rows)
     with (directory / 'summary.csv').open('w', newline='', encoding='utf-8') as stream:
         writer = csv.DictWriter(stream, fieldnames=list(summaries[0])); writer.writeheader(); writer.writerows(summaries)
+    metadata['summary_sha256'] = digest(directory / 'summary.csv')
     (directory / 'metadata.json').write_text(json.dumps(metadata, indent=2) + '\n', encoding='utf-8')
     lines = ['# Component timing observations', '',
              'Independent synthetic workloads; percentages are audio-duration ratios, not additive CPU shares.',
@@ -145,6 +147,8 @@ def report(directory, source_sha, source_root):
         lines.append(f"| {r['rate']} | {r['filter_mode']} | {r['stage']} | {r['median_realtime_percent']:.3f} | {r['minimum_realtime_percent']:.3f} | {r['maximum_realtime_percent']:.3f} |")
     (directory / 'report.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
     print(f'Validated {len(rows)} rows; descriptive reports written to {directory}')
+    return dict(metadata=metadata, summaries=summaries,
+                raw_csv_base64=base64.b64encode((directory / 'components.csv').read_bytes()).decode('ascii'))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -152,13 +156,18 @@ if __name__ == '__main__':
     parser.add_argument('--source-sha')
     parser.add_argument('--source-root', type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument('--self-test', action='store_true')
+    parser.add_argument('--emit-ci', action='store_true',
+                        help='print validated results and exact raw CSV bytes for CI log retrieval')
     args = parser.parse_args()
     try:
         if args.self_test:
             self_test()
         elif args.directory and args.source_sha:
-            report(args.directory, args.source_sha, args.source_root)
+            result = report(args.directory, args.source_sha, args.source_root)
+            if args.emit_ci:
+                print('COMPONENT_CI_REPORT=' + json.dumps(result, separators=(',', ':')))
         else:
             parser.error('provide directory and --source-sha, or --self-test')
     except (ValueError, OSError, KeyError, TypeError) as error:
         parser.exit(1, f'Invalid component measurements: {error}\n')
+

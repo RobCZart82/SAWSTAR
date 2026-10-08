@@ -54,6 +54,14 @@ compiler/contract eredetet. A self-test 360 érvényes esetet és 20 elutasító
 kontrollt fed le. A metadata a teljes forráscommitot, forrás- és nyers byte-
 hashokat rögzíti; a Windows/macOS CI artifact 90 napig elérhető.
 
+A CI összefoglaló közvetlenül mutatja a 120 soros táblát. A `--emit-ci`
+opció a naplóban `COMPONENT_CI_REPORT=` előtagú JSON-t ír: validált metadata,
+összesítők és base64-kódolt, pontos nyers CSV-byteok. Így a mérési adat a
+ZIP-letöltés nélkül is visszaolvasható; dekódolás után ellenőrizni kell a
+`measurement_sha256.components.csv` hash-t és a teljes 360 soros gridet.
+A `summary_sha256` az artifact összesítőfájljának pontos byte-hash-a.
+Az eredmények értelmezésének és a natív elfogadásnak a korlátai változatlanok.
+
 ```sh
 cmake -S . -B build-components -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build-components --config Release --target sawstar_premium_lookup_components
@@ -62,3 +70,4 @@ python scripts/report-premium-components.py --self-test
 
 Az új teljesmotor-célpont fordítását és az első platformadatokat a friss CI
 igazolja. A riport helyi ellenőrzése nem teljesmotor- vagy natív CPU-elfogadás.
+
