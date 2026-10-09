@@ -5,3 +5,6 @@
 experiments/oscillator/measurements/2026-10-08-shared-frequency*/** -text whitespace=cr-at-eol
 # CMake's original compiler record includes an extra blank EOF line.
 experiments/oscillator/measurements/2026-10-08-shared-frequency*/**/compiler/*.cmake whitespace=cr-at-eol,-blank-at-eof
+
+# Preserve the reported target-campaign summaries and their archive hashes.
+experiments/oscillator/measurements/2026-10-09-shared-frequency-target-ci-summary/** -text whitespace=cr-at-eol
