@@ -94,3 +94,21 @@ mediánban kedvező, SAW vegyes (0,994258–1,009570). A kontroll mediánja
 −0,38% és +0,67% között, egyes párok jóval szélesebben szóródnak. A régi
 Windows-lassulás nem törlődik; az új platformos futam a következő döntési
 kapu. A teljes eredmény és korlátai a frekvenciamegosztási jegyzetben vannak.
+
+## A #89 hosszabb platformmérése — 2026-10-09
+
+A #89 beolvadt (`30f1cc5`); a `c097858` pontos PR-head 21/21 ellenőrzése
+és a main 10/10 ellenőrzése sikeres. A hosszabb platformkampány elkészült,
+nem várakozó feladat. Windows alatt a jelölt 12/24 cellában medián szerint,
+6/24 cellában mind a nyolc párban lassabb; a SAW/Square minden cellája
+mediánban lassabb. Triangle/Sine kedvezőbb, de ez nem a fő SAW út javítása.
+macOS-en 5/24 jelöltcella mediánban lassabb, a referenciaismétlés mediánjai
+is szélesebben szóródnak. A korábbi negatív eredmények érvényesek maradnak.
+
+A következő lépést a [célgépes gyűjtő](OSCILLATOR_TARGET_MEASUREMENT.md)
+támogatja: friss, azonos forrású Release build, numerikus kapu, két fordított
+kampánysorrendű kör és teljes eredetjegyzék. A mérések elkülönítettek maradnak;
+nincs automatikus zajlevonás vagy CPU-elfogadás. A megosztott jelölt kísérleti.
+Az izolált gyűjtő regressziója szimulált parancsfuttatással ellenőrzi a
+sorrendet, hibás grid/teszt és változó executable elutasítását; ez nem
+Windows/M1 célgépes teljesítménymérés. A 4–8. lépés nyitott marad.

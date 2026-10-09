@@ -11,6 +11,8 @@ on:
       - 'tests/oscillator_frequency_cache.cpp'
       - 'tests/oscillator_cache_report.py'
       - 'scripts/report-oscillator-cache.py'
+      - 'scripts/run-oscillator-target.py'
+      - 'tests/oscillator_target_runner.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,7 +23,9 @@ jobs:
   measure:
     name: Oscillator sharing / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
+    env:
+      OSCILLATOR_TARGET_OUTPUT: ${{ runner.temp }}/oscillator-target-results
     strategy:
       fail-fast: false
       matrix:
@@ -35,36 +39,29 @@ jobs:
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           submodules: recursive
-      - name: Build separate candidate and controls
+      - name: Build, qualify and collect repeated target campaigns
         run: |
-          cmake -S . -B build-oscillator -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON
-          cmake --build build-oscillator --config Release --target sawstar_oscillator_shared_tests sawstar_oscillator_shared_benchmark sawstar_sevensaw_tests --parallel 2
-      - name: Qualify before timing
+          python scripts/run-oscillator-target.py --build-dir "$RUNNER_TEMP/oscillator-target-build" --output-dir "$OSCILLATOR_TARGET_OUTPUT"
+      - name: Publish separate campaign summaries
         run: |
-          ctest --test-dir build-oscillator -C Release -R '^(seven_saw|oscillator_shared_bit_identity|oscillator_cache_report)$' --verbose --timeout 600
-      - name: Measure extended paired banks and unchanged-reference control
-        run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            benchmark=build-oscillator/Release/sawstar_oscillator_shared_benchmark.exe
-          else
-            benchmark=build-oscillator/sawstar_oscillator_shared_benchmark
-          fi
-          for comparison in reference-repeat candidate; do
-            result="oscillator-results/$comparison"
-            mkdir -p "$result/compiler"
-            cp build-oscillator/Testing/Temporary/LastTest.log "$result/contracts.txt"
-            if [[ "$comparison" == "reference-repeat" ]]; then
-              "$benchmark" --extended --reference-repeat > "$result/oscillators.csv"
-            else
-              "$benchmark" --extended > "$result/oscillators.csv"
-            fi
-            find build-oscillator/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' "$result/compiler/" \;
-            python scripts/report-oscillator-cache.py "$result" --source-sha "$(git rev-parse HEAD)" --variant shared-frequency-v1 --campaign extended-v1 --comparison "$comparison" --emit-ci
-            cat "$result/report.md" >> "$GITHUB_STEP_SUMMARY"
-          done
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['OSCILLATOR_TARGET_OUTPUT'])
+          manifest = json.loads((root / 'manifest.json').read_bytes())
+          assert manifest['state'] == 'complete' and len(manifest['runs']) == 4
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a', encoding='utf-8') as summary:
+              for run in manifest['runs']:
+                  folder = root / run['folder']
+                  summary.write(f"\n## Round {run['round']}: {run['comparison']}\n\n")
+                  summary.write((folder / 'report.md').read_text(encoding='utf-8'))
+                  payload = json.loads((folder / 'report.json').read_bytes())
+                  print('OSCILLATOR_TARGET_REPORT=' + json.dumps({'round': run['round'], 'report': payload}, separators=(',', ':')))
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
         with:
           name: oscillator-shared-extended-${{ matrix.os }}
-          path: oscillator-results/
+          path: ${{ env.OSCILLATOR_TARGET_OUTPUT }}/
           if-no-files-found: error
           retention-days: 90

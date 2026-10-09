@@ -187,6 +187,31 @@ class ReportTest(unittest.TestCase):
         self.assertFalse(decision['production_promotion_allowed'])
         self.assertIn('CPU acceptance: not established', self.output)
 
+    def test_archived_extended_ci_summaries(self):
+        archive = Path(__file__).resolve().parents[1] / 'experiments/oscillator/measurements/2026-10-09-shared-frequency-extended-ci-summary'
+        files = list(archive.glob('*.json'))
+        self.assertEqual(len(files), 4)
+        for path in files:
+            result = json.loads(path.read_bytes())
+            self.assertEqual(result['schema_version'], 3)
+            metadata = result['metadata']
+            self.assertEqual(metadata['source_sha'], 'c09785828b8ec19c7daef22447b30480cf655fad')
+            self.assertEqual(metadata['candidate_variant'], 'shared-frequency-v1')
+            self.assertEqual(metadata['frames_per_path_and_pair'], 131072)
+            self.assertEqual(metadata['pairs_per_cell'], 8)
+            self.assertIn(metadata['comparison'], path.stem)
+            self.assertEqual(len(result['summary']), 24)
+            cells = set()
+            for row in result['summary']:
+                cells.add((row['rate'], row['waveform'], row['modulated']))
+                ratios = row['paired_ratios']
+                self.assertEqual(len(ratios), 8)
+                self.assertEqual(row['median_paired_seconds_ratio'], statistics.median(ratios))
+                self.assertEqual(row['min_paired_seconds_ratio'], min(ratios))
+                self.assertEqual(row['max_paired_seconds_ratio'], max(ratios))
+            self.assertEqual(len(cells), 24)
+            self.assertEqual(reporter.qualification(result['summary']), result['qualification'])
+
     def test_favorable_or_mixed_pairs_never_promote(self):
         for row in self.rows:
             row['seconds'] = 1 if row['path'] == 'reference' else .5

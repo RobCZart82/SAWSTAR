@@ -1,0 +1,607 @@
+{
+  "schema_version": 3,
+  "metadata": {
+    "source_sha": "c09785828b8ec19c7daef22447b30480cf655fad",
+    "platform": "Windows-2022Server-10.0.20348-SP0",
+    "machine": "AMD64",
+    "runner_os": "Windows",
+    "configuration": "Release",
+    "raw_sha256": "a35f85854598cdd1225a5562130e41f4bc34dccb1479b5675716f11586c755b8",
+    "source_file_sha256": {
+      "src/dsp/SevenSaw.h": "52cc870ecf3db04c0b0e6696721ecc19190be89c2ed4a5c3a84401701a4dea07",
+      "src/dsp/SevenSaw.cpp": "b607fd43cfba9d431a0ce20fb88cf1e9133b7b22d8153ed3756fcdf2ff66556d",
+      "experiments/oscillator/SharedFrequencySevenSaw.h": "6ea992a77e25859e5ece45a9daffbb92cea7af7c3285fe443ee5d0503d1abdd1",
+      "experiments/oscillator/SharedFrequencySevenSaw.cpp": "8ab96bca67f8636b29f13b51b9f333176d16ac453f1882f8ec60465fc007a311",
+      "experiments/oscillator/benchmark_frequency_cache.cpp": "4548bd0d11bbe492c274b456886df598e8924e86271c816051b8febaa1dcf6dd",
+      "tests/oscillator_frequency_cache.cpp": "b867f644a76d838b8c5538bac755a2ee1cc25f9ea00e6a85671e38242ee22d98",
+      "third_party/DaisySP/Source/Synthesis/oscillator.h": "0b5b0436f817b16828ed765756ee2b32fc326b78f4c8125f4455b1223f22533c",
+      "third_party/DaisySP/Source/Synthesis/oscillator.cpp": "c967bdbc08d8b1d3b4fa2ad4c736bc733ecfa0eb65781df076f6fb29c26c8586",
+      "third_party/DaisySP/Source/Utility/dsp.h": "3200f544500809b64f26e83696bb1bf968ec77d1ae5d4f947f3d837d926405c1"
+    },
+    "compiler_files_sha256": {
+      "compiler\\CMakeCXXCompiler.cmake": "0d3430047398ee357bbf65db10906b7cf793a22dd8b02c6db6f6372d2a4db77f"
+    },
+    "oscillators": 32,
+    "voices_represented": 16,
+    "frames_per_path_and_pair": 131072,
+    "warmup_seconds": 0.25,
+    "native_host_acceptance": false,
+    "scope": "isolated-oscillator-bank",
+    "candidate_variant": "shared-frequency-v1",
+    "ratio_direction": "study/reference",
+    "timed_work": "bank processing, pitch setters/sine when modulated, energy accumulation",
+    "production_activation": false,
+    "campaign": "extended-v1",
+    "comparison": "candidate",
+    "pairs_per_cell": 8,
+    "timed_study_type": "SharedFrequencySevenSaw",
+    "elapsed_seconds_range": [
+      0.3140882,
+      0.5705147
+    ],
+    "noise_correction_applied": false,
+    "background_load_controlled": false
+  },
+  "summary": [
+    {
+      "rate": 48000,
+      "waveform": 0,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.0050474754223373,
+      "paired_ratios": [
+        0.8674735935987681,
+        1.013555528274468,
+        0.982222532220524,
+        1.0013123754023683,
+        1.008782575442306,
+        1.3163824766656373,
+        1.022997502907762,
+        0.9688440236313302
+      ],
+      "min_paired_seconds_ratio": 0.8674735935987681,
+      "max_paired_seconds_ratio": 1.3163824766656373
+    },
+    {
+      "rate": 48000,
+      "waveform": 0,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.0203303815936329,
+      "paired_ratios": [
+        1.0712122223281533,
+        0.9481240157201027,
+        1.031545348446146,
+        1.0029133100455263,
+        1.032495087189167,
+        1.147423729028611,
+        0.9702952867999086,
+        1.0091154147411197
+      ],
+      "min_paired_seconds_ratio": 0.9481240157201027,
+      "max_paired_seconds_ratio": 1.147423729028611
+    },
+    {
+      "rate": 48000,
+      "waveform": 1,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.0046799113711633,
+      "paired_ratios": [
+        1.0034707182257379,
+        0.9956908989777997,
+        1.0253470545855747,
+        1.0058891045165885,
+        1.003247637324622,
+        0.9937168250374877,
+        1.00763328868374,
+        1.0237991258203685
+      ],
+      "min_paired_seconds_ratio": 0.9937168250374877,
+      "max_paired_seconds_ratio": 1.0253470545855747
+    },
+    {
+      "rate": 48000,
+      "waveform": 1,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.012696525254959,
+      "paired_ratios": [
+        1.0168004171092524,
+        1.0171941538444587,
+        1.0056519519237006,
+        1.003303027784582,
+        1.0107245432568432,
+        1.0139241133437433,
+        1.0247917935660416,
+        1.0114689371661745
+      ],
+      "min_paired_seconds_ratio": 1.003303027784582,
+      "max_paired_seconds_ratio": 1.0247917935660416
+    },
+    {
+      "rate": 48000,
+      "waveform": 2,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9844043785266576,
+      "paired_ratios": [
+        0.9871923050635677,
+        0.9947539372692241,
+        1.0049643046973493,
+        0.9815906976869666,
+        0.9855059951415419,
+        0.9805697532910803,
+        0.9817341304851269,
+        0.9833027619117732
+      ],
+      "min_paired_seconds_ratio": 0.9805697532910803,
+      "max_paired_seconds_ratio": 1.0049643046973493
+    },
+    {
+      "rate": 48000,
+      "waveform": 2,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9859023205164638,
+      "paired_ratios": [
+        0.988009849299883,
+        0.9961485102245847,
+        0.9832968370490717,
+        1.0062833002912528,
+        0.9819912011358688,
+        0.9881640394990071,
+        0.9837947917330445,
+        0.982890667643349
+      ],
+      "min_paired_seconds_ratio": 0.9819912011358688,
+      "max_paired_seconds_ratio": 1.0062833002912528
+    },
+    {
+      "rate": 48000,
+      "waveform": 3,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9850696963236278,
+      "paired_ratios": [
+        0.9867609341969974,
+        0.9837440550695683,
+        0.9859372554926711,
+        0.9849425275022219,
+        0.9865468578064229,
+        0.9851968651450339,
+        0.9836200641988277,
+        0.9838837430688989
+      ],
+      "min_paired_seconds_ratio": 0.9836200641988277,
+      "max_paired_seconds_ratio": 0.9867609341969974
+    },
+    {
+      "rate": 48000,
+      "waveform": 3,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9880778695121093,
+      "paired_ratios": [
+        0.9967763822648635,
+        0.9900408348332518,
+        0.9889870355007508,
+        0.9872750156685435,
+        0.9876373616297739,
+        0.9880786742969603,
+        0.9880770647272583,
+        0.9822786285558527
+      ],
+      "min_paired_seconds_ratio": 0.9822786285558527,
+      "max_paired_seconds_ratio": 0.9967763822648635
+    },
+    {
+      "rate": 96000,
+      "waveform": 0,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.023910212140477,
+      "paired_ratios": [
+        1.020547527589781,
+        1.0011699612905154,
+        1.027272896691173,
+        1.1024139239159907,
+        1.0092807958057142,
+        1.032105438188741,
+        1.043488714302288,
+        1.0072677505440748
+      ],
+      "min_paired_seconds_ratio": 1.0011699612905154,
+      "max_paired_seconds_ratio": 1.1024139239159907
+    },
+    {
+      "rate": 96000,
+      "waveform": 0,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.011567988885297,
+      "paired_ratios": [
+        1.011426032366918,
+        1.0295369181488976,
+        1.0082064877955517,
+        1.0117099454036764,
+        1.0223269986818582,
+        1.0089621007758407,
+        1.013936839727493,
+        1.0085641023942962
+      ],
+      "min_paired_seconds_ratio": 1.0082064877955517,
+      "max_paired_seconds_ratio": 1.0295369181488976
+    },
+    {
+      "rate": 96000,
+      "waveform": 1,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.013578088179501,
+      "paired_ratios": [
+        1.0139189469122991,
+        1.0237458073358099,
+        1.000787764849996,
+        1.0025780602724976,
+        1.0806170402068889,
+        1.0191562282672124,
+        1.013237229446703,
+        1.0048390495268704
+      ],
+      "min_paired_seconds_ratio": 1.000787764849996,
+      "max_paired_seconds_ratio": 1.0806170402068889
+    },
+    {
+      "rate": 96000,
+      "waveform": 1,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.0103805116390605,
+      "paired_ratios": [
+        1.0332216636669105,
+        1.0081532958674713,
+        0.9858017969061595,
+        1.008035287175153,
+        1.034131239510748,
+        1.0210020075366781,
+        0.9616638136859004,
+        1.0126077274106497
+      ],
+      "min_paired_seconds_ratio": 0.9616638136859004,
+      "max_paired_seconds_ratio": 1.034131239510748
+    },
+    {
+      "rate": 96000,
+      "waveform": 2,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9808929762917388,
+      "paired_ratios": [
+        1.006762937013355,
+        0.9794375496257387,
+        0.9838682766637595,
+        0.9823484029577388,
+        0.9409225052528931,
+        0.9538799991714093,
+        0.9690060550543075,
+        1.0098990121748272
+      ],
+      "min_paired_seconds_ratio": 0.9409225052528931,
+      "max_paired_seconds_ratio": 1.0098990121748272
+    },
+    {
+      "rate": 96000,
+      "waveform": 2,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9823723336578385,
+      "paired_ratios": [
+        0.9811998369392092,
+        0.9788104293224867,
+        0.9942705495734336,
+        0.9753537007287474,
+        0.9965326805258614,
+        0.9866827971083163,
+        0.9835448303764677,
+        0.9790191967594235
+      ],
+      "min_paired_seconds_ratio": 0.9753537007287474,
+      "max_paired_seconds_ratio": 0.9965326805258614
+    },
+    {
+      "rate": 96000,
+      "waveform": 3,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9870186085133834,
+      "paired_ratios": [
+        0.987154079357949,
+        0.9855961649209298,
+        0.986825524184027,
+        0.9884542923373261,
+        0.9845855853091456,
+        0.9911737100512656,
+        0.9884572935343271,
+        0.986883137668818
+      ],
+      "min_paired_seconds_ratio": 0.9845855853091456,
+      "max_paired_seconds_ratio": 0.9911737100512656
+    },
+    {
+      "rate": 96000,
+      "waveform": 3,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9883384175390083,
+      "paired_ratios": [
+        0.9879804806035941,
+        0.9886963544744225,
+        0.9875716638985763,
+        0.9898261680788982,
+        0.9873512542742755,
+        0.9888090332633381,
+        1.0115785611861803,
+        0.9860473106250903
+      ],
+      "min_paired_seconds_ratio": 0.9860473106250903,
+      "max_paired_seconds_ratio": 1.0115785611861803
+    },
+    {
+      "rate": 192000,
+      "waveform": 0,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.0035477174798708,
+      "paired_ratios": [
+        1.00184985454292,
+        0.9737946380840784,
+        1.030232986020966,
+        1.0051405942661966,
+        1.001494318156522,
+        1.0080580961003274,
+        1.1197730209376515,
+        1.001954840693545
+      ],
+      "min_paired_seconds_ratio": 0.9737946380840784,
+      "max_paired_seconds_ratio": 1.1197730209376515
+    },
+    {
+      "rate": 192000,
+      "waveform": 0,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.0106679142310049,
+      "paired_ratios": [
+        1.0088275958854624,
+        0.9884220411918442,
+        1.008810865298169,
+        1.0112852080563874,
+        1.0228078006681933,
+        1.0100506204056225,
+        1.013625319575039,
+        1.0196836207192395
+      ],
+      "min_paired_seconds_ratio": 0.9884220411918442,
+      "max_paired_seconds_ratio": 1.0228078006681933
+    },
+    {
+      "rate": 192000,
+      "waveform": 1,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.0118564305001783,
+      "paired_ratios": [
+        1.0028479423990204,
+        1.0218149759145556,
+        1.064986943392553,
+        1.0076665973289496,
+        1.0023475772832628,
+        1.016046263671407,
+        1.000697051327665,
+        1.0165035177251875
+      ],
+      "min_paired_seconds_ratio": 1.000697051327665,
+      "max_paired_seconds_ratio": 1.064986943392553
+    },
+    {
+      "rate": 192000,
+      "waveform": 1,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 1.015808112405141,
+      "paired_ratios": [
+        1.0184159606995962,
+        1.0197726258172852,
+        1.0261298070878206,
+        1.0132002641106856,
+        1.0498876374146309,
+        1.0131316769824155,
+        1.0122870307264182,
+        1.0112519353430365
+      ],
+      "min_paired_seconds_ratio": 1.0112519353430365,
+      "max_paired_seconds_ratio": 1.0498876374146309
+    },
+    {
+      "rate": 192000,
+      "waveform": 2,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9918956415454718,
+      "paired_ratios": [
+        0.9896191889454574,
+        0.9762287032868431,
+        0.9809833584878824,
+        0.9840886870284314,
+        0.997033275498247,
+        0.9941720941454864,
+        1.0301138657726074,
+        1.0236511091837612
+      ],
+      "min_paired_seconds_ratio": 0.9762287032868431,
+      "max_paired_seconds_ratio": 1.0301138657726074
+    },
+    {
+      "rate": 192000,
+      "waveform": 2,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9815124863407239,
+      "paired_ratios": [
+        0.9554338335708903,
+        0.9857115044706797,
+        0.982028915671447,
+        0.977708666200115,
+        0.9799857787347895,
+        0.9833406254755745,
+        0.9887503192452265,
+        0.9809960570100007
+      ],
+      "min_paired_seconds_ratio": 0.9554338335708903,
+      "max_paired_seconds_ratio": 0.9887503192452265
+    },
+    {
+      "rate": 192000,
+      "waveform": 3,
+      "modulated": false,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9855590657596006,
+      "paired_ratios": [
+        0.9871184394512504,
+        0.9849941774229115,
+        0.9860891285599482,
+        0.9882993836070826,
+        0.9813068376605858,
+        0.9749116891457932,
+        0.985029002959253,
+        0.9871398357178494
+      ],
+      "min_paired_seconds_ratio": 0.9749116891457932,
+      "max_paired_seconds_ratio": 0.9882993836070826
+    },
+    {
+      "rate": 192000,
+      "waveform": 3,
+      "modulated": true,
+      "paired_observations": 8,
+      "median_paired_seconds_ratio": 0.9887444506089936,
+      "paired_ratios": [
+        0.9887383241920042,
+        0.9896506723499128,
+        0.988985500804404,
+        0.987886697780105,
+        0.988750577025983,
+        0.9892933549116082,
+        0.9886173901229094,
+        0.9873956085790403
+      ],
+      "min_paired_seconds_ratio": 0.9873956085790403,
+      "max_paired_seconds_ratio": 0.9896506723499128
+    }
+  ],
+  "qualification": {
+    "cpu_acceptance": "not-established",
+    "production_promotion_allowed": false,
+    "median_slowdown_cells": [
+      {
+        "rate": 48000,
+        "waveform": 0,
+        "modulated": false
+      },
+      {
+        "rate": 48000,
+        "waveform": 0,
+        "modulated": true
+      },
+      {
+        "rate": 48000,
+        "waveform": 1,
+        "modulated": false
+      },
+      {
+        "rate": 48000,
+        "waveform": 1,
+        "modulated": true
+      },
+      {
+        "rate": 96000,
+        "waveform": 0,
+        "modulated": false
+      },
+      {
+        "rate": 96000,
+        "waveform": 0,
+        "modulated": true
+      },
+      {
+        "rate": 96000,
+        "waveform": 1,
+        "modulated": false
+      },
+      {
+        "rate": 96000,
+        "waveform": 1,
+        "modulated": true
+      },
+      {
+        "rate": 192000,
+        "waveform": 0,
+        "modulated": false
+      },
+      {
+        "rate": 192000,
+        "waveform": 0,
+        "modulated": true
+      },
+      {
+        "rate": 192000,
+        "waveform": 1,
+        "modulated": false
+      },
+      {
+        "rate": 192000,
+        "waveform": 1,
+        "modulated": true
+      }
+    ],
+    "all_pairs_slowdown_cells": [
+      {
+        "rate": 48000,
+        "waveform": 1,
+        "modulated": true
+      },
+      {
+        "rate": 96000,
+        "waveform": 0,
+        "modulated": false
+      },
+      {
+        "rate": 96000,
+        "waveform": 0,
+        "modulated": true
+      },
+      {
+        "rate": 96000,
+        "waveform": 1,
+        "modulated": false
+      },
+      {
+        "rate": 192000,
+        "waveform": 1,
+        "modulated": false
+      },
+      {
+        "rate": 192000,
+        "waveform": 1,
+        "modulated": true
+      }
+    ],
+    "interpretation": "Observed ratios, not statistical significance or a native realtime gate.",
+    "remaining_gates": [
+      "controlled-target-repeat",
+      "full-engine-modulated-deadline",
+      "native-host-realtime"
+    ]
+  }
+}
