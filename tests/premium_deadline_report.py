@@ -7,9 +7,11 @@ import io
 import json
 import os
 from pathlib import Path
+import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 spec = importlib.util.spec_from_file_location("deadline", Path(__file__).resolve().parents[1] / "scripts/report-premium-deadline.py")
 deadline = importlib.util.module_from_spec(spec)
@@ -45,13 +47,18 @@ class DeadlineReport(unittest.TestCase):
         cls.temp.cleanup()
 
     def run_report(self, study, high_factor=4, backend="SSE2", workload="stationary-v1", requested="stationary-v1"):
+        if study == 'rate-saw-dispatch':
+            (self.root / 'study.txt').write_text('saw-dispatch-v1')
+            (self.root / 'waveform.txt').write_text('0')
+            (self.root / 'compiler').mkdir(exist_ok=True)
+            (self.root / 'compiler/CMakeCXXCompiler.cmake').write_text('synthetic compiler fixture')
         if study == 'rate-unrolled-fir':
             (self.root / 'study.txt').write_text('2x-interpolation-unroll-v1')
         (self.root / "workload.txt").write_text(workload)
         (self.root / "backend.txt").write_text(backend)
         (self.root / "factors.csv").write_text("rate,reference_factor,study_factor\n48000,4,4\n96000,4,4\n192000," + str(high_factor) + "," + str(high_factor) + "\n")
         captured = io.StringIO()
-        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY=study, SAWSTAR_PREMIUM_WORKLOAD=requested), patch.object(deadline.subprocess, "check_output", return_value="0" * 40), patch.object(deadline.platform, "platform", return_value="test-platform"), contextlib.redirect_stdout(captured):
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY=study, SAWSTAR_PREMIUM_WORKLOAD=requested, SAWSTAR_OSC_WAVEFORM='0'), patch.object(deadline, 'subprocess', SimpleNamespace(check_output=Mock(return_value='0' * 40))), patch.object(deadline.platform, "platform", return_value="test-platform"), contextlib.redirect_stdout(captured):
             deadline.report(self.root)
         self.output = captured.getvalue()
         return json.loads((self.root / "metadata.json").read_text())
@@ -126,6 +133,68 @@ class DeadlineReport(unittest.TestCase):
             self.run_report("rate-lookup", 2, "scalar-source")
         with self.assertRaisesRegex(ValueError, "backend"):
             self.run_report("rate-unrolled-fir", 2, "scalar-source")
+
+    def test_dispatch_has_distinct_engine_waveform_and_provenance(self):
+        metadata = self.run_report('rate-saw-dispatch', 2)
+        self.assertEqual(metadata['study_variant'], 'rate-lookup-saw-dispatch-v1')
+        self.assertEqual(metadata['oscillator_waveform'], 0)
+        self.assertFalse(metadata['production_activation'])
+        self.assertIn('waveform.txt', metadata['measurement_sha256'])
+        self.assertIn('experiments/oscillator/SawDispatchSevenSaw.cpp', metadata['source_file_sha256'])
+        self.assertIn('experiments/premium_filter/PremiumDrive.h', metadata['source_file_sha256'])
+        self.assertIn('compiler/CMakeCXXCompiler.cmake', metadata['compiler_files_sha256'])
+        self.assertIn('DEADLINE_CI_REPORT=', self.output)
+        for waveform in ('1', '2', '3'):
+            (self.root / 'waveform.txt').write_text(waveform)
+            with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-saw-dispatch', SAWSTAR_PREMIUM_WORKLOAD='stationary-v1', SAWSTAR_OSC_WAVEFORM=waveform), patch.object(deadline, 'subprocess', SimpleNamespace(check_output=Mock(return_value='0' * 40))), contextlib.redirect_stdout(io.StringIO()):
+                deadline.report(self.root)
+            self.assertEqual(json.loads((self.root / 'metadata.json').read_text())['oscillator_waveform'], int(waveform))
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-saw-dispatch', SAWSTAR_PREMIUM_WORKLOAD='stationary-v1', SAWSTAR_OSC_WAVEFORM='0'):
+            for invalid in ('1', '4', 'nan'):
+                (self.root / 'waveform.txt').write_text(invalid)
+                with self.assertRaisesRegex(ValueError, 'waveform'): deadline.report(self.root)
+            (self.root / 'waveform.txt').write_text('0')
+            (self.root / 'study.txt').write_text('2x-interpolation-unroll-v1')
+            with self.assertRaisesRegex(ValueError, 'oscillator study'): deadline.report(self.root)
+        with self.assertRaisesRegex(ValueError, 'routing'): self.run_report('rate-saw-dispatch', 4)
+        with self.assertRaisesRegex(ValueError, 'backend'): self.run_report('rate-saw-dispatch', 2, 'scalar-source')
+        self.run_report('rate-saw-dispatch', 2)
+        (self.root / 'compiler/CMakeCXXCompiler.cmake').unlink()
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-saw-dispatch', SAWSTAR_PREMIUM_WORKLOAD='stationary-v1', SAWSTAR_OSC_WAVEFORM='0'), patch.object(deadline, 'subprocess', SimpleNamespace(check_output=Mock(return_value='0' * 40))):
+            with self.assertRaisesRegex(ValueError, 'compiler provenance'): deadline.report(self.root)
+
+    def test_git_fixture_preserves_platform_byte_subprocess(self):
+        self.run_report('rate-saw-dispatch', 2)
+        git_query = Mock(return_value='0' * 40)
+        def platform_query():
+            # macOS platform.architecture calls the shared subprocess module
+            # without text=True and decodes bytes returned by the file command.
+            return subprocess.check_output(['file', '-b', 'python']).decode('latin-1')
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-saw-dispatch', SAWSTAR_PREMIUM_WORKLOAD='stationary-v1', SAWSTAR_OSC_WAVEFORM='0'), patch.object(subprocess, 'check_output', return_value=b'macos-architecture') as system_query, patch.object(deadline, 'subprocess', SimpleNamespace(check_output=git_query)), patch.object(deadline.platform, 'platform', side_effect=platform_query), contextlib.redirect_stdout(io.StringIO()):
+            deadline.report(self.root)
+        system_query.assert_called_once_with(['file', '-b', 'python'])
+        git_query.assert_called_once_with(['git', 'rev-parse', 'HEAD'], text=True)
+        self.assertEqual(json.loads((self.root / 'metadata.json').read_text())['platform'], 'macos-architecture')
+
+    def test_dispatch_rejects_different_paired_signal(self):
+        summary = self.root / 'summary.csv'
+        original = summary.read_bytes()
+        try:
+            for field in ('peak', 'rms', 'checksum'):
+                with summary.open(newline='') as handle:
+                    reader = csv.DictReader(handle)
+                    fields, rows = reader.fieldnames, list(reader)
+                row = next(row for row in rows if row['engine'] == 'study')
+                row[field] = str(float(row[field]) + .001)
+                with summary.open('w', newline='') as handle:
+                    writer = csv.DictWriter(handle, fieldnames=fields)
+                    writer.writeheader()
+                    writer.writerows(rows)
+                with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'paired signal'):
+                    self.run_report('rate-saw-dispatch', 2)
+                summary.write_bytes(original)
+        finally:
+            summary.write_bytes(original)
 
     def test_unrolled_study_identity_and_provenance(self):
         result = self.run_report('rate-unrolled-fir', 2, workload='modulated-v1', requested='modulated-v1')

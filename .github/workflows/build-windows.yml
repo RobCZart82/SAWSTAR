@@ -12,8 +12,9 @@ jobs:
   foundation:
     name: windows-2022 / ${{ matrix.config }}
     runs-on: windows-2022
-    # Full-sequence modulation adds ~173 s to Debug; retain the entire suite.
-    timeout-minutes: ${{ matrix.config == 'Debug' && 20 || 15 }}
+    # The complete Debug DSP suite exceeded 20 minutes on hosted Windows.
+    # Keep every test and its per-test limit; allow the full grid to finish.
+    timeout-minutes: ${{ matrix.config == 'Debug' && 45 || 15 }}
     strategy:
       fail-fast: false
       matrix:

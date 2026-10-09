@@ -8,3 +8,6 @@ experiments/oscillator/measurements/2026-10-08-shared-frequency*/**/compiler/*.c
 
 # Preserve the reported target-campaign summaries and their archive hashes.
 experiments/oscillator/measurements/2026-10-09-shared-frequency-target-ci-summary/** -text whitespace=cr-at-eol
+
+# Preserve the separate SAW dispatch campaign summaries and archive hashes.
+experiments/oscillator/measurements/2026-10-09-saw-dispatch-ci-summary/** -text whitespace=cr-at-eol

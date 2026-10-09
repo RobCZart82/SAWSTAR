@@ -159,3 +159,32 @@ Windows/macOS referencia/jelölt mérés következik.
 A 3. lépés CPU-elfogadása és a 4–8. lépés továbbra is nyitott.
 Kedvező izolált mérés után is teljesmotoros modulált deadline-próba,
 azonos forrású célgépes ismétlés, minőség/rátapolicy és natív REAPER kell.
+
+## A #92 lezárt izolált mérföldköve - 2026-10-09
+
+A #92 beolvadt (`9cf0ba0`); a `f0a06cd` pontos PR-head mind az 50
+check-runja és mind a 14 workflow-futama sikeres. A SAW-dispatch külön
+Windows/macOS, két körös mérése elkészült. Minden SAW-cella mediánja
+kedvezőbb: Windows körülbelül 12-23%, macOS 7-20% kisebb bankidő.
+
+| Platform / kör | Jelölt mediánban lassabb | Jelölt mind a nyolc párban lassabb | SAW mediáni study/reference tartomány |
+| --- | ---: | ---: | ---: |
+| windows / 1 | 8 / 24 | 2 / 24 | 0.771983-0.880968 |
+| windows / 2 | 9 / 24 | 4 / 24 | 0.780816-0.878055 |
+| macos / 1 | 15 / 24 | 2 / 24 | 0.844562-0.927996 |
+| macos / 2 | 12 / 24 | 0 / 24 | 0.804728-0.925081 |
+
+Az alternatív hullámformáknál lassulások is vannak; a macOS referencia-
+ismétlés mediánjai is szélesen szóródnak. A körök és hullámformák külön
+maradnak, nincs kontrollból levonás, outlier-kizárás vagy CPU-elfogadás.
+[Nyolc riport és eredet](../experiments/oscillator/measurements/2026-10-09-saw-dispatch-ci-summary/provenance.json).
+A fájlhash-ek a joblogból kinyert JSON-archívumot ellenőrzik; az eredeti
+nyers CSV/compiler artifactokat ebben a lépésben nem töltöttük újra le.
+
+A következő kapu a külön [teljesmotoros dispatch-próba](OSCILLATOR_DISPATCH_ENGINE_STUDY.md):
+azonos lookup filter és Drive mellett csak OSC1/OSC2 változik. A négy
+hullámforma külön statikus/modulált p99 és deadline-túllépés gridet kap,
+bitazonos hanggal és hullámformaváltási regresszióval. A kedvezőtlen
+alternatív ágakat ugyanúgy értékeljük. Az új platformos mérés még nyitott.
+A production DSP nem változik. A 3. lépés CPU-elfogadása és a 4-8. lépés
+továbbra is nyitott; kódazonos célgépes ismétlés és natív REAPER szükséges.

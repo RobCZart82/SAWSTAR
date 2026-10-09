@@ -12,9 +12,9 @@ jobs:
   foundation:
     name: macos-14 / ${{ matrix.config }}
     runs-on: macos-14
-    # The unoptimized DSP suite can exceed 15 minutes on a slower hosted runner.
-    # Keep every test enabled; allow extra time only for the Debug configuration.
-    timeout-minutes: ${{ matrix.config == 'Debug' && 25 || 15 }}
+    # The complete unoptimized DSP suite exceeded 25 minutes on hosted macOS.
+    # Include the full-engine waveform grid; keep every test enabled.
+    timeout-minutes: ${{ matrix.config == 'Debug' && 45 || 15 }}
     strategy:
       fail-fast: false
       matrix:
