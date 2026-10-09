@@ -7,9 +7,11 @@ import io
 import json
 import os
 from pathlib import Path
+import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 spec = importlib.util.spec_from_file_location("deadline", Path(__file__).resolve().parents[1] / "scripts/report-premium-deadline.py")
 deadline = importlib.util.module_from_spec(spec)
@@ -56,7 +58,7 @@ class DeadlineReport(unittest.TestCase):
         (self.root / "backend.txt").write_text(backend)
         (self.root / "factors.csv").write_text("rate,reference_factor,study_factor\n48000,4,4\n96000,4,4\n192000," + str(high_factor) + "," + str(high_factor) + "\n")
         captured = io.StringIO()
-        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY=study, SAWSTAR_PREMIUM_WORKLOAD=requested, SAWSTAR_OSC_WAVEFORM='0'), patch.object(deadline.subprocess, "check_output", return_value="0" * 40), patch.object(deadline.platform, "platform", return_value="test-platform"), contextlib.redirect_stdout(captured):
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY=study, SAWSTAR_PREMIUM_WORKLOAD=requested, SAWSTAR_OSC_WAVEFORM='0'), patch.object(deadline, 'subprocess', SimpleNamespace(check_output=Mock(return_value='0' * 40))), patch.object(deadline.platform, "platform", return_value="test-platform"), contextlib.redirect_stdout(captured):
             deadline.report(self.root)
         self.output = captured.getvalue()
         return json.loads((self.root / "metadata.json").read_text())
@@ -144,7 +146,7 @@ class DeadlineReport(unittest.TestCase):
         self.assertIn('DEADLINE_CI_REPORT=', self.output)
         for waveform in ('1', '2', '3'):
             (self.root / 'waveform.txt').write_text(waveform)
-            with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-saw-dispatch', SAWSTAR_PREMIUM_WORKLOAD='stationary-v1', SAWSTAR_OSC_WAVEFORM=waveform), patch.object(deadline.subprocess, 'check_output', return_value='0' * 40), contextlib.redirect_stdout(io.StringIO()):
+            with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-saw-dispatch', SAWSTAR_PREMIUM_WORKLOAD='stationary-v1', SAWSTAR_OSC_WAVEFORM=waveform), patch.object(deadline, 'subprocess', SimpleNamespace(check_output=Mock(return_value='0' * 40))), contextlib.redirect_stdout(io.StringIO()):
                 deadline.report(self.root)
             self.assertEqual(json.loads((self.root / 'metadata.json').read_text())['oscillator_waveform'], int(waveform))
         with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-saw-dispatch', SAWSTAR_PREMIUM_WORKLOAD='stationary-v1', SAWSTAR_OSC_WAVEFORM='0'):
@@ -158,8 +160,21 @@ class DeadlineReport(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'backend'): self.run_report('rate-saw-dispatch', 2, 'scalar-source')
         self.run_report('rate-saw-dispatch', 2)
         (self.root / 'compiler/CMakeCXXCompiler.cmake').unlink()
-        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-saw-dispatch', SAWSTAR_PREMIUM_WORKLOAD='stationary-v1', SAWSTAR_OSC_WAVEFORM='0'), patch.object(deadline.subprocess, 'check_output', return_value='0' * 40):
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-saw-dispatch', SAWSTAR_PREMIUM_WORKLOAD='stationary-v1', SAWSTAR_OSC_WAVEFORM='0'), patch.object(deadline, 'subprocess', SimpleNamespace(check_output=Mock(return_value='0' * 40))):
             with self.assertRaisesRegex(ValueError, 'compiler provenance'): deadline.report(self.root)
+
+    def test_git_fixture_preserves_platform_byte_subprocess(self):
+        self.run_report('rate-saw-dispatch', 2)
+        git_query = Mock(return_value='0' * 40)
+        def platform_query():
+            # macOS platform.architecture calls the shared subprocess module
+            # without text=True and decodes bytes returned by the file command.
+            return subprocess.check_output(['file', '-b', 'python']).decode('latin-1')
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_STUDY='rate-saw-dispatch', SAWSTAR_PREMIUM_WORKLOAD='stationary-v1', SAWSTAR_OSC_WAVEFORM='0'), patch.object(subprocess, 'check_output', return_value=b'macos-architecture') as system_query, patch.object(deadline, 'subprocess', SimpleNamespace(check_output=git_query)), patch.object(deadline.platform, 'platform', side_effect=platform_query), contextlib.redirect_stdout(io.StringIO()):
+            deadline.report(self.root)
+        system_query.assert_called_once_with(['file', '-b', 'python'])
+        git_query.assert_called_once_with(['git', 'rev-parse', 'HEAD'], text=True)
+        self.assertEqual(json.loads((self.root / 'metadata.json').read_text())['platform'], 'macos-architecture')
 
     def test_dispatch_rejects_different_paired_signal(self):
         summary = self.root / 'summary.csv'

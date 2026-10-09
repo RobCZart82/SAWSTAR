@@ -28,7 +28,7 @@ kontroll elutasít. Nem lazítjuk a korábbi minőségi toleranciákat.
 Helyi Windows MSVC 19.44 Release: a 480 eset és az alap deadline-fixture
 sikeres. A repository top-level CMake-konfigurációja és az új kutatási targetek
 Release buildje is sikeres. A négy modulált waveform-fixture bitazonos;
-a hibás selectorok elutasítottak. Nyolc deadline-reporter és 15 oszcillátor-
+a hibás selectorok elutasítottak. Kilenc deadline-reporter és 15 oszcillátor-
 reporter/archívumteszt sikeres, helyi workspace-fixture adapterrel.
 A macOS regresszió és a platformos CPU-mérés még a workflow feladata;
 a helyi build nem teljes plugin-build vagy natív hostpróba.
@@ -70,3 +70,16 @@ a SAW-nyereség, minden alternatív ág, p99 és túllépés; jobb izolált medi
 nem bizonyít teljesmotoros vagy natív realtime nyereséget. Következik az
 azonos forrású célgépes ismétlés, magasráta/minőségpolicy és natív REAPER,
 majd a roadmap 5-8. production/kiadási kapuja. Kiadási verzió nincs kijelölve.
+
+## A #93 első macOS CI-köre és a tesztjavítás
+
+A 7a35671 forrás mind a 480 teljesmotoros bitazonossági esetet és a bank/
+deadline C++ kontrollokat sikeresen teljesítette macOS-en is. A közös
+Python-riportteszt elbukott: a git SHA-hoz használt globális check_output
+helyettesítés a platform.architecture bytes-lekérdezésére is átterjedt.
+A javítás csak a reporter subprocess hivatkozását helyettesíti; az önálló
+rendszerlekérdezés bytes-viselkedése megmarad. Kilenc helyi riportteszt
+sikeres, és a régi globális helyettesítést egy macOS bytes-regresszió
+külön elutasítja. A workflow már a configure/build/CTest naplókat is
+megőrzi a mérés előtti hiba esetén. A friss platformos CI és CPU-mérés
+még nem lezárt kapu.

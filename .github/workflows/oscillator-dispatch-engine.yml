@@ -42,16 +42,16 @@ jobs:
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           submodules: recursive
+      - name: Prepare qualification evidence
+        run: mkdir -p dispatch-engine-results/compiler
       - name: Configure and build Release controls
         run: |
-          cmake -S . -B build-dispatch-engine -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON
-          cmake --build build-dispatch-engine --config Release --target sawstar_dispatch_engine_tests sawstar_dispatch_engine_deadline sawstar_oscillator_dispatch_tests sawstar_premium_lookup_complex_tests --parallel 2
+          cmake -S . -B build-dispatch-engine -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON 2>&1 | tee dispatch-engine-results/configure.log
+          cmake --build build-dispatch-engine --config Release --target sawstar_dispatch_engine_tests sawstar_dispatch_engine_deadline sawstar_oscillator_dispatch_tests sawstar_premium_lookup_complex_tests --parallel 2 2>&1 | tee dispatch-engine-results/build.log
       - name: Qualify bank and complete engine before timing
-        run: ctest --test-dir build-dispatch-engine -C Release -R '^(oscillator_dispatch_(bit_identity|engine_identity|engine_deadline_fixture)|premium_deadline_report)$' --no-tests=error --verbose --timeout 600
+        run: ctest --test-dir build-dispatch-engine -C Release -R '^(oscillator_dispatch_(bit_identity|engine_identity|engine_deadline_fixture)|premium_deadline_report)$' --no-tests=error --verbose --timeout 600 2>&1 | tee dispatch-engine-results/contracts.txt
       - name: Measure separate waveform grids with unchanged lookup filter
         run: |
-          mkdir -p dispatch-engine-results/compiler
-          cp build-dispatch-engine/Testing/Temporary/LastTest.log dispatch-engine-results/contracts.txt
           find build-dispatch-engine/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' dispatch-engine-results/compiler/ \;
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             probe=build-dispatch-engine/Release/sawstar_dispatch_engine_deadline.exe
