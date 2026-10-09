@@ -21,8 +21,9 @@ jobs:
   coverage:
     name: Linux code coverage
     runs-on: ubuntu-24.04
-    # O0 coverage executes the full modulation sequence (~143 s) plus gcovr.
-    timeout-minutes: 35
+    # The complete O0/instrumented DSP suite exceeded the 35-minute job budget.
+    # Keep all tests and the 600-second per-test limit, plus time for gcovr.
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
