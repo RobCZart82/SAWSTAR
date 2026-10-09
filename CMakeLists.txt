@@ -1483,5 +1483,7 @@ if(BUILD_TESTING)
   if(SAWSTAR_CHECK_DAISYSP)
     add_test(NAME oscillator_cache_report
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/oscillator_cache_report.py")
+    add_test(NAME oscillator_target_runner
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/oscillator_target_runner.py")
   endif()
 endif()

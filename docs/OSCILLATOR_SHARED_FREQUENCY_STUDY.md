@@ -160,3 +160,32 @@ Ez kedvező helyi jel az alternatív hullámformákra, a SAW továbbra is
 kontroll. A korábbi negatív Windows-adat ettől érvényes marad. Az új
 Windows/macOS workflow eredménye még szükséges; CPU-nyereség vagy
 teljesmotoros aktiválás nem tekinthető elfogadottnak.
+
+## Hosszabb platformmérés — 2026-10-09
+
+A #89 `c09785828b8ec19c7daef22447b30480cf655fad` forrásával a
+[37838111273 futam](https://github.com/RobCZart82/SAWSTAR/actions/runs/37838111273)
+mindkét platformkampánya sikeres. A naplóból változatlanul kiemelt schema-3
+JSON-ok a `2026-10-09-shared-frequency-extended-ci-summary` mappában maradnak.
+Ezek a 24 cellát és minden páros arányt tartalmazzák; a nyers CI CSV-t nem
+töltöttük le újra, raw/compiler/source hash-eiket a CI által közölt formában
+őrizzük meg. Nem helyettesítik a teljes nyers artifactot.
+
+| Platform | Jelölt mediánban lassabb | Jelölt minden párban lassabb |
+| --- | ---: | ---: |
+| Windows 2022 AMD64 | 12 / 24 | 6 / 24 |
+| macOS 14 arm64 | 5 / 24 | 0 / 24 |
+
+Windows SAW mediánarány: 1.003548–1.023910, Square: 1.004680–1.015808;
+Triangle: 0.980893–0.991896, Sine: 0.985070–0.988744. A SAW/Square
+valamennyi cellája mediánban lassabb. A változatlan referencia 24 cellájának
+mediánja 0.987198–1.005738 közé esik; a két kampány külön időszak, ezért
+nem vonjuk ki automatikusan a kontrollt a jelöltből.
+
+macOS alatt a referencia cellamediánjai 0.936397–1.126021 között szóródnak;
+a kedvező jelöltcellák nem általánosíthatók stabil CPU-nyereséggé. A hosszabb
+mérés sem teszi kontrollálttá az Actions runner háttérterhelését.
+
+Döntés: a jelölt kísérleti marad, általános teljesmotoros bevezetés nincs.
+A következő kapu az azonos forrású saját célgépes ismétlés, amelyet az új
+[gyűjtő és útmutató](OSCILLATOR_TARGET_MEASUREMENT.md) készít elő.
