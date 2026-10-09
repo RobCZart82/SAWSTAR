@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-#if defined(SAWSTAR_SHARED_FREQUENCY_STUDY)
+#if defined(SAWSTAR_SAW_DISPATCH_STUDY)
+#include "../experiments/oscillator/SawDispatchSevenSaw.h"
+#elif defined(SAWSTAR_SHARED_FREQUENCY_STUDY)
 #include "../experiments/oscillator/SharedFrequencySevenSaw.h"
 #else
 #include "../experiments/oscillator/CachedSevenSaw.h"
@@ -10,7 +12,11 @@
 #include <limits>
 #include <stdexcept>
 using Reference = sawstar::SevenSaw;
-#if defined(SAWSTAR_SHARED_FREQUENCY_STUDY)
+#if defined(SAWSTAR_SAW_DISPATCH_STUDY)
+using Candidate = sawstar::experimental_oscillator::SawDispatchSevenSaw;
+constexpr int Scenes = 4;
+static_assert(sizeof(Candidate) == sizeof(Reference), "No added oscillator state");
+#elif defined(SAWSTAR_SHARED_FREQUENCY_STUDY)
 using Candidate = sawstar::experimental_oscillator::SharedFrequencySevenSaw;
 constexpr int Scenes = 4;
 static_assert(sizeof(Candidate) == sizeof(Reference), "No added oscillator state");
@@ -76,6 +82,28 @@ int main() {
         if (caseEnergy < 1e-12) throw std::runtime_error("Silent comparison scene");
         energy += caseEnergy; ++cases;
       }
+#if defined(SAWSTAR_SAW_DISPATCH_STUDY)
+    // Long transitions enter the SAW-only kernel after alternative weights clear.
+    // Leaving it must resume the exact retained square/sine phase and triangle history.
+    int transitionFrames = 0;
+    for (float rate : {8000.f, 44100.f, 48000.f, 96000.f, 192000.f, 384000.f})
+      for (int wave = 1; wave < 4; ++wave) {
+        Reference a; Candidate b; Setup(a, rate, wave); Setup(b, rate, wave);
+        a.SetWaveform(0); b.SetWaveform(0);
+        const int settling = int(rate / 4) + 256;
+        for (int n = 0; n < settling + 1024; ++n) {
+          if (n == settling) { a.SetWaveform(wave); b.SetWaveform(wave); }
+          const float pitch = 1.f + .01f * std::sin(float(n) * .001f);
+          a.SetPitchMultiplier(pitch); b.SetPitchMultiplier(pitch);
+          if (n % 257 == 0) {
+            const float cents = n % 514 ? 50.f : 0.f;
+            a.SetShape(cents, .7f, .8f); b.SetShape(cents, .7f, .8f);
+          }
+          Equal(a.Process(), b.Process()); ++transitionFrames;
+        }
+      }
+    std::cout << transitionFrames << " long-transition stereo frames, bit identity PASS; ";
+#endif
     if (cases != 24 * Scenes) throw std::runtime_error("Incomplete oscillator grid");
     std::cout << cases << " scenes, " << cases * (8192 + 96) << " stereo frames, bit identity PASS; energy=" << energy << '\n';
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }

@@ -1,0 +1,65 @@
+name: Oscillator SAW dispatch research
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/oscillator-dispatch.yml'
+      - 'CMakeLists.txt'
+      - 'experiments/oscillator/**'
+      - 'src/dsp/SevenSaw.*'
+      - 'src/dsp/Safety.h'
+      - 'third_party/DaisySP'
+      - 'tests/oscillator_frequency_cache.cpp'
+      - 'tests/oscillator_cache_report.py'
+      - 'scripts/report-oscillator-cache.py'
+      - 'scripts/run-oscillator-target.py'
+      - 'tests/oscillator_target_runner.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: oscillator-dispatch-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    name: Oscillator SAW dispatch / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-14]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          submodules: recursive
+      - name: Build, qualify and collect repeated target campaigns
+        run: |
+          python scripts/run-oscillator-target.py --variant saw-dispatch-v1 --build-dir "$RUNNER_TEMP/oscillator-dispatch-build" --output-dir "$RUNNER_TEMP/oscillator-dispatch-results"
+      - name: Publish separate campaign summaries
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP']) / 'oscillator-dispatch-results'
+          manifest = json.loads((root / 'manifest.json').read_bytes())
+          assert manifest['state'] == 'complete' and len(manifest['runs']) == 4
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a', encoding='utf-8') as summary:
+              for run in manifest['runs']:
+                  folder = root / run['folder']
+                  summary.write(f"\n## Round {run['round']}: {run['comparison']}\n\n")
+                  summary.write((folder / 'report.md').read_text(encoding='utf-8'))
+                  payload = json.loads((folder / 'report.json').read_bytes())
+                  print('OSCILLATOR_DISPATCH_REPORT=' + json.dumps({'round': run['round'], 'report': payload}, separators=(',', ':')))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: oscillator-dispatch-extended-${{ matrix.os }}
+          path: ${{ runner.temp }}/oscillator-dispatch-results/
+          if-no-files-found: error
+          retention-days: 90

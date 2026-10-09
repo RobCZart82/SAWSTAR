@@ -54,3 +54,17 @@ a filter minőség/rátapolicy és a natív REAPER callback külön kapu marad.
 Először a negatív Windows SAW/Square eredmények ismétlését és az alternatív
 hullámformák következetességét kell értékelni, majd indokolt esetben külön
 teljesmotoros modulált deadline-kísérlet következhet.
+
+## Külön SAW-dispatch jelölt
+
+A meglévő parancs alapértelmezése továbbra is `shared-frequency-v1`.
+Az új jelölt külön executable-t, numerikus kaput és forráshash-készletet használ:
+
+```powershell
+python scripts/run-oscillator-target.py --variant saw-dispatch-v1 --build-dir ../sawstar-dispatch-build-01 --output-dir ../sawstar-dispatch-results-01
+```
+
+A CSV, manifest és riport `candidate_variant=saw-dispatch-v1` azonosítója
+nem keverhető a cache vagy frekvenciamegosztás eredményével. A referenciaismétlés
+itt is a változatlan SevenSaw két futása; nem új jelölt vagy zajlevonás.
+Az összes korábbi CPU/natív korlát megmarad.

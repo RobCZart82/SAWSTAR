@@ -131,3 +131,31 @@ elindult, sikeres Windows/macOS mérés. A CPU/native elfogadás nyitott marad.
 Beolvasztás előtt a pontos forráscommit check-runjai mellett a workflow-
 futamok állapotát is külön ellenőrizzük: a job nélkül elbukott workflow
 nem zöld kapu. A javítás megelőzi az új DSP-kísérletet.
+
+## A #91 lezárt mérése és az új SAW-hipotézis — 2026-10-09
+
+A fenti workflow-indítási hiba már javítva: a #91 beolvadt (`7983958`),
+a `02dca9d` pontos head 20 check-runja és mind a hét workflow-futama sikeres.
+A valódi Windows/macOS gyűjtő platformonként két kör / négy teljes kampányt
+futtatott, 1536 nyers sorral. Ez a mérési feladat elkészült; nem várakozó kapu.
+
+Windows alatt a frekvenciamegosztási jelölt 12/24, majd 14/24 cellában
+medián szerint lassabb; 7/24, majd 6/24 mind a nyolc párban lassabb.
+Minden SAW-cella mediánja lassabb mindkét körben: 1,028877–1,084684 és
+1,029480–1,077297 study/reference arány. macOS-en mindkét kör 6/24
+mediánlassulást és széles referencia-szóródást mutat. Nincs általános
+production aktiválás. A külön körök és a korábbi negatív adatok megmaradnak.
+[Nyolc riport és eredet](../experiments/oscillator/measurements/2026-10-09-shared-frequency-target-ci-summary/provenance.json).
+
+A következő izolált jelölt a tisztán SAW feldolgozás bankonkénti dispatch-e:
+az inaktív alternatívák feltételeit egyszer vizsgálja a hét oszcillátor
+belső ciklusa helyett. Nem a korábbi cache vagy frekvenciamegosztás
+kombinációja. A SAW setterei, frekvenciaszámítása, súlya és összegzési
+sorrendje megmarad; átmenet alatt az eredeti általános út dolgozik.
+Külön variáns, hosszú átmeneti bitazonossági regresszió és két körös
+Windows/macOS referencia/jelölt mérés következik.
+[SAW-dispatch vizsgálat](OSCILLATOR_SAW_DISPATCH_STUDY.md).
+
+A 3. lépés CPU-elfogadása és a 4–8. lépés továbbra is nyitott.
+Kedvező izolált mérés után is teljesmotoros modulált deadline-próba,
+azonos forrású célgépes ismétlés, minőség/rátapolicy és natív REAPER kell.
