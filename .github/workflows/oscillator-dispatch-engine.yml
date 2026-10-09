@@ -14,6 +14,9 @@ on:
       - 'tests/premium_drive_complex.cpp'
       - 'tests/premium_deadline_report.py'
       - 'scripts/report-premium-deadline.py'
+      - 'scripts/run-dispatch-engine-target.py'
+      - 'scripts/run-oscillator-target.py'
+      - 'tests/dispatch_engine_target_runner.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -49,7 +52,7 @@ jobs:
           cmake -S . -B build-dispatch-engine -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON 2>&1 | tee dispatch-engine-results/configure.log
           cmake --build build-dispatch-engine --config Release --target sawstar_dispatch_engine_tests sawstar_dispatch_engine_deadline sawstar_oscillator_dispatch_tests sawstar_premium_lookup_complex_tests --parallel 2 2>&1 | tee dispatch-engine-results/build.log
       - name: Qualify bank and complete engine before timing
-        run: ctest --test-dir build-dispatch-engine -C Release -R '^(oscillator_dispatch_(bit_identity|engine_identity|engine_deadline_fixture)|premium_deadline_report)$' --no-tests=error --verbose --timeout 600 2>&1 | tee dispatch-engine-results/contracts.txt
+        run: ctest --test-dir build-dispatch-engine -C Release -R '^(oscillator_dispatch_(bit_identity|engine_identity|engine_deadline_fixture|engine_reference_contract)|premium_deadline_report|dispatch_engine_target_runner)$' --no-tests=error --verbose --timeout 600 2>&1 | tee dispatch-engine-results/contracts.txt
       - name: Measure separate waveform grids with unchanged lookup filter
         run: |
           find build-dispatch-engine/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' dispatch-engine-results/compiler/ \;

@@ -51,7 +51,7 @@ void Check(sawstar::StereoSample y) {
      std::abs(y.left)>.98001f||std::abs(y.right)>.98001f)
     throw std::runtime_error("Invalid protected engine output");
 }
-void Contract(bool modulated = false) {
+template<class Candidate=Study> void Contract(bool modulated = false) {
   const auto d=Summarize({150,25,100,50});
   if(d.median!=75||d.p95!=150||d.p99!=150||d.worst!=150||d.over!=1)
     throw std::runtime_error("Distribution endpoints/strict budget");
@@ -68,7 +68,7 @@ void Contract(bool modulated = false) {
   }
   double maximum=0,preMaximum=0;
   for(double rate:{48000.,96000.,192000.})for(int mode=0;mode<4;++mode) {
-    auto a=std::make_unique<Reference>();auto b=std::make_unique<Study>();
+    auto a=std::make_unique<Reference>();auto b=std::make_unique<Candidate>();
     Setup(*a,rate,mode);Setup(*b,rate,mode);double energy=0,squared=0,preEnergy=0,preSquared=0;
     if(modulated) {
       sawstar::experimental::PrepareDeadlineModulation(*a);
@@ -155,8 +155,11 @@ void Row(std::ostream& summary,std::ostream& raw,const char* label,double rate,
   for(size_t block=0;block<r.times.size();++block)
     raw<<label<<','<<rate<<','<<mode<<','<<buffer<<','<<pair<<','<<block<<','<<r.times[block]<<'\n';
 }
-void Benchmark(const std::filesystem::path& folder,bool modulated=false) {
+void Benchmark(const std::filesystem::path& folder,bool modulated=false,bool referenceRepeat=false) {
   std::filesystem::create_directories(folder);
+  std::ofstream comparison(folder/"comparison.txt");
+  comparison<<(referenceRepeat?"reference-repeat":"candidate")<<'\n';comparison.close();
+  if(!comparison)throw std::runtime_error("Cannot record compiled comparison");
   std::ofstream identity(folder/"study.txt"); identity<<"saw-dispatch-v1\n"; identity.close();
   if(!identity)throw std::runtime_error("Cannot record compiled oscillator study");
   std::ofstream wave(folder/"waveform.txt"); wave<<Waveform<<'\n'; wave.close();
@@ -188,8 +191,9 @@ void Benchmark(const std::filesystem::path& folder,bool modulated=false) {
   for(double rate:{48000.,96000.,192000.})for(int mode=0;mode<4;++mode)
     for(int buffer:{32,64,128})for(int pair=0;pair<4;++pair) {
       Result a,b;
-      if(pair%2){b=Measure<Study>(rate,mode,buffer,modulated);a=Measure<Reference>(rate,mode,buffer,modulated);}
-      else{a=Measure<Reference>(rate,mode,buffer,modulated);b=Measure<Study>(rate,mode,buffer,modulated);}
+      const auto study=[&](){return referenceRepeat?Measure<Reference>(rate,mode,buffer,modulated):Measure<Study>(rate,mode,buffer,modulated);};
+      if(pair%2){b=study();a=Measure<Reference>(rate,mode,buffer,modulated);}
+      else{a=Measure<Reference>(rate,mode,buffer,modulated);b=study();}
       Row(summary,raw,"reference",rate,mode,buffer,pair,a);
       Row(summary,raw,"study",rate,mode,buffer,pair,b);
     }
@@ -200,6 +204,8 @@ void Benchmark(const std::filesystem::path& folder,bool modulated=false) {
 }
 int main(int argc,char** argv) {
   try {
+    const bool referenceRepeat=argc>1&&std::string(argv[argc-1])=="--reference-repeat";
+    if(referenceRepeat)--argc;
     // Optional waveform selector belongs only to this distinct executable.
     if(argc==4 || argc==5) {
       if(std::string(argv[argc-2])!="--waveform")throw std::runtime_error("Expected waveform selector");
@@ -207,11 +213,12 @@ int main(int argc,char** argv) {
       if(value!="0"&&value!="1"&&value!="2"&&value!="3")throw std::runtime_error("Unknown waveform");
       Waveform=value[0]-'0'; argc-=2;
     }
-    if(argc==1)Contract();
-    else if(argc==2&&std::string(argv[1])=="--modulation-contract")Contract(true);
-    else if(argc==3&&std::string(argv[1])=="--deadline")Benchmark(argv[2]);
-    else if(argc==3&&std::string(argv[1])=="--deadline-modulated")Benchmark(argv[2],true);
-    else throw std::runtime_error("Usage: dispatch_engine_deadline [--modulation-contract | --deadline output-directory | --deadline-modulated output-directory] [--waveform 0|1|2|3]");
+    if(argc==1&&!referenceRepeat)Contract();
+    else if(argc==2&&!referenceRepeat&&std::string(argv[1])=="--modulation-contract")Contract(true);
+    else if(argc==2&&!referenceRepeat&&std::string(argv[1])=="--reference-repeat-contract")Contract<Reference>(true);
+    else if(argc==3&&std::string(argv[1])=="--deadline")Benchmark(argv[2],false,referenceRepeat);
+    else if(argc==3&&std::string(argv[1])=="--deadline-modulated")Benchmark(argv[2],true,referenceRepeat);
+    else throw std::runtime_error("Usage: dispatch_engine_deadline [--modulation-contract | --deadline output-directory | --deadline-modulated output-directory] [--waveform 0|1|2|3] [--reference-repeat (timing only, last argument)]");
   }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }
 

@@ -46,6 +46,29 @@ class DeadlineReport(unittest.TestCase):
     def tearDownClass(cls):
         cls.temp.cleanup()
 
+    def setUp(self):
+        (self.root / 'comparison.txt').unlink(missing_ok=True)
+
+    def test_dispatch_reference_repeat_has_compiled_identity(self):
+        legacy = self.run_report('rate-saw-dispatch', 2)
+        self.assertEqual(legacy['comparison'], 'candidate')
+        self.assertEqual(legacy['study_variant'], 'rate-lookup-saw-dispatch-v1')
+        with patch.dict(os.environ, SAWSTAR_PREMIUM_COMPARISON='reference-repeat'):
+            with self.assertRaisesRegex(ValueError, 'comparison'):
+                self.run_report('rate-saw-dispatch', 2)
+            (self.root / 'comparison.txt').write_bytes(b'reference-repeat\r\n')
+            meta = self.run_report('rate-saw-dispatch', 2)
+            self.assertEqual(meta['comparison'], 'reference-repeat')
+            self.assertEqual(meta['reference_variant'], meta['study_variant'])
+            self.assertIn('comparison.txt', meta['measurement_sha256'])
+        with self.assertRaisesRegex(ValueError, 'comparison'):
+            self.run_report('rate-saw-dispatch', 2)
+        (self.root / 'comparison.txt').write_text('candidate')
+        self.assertEqual(self.run_report('rate-saw-dispatch', 2)['comparison'], 'candidate')
+        (self.root / 'comparison.txt').write_text('unknown')
+        with self.assertRaisesRegex(ValueError, 'comparison'):
+            self.run_report('rate-saw-dispatch', 2)
+
     def run_report(self, study, high_factor=4, backend="SSE2", workload="stationary-v1", requested="stationary-v1"):
         if study == 'rate-saw-dispatch':
             (self.root / 'study.txt').write_text('saw-dispatch-v1')

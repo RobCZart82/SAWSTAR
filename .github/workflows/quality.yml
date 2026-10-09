@@ -92,7 +92,9 @@ jobs:
   sanitizer:
     name: Linux AddressSanitizer and UBSan
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    # The serial instrumented suite reached 112/123 passing tests before the
+    # 35-minute job cutoff. Retain every test and the 600-second per-test limit.
+    timeout-minutes: 60
 
     env:
       ASAN_OPTIONS: detect_leaks=1:abort_on_error=1:halt_on_error=1:strict_init_order=1

@@ -11,12 +11,16 @@ elkészítette: összesen 16 grid, sikeres numerikus kontrollokkal. Ez a mérés
 elkészült, a 3. lépés CPU-elfogadása azonban nem teljesült. A jobb SAW-medián
 mellett alternatív lassulások és vegyes p99/túllépések maradtak; Windows
 192 kHz-en mindkét út minden mért blokkja túllépte az offline határidőt.
-A #93 beolvasztási kapuja az új CI-időkeretekkel futó pontos head összes
-check-runja és workflow-ja; nem a régebbi commit zöld eredménye.
-A részletes [repository-audit](REPOSITORY_REVIEW_2026_10_09.md) a Classic
-filter reprodukált denormál hibáját és a jelentések pontosításait is rögzíti.
-A következő feladat a CI és a bizonyított bug javításának lezárása, majd
-kódazonos, ellenőrzött célgépes CPU-ismétlés. A 4–8. lépés nyitott marad.
+A #93 beolvadt (`ec3c637`), majd a #94 Classic-denormál javítása is
+mainbe került (`504f070`). A részletes
+[repository-audit](REPOSITORY_REVIEW_2026_10_09.md) az audit idején rögzített
+forrásokat és korlátokat őrzi. A következő nyitott kapu a kódazonos,
+ellenőrzött célgépes CPU-ismétlés. Ezt új
+[teljesmotoros gyűjtő](DISPATCH_ENGINE_TARGET_MEASUREMENT.md) támogatja:
+friss Release build, előzetes numerikus kapuk, két fordított sorrendű kör,
+külön referencia–referencia és jelöltgridek mind a négy hullámformán,
+statikus/modulált terheléssel. A gyűjtő elkészítése nem maga a Windows/M1
+célgépes CPU-elfogadás. A 3. CPU-kapu és a 4–8. lépés nyitott marad.
 
 | Lépés | Feladat | Befejezési feltétel |
 | --- | --- | --- |
