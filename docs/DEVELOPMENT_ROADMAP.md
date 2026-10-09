@@ -4,6 +4,20 @@ Ez az aktuális sorrend; a DEVELOPMENT_PLAN_POST_1.0.4.md korábbi szakaszai
 fejlesztési naplóként és mérési bizonyítékként maradnak meg. Kritikus bug
 vagy piros funkcionális CI megelőzi a következő fejlesztési lépést.
 
+Aktuális audit, 2026-10-09: a #92 izolált SAW-dispatch mérföldköve már
+mainben van (`9cf0ba0`). A #93 `a351db4` forrásának négy Windows/macOS
+jobja a négy hullámforma külön statikus/modulált teljesmotoros gridjét
+elkészítette: összesen 16 grid, sikeres numerikus kontrollokkal. Ez a mérés
+elkészült, a 3. lépés CPU-elfogadása azonban nem teljesült. A jobb SAW-medián
+mellett alternatív lassulások és vegyes p99/túllépések maradtak; Windows
+192 kHz-en mindkét út minden mért blokkja túllépte az offline határidőt.
+A #93 beolvasztási kapuja az új CI-időkeretekkel futó pontos head összes
+check-runja és workflow-ja; nem a régebbi commit zöld eredménye.
+A részletes [repository-audit](REPOSITORY_REVIEW_2026_10_09.md) a Classic
+filter reprodukált denormál hibáját és a jelentések pontosításait is rögzíti.
+A következő feladat a CI és a bizonyított bug javításának lezárása, majd
+kódazonos, ellenőrzött célgépes CPU-ismétlés. A 4–8. lépés nyitott marad.
+
 | Lépés | Feladat | Befejezési feltétel |
 | --- | --- | --- |
 | 1 | #82 modulált deadline-fixture stabilizálása, mérések értékelése | A pontos PR-head minden ellenőrzése sikeres; beolvasztás; statikus/modulált workload külön értelmezése. |

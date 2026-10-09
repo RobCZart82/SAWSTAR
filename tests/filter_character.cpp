@@ -2,6 +2,7 @@
 #include "dsp/LowPass.h"
 #include "engine/Synth.h"
 #include <cmath>
+#include <cfenv>
 #include <cstdlib>
 #include <iostream>
 void check(bool ok,const char* why){if(!ok){std::cerr<<why<<'\n';std::exit(1);}}
@@ -17,7 +18,19 @@ double third(float sr,float drive){
   if(i>=sr/2){re+=y.left*std::cos(3*phase);im+=y.left*std::sin(3*phase);}}
  return std::hypot(re,im)/(sr/2);
 }
-int main(){for(float sr:{44100.f,48000.f,96000.f}){
+int main(){
+ // A sustained DC input keeps the SVF histories normal. Previously, only
+ // the abandoned mode's exponential weight underflowed after ~7 seconds.
+ // Check floating-point exceptions instead of a runner-dependent CPU threshold.
+ for(int mode=1;mode<4;++mode){
+  sawstar::LowPass f;f.Init(48000);f.Set(1200,50,100);f.SnapToTargets();f.SetCharacter(0,mode);
+  std::feclearexcept(FE_ALL_EXCEPT);
+  for(int i=0;i<48000*9;++i){auto y=f.Process({.1f,-.1f});check(std::isfinite(y.left)&&y.left==-y.right,"long mode fade stays finite and symmetric");}
+  const bool underflow=std::fetestexcept(FE_UNDERFLOW)!=0;
+  std::feclearexcept(FE_ALL_EXCEPT);
+  check(!underflow,"settled mode fade must not enter denormal range");
+ }
+ for(float sr:{44100.f,48000.f,96000.f}){
  check(energy(sr,1,4000)<energy(sr,0,4000)*.1,"LP24 steeper than LP12");
  check(energy(sr,2,100)<energy(sr,2,4000)*.001,"HP rejects bass");
  const double band=energy(sr,3,1000);
