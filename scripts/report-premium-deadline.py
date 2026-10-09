@@ -70,18 +70,32 @@ def report(folder):
     if set(summaries) != expected:
         raise ValueError("Incomplete summary grid")
     study_kind = os.environ.get("SAWSTAR_PREMIUM_STUDY", "tanh")
-    if study_kind not in ("tanh", "simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir"):
+    if study_kind not in ("tanh", "simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir", "rate-saw-dispatch"):
         raise ValueError("Unknown study kind")
     if study_kind == "rate-unrolled-fir" and (folder / "study.txt").read_text(encoding="utf-8").strip() != '2x-interpolation-unroll-v1':
         raise ValueError("Compiled FIR study disagrees with requested label")
+    if study_kind == "rate-saw-dispatch":
+        if (folder / "study.txt").read_text(encoding="utf-8").strip() != 'saw-dispatch-v1':
+            raise ValueError("Compiled oscillator study disagrees with requested label")
+        waveform = (folder / "waveform.txt").read_text(encoding="utf-8").strip()
+        if waveform not in ('0', '1', '2', '3') or waveform != os.environ.get('SAWSTAR_OSC_WAVEFORM'):
+            raise ValueError("Compiled waveform disagrees with requested waveform")
+        for rate in (48000, 96000, 192000):
+            for mode in range(4):
+                for buffer in (32, 64, 128):
+                    for pair in range(4):
+                        a = summaries['reference', rate, mode, buffer, pair]
+                        b = summaries['study', rate, mode, buffer, pair]
+                        if any(float(a[name]) != float(b[name]) for name in ('peak', 'rms', 'checksum')):
+                            raise ValueError("Dispatch paired signal differs")
     backend = (folder / "backend.txt").read_text(encoding="utf-8").strip()
     if backend not in ("SSE2", "NEON", "scalar-fallback", "scalar-source"):
         raise ValueError("Unknown FIR backend")
     if study_kind == "tanh" and backend != "scalar-source":
         raise ValueError("Incorrect tanh backend")
-    if study_kind in ("simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir") and backend == "scalar-source":
+    if study_kind in ("simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir", "rate-saw-dispatch") and backend == "scalar-source":
         raise ValueError("Incorrect SIMD study backend")
-    adaptive = study_kind in ("rate-simd-fir", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir")
+    adaptive = study_kind in ("rate-simd-fir", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir", "rate-saw-dispatch")
     factors = {str(rate): (2 if adaptive and rate >= 176400 else 4)
                for rate in (48000, 96000, 192000)}
     with (folder / "factors.csv").open(newline="") as f:
@@ -111,6 +125,24 @@ def report(folder):
         metadata['study_variant'] = 'rate-lookup-unrolled'
         metadata['fir_unroll_scope'] = '2x-interpolation-only-v1'
         metadata['measurement_sha256']['study.txt'] = hashlib.sha256((folder / 'study.txt').read_bytes()).hexdigest()
+    if study_kind == "rate-saw-dispatch":
+        metadata.update(reference_variant='rate-lookup-seven-saw', study_variant='rate-lookup-saw-dispatch-v1',
+                        oscillator_waveform=int(waveform), production_activation=False)
+        for name in ('study.txt', 'waveform.txt'):
+            metadata['measurement_sha256'][name] = hashlib.sha256((folder / name).read_bytes()).hexdigest()
+        root = Path(__file__).resolve().parents[1]
+        sources = ('CMakeLists.txt', 'src/engine/Synth.h', 'src/engine/Synth.cpp',
+                   'src/dsp/SevenSaw.h', 'src/dsp/SevenSaw.cpp',
+                   'experiments/oscillator/SawDispatchSevenSaw.h', 'experiments/oscillator/SawDispatchSevenSaw.cpp',
+                   'experiments/oscillator/benchmark_dispatch_engine.cpp', 'tests/oscillator_dispatch_engine.cpp',
+                   'experiments/premium_filter/DeadlineModulation.h')
+        metadata['source_file_sha256'] = {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in sources}
+        for file in sorted((root / 'experiments/premium_filter').glob('*.h')):
+            metadata['source_file_sha256'][file.relative_to(root).as_posix()] = hashlib.sha256(file.read_bytes()).hexdigest()
+        compiler_files = sorted((folder / 'compiler').glob('*.cmake'))
+        if not compiler_files:
+            raise ValueError('Missing dispatch compiler provenance')
+        metadata['compiler_files_sha256'] = {file.relative_to(folder).as_posix(): hashlib.sha256(file.read_bytes()).hexdigest() for file in compiler_files}
     (folder / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     lines = ["# Offline paired premium engine deadline study", "",
              f"Source: {metadata['source_sha']}; {metadata['platform']}; {metadata['machine']}; Release.", "",
@@ -125,6 +157,8 @@ def report(folder):
              "No native host or portable realtime acceptance; no timing pass/fail threshold.", "",
              "| Rate | Buffer | Median paired p50 ratio | Median paired p99 ratio | Reference over/4096 | Study over/4096 |",
              "| --- | --- | --- | --- | --- | --- |"]
+    if study_kind == "rate-saw-dispatch":
+        lines.insert(6, f"OSC1/OSC2 waveform: {waveform}; waveforms and workloads remain separate grids.")
     paired_results = []
     for rate in (48000, 96000, 192000):
         for buffer in (32, 64, 128):
@@ -157,7 +191,7 @@ def report(folder):
     (folder / "paired-results.json").write_text(json.dumps(payload, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     print(text)
     print("Validated 288 summary rows and 73728 raw blocks.")
-    if study_kind == "rate-unrolled-fir":
+    if study_kind in ("rate-unrolled-fir", "rate-saw-dispatch"):
         print("DEADLINE_CI_REPORT=" + json.dumps(payload, separators=(",", ":"), allow_nan=False))
 
 if __name__ == "__main__":

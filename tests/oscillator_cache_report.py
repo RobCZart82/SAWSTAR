@@ -232,8 +232,15 @@ class ReportTest(unittest.TestCase):
             self.assertEqual(reporter.qualification(result['summary']), result['qualification'])
 
     def test_archived_real_target_campaigns_keep_separate_rounds(self):
-        archive = Path(__file__).resolve().parents[1] / 'experiments/oscillator/measurements/2026-10-09-shared-frequency-target-ci-summary'
+        self.check_target_archive('2026-10-09-shared-frequency-target-ci-summary', 'shared-frequency-v1', '02dca9d08d77da9a31100005727cacb0c777a5c9')
+
+    def test_archived_saw_dispatch_campaigns_keep_separate_rounds(self):
+        self.check_target_archive('2026-10-09-saw-dispatch-ci-summary', 'saw-dispatch-v1', 'f0a06cd3618347550516dab1f23a3a5d657a42b9')
+
+    def check_target_archive(self, folder, variant, source):
+        archive = Path(__file__).resolve().parents[1] / 'experiments/oscillator/measurements' / folder
         provenance = json.loads((archive / 'provenance.json').read_bytes())
+        self.assertEqual(provenance['source_sha'], source)
         self.assertFalse(provenance['raw_artifact_hashes_independently_verified'])
         self.assertEqual(len(provenance['files_sha256']), 8)
         combinations = set()
@@ -243,7 +250,9 @@ class ReportTest(unittest.TestCase):
             result = json.loads(content)
             metadata = result['metadata']
             self.assertEqual(metadata['source_sha'], provenance['source_sha'])
-            self.assertEqual(metadata['candidate_variant'], 'shared-frequency-v1')
+            self.assertEqual(metadata['candidate_variant'], variant)
+            self.assertFalse(metadata['production_activation'])
+            self.assertFalse(metadata['native_host_acceptance'])
             self.assertEqual(metadata['frames_per_path_and_pair'], 131072)
             self.assertEqual(metadata['pairs_per_cell'], 8)
             platform, _, round_id, comparison = name[:-5].split('-', 3)

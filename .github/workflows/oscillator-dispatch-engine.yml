@@ -1,0 +1,82 @@
+name: Oscillator SAW dispatch full engine research
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/oscillator-dispatch-engine.yml'
+      - 'CMakeLists.txt'
+      - 'experiments/oscillator/**'
+      - 'experiments/premium_filter/**'
+      - 'src/engine/**'
+      - 'src/dsp/**'
+      - 'third_party/DaisySP'
+      - 'tests/oscillator_dispatch_engine.cpp'
+      - 'tests/oscillator_frequency_cache.cpp'
+      - 'tests/premium_drive_complex.cpp'
+      - 'tests/premium_deadline_report.py'
+      - 'scripts/report-premium-deadline.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: oscillator-dispatch-engine-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    name: Dispatch engine / ${{ matrix.os }} / ${{ matrix.workload }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-14]
+        workload: [stationary-v1, modulated-v1]
+    defaults:
+      run:
+        shell: bash
+    env:
+      SAWSTAR_PREMIUM_STUDY: rate-saw-dispatch
+      SAWSTAR_PREMIUM_WORKLOAD: ${{ matrix.workload }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          submodules: recursive
+      - name: Prepare qualification evidence
+        run: mkdir -p dispatch-engine-results/compiler
+      - name: Configure and build Release controls
+        run: |
+          cmake -S . -B build-dispatch-engine -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON 2>&1 | tee dispatch-engine-results/configure.log
+          cmake --build build-dispatch-engine --config Release --target sawstar_dispatch_engine_tests sawstar_dispatch_engine_deadline sawstar_oscillator_dispatch_tests sawstar_premium_lookup_complex_tests --parallel 2 2>&1 | tee dispatch-engine-results/build.log
+      - name: Qualify bank and complete engine before timing
+        run: ctest --test-dir build-dispatch-engine -C Release -R '^(oscillator_dispatch_(bit_identity|engine_identity|engine_deadline_fixture)|premium_deadline_report)$' --no-tests=error --verbose --timeout 600 2>&1 | tee dispatch-engine-results/contracts.txt
+      - name: Measure separate waveform grids with unchanged lookup filter
+        run: |
+          find build-dispatch-engine/CMakeFiles -name CMakeCXXCompiler.cmake -exec cp '{}' dispatch-engine-results/compiler/ \;
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            probe=build-dispatch-engine/Release/sawstar_dispatch_engine_deadline.exe
+            build-dispatch-engine/Release/sawstar_premium_lookup_complex_tests.exe > dispatch-engine-results/complex-controls.txt
+          else
+            probe=build-dispatch-engine/sawstar_dispatch_engine_deadline
+            build-dispatch-engine/sawstar_premium_lookup_complex_tests > dispatch-engine-results/complex-controls.txt
+          fi
+          for waveform in 0 1 2 3; do
+            folder="dispatch-engine-results/waveform-$waveform"
+            mkdir -p "$folder"
+            cp -r dispatch-engine-results/compiler "$folder/compiler"
+            "$probe" --modulation-contract --waveform "$waveform" > "$folder/modulated-contract.txt"
+            if [[ "$SAWSTAR_PREMIUM_WORKLOAD" == "modulated-v1" ]]; then
+              "$probe" --deadline-modulated "$folder" --waveform "$waveform"
+            else
+              "$probe" --deadline "$folder" --waveform "$waveform"
+            fi
+            SAWSTAR_OSC_WAVEFORM="$waveform" python scripts/report-premium-deadline.py "$folder"
+            cat "$folder/report.md" >> "$GITHUB_STEP_SUMMARY"
+          done
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: oscillator-dispatch-engine-${{ matrix.os }}-${{ matrix.workload }}
+          path: dispatch-engine-results/
+          if-no-files-found: error
+          retention-days: 90
