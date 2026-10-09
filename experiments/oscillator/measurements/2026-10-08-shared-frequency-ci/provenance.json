@@ -1,0 +1,30 @@
+{
+  "workflow_run": 37829386024,
+  "source_sha": "eae61b720ba3b5f1c1aacc49936d9701580984f8",
+  "merged_main": "cbffa34503ec30a423d59d667e1615b0c612433b",
+  "production_activation": false,
+  "platforms": {
+    "windows": {
+      "files_sha256": {
+        "compiler/CMakeCXXCompiler.cmake": "0d3430047398ee357bbf65db10906b7cf793a22dd8b02c6db6f6372d2a4db77f",
+        "contracts.txt": "205c393ef6f6451f061cf61b4414819ca82c1e06ea297adffd3cf129be774ad2",
+        "oscillators.csv": "e1b56e7ceebc486ba8c2c7fe7f6fc8856fb2b54082c933937501b09500148cc2",
+        "report.json": "7091216d4e4f4136426d6436c782ab48d3baea5613b85c7cf83a434e654dc88c",
+        "report.md": "814c1d46fe6ae382b6a398930fc8865a59cca3a60bf2546b017c1b37c9e41176"
+      },
+      "median_slowdown_cells": 21,
+      "all_pairs_slowdown_cells": 13
+    },
+    "macos": {
+      "files_sha256": {
+        "compiler/CMakeCXXCompiler.cmake": "66ff634d7b84f4018e91288a10aca879e3c26f8a6d4bec58ba2544a1fee73154",
+        "contracts.txt": "3df53e59ef3cf6f2624b3d58da746d4e2fa341170c3e82cd6935eb2a0577a226",
+        "oscillators.csv": "d1cf1d6efd9f92f13525a0af85b3b679f1e06a9cb4dd45c64d6d9ac0234ef3cc",
+        "report.json": "dd9c1e8047bc86dc35b9952152c4bfddb63652d78cd4fcacecd541a761ca1d1b",
+        "report.md": "8576f6c9ef34d0632d19b527de8c0b156760359cca59552491e5460f8e6ea194"
+      },
+      "median_slowdown_cells": 13,
+      "all_pairs_slowdown_cells": 0
+    }
+  }
+}

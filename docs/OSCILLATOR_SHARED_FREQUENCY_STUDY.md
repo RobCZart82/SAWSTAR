@@ -84,3 +84,79 @@ kell a továbblépéshez. Ez nem teljesmotoros CPU- vagy natív elfogadás.
 [ismétlés](../experiments/oscillator/measurements/2026-10-08-shared-frequency-local-m1-repeat.csv)
 és [eredetjegyzék](../experiments/oscillator/measurements/2026-10-08-shared-frequency-local-m1-provenance.json).
 A két JSON-riport mind a 24 cellát és négy páros arányát megőrzi.
+
+## Platformos rövid mérés
+
+A #88 beolvadt; az `eae61b720ba3b5f1c1aacc49936d9701580984f8` PR-head
+mind a 47 CI-ellenőrzése sikeres. A külön CPU-mérés
+[37829386024](https://github.com/RobCZart82/SAWSTAR/actions/runs/37829386024)
+forrása ugyanez. Mindkét teljes 192 soros CSV páros energiája egyezik;
+a letöltött CSV és compiler byte-hash egyezik a futam riportjával.
+
+| Platform | Mediánban lassabb cella | Minden párban lassabb cella |
+| --- | ---: | ---: |
+| Windows 2022 AMD64 | 21 / 24 | 13 / 24 |
+| macOS 14 arm64 | 13 / 24 | 0 / 24 |
+
+Windows alatt a statikus SAW mediánja 4,22–5,68%, a modulált SAW-é
+9,05–10,00% lassulás. A SAW-ban nincs elhagyott ismételt számítás: ez
+a kódváltozat tényleges megfigyelt költsége, de az okát az időarány nem
+azonosítja. A macOS párok széles tartományban szóródnak, ezért a korábbi
+kedvező helyi M1-medián nem általánosítható. A funkcionális CI zöld, a
+CPU-elfogadás nyitott; a jelölt nem kerül a teljes motorba.
+
+A teljes bizonyíték és a negatív eredmények megmaradnak:
+[eredetjegyzék](../experiments/oscillator/measurements/2026-10-08-shared-frequency-ci/provenance.json),
+[Windows-riport](../experiments/oscillator/measurements/2026-10-08-shared-frequency-ci/windows/report.json),
+[macOS-riport](../experiments/oscillator/measurements/2026-10-08-shared-frequency-ci/macos/report.json).
+A fájlok sorvége is megőrzött; a regresszió ellenőrzi a hash-eket és a páros arányokat.
+
+## Hosszabb mérés és változatlan referencia
+
+Az `--extended` kampány ugyanazon ráták/hullámformák/pitch-terhelések mellett
+131 072 frame-et mér nyolc váltakozó párban: 384 nyers sor, 24 cella.
+Init és 0,25 s warmup továbbra is kívül van a timeren. A korábbi default
+8192 frame / négy pár / 192 sor változatlanul futtatható. A rövid és hosszú
+kampány nem egyesíthető egy eredményrácsba.
+
+A `--extended --reference-repeat` mindkét útján ugyanaz a SevenSaw és
+ugyanaz a Measure-függvény fut ugyanazon executable-ben. Ez időzítési
+kontroll: a megfigyelt eltérés nem jelöltgyorsulás. A jelöltfutás külön
+`comparison=candidate` markerrel következik. A reporter ellenőrzi a kampányt,
+a 131 072 frame-et, a nyolc párt, a warmupot, a teljes rácsot és a páros
+energiát; a schema 3 minden arányt és a cella minimum/maximum arányát is
+megőrzi. A régi schema 2 riportolás megmarad.
+
+A Windows/macOS workflow a kontrollt és a jelöltet egymás után futtatja,
+fordítás és numerikus ellenőrzés után. A hosszabb mérési idő csökkenti a
+rövid timer érzékenységét, de CPU-affinitás, realtime prioritás és kontrollált
+OS-háttérterhelés nincs. Nincs párok eldobása vagy a kontroll automatikus
+kivonása; a kontroll nem számszerű hibakorlát. Az izolált grid továbbra sem
+helyettesít teljesmotoros p99/túllépés vagy natív REAPER-elfogadást.
+
+## Hosszabb helyi mérés eredménye
+
+Mért forrás: `e3994b657b33da088438972f40de0e662ad7bd50`, Mac mini M1,
+Apple Clang 21 Release. A teljes 118/118 CTest és a 11 Python
+riportellenőrzés sikeres. A kontroll és a jelölt ugyanazzal az executable-lel,
+egymás után, a tesztek befejezése után futott; nincs natív/realtime elfogadás.
+
+| Hullámforma | Referenciaismétlés mediánaránya | Jelölt mediánaránya |
+| --- | ---: | ---: |
+| SAW | 0,996240–1,001094 | 0,994258–1,009570 |
+| Square | 0,997060–1,000218 | 0,926423–0,935820 |
+| Triangle | 0,999602–1,002657 | 0,962414–0,966868 |
+| Sine | 1,000483–1,006677 | 0,970191–0,979231 |
+
+A tartományok a három ráta és két pitch-terhelés cellamediánjai; nem
+bizonytalansági intervallumok. A referenciaismétlés 192 egyedi párja
+0,807563–1,469024 között szóródott. A jelölt három cellája mediánban
+lassabb, 19/192 egyedi párja lassabb; egyetlen cellája sem lassabb mind
+a nyolc párban. Mindkét 384 soros grid teljes, véges és pontosan azonos
+páros energiájú. A nyers fájlok és a program hash-e
+[itt megőrzöttek](../experiments/oscillator/measurements/2026-10-08-shared-frequency-extended-local/provenance.json).
+
+Ez kedvező helyi jel az alternatív hullámformákra, a SAW továbbra is
+kontroll. A korábbi negatív Windows-adat ettől érvényes marad. Az új
+Windows/macOS workflow eredménye még szükséges; CPU-nyereség vagy
+teljesmotoros aktiválás nem tekinthető elfogadottnak.

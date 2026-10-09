@@ -67,3 +67,30 @@ integráljuk a teljes motorba. Kedvező izolált eredmény után is külön
 numerikus és modulált teljesmotor-deadline kapu, célgépes ismétlés,
 minőség/rátapolicy és natív REAPER-elfogadás következik.
 Részletek: [frekvenciaszámítás-megosztás](OSCILLATOR_SHARED_FREQUENCY_STUDY.md).
+
+## A #88 platformos döntése és a következő mérés
+
+A #88 már mainben van (`cbffa34`); az `eae61b7` pontos PR-head mind a 47
+ellenőrzése sikeres. A 37829386024 futam nyers CPU-adatainak és compiler
+fájljainak byte-hash ellenőrzése sikeres. A Windows grid 24 cellájából 21
+mediánban lassabb, 13 cella mind a négy párban lassabb. A modulált SAW
+mediánja 9,05–10,00% lassulást mutat. A macOS grid 13 mediánlassulást és
+nagy páronkénti szóródást mutat, egyetlen cella sem lassabb mind a négy párban.
+Ez nem következetes platformos CPU-nyereség: nincs teljesmotoros aktiválás.
+A beolvasztás a külön kutatási eszközökre vonatkozik, a shipping DSP változatlan.
+
+A következő lépés a mérési megbízhatóság ellenőrzése: 131 072 frame/pár,
+nyolc váltakozó pár, külön változatlan SevenSaw/SevenSaw kontroll és jelölt
+futás. A két összehasonlítás ugyanazon executable-t használja, külön
+azonosítóval és teljes nyers adattal. Nincs outlier-kizárás, kontrollból
+levont gyorsulás vagy CPU-küszöb lazítása. A hosszabb timer nem kontrollálja
+a runner háttérterhelését. Ha az új mérés sem támasztja alá a nyereséget,
+a jelölt kísérleti marad; a komponensprofil alapján más célpontot választunk.
+A 4–8. lépés és a natív/minőségi/CPU-kapuk változatlanul nyitottak.
+
+A hosszabb helyi M1-próba elkészült: 118/118 teszt sikeres; külön-külön
+384 soros referencia- és jelöltgrid, egyező páros energia. Square/Triangle/Sine
+mediánban kedvező, SAW vegyes (0,994258–1,009570). A kontroll mediánja
+−0,38% és +0,67% között, egyes párok jóval szélesebben szóródnak. A régi
+Windows-lassulás nem törlődik; az új platformos futam a következő döntési
+kapu. A teljes eredmény és korlátai a frekvenciamegosztási jegyzetben vannak.
