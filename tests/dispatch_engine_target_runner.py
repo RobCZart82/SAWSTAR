@@ -121,7 +121,18 @@ class DispatchTargetTest(unittest.TestCase):
         self.multi_config = True
         self.assertEqual(self.collect()['state'], 'complete')
         timing = next(c for c in self.commands if '--deadline' in c)
-        self.assertEqual(Path(timing[0]).parent, self.build / 'Release')
+        # The collector resolves aliases: /var -> /private/var on macOS and
+        # short 8.3 -> long user paths on Windows. Compare canonical paths.
+        self.assertEqual(Path(timing[0]).parent, (self.build / 'Release').resolve())
+
+    def test_multi_config_release_location_through_directory_alias(self):
+        alias = self.folder / 'alias'
+        try:
+            alias.symlink_to(self.folder, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            self.skipTest('Directory symlinks are unavailable on this runner')
+        self.build, self.output = alias / 'build', alias / 'results'
+        self.test_multi_config_release_executable_location()
 
     def test_failures_preserve_raw_data_and_never_complete(self):
         for failure, error in [('comparison', ValueError), ('timing', subprocess.CalledProcessError),
