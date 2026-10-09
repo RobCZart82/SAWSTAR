@@ -24,8 +24,6 @@ jobs:
     name: Oscillator sharing / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    env:
-      OSCILLATOR_TARGET_OUTPUT: ${{ runner.temp }}/oscillator-target-results
     strategy:
       fail-fast: false
       matrix:
@@ -41,13 +39,13 @@ jobs:
           submodules: recursive
       - name: Build, qualify and collect repeated target campaigns
         run: |
-          python scripts/run-oscillator-target.py --build-dir "$RUNNER_TEMP/oscillator-target-build" --output-dir "$OSCILLATOR_TARGET_OUTPUT"
+          python scripts/run-oscillator-target.py --build-dir "$RUNNER_TEMP/oscillator-target-build" --output-dir "$RUNNER_TEMP/oscillator-target-results"
       - name: Publish separate campaign summaries
         run: |
           python - <<'PY'
           import json, os
           from pathlib import Path
-          root = Path(os.environ['OSCILLATOR_TARGET_OUTPUT'])
+          root = Path(os.environ['RUNNER_TEMP']) / 'oscillator-target-results'
           manifest = json.loads((root / 'manifest.json').read_bytes())
           assert manifest['state'] == 'complete' and len(manifest['runs']) == 4
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a', encoding='utf-8') as summary:
@@ -62,6 +60,6 @@ jobs:
         if: always()
         with:
           name: oscillator-shared-extended-${{ matrix.os }}
-          path: ${{ env.OSCILLATOR_TARGET_OUTPUT }}/
+          path: ${{ runner.temp }}/oscillator-target-results/
           if-no-files-found: error
           retention-days: 90

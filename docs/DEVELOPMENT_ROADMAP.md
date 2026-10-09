@@ -112,3 +112,22 @@ nincs automatikus zajlevonás vagy CPU-elfogadás. A megosztott jelölt kísérl
 Az izolált gyűjtő regressziója szimulált parancsfuttatással ellenőrzi a
 sorrendet, hibás grid/teszt és változó executable elutasítását; ez nem
 Windows/M1 célgépes teljesítménymérés. A 4–8. lépés nyitott marad.
+
+## Workflow-indítási javítás — 2026-10-09
+
+A #90 beolvadt (`ec2d463`), de a megosztott oszcillátor workflow-ja
+konfigurációs hiba miatt nem indult el: `runner.temp` job-szintű `env`
+mezőben nem használható. A 45 sikeres check-run ezt nem mutatta meg;
+a failed workflow-futam nulla jobot tartalmazott. Az új négyszeres
+Windows/macOS mérés ezért még nem tekinthető elvégzettnek.
+
+A javítás a futás közbeni `RUNNER_TEMP` környezeti változóból képezi az
+eredménymappát; az artifact lépés saját, megengedett `runner` kontextust
+használ. Külön, minden PR-en futó, verzióra és SHA-256-ra rögzített
+actionlint ellenőrzi az összes workflow szintaxisát és kontextusát, ismert
+hibás job-env negatív kontrollal. A következő kapu a validálás és a valóban
+elindult, sikeres Windows/macOS mérés. A CPU/native elfogadás nyitott marad.
+
+Beolvasztás előtt a pontos forráscommit check-runjai mellett a workflow-
+futamok állapotát is külön ellenőrizzük: a job nélkül elbukott workflow
+nem zöld kapu. A javítás megelőzi az új DSP-kísérletet.
