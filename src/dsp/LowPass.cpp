@@ -27,6 +27,11 @@ StereoSample LowPass::Process(StereoSample input){
   drive_+=slew_*(targetDrive_-drive_);
   if(targetDrive_==0 && drive_<1e-9)drive_=0;
   for(size_t i=0;i<weights_.size();++i)weights_[i]+=slew_*((static_cast<int>(i)==mode_?1.:0.)-weights_[i]);
+  // End inaudible mode tails before they enter the denormal range. Retain
+  // their weight in the selected mode, including during repeated retargeting.
+  for(size_t i=0;i<weights_.size();++i)if(static_cast<int>(i)!=mode_&&weights_[i]<1.e-24){
+    weights_[mode_]+=weights_[i];weights_[i]=0;
+  }
   const double driveGain=drive_==0?1.:std::pow(10.,drive_/20.);
   const double driveDenominator=drive_==0?1.:std::tanh(driveGain);
   const double driveBlend=std::min(1.,drive_/6.);
