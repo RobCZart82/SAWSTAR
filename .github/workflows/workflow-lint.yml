@@ -1,0 +1,48 @@
+name: Validate GitHub Actions workflows
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: workflow-lint-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    name: Workflow syntax and context validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install pinned actionlint with checksum verification
+        run: |
+          curl -fsSL --retry 3 https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz -o "$RUNNER_TEMP/actionlint.tar.gz"
+          printf '%s  %s\n' '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8' "$RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+      - name: Reject the invalid job context regression control
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          expression = '$' + '{{ runner.temp }}'
+          fixture = ('name: Invalid job context control\non: push\njobs:\n'
+                     '  invalid:\n    runs-on: ubuntu-latest\n    env:\n'
+                     f'      BAD: {expression}\n'
+                     '    steps:\n      - run: echo ok\n')
+          (Path(os.environ['RUNNER_TEMP']) / 'invalid-workflow.yml').write_text(fixture, encoding='utf-8')
+          PY
+          if "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes= "$RUNNER_TEMP/invalid-workflow.yml" > "$RUNNER_TEMP/invalid-workflow.log" 2>&1; then
+            echo 'Invalid job context was unexpectedly accepted'
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/invalid-workflow.log"
+      - name: Validate every repository workflow
+        run: '"$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes='
