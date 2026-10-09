@@ -75,6 +75,12 @@ def report(folder):
     if study_kind == "rate-unrolled-fir" and (folder / "study.txt").read_text(encoding="utf-8").strip() != '2x-interpolation-unroll-v1':
         raise ValueError("Compiled FIR study disagrees with requested label")
     if study_kind == "rate-saw-dispatch":
+        # Older candidate archives predate this compiled marker. A reference
+        # repeat always requires it; an environment label cannot create one.
+        comparison_file = folder / 'comparison.txt'
+        comparison = comparison_file.read_text(encoding='utf-8').strip() if comparison_file.exists() else 'candidate'
+        if comparison not in ('candidate', 'reference-repeat') or comparison != os.environ.get('SAWSTAR_PREMIUM_COMPARISON', 'candidate'):
+            raise ValueError('Compiled comparison disagrees with requested comparison')
         if (folder / "study.txt").read_text(encoding="utf-8").strip() != 'saw-dispatch-v1':
             raise ValueError("Compiled oscillator study disagrees with requested label")
         waveform = (folder / "waveform.txt").read_text(encoding="utf-8").strip()
@@ -127,7 +133,11 @@ def report(folder):
         metadata['measurement_sha256']['study.txt'] = hashlib.sha256((folder / 'study.txt').read_bytes()).hexdigest()
     if study_kind == "rate-saw-dispatch":
         metadata.update(reference_variant='rate-lookup-seven-saw', study_variant='rate-lookup-saw-dispatch-v1',
-                        oscillator_waveform=int(waveform), production_activation=False)
+                        oscillator_waveform=int(waveform), comparison=comparison, production_activation=False)
+        if comparison == 'reference-repeat':
+            metadata['study_variant'] = metadata['reference_variant']
+        if comparison_file.exists():
+            metadata['measurement_sha256']['comparison.txt'] = hashlib.sha256(comparison_file.read_bytes()).hexdigest()
         for name in ('study.txt', 'waveform.txt'):
             metadata['measurement_sha256'][name] = hashlib.sha256((folder / name).read_bytes()).hexdigest()
         root = Path(__file__).resolve().parents[1]
@@ -159,6 +169,7 @@ def report(folder):
              "| --- | --- | --- | --- | --- | --- |"]
     if study_kind == "rate-saw-dispatch":
         lines.insert(6, f"OSC1/OSC2 waveform: {waveform}; waveforms and workloads remain separate grids.")
+        lines.insert(7, f"Comparison: {comparison}; reference repeats are separate controls, not noise corrections.")
     paired_results = []
     for rate in (48000, 96000, 192000):
         for buffer in (32, 64, 128):

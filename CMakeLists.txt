@@ -1009,6 +1009,7 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     add_executable(sawstar_dispatch_engine_deadline experiments/oscillator/benchmark_dispatch_engine.cpp)
     target_link_libraries(sawstar_dispatch_engine_deadline PRIVATE sawstar_premium_dispatch_probe)
     add_test(NAME oscillator_dispatch_engine_deadline_fixture COMMAND sawstar_dispatch_engine_deadline)
+    add_test(NAME oscillator_dispatch_engine_reference_contract COMMAND sawstar_dispatch_engine_deadline --reference-repeat-contract)
 
     # Opt-in loop-dispatch study, with distinct Synth/filter symbols.
     foreach(_part IN ITEMS h cpp)
@@ -1522,5 +1523,7 @@ if(BUILD_TESTING)
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/oscillator_cache_report.py")
     add_test(NAME oscillator_target_runner
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/oscillator_target_runner.py")
+    add_test(NAME dispatch_engine_target_runner
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/dispatch_engine_target_runner.py")
   endif()
 endif()

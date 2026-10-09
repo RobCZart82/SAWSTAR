@@ -83,3 +83,14 @@ sikeres, és a régi globális helyettesítést egy macOS bytes-regresszió
 külön elutasítja. A workflow már a configure/build/CTest naplókat is
 megőrzi a mérés előtti hiba esetén. A friss platformos CI és CPU-mérés
 még nem lezárt kapu.
+
+## Aktuális következő kapu
+
+A #93 beolvadt (`ec3c637`), a 16 platform/workload/waveform grid elkészült;
+a számszerű eredmények és korlátok a [repository-auditban](REPOSITORY_REVIEW_2026_10_09.md)
+vannak. A korábbi, jövő idejű szakaszok az akkori fejlesztési állapotot őrzik.
+A CPU-elfogadás nem teljesült. Az új
+[teljesmotoros célgépes gyűjtő](DISPATCH_ENGINE_TARGET_MEASUREMENT.md) külön
+referenciaismétlést és jelöltkampányt készít két fordított sorrendű körben,
+minden waveform/workload számára. A referencia–referencia kontroll nem
+DSP-optimalizálás és nem levonható zajkorrekció. A production út változatlan.
