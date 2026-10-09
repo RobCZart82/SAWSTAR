@@ -23,6 +23,8 @@ class TargetRunnerTest(unittest.TestCase):
         self.build = self.folder / 'build'
         self.output = self.folder / 'results'
         self.measured = []
+        self.variant = 'shared-frequency-v1'
+        self.wrong_variant = False
         self.fail_contract = False
         self.invalid_csv = False
         self.mutate_executable = False
@@ -46,7 +48,8 @@ class TargetRunnerTest(unittest.TestCase):
                                 writer.writerow([path, rate, wave, moving, pair,
                                                  'study-first' if pair % 2 else 'reference-first',
                                                  32, 1 if self.invalid_csv else 131072,
-                                                 1, 10, 'shared-frequency-v1', 'extended-v1', comparison, rate // 4])
+                                                 1, 10, 'shared-frequency-v1' if self.wrong_variant else self.variant,
+                                                 'extended-v1', comparison, rate // 4])
             kwargs['stdout'].write(stream.getvalue().encode('utf-8'))
             if self.mutate_executable:
                 Path(args[0]).write_bytes(b'changed binary')
@@ -58,7 +61,9 @@ class TargetRunnerTest(unittest.TestCase):
             compiler.parent.mkdir(parents=True)
             compiler.write_bytes(b'compiler evidence\r\n')
         if '--build' in args:
-            name = 'sawstar_oscillator_shared_benchmark' + ('.exe' if sys.platform == 'win32' else '')
+            self.build_command = args
+            target = 'dispatch' if self.variant == 'saw-dispatch-v1' else 'shared'
+            name = f'sawstar_oscillator_{target}_benchmark' + ('.exe' if sys.platform == 'win32' else '')
             (self.build / name).write_bytes(b'fixed executable')
         kwargs['stdout'].write(b'qualification/build log\n')
 
@@ -68,7 +73,7 @@ class TargetRunnerTest(unittest.TestCase):
              patch.object(runner.platform, 'machine', return_value='test-machine'), \
              patch.object(runner.platform, 'processor', return_value='test-processor'), \
              patch.object(runner.subprocess, 'run', side_effect=self.fake_run):
-            return runner.collect(self.build, self.output)
+            return runner.collect(self.build, self.output, variant=self.variant)
 
     def test_complete_campaign_order_bytes_and_no_acceptance(self):
         result = self.collect()
@@ -89,6 +94,31 @@ class TargetRunnerTest(unittest.TestCase):
             self.assertEqual(report['metadata']['raw_sha256'], run['files_sha256']['oscillators.csv'])
             self.assertFalse(report['qualification']['production_promotion_allowed'])
         self.assertEqual(json.loads((self.output / 'manifest.json').read_bytes()), result)
+
+    def test_dispatch_selects_exact_binary_contract_and_variant(self):
+        self.variant = 'saw-dispatch-v1'
+        result = self.collect()
+        self.assertEqual(result['candidate_variant'], self.variant)
+        self.assertIn('sawstar_oscillator_dispatch_tests', self.build_command)
+        self.assertIn('sawstar_oscillator_dispatch_benchmark', self.build_command)
+        contract = next(c for c in result['commands'] if '--no-tests=error' in c)
+        self.assertIn('oscillator_dispatch_bit_identity', contract[-1])
+        for run in result['runs']:
+            report = json.loads((self.output / run['folder'] / 'report.json').read_bytes())
+            self.assertEqual(report['metadata']['candidate_variant'], self.variant)
+            self.assertFalse(report['qualification']['production_promotion_allowed'])
+
+    def test_wrong_candidate_variant_is_rejected_before_accepting_grid(self):
+        self.variant = 'saw-dispatch-v1'
+        self.wrong_variant = True
+        with self.assertRaisesRegex(ValueError, 'variant'): self.collect()
+        self.assertEqual(json.loads((self.output / 'manifest.json').read_bytes())['state'], 'failed')
+
+    def test_unknown_variant_does_not_create_output(self):
+        with self.assertRaisesRegex(ValueError, 'variant'):
+            runner.collect(self.build, self.output, variant='unknown')
+        self.assertFalse(self.build.exists())
+        self.assertFalse(self.output.exists())
 
     def test_failed_contract_prevents_any_timing(self):
         self.fail_contract = True

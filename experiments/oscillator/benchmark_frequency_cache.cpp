@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
-#if defined(SAWSTAR_SHARED_FREQUENCY_STUDY)
+#if defined(SAWSTAR_SAW_DISPATCH_STUDY)
+#include "SawDispatchSevenSaw.h"
+using Candidate = sawstar::experimental_oscillator::SawDispatchSevenSaw;
+constexpr const char* Variant = "saw-dispatch-v1";
+#elif defined(SAWSTAR_SHARED_FREQUENCY_STUDY)
 #include "SharedFrequencySevenSaw.h"
 using Candidate = sawstar::experimental_oscillator::SharedFrequencySevenSaw;
 constexpr const char* Variant = "shared-frequency-v1";
@@ -62,8 +66,8 @@ int main(int argc, char** argv) {
     }
     if (campaign.referenceRepeat && !campaign.extended)
       throw std::runtime_error("Reference repeat requires the extended campaign");
-#if !defined(SAWSTAR_SHARED_FREQUENCY_STUDY)
-    if (campaign.extended) throw std::runtime_error("Extended campaign requires the shared-frequency study");
+#if !defined(SAWSTAR_SHARED_FREQUENCY_STUDY) && !defined(SAWSTAR_SAW_DISPATCH_STUDY)
+    if (campaign.extended) throw std::runtime_error("Extended campaign requires a sharing or dispatch study");
 #endif
     std::cout << std::setprecision(17) << "path,rate,waveform,modulated,pair,order,oscillators,frames,seconds,energy,variant";
     if (campaign.extended) std::cout << ",campaign,comparison,warmup_frames";

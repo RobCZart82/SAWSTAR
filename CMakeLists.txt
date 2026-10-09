@@ -1210,6 +1210,18 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     target_compile_definitions(sawstar_oscillator_shared_benchmark PRIVATE SAWSTAR_SHARED_FREQUENCY_STUDY=1)
     target_link_libraries(sawstar_oscillator_shared_benchmark PRIVATE sawstar_oscillator_shared_probe)
 
+    # Independent SAW-only dispatch; no cache, frequency sharing or shipping activation.
+    add_library(sawstar_oscillator_dispatch_probe STATIC
+      experiments/oscillator/SawDispatchSevenSaw.cpp)
+    target_link_libraries(sawstar_oscillator_dispatch_probe PUBLIC sawstar_engine)
+    add_executable(sawstar_oscillator_dispatch_tests tests/oscillator_frequency_cache.cpp)
+    target_compile_definitions(sawstar_oscillator_dispatch_tests PRIVATE SAWSTAR_SAW_DISPATCH_STUDY=1)
+    target_link_libraries(sawstar_oscillator_dispatch_tests PRIVATE sawstar_oscillator_dispatch_probe)
+    add_test(NAME oscillator_dispatch_bit_identity COMMAND sawstar_oscillator_dispatch_tests)
+    add_executable(sawstar_oscillator_dispatch_benchmark experiments/oscillator/benchmark_frequency_cache.cpp)
+    target_compile_definitions(sawstar_oscillator_dispatch_benchmark PRIVATE SAWSTAR_SAW_DISPATCH_STUDY=1)
+    target_link_libraries(sawstar_oscillator_dispatch_benchmark PRIVATE sawstar_oscillator_dispatch_probe)
+
     add_executable(
       sawstar_engine_tests
       tests/engine.cpp

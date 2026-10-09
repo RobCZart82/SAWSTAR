@@ -44,7 +44,10 @@ def checked(command, log):
         subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream,
                        stderr=subprocess.STDOUT, check=True)
 
-def collect(build, output, rounds=2, cmake='cmake', ctest='ctest'):
+def collect(build, output, rounds=2, cmake='cmake', ctest='ctest', variant='shared-frequency-v1'):
+    if variant not in ('shared-frequency-v1', 'saw-dispatch-v1'):
+        raise ValueError('Unsupported target candidate variant')
+    target = 'dispatch' if variant == 'saw-dispatch-v1' else 'shared'
     build, output = Path(build).resolve(), Path(output).resolve()
     if not 2 <= rounds <= 10:
         raise ValueError('Use 2 to 10 complete rounds')
@@ -64,6 +67,7 @@ def collect(build, output, rounds=2, cmake='cmake', ctest='ctest'):
         'platform': platform.platform(), 'machine': platform.machine(),
         'processor': platform.processor(), 'python': platform.python_version(),
         'rounds_requested': rounds, 'configuration': 'Release', 'campaign': 'extended-v1',
+        'candidate_variant': variant,
         'background_load_controlled': False, 'affinity_applied': False,
         'native_host_acceptance': False, 'production_promotion_allowed': False,
         'commands': [], 'runs': [],
@@ -79,12 +83,12 @@ def collect(build, output, rounds=2, cmake='cmake', ctest='ctest'):
         command([cmake, '-S', ROOT, '-B', build, '-DCMAKE_BUILD_TYPE=Release',
                  '-DBUILD_TESTING=ON', '-DSAWSTAR_CHECK_DAISYSP=ON'], 'configure.txt')
         command([cmake, '--build', build, '--config', 'Release', '--parallel', '2', '--target',
-                 'sawstar_oscillator_shared_tests', 'sawstar_oscillator_shared_benchmark',
+                 f'sawstar_oscillator_{target}_tests', f'sawstar_oscillator_{target}_benchmark',
                  'sawstar_sevensaw_tests'], 'build.txt')
         command([ctest, '--test-dir', build, '-C', 'Release', '--verbose', '--timeout', '600',
-                 '--no-tests=error', '-R', '^(seven_saw|oscillator_shared_bit_identity|oscillator_cache_report|oscillator_target_runner)$'],
+                 '--no-tests=error', '-R', f'^(seven_saw|oscillator_{target}_bit_identity|oscillator_cache_report|oscillator_target_runner)$'],
                 'contracts.txt')
-        name = 'sawstar_oscillator_shared_benchmark' + ('.exe' if sys.platform == 'win32' else '')
+        name = f'sawstar_oscillator_{target}_benchmark' + ('.exe' if sys.platform == 'win32' else '')
         executables = [path for path in (build / 'Release' / name, build / name) if path.is_file()]
         if len(executables) != 1:
             raise ValueError('Expected exactly one freshly built Release benchmark')
@@ -118,7 +122,7 @@ def collect(build, output, rounds=2, cmake='cmake', ctest='ctest'):
                     subprocess.run(args, cwd=ROOT, stdout=stream, stderr=errors, check=True)
                 buffer = io.StringIO()
                 with contextlib.redirect_stdout(buffer):
-                    result = reporter.report(folder, sha, variant='shared-frequency-v1',
+                    result = reporter.report(folder, sha, variant=variant,
                                              campaign='extended-v1', comparison=comparison)
                 (folder / 'reporter.txt').write_text(buffer.getvalue(), encoding='utf-8')
                 source_hashes = result['metadata']['source_file_sha256']
@@ -151,11 +155,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-dir', required=True, type=Path)
     parser.add_argument('--output-dir', required=True, type=Path)
+    parser.add_argument('--variant', choices=('shared-frequency-v1', 'saw-dispatch-v1'), default='shared-frequency-v1')
     parser.add_argument('--rounds', type=int, default=2)
     parser.add_argument('--cmake', default='cmake')
     parser.add_argument('--ctest', default='ctest')
     args = parser.parse_args()
     try:
-        collect(args.build_dir, args.output_dir, args.rounds, args.cmake, args.ctest)
+        collect(args.build_dir, args.output_dir, args.rounds, args.cmake, args.ctest, args.variant)
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         parser.exit(1, f'Collection failed: {error}\n')

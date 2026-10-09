@@ -189,3 +189,32 @@ mérés sem teszi kontrollálttá az Actions runner háttérterhelését.
 Döntés: a jelölt kísérleti marad, általános teljesmotoros bevezetés nincs.
 A következő kapu az azonos forrású saját célgépes ismétlés, amelyet az új
 [gyűjtő és útmutató](OSCILLATOR_TARGET_MEASUREMENT.md) készít elő.
+
+## Javított gyűjtő: két valódi platformkör — 2026-10-09
+
+A #90 workflow-ja job-szintű `runner.temp` miatt job nélkül elbukott.
+A #91 javította az indítást és független actionlint ellenőrzést vezetett be.
+A `02dca9d08d77da9a31100005727cacb0c777a5c9` forrás
+[37897428788 futamában](https://github.com/RobCZart82/SAWSTAR/actions/runs/37897428788)
+mindkét valódi gyűjtő két kört és négy kampányt sikeresen teljesített.
+Platformonként 1536 nyers sor keletkezett. A PR mind a 20 check-runja
+és hét workflow-futama sikeres; main: `7983958`.
+
+| Platform / kör | Jelölt mediánban lassabb | Jelölt mind a nyolc párban lassabb | SAW mediánarány tartománya |
+| --- | ---: | ---: | ---: |
+| Windows / 1 | 12 / 24 | 7 / 24 | 1,028877–1,084684 |
+| Windows / 2 | 14 / 24 | 6 / 24 | 1,029480–1,077297 |
+| macOS / 1 | 6 / 24 | 0 / 24 | 0,940225–1,035866 |
+| macOS / 2 | 6 / 24 | 0 / 24 | 0,990469–1,217865 |
+
+Windowson minden SAW-cella mediánja lassabb mindkét körben. macOS-en a
+változatlan referencia is szélesen szóródik. A sorrendváltás és hosszabb
+timer nem kontrollálja az OS háttérterhelését; nincs kontrollból levont
+gyorsulás vagy párok eldobása. A jelölt kísérleti marad, production út nincs.
+
+A nyolc, jobnaplóból kiemelt JSON-érték és saját archív hash-eik
+[itt megőrzöttek](../experiments/oscillator/measurements/2026-10-09-shared-frequency-target-ci-summary/provenance.json).
+Nem töltöttük le újra a raw/compiler artifactokat: az azokhoz tartozó
+hash-ek a CI riport állításai, nem új, független byte-ellenőrzés.
+A köröket nem egyesítjük. A következő eltérő hipotézis a
+[SAW-only dispatch](OSCILLATOR_SAW_DISPATCH_STUDY.md); a régi negatív eredmény nem törlődik.

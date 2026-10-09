@@ -34,12 +34,12 @@ def qualification(summaries):
 
 def report(folder, source_sha, emit_ci=False, variant="held-saw-tuning-v2",
            campaign="short-v1", comparison="candidate"):
-    if variant not in ("held-saw-tuning-v2", "shared-frequency-v1"):
+    if variant not in ("held-saw-tuning-v2", "shared-frequency-v1", "saw-dispatch-v1"):
         raise ValueError("Unknown oscillator candidate variant")
     if campaign not in ("short-v1", "extended-v1") or comparison not in ("candidate", "reference-repeat"):
         raise ValueError("Unknown campaign or comparison")
     extended = campaign == "extended-v1"
-    if (extended and variant != "shared-frequency-v1") or (comparison == "reference-repeat" and not extended):
+    if (extended and variant not in ("shared-frequency-v1", "saw-dispatch-v1")) or (comparison == "reference-repeat" and not extended):
         raise ValueError("Incompatible campaign or comparison")
     pairs, frames = (8, 131072) if extended else (4, 8192)
     folder = Path(folder)
@@ -96,7 +96,9 @@ def report(folder, source_sha, emit_ci=False, variant="held-saw-tuning-v2",
                     summaries[-1].update(min_paired_seconds_ratio=min(ratios),
                                          max_paired_seconds_ratio=max(ratios))
     root = Path(__file__).resolve().parents[1]
-    candidate = 'SharedFrequencySevenSaw' if variant == 'shared-frequency-v1' else 'CachedSevenSaw'
+    candidate = {'shared-frequency-v1': 'SharedFrequencySevenSaw',
+                 'saw-dispatch-v1': 'SawDispatchSevenSaw',
+                 'held-saw-tuning-v2': 'CachedSevenSaw'}[variant]
     sources = ('src/dsp/SevenSaw.h', 'src/dsp/SevenSaw.cpp', f'experiments/oscillator/{candidate}.h',
                f'experiments/oscillator/{candidate}.cpp', 'experiments/oscillator/benchmark_frequency_cache.cpp',
                'tests/oscillator_frequency_cache.cpp', 'third_party/DaisySP/Source/Synthesis/oscillator.h',
@@ -115,14 +117,15 @@ def report(folder, source_sha, emit_ci=False, variant="held-saw-tuning-v2",
                 'production_activation': False}
     if extended:
         metadata.update(campaign=campaign, comparison=comparison, pairs_per_cell=pairs,
-                        timed_study_type='SevenSaw' if comparison == 'reference-repeat' else 'SharedFrequencySevenSaw',
+                        timed_study_type='SevenSaw' if comparison == 'reference-repeat' else candidate,
                         elapsed_seconds_range=[min(x[0] for x in samples.values()), max(x[0] for x in samples.values())],
                         noise_correction_applied=False, background_load_controlled=False)
     decision = qualification(summaries)
     payload = {'schema_version': 3 if extended else 2, 'metadata': metadata, 'summary': summaries,
                'qualification': decision}
     (folder / 'report.json').write_text(json.dumps(payload, indent=2, allow_nan=False) + '\n', encoding='utf-8')
-    title = 'frequency sharing' if variant == 'shared-frequency-v1' else 'frequency cache'
+    title = {'shared-frequency-v1': 'frequency sharing', 'saw-dispatch-v1': 'SAW dispatch',
+             'held-saw-tuning-v2': 'frequency cache'}[variant]
     if comparison == 'reference-repeat':
         title = 'unchanged reference repeat'
     lines = [f'# Isolated oscillator {title} study', '', f'Source: {source_sha}',
@@ -153,7 +156,7 @@ if __name__ == '__main__':
     parser.add_argument('folder', type=Path)
     parser.add_argument('--source-sha', required=True)
     parser.add_argument('--emit-ci', action='store_true')
-    parser.add_argument('--variant', choices=('held-saw-tuning-v2', 'shared-frequency-v1'),
+    parser.add_argument('--variant', choices=('held-saw-tuning-v2', 'shared-frequency-v1', 'saw-dispatch-v1'),
                         default='held-saw-tuning-v2')
     parser.add_argument('--campaign', choices=('short-v1', 'extended-v1'), default='short-v1')
     parser.add_argument('--comparison', choices=('candidate', 'reference-repeat'), default='candidate')

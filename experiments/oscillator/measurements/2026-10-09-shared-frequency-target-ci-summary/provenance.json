@@ -1,0 +1,21 @@
+{
+  "source_sha": "02dca9d08d77da9a31100005727cacb0c777a5c9",
+  "workflow_run_id": 37897428788,
+  "platform_jobs": {
+    "windows": 113711875111,
+    "macos": 113711875416
+  },
+  "origin": "OSCILLATOR_TARGET_REPORT JSON values extracted from completed GitHub job logs",
+  "scope": "Eight reported summaries, not re-downloaded raw CSV/compiler artifacts",
+  "raw_artifact_hashes_independently_verified": false,
+  "files_sha256": {
+    "windows-round-1-reference-repeat.json": "eb9b51aef38f761de119b8ae00105f2f473382adcda142bb8f4d42c291d30289",
+    "windows-round-1-candidate.json": "106ded9e18c3ca6afac7c63f247e57cad20850d24fcd09cf17a0710076d2a827",
+    "windows-round-2-candidate.json": "1b76de32f995be4a8a584240d9be61d7904253da900195f08454663adcdcb914",
+    "windows-round-2-reference-repeat.json": "5514410e46d1eb98b48202b6eb8b4b9e591ef080cb41343bb4dc50c8c34f10a5",
+    "macos-round-1-reference-repeat.json": "f60615961ae640cadfba7207cb6998feb46afb5796c4d0e95066b5bec24288eb",
+    "macos-round-1-candidate.json": "5b2a0c8975447b28633703ad9ac493ac179e1db2a4309c7566b0c5ec1c947aae",
+    "macos-round-2-candidate.json": "e494e2c385effaa64fc7d9c10ccc3cea037c94d080d364e8b03abc3daaccd167",
+    "macos-round-2-reference-repeat.json": "31046e1fa191b588ca6ff9d0d734e8f532eefcd66ea1d7510eb84fb6bd1be034"
+  }
+}

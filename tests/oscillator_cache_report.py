@@ -90,6 +90,25 @@ class ReportTest(unittest.TestCase):
         self.variant = 'unknown'
         with self.assertRaisesRegex(ValueError, 'variant'): self.run_report()
 
+    def test_dispatch_variant_keeps_separate_sources_and_labels(self):
+        self.extended_rows()
+        self.variant = 'saw-dispatch-v1'
+        with self.assertRaisesRegex(ValueError, 'variant'): self.run_report()
+        for row in self.rows:
+            row['variant'] = self.variant
+        result = self.run_report()
+        self.assertEqual(result['metadata']['candidate_variant'], self.variant)
+        self.assertEqual(result['metadata']['timed_study_type'], 'SawDispatchSevenSaw')
+        sources = result['metadata']['source_file_sha256']
+        self.assertIn('experiments/oscillator/SawDispatchSevenSaw.cpp', sources)
+        self.assertNotIn('experiments/oscillator/SharedFrequencySevenSaw.cpp', sources)
+        self.assertNotIn('experiments/oscillator/CachedSevenSaw.cpp', sources)
+        self.assertFalse(result['qualification']['production_promotion_allowed'])
+        self.comparison = 'reference-repeat'
+        for row in self.rows:
+            row['comparison'] = self.comparison
+        self.assertEqual(self.run_report()['metadata']['timed_study_type'], 'SevenSaw')
+
     def test_requires_exact_source(self):
         with self.assertRaisesRegex(ValueError, 'source SHA'): self.run_report('main')
 
@@ -211,6 +230,38 @@ class ReportTest(unittest.TestCase):
                 self.assertEqual(row['max_paired_seconds_ratio'], max(ratios))
             self.assertEqual(len(cells), 24)
             self.assertEqual(reporter.qualification(result['summary']), result['qualification'])
+
+    def test_archived_real_target_campaigns_keep_separate_rounds(self):
+        archive = Path(__file__).resolve().parents[1] / 'experiments/oscillator/measurements/2026-10-09-shared-frequency-target-ci-summary'
+        provenance = json.loads((archive / 'provenance.json').read_bytes())
+        self.assertFalse(provenance['raw_artifact_hashes_independently_verified'])
+        self.assertEqual(len(provenance['files_sha256']), 8)
+        combinations = set()
+        for name, digest in provenance['files_sha256'].items():
+            content = (archive / name).read_bytes()
+            self.assertEqual(hashlib.sha256(content).hexdigest(), digest)
+            result = json.loads(content)
+            metadata = result['metadata']
+            self.assertEqual(metadata['source_sha'], provenance['source_sha'])
+            self.assertEqual(metadata['candidate_variant'], 'shared-frequency-v1')
+            self.assertEqual(metadata['frames_per_path_and_pair'], 131072)
+            self.assertEqual(metadata['pairs_per_cell'], 8)
+            platform, _, round_id, comparison = name[:-5].split('-', 3)
+            self.assertEqual(metadata['comparison'], comparison)
+            combinations.add((platform, round_id, comparison))
+            cells = set()
+            for row in result['summary']:
+                cells.add((row['rate'], row['waveform'], row['modulated']))
+                ratios = row['paired_ratios']
+                self.assertEqual(len(ratios), 8)
+                self.assertEqual(row['median_paired_seconds_ratio'], statistics.median(ratios))
+                self.assertEqual(row['min_paired_seconds_ratio'], min(ratios))
+                self.assertEqual(row['max_paired_seconds_ratio'], max(ratios))
+            self.assertEqual(len(cells), 24)
+            self.assertEqual(reporter.qualification(result['summary']), result['qualification'])
+        self.assertEqual(combinations, {(platform, str(round_id), comparison)
+                         for platform in ('windows', 'macos') for round_id in (1, 2)
+                         for comparison in ('candidate', 'reference-repeat')})
 
     def test_favorable_or_mixed_pairs_never_promote(self):
         for row in self.rows:
