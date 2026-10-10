@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('archive_review', ROOT / 'scripts/review-dispatch-engine-target.py')
@@ -112,6 +113,13 @@ class ArchiveReview(unittest.TestCase):
         self.assertEqual(bad.stdout, '')
         self.assertIn('changed evidence', bad.stderr)
 
+    def test_cli_raw_switch_rejects_non_csv_fixture_without_partial_report(self):
+        args = [sys.executable, str(ROOT / 'scripts/review-dispatch-engine-target.py'), str(self.root), '--verify-raw']
+        result = subprocess.run(args, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(result.stdout, '')
+        self.assertIn('Archive review failed', result.stderr)
+
     def test_unrecorded_root_file_rejected(self):
         (self.root / 'unexpected.json').write_text('{}')
         with self.assertRaisesRegex(ValueError, 'Unrecorded archive'): reviewer.review(self.root)
@@ -186,6 +194,26 @@ class ArchiveReview(unittest.TestCase):
             case.setUp()
             (case.root / 'comparison.txt').write_text('candidate')
             meta = case.run_report('rate-saw-dispatch', 2)
+            cells = reviewer.document(case.root / 'paired-results.json')['paired_results']
+            before = {str(p): reviewer.digest(p) for p in case.root.rglob('*') if p.is_file()}
+            # Validation must not inspect the current checkout, run binaries or
+            # rewrite evidence. Conflicting ambient labels do not override the archive.
+            with patch.dict('os.environ', SAWSTAR_PREMIUM_STUDY='wrong'), \
+                 patch('subprocess.check_output', side_effect=AssertionError('unexpected subprocess')):
+                reviewer.verify_raw_grid(case.root, ('candidate', 'stationary-v1', 0), cells)
+            self.assertEqual(before, {str(p): reviewer.digest(p) for p in case.root.rglob('*') if p.is_file()})
+            cells[0]['median_paired_p99_ratio'] += .25
+            with self.assertRaisesRegex(ValueError, 'paired results disagree'):
+                reviewer.verify_raw_grid(case.root, ('candidate', 'stationary-v1', 0), cells)
+            cells[0]['median_paired_p99_ratio'] -= .25
+            raw = case.root / 'blocks.csv'
+            original = raw.read_bytes()
+            lines = original.splitlines(keepends=True)
+            lines[2] = lines[1]
+            raw.write_bytes(b''.join(lines))
+            with self.assertRaisesRegex(ValueError, 'Duplicate raw block'):
+                reviewer.verify_raw_grid(case.root, ('candidate', 'stationary-v1', 0), cells)
+            raw.write_bytes(original)
             self.manifest['source_sha'] = meta['source_sha']
             self.manifest['source_file_sha256'] = meta['source_file_sha256']
             compiler = case.root / 'compiler/CMakeCXXCompiler.cmake'
@@ -196,6 +224,13 @@ class ArchiveReview(unittest.TestCase):
                 payload['metadata'].update(source_sha=meta['source_sha'], source_file_sha256=meta['source_file_sha256'],
                                            compiler_files_sha256=meta['compiler_files_sha256'])
                 shutil.copyfile(compiler, grid / 'compiler/CMakeCXXCompiler.cmake')
+                # Full synthetic collection: every scene shares this fixture's
+                # CSV bytes. This tests archive orchestration, not real timing.
+                for name in ('summary.csv', 'blocks.csv', 'factors.csv', 'backend.txt'):
+                    shutil.copyfile(case.root / name, grid / name)
+                payload['paired_results'] = cells
+                payload['metadata']['measurement_sha256'] = {
+                    name: reviewer.digest(grid / name) for name in payload['metadata']['measurement_sha256']}
                 self.write(grid / 'paired-results.json', payload)
                 self.write(grid / 'metadata.json', payload['metadata'])
                 if (run['round'], run['comparison'], run['workload'], run['waveform']) == (1, 'candidate', 'stationary-v1', 0):
@@ -204,7 +239,10 @@ class ArchiveReview(unittest.TestCase):
                         shutil.copyfile(case.root / name, grid / name)
                 self.rehash(run)
             self.save()
-            rows = reviewer.review(self.root)['rows']
+            result = reviewer.review(self.root, verify_raw=True)
+            self.assertTrue(result['raw_measurements_verified'])
+            self.assertIn('percentiles, strict deadline counts', reviewer.render(result))
+            rows = result['rows']
             cell = next(r for r in rows if (r['round'], r['comparison'], r['workload'], r['waveform'], r['rate'], r['buffer']) ==
                         (1, 'candidate', 'stationary-v1', 0, 192000, 32))
             self.assertEqual(cell['median_paired_p50_ratio'], 3.5)

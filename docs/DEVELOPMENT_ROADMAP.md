@@ -28,6 +28,10 @@ read-only archívumellenőrző támogatja: teljes kampány/hash/azonosító-kont
 majd külön körönkénti p50/p99 és túllépések. Ez sem célgépes mérés vagy
 CPU-elfogadás; a következő érdemi kapu a tényleges Windows/M1 gyűjtés marad.
 
+Az archívumellenőrző `--verify-raw` módja már a teljes nyers blokkgrideket és
+a mentett páros eredményeket is összeveti, a meglévő numerikus riportkontraktussal.
+Ez további adatellenőrzés; nem új CPU-mérés, és nem zárja le a 3. lépést.
+
 | Lépés | Feladat | Befejezési feltétel |
 | --- | --- | --- |
 | 1 | #82 modulált deadline-fixture stabilizálása, mérések értékelése | A pontos PR-head minden ellenőrzése sikeres; beolvasztás; statikus/modulált workload külön értelmezése. |

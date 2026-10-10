@@ -110,3 +110,18 @@ azokat itt nem hash-eli újra. A hashok belső egyezést bizonyítanak, nem a
 manifest hitelességét; a megőrzött manifest SHA-256 és az eredeti, megbízható
 gyűjtés együtt szükséges. A regresszió szintetikus archívumokkal és a valódi
 CSV-riportoló szintetikus teljes gridjével dolgozik, nem célgépes CPU-adattal.
+
+Az adatértékelés előtt a teljes nyers CSV-ellenőrzés is bekapcsolható:
+
+```powershell
+python scripts/review-dispatch-engine-target.py ../dispatch-engine-results-01 --verify-raw > ../dispatch-engine-review-raw-01.md
+```
+
+Ez ugyanazzal a validátorral ellenőrzi minden grid 288 összesítő sorát és
+73 728 nyers blokkját, mint az eredeti gyűjtés: blokkazonosítók és sorrend,
+p50/p95/p99/maximum, szigorúan >100% túllépések, páros jeldiagnosztikák,
+compiled címkék és rátafüggő routing. Újraszámolja a kilenc páros eredménycellát,
+és összeveti a mentett JSON-nal. Hibás nyers adat vagy eltérő mentett eredmény
+esetén nincs sikeres riport. A mód nem ír az archívumba, nem futtat mérőprogramot,
+és nem igényli az eredeti checkoutot; a hitelességi és CPU-elfogadási korlátok
+változatlanok. Két körben összesen 2 359 296 nyers blokkot olvas újra.
