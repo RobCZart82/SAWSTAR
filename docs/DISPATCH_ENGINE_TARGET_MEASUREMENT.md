@@ -82,3 +82,31 @@ gridből validál. Ezek nem Windows/M1 célgépes CPU-eredmények.
 A `complete` állapot adatgyűjtési siker, nem production CPU-elfogadás.
 A célgépes grid értékelése, minőség/magasráta-policy és natív REAPER-próba
 után következhet a production integráció és a kiadási kapuk lezárása.
+
+## A teljes archívum ellenőrzése és áttekintése
+
+A gyűjtés után az archívum másik gépen, build és REAPER nélkül ellenőrizhető:
+
+```powershell
+python scripts/review-dispatch-engine-target.py ../dispatch-engine-results-01 > ../dispatch-engine-review-01.md
+```
+
+macOS-en `python3` használható. A riportot az archívumon **kívül** mentsd;
+az ellenőrző nem módosítja az eredményeket, és elutasítja a nem jegyzett fájlokat.
+Csak teljes, 2–10 körös gyűjtést fogad el. Ellenőrzi a kvalifikációs naplók és
+minden grid fájlhashát, a kampánysorrendet, forrás/compiler/compiled azonosítók
+egyezését, a kilenc ráta/puffer cellát és az értékek érvényességét. Hiányos,
+módosított, duplikált vagy egymásnak ellentmondó archívum hibával áll meg;
+symlinket sem fogad el. Hibánál nincs részleges sikeres riport.
+
+A táblázat minden kör, referenciaismétlés/jelölt, workload és hullámforma
+p50/p99 arányát és túllépésszámát külön megőrzi. Nincs zajlevonás, outlier-
+kizárás, körökből összevont medián vagy automatikus CPU-/production-elfogadás.
+
+Ez archiválási épség- és riportkontraktus-ellenőrzés: nem számolja újra a nyers
+CSV-k percentiliseit, és nem futtatja újra a numerikus kvalifikációt. A forrás
+és executable eredeti bytejai nincsenek a gyűjtési mappába csomagolva, így
+azokat itt nem hash-eli újra. A hashok belső egyezést bizonyítanak, nem a
+manifest hitelességét; a megőrzött manifest SHA-256 és az eredeti, megbízható
+gyűjtés együtt szükséges. A regresszió szintetikus archívumokkal és a valódi
+CSV-riportoló szintetikus teljes gridjével dolgozik, nem célgépes CPU-adattal.

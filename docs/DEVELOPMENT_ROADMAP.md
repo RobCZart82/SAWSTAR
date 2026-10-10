@@ -22,6 +22,12 @@ külön referencia–referencia és jelöltgridek mind a négy hullámformán,
 statikus/modulált terheléssel. A gyűjtő elkészítése nem maga a Windows/M1
 célgépes CPU-elfogadás. A 3. CPU-kapu és a 4–8. lépés nyitott marad.
 
+A #95 gyűjtője már mainben van (`cf1fae0`); a main Windows/macOS,
+kódminőségi és workflow-ellenőrzései sikeresek. A következő adatértékelést
+read-only archívumellenőrző támogatja: teljes kampány/hash/azonosító-kontroll,
+majd külön körönkénti p50/p99 és túllépések. Ez sem célgépes mérés vagy
+CPU-elfogadás; a következő érdemi kapu a tényleges Windows/M1 gyűjtés marad.
+
 | Lépés | Feladat | Befejezési feltétel |
 | --- | --- | --- |
 | 1 | #82 modulált deadline-fixture stabilizálása, mérések értékelése | A pontos PR-head minden ellenőrzése sikeres; beolvasztás; statikus/modulált workload külön értelmezése. |
