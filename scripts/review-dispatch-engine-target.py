@@ -3,10 +3,25 @@
 """Read-only integrity review of collected dispatch grids; no CPU acceptance."""
 import argparse
 import hashlib
+import importlib.util
 import json
 import math
 from pathlib import Path, PurePosixPath
 import re
+
+
+def verify_raw_grid(grid, identity, cells):
+    spec = importlib.util.spec_from_file_location('deadline_validation',
+        Path(__file__).resolve().parent / 'report-premium-deadline.py')
+    deadline = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(deadline)
+    comparison, workload, wave = identity
+    actual = deadline.report(grid, validation_only=True, context={
+        'SAWSTAR_PREMIUM_STUDY': 'rate-saw-dispatch', 'SAWSTAR_PREMIUM_WORKLOAD': workload,
+        'SAWSTAR_PREMIUM_COMPARISON': comparison, 'SAWSTAR_OSC_WAVEFORM': str(wave)})
+    indexed = {(row['rate'], row['buffer']): row for row in cells}
+    require(all(indexed[(row['rate'], row['buffer'])] == row for row in actual),
+            'Recorded paired results disagree with raw measurements')
 
 
 def digest(path):
@@ -52,7 +67,7 @@ def hashes(root, recorded):
         require(path.is_file() and digest(path) == expected, 'Missing or changed evidence: ' + name)
 
 
-def review(folder):
+def review(folder, *, verify_raw=False):
     folder = Path(folder).resolve()
     require(folder.is_dir(), 'Missing archive directory')
     require(not any(p.is_symlink() for p in folder.rglob('*')), 'Archive contains symlinks')
@@ -131,10 +146,13 @@ def review(folder):
             for key in ('reference_over_budget_blocks', 'study_over_budget_blocks'):
                 require(type(cell[key]) is int and 0 <= cell[key] <= 4096, 'Invalid deadline count')
             rows.append(dict(round=round_number, comparison=comparison, workload=workload, waveform=wave, **cell))
+        if verify_raw:
+            verify_raw_grid(grid, (comparison, workload, wave), cells)
     require(recorded_files == {p.relative_to(folder).as_posix() for p in folder.rglob('*') if p.is_file()},
             'Unrecorded archive evidence')
     return {'source_sha': manifest['source_sha'], 'manifest_sha256': digest(folder / 'manifest.json'),
             'platform': manifest['platform'], 'machine': manifest['machine'], 'rows': rows,
+            'raw_measurements_verified': verify_raw,
             'native_host_acceptance': False, 'production_promotion_allowed': False}
 
 
@@ -143,7 +161,9 @@ def render(result):
              f"Platform: {result['platform']}; machine: {result['machine']}",
              f"Manifest SHA-256: {result['manifest_sha256']}", '',
              'Checksums and recorded report contracts verified. Ratios are study/reference.',
-             'Raw CSV percentiles are not recomputed here. Hashes establish consistency, not authenticity.',
+             ('Raw CSV sequences, percentiles, strict deadline counts and paired results recomputed.'
+              if result['raw_measurements_verified'] else 'Raw CSV percentiles are not recomputed here.'),
+             'Hashes establish consistency, not authenticity.',
              'No CPU/native-host acceptance; controls are not subtracted; every round remains separate.', '',
              '| Round | Comparison | Workload | Waveform | Rate | Buffer | p50 ratio | p99 ratio | Reference misses | Study misses |',
              '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |']
@@ -158,8 +178,9 @@ def render(result):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('archive', type=Path)
+    parser.add_argument('--verify-raw', action='store_true', help='Recompute all grids from raw CSV without rewriting the archive')
     args = parser.parse_args()
     try:
-        print(render(review(args.archive)), end='')
+        print(render(review(args.archive, verify_raw=args.verify_raw)), end='')
     except (ValueError, OSError, KeyError, TypeError) as error:
         parser.exit(1, f'Archive review failed: {error}\n')

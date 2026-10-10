@@ -12,12 +12,38 @@ import statistics
 import subprocess
 import sys
 
-def report(folder):
+def summarize_pairs(summaries):
+    paired_results = []
+    for rate in (48000, 96000, 192000):
+        for buffer in (32, 64, 128):
+            ratios = {name: [] for name in ("median_block_percent", "p99_block_percent")}
+            counts = {"reference": 0, "study": 0}
+            for mode in range(4):
+                for pair in range(4):
+                    a = summaries[("reference", rate, mode, buffer, pair)]
+                    b = summaries[("study", rate, mode, buffer, pair)]
+                    for name in ratios:
+                        ratios[name].append(float(b[name]) / float(a[name]))
+                    for engine, row in (("reference", a), ("study", b)):
+                        counts[engine] += int(row["over_budget_blocks"])
+            p50_ratio = statistics.median(ratios['median_block_percent'])
+            p99_ratio = statistics.median(ratios['p99_block_percent'])
+            paired_results.append({"rate": rate, "buffer": buffer,
+                                   "paired_observations": 16, "blocks_per_path": 4096,
+                                   "median_paired_p50_ratio": p50_ratio,
+                                   "median_paired_p99_ratio": p99_ratio,
+                                   "reference_over_budget_blocks": counts['reference'],
+                                   "study_over_budget_blocks": counts['study']})
+    return paired_results
+
+
+def report(folder, *, validation_only=False, context=None):
+    context = os.environ if context is None else context
     folder = Path(folder)
     workload = (folder / "workload.txt").read_text(encoding="utf-8").strip()
     if workload not in ("stationary-v1", "modulated-v1"):
         raise ValueError("Unknown compiled workload")
-    expected_workload = os.environ.get("SAWSTAR_PREMIUM_WORKLOAD", "stationary-v1")
+    expected_workload = context.get("SAWSTAR_PREMIUM_WORKLOAD", "stationary-v1")
     if workload != expected_workload:
         raise ValueError("Compiled workload disagrees with requested workload")
     with (folder / "summary.csv").open(newline="") as f:
@@ -69,7 +95,7 @@ def report(folder):
         summaries[key] = row
     if set(summaries) != expected:
         raise ValueError("Incomplete summary grid")
-    study_kind = os.environ.get("SAWSTAR_PREMIUM_STUDY", "tanh")
+    study_kind = context.get("SAWSTAR_PREMIUM_STUDY", "tanh")
     if study_kind not in ("tanh", "simd-fir", "rate-simd-fir", "gain-normalization", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir", "rate-saw-dispatch"):
         raise ValueError("Unknown study kind")
     if study_kind == "rate-unrolled-fir" and (folder / "study.txt").read_text(encoding="utf-8").strip() != '2x-interpolation-unroll-v1':
@@ -79,12 +105,12 @@ def report(folder):
         # repeat always requires it; an environment label cannot create one.
         comparison_file = folder / 'comparison.txt'
         comparison = comparison_file.read_text(encoding='utf-8').strip() if comparison_file.exists() else 'candidate'
-        if comparison not in ('candidate', 'reference-repeat') or comparison != os.environ.get('SAWSTAR_PREMIUM_COMPARISON', 'candidate'):
+        if comparison not in ('candidate', 'reference-repeat') or comparison != context.get('SAWSTAR_PREMIUM_COMPARISON', 'candidate'):
             raise ValueError('Compiled comparison disagrees with requested comparison')
         if (folder / "study.txt").read_text(encoding="utf-8").strip() != 'saw-dispatch-v1':
             raise ValueError("Compiled oscillator study disagrees with requested label")
         waveform = (folder / "waveform.txt").read_text(encoding="utf-8").strip()
-        if waveform not in ('0', '1', '2', '3') or waveform != os.environ.get('SAWSTAR_OSC_WAVEFORM'):
+        if waveform not in ('0', '1', '2', '3') or waveform != context.get('SAWSTAR_OSC_WAVEFORM'):
             raise ValueError("Compiled waveform disagrees with requested waveform")
         for rate in (48000, 96000, 192000):
             for mode in range(4):
@@ -111,13 +137,15 @@ def report(folder):
     for row in recorded:
         if (int(row["reference_factor"]), int(row["study_factor"])) != (factors[row["rate"]],) * 2:
             raise ValueError("Compiled routing disagrees with study label")
+    if validation_only:
+        return summarize_pairs(summaries)
     metadata = {"study_kind": study_kind, "workload": workload,
                 "timed_control_events": workload == "modulated-v1",
                 "setup_drive_db": 20,
                 "drive_targets_db": [0, 12, 24] if workload == "modulated-v1" else [20],
                 "fir_backend": backend,"source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
                 "platform": platform.platform(), "machine": platform.machine(),
-                "runner_os": os.environ.get("RUNNER_OS"), "runner_arch": os.environ.get("RUNNER_ARCH"),
+                "runner_os": context.get("RUNNER_OS"), "runner_arch": context.get("RUNNER_ARCH"),
                 "configuration": "Release", "blocks_per_path": 36864, "pairs_per_scene": 4,
                 "warmup_seconds_per_path": .25, "timed_blocks_per_path_and_pair": 256,
                 "drive_factor": None if adaptive else 4, "drive_factors_by_rate": factors,
@@ -170,30 +198,11 @@ def report(folder):
     if study_kind == "rate-saw-dispatch":
         lines.insert(6, f"OSC1/OSC2 waveform: {waveform}; waveforms and workloads remain separate grids.")
         lines.insert(7, f"Comparison: {comparison}; reference repeats are separate controls, not noise corrections.")
-    paired_results = []
-    for rate in (48000, 96000, 192000):
-        for buffer in (32, 64, 128):
-            ratios = {name: [] for name in ("median_block_percent", "p99_block_percent")}
-            counts = {"reference": 0, "study": 0}
-            for mode in range(4):
-                for pair in range(4):
-                    a = summaries[("reference", rate, mode, buffer, pair)]
-                    b = summaries[("study", rate, mode, buffer, pair)]
-                    for name in ratios:
-                        ratios[name].append(float(b[name]) / float(a[name]))
-                    for engine, row in (("reference", a), ("study", b)):
-                        counts[engine] += int(row["over_budget_blocks"])
-            p50_ratio = statistics.median(ratios['median_block_percent'])
-            p99_ratio = statistics.median(ratios['p99_block_percent'])
-            paired_results.append({"rate": rate, "buffer": buffer,
-                                   "paired_observations": 16, "blocks_per_path": 4096,
-                                   "median_paired_p50_ratio": p50_ratio,
-                                   "median_paired_p99_ratio": p99_ratio,
-                                   "reference_over_budget_blocks": counts['reference'],
-                                   "study_over_budget_blocks": counts['study']})
-            lines.append(f"| {rate} | {buffer} | {p50_ratio:.6f} | "
-                         f"{p99_ratio:.6f} | "
-                         f"{counts['reference']} | {counts['study']} |")
+    paired_results = summarize_pairs(summaries)
+    for cell in paired_results:
+        lines.append(f"| {cell['rate']} | {cell['buffer']} | {cell['median_paired_p50_ratio']:.6f} | "
+                     f"{cell['median_paired_p99_ratio']:.6f} | "
+                     f"{cell['reference_over_budget_blocks']} | {cell['study_over_budget_blocks']} |")
     text = "\n".join(lines) + "\n"
     (folder / "report.md").write_text(text, encoding="utf-8")
     payload = {"schema_version": 1, "metadata": metadata,
