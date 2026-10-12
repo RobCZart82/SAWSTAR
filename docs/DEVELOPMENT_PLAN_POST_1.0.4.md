@@ -1,17 +1,44 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
-**Aktuális sorrend (2026-10-08): [elfogadott fejlesztési roadmap](DEVELOPMENT_ROADMAP.md).**
-A korábbi dátumozott sorrendek történeti naplóként értendők.
-A komponensprofil, a #91 és a #92 izolált platformkampányai elkészültek.
-A frekvenciamegosztás Windows SAW-regressziója miatt kísérleti marad.
-A külön SAW-dispatch minden izolált SAW-cellában kedvező, de alternatív
-hullámformákon regresszió is látszik. Következik a külön
-[teljesmotoros dispatch-minősítés](OSCILLATOR_DISPATCH_ENGINE_STUDY.md),
-azonos lookup filterrel, négy külön hullámforma és statikus/modulált workload
-mellett. A CPU-kapu nyitott; a korai natív REAPER-próba a 4., a végső
-production-elfogadás a 8. lépés.
+**Aktuális sorrend: [elfogadott fejlesztési roadmap](DEVELOPMENT_ROADMAP.md).**
 
-Frissítve: 2026-10-09. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
+## Aktuális állapot — 2026-10-12
+
+Ellenőrzött main: `61e920539e22f8ebb0f70bcc7a32d8f1c3f228fc`.
+A main Windows/macOS, Code quality és workflow-validálási futásai sikeresek.
+Nyilvános kiadás: **1.0.4**; a következő kiadás verziója még nincs kijelölve.
+A kiadott csomag és a main, illetve a kutatási prémium motor külön állapotok.
+
+| Mérföldkő | Lezárt fejlesztés | Fennmaradó korlát |
+| --- | --- | --- |
+| #93 (`ec3c637`) | A négy hullámforma külön statikus/modulált teljesmotoros Windows/macOS kampánya elkészült: 16 grid, sikeres numerikus kontrollok. | A CPU-elfogadás nem teljesült; jobb SAW-medián mellett p99/túllépések és alternatív lassulások maradtak. |
+| #94 (`504f070`) | Classic filter inaktív módjainak denormáljavítása, underflow-regresszióval. | Nem prémium production integráció. |
+| #95 (`cf1fae0`) | Azonos forrású, friss Release buildes célgépes gyűjtő; külön referenciaismétlés és jelölt, két fordított sorrendű kör. | Az eszköz elkészülte nem Windows/M1 célgépes mérési eredmény. |
+| #96 (`933882a`) | Teljes archívum hash-, kampány- és riportazonosító-ellenőrzése; körönként külön p50/p99 és túllépések. | A hashok belső egyezést, nem az archívum hitelességét bizonyítják. |
+| #97 (`61e9205`) | `--verify-raw`: nyers gridek újraellenőrzése és a páros eredmények összevetése, változatlan numerikus szerződéssel. | A 32 grides regresszió szintetikus adatpróba; nincs új célgépes CPU- vagy natív elfogadás. |
+
+**Következő nyitott feladat:** ugyanazon forrás kontrollált Windows/M1
+teljesmotoros CPU-ismétlése, mind a négy hullámformán, statikus és modulált
+terheléssel; kis pufferek p99-ideje és határidő-túllépései külön értékelendők.
+[Gyűjtés és archívumellenőrzés](DISPATCH_ENGINE_TARGET_MEASUREMENT.md).
+Az offline méréshez nem kell REAPER; a korai natív hostpróbához igen.
+
+A roadmap 1–2. lépése elkészült, a 3. lépés CPU-elfogadása nyitott.
+Ezt követi a minőség/magasráta-policy és korai REAPER-próba, a prémium filter
+teljes Classic-cseréje a meglévő GUI/ID-kkel, latency/state/automation,
+presetkoherencia és plugin-életciklus, végleges factory presetek, majd natív
+Windows/macOS kiadási kapuk és külön publikálási döntés. A production motor
+még a Classic filtert használja. Függőségfrissítés, Linux plugin és 32 voice
+továbbra is halasztott; a lezárt click/pop kutatást nem nyitjuk újra.
+
+## Történeti fejlesztési napló
+
+Az alábbi dátumozott állapotképek és „következő” feladatok az akkori állapotot
+őrzik; nem a mai nyitott feladatok listái. Aktuális döntéshez a fenti
+összefoglaló és a roadmap eleje használandó. A korábbi mérési bizonyítékok és
+negatív eredmények változatlanul megmaradnak.
+
+Történeti összegzés, 2026-10-09. A kiadási összegzés történeti alapja: `2d3fd73527ecdad27028792d898b37b2d4bf28de`.
 Az akkori main Windows, macOS és Code quality workflow-ja sikeres volt. A #36 PR lezárta
 az ARP transport-stop utáni editor-tulajdonlás, a VST3 host MIDI-kontrollerpontok
 és a jövőbeli editor-offsetek overflow-helyreállításának javítását.

@@ -1,47 +1,48 @@
-# Elfogadott fejlesztési sorrend — 2026-10-08
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-12
 
-Ez az aktuális sorrend; a DEVELOPMENT_PLAN_POST_1.0.4.md korábbi szakaszai
-fejlesztési naplóként és mérési bizonyítékként maradnak meg. Kritikus bug
-vagy piros funkcionális CI megelőzi a következő fejlesztési lépést.
+Ez az aktuális sorrend; kritikus bug vagy piros funkcionális CI megelőzi a
+következő fejlesztési lépést. A [részletes terv](DEVELOPMENT_PLAN_POST_1.0.4.md)
+korábbi dátumozott részei történeti naplóként maradnak meg.
 
-Aktuális audit, 2026-10-09: a #92 izolált SAW-dispatch mérföldköve már
-mainben van (`9cf0ba0`). A #93 `a351db4` forrásának négy Windows/macOS
-jobja a négy hullámforma külön statikus/modulált teljesmotoros gridjét
-elkészítette: összesen 16 grid, sikeres numerikus kontrollokkal. Ez a mérés
-elkészült, a 3. lépés CPU-elfogadása azonban nem teljesült. A jobb SAW-medián
-mellett alternatív lassulások és vegyes p99/túllépések maradtak; Windows
-192 kHz-en mindkét út minden mért blokkja túllépte az offline határidőt.
-A #93 beolvadt (`ec3c637`), majd a #94 Classic-denormál javítása is
-mainbe került (`504f070`). A részletes
-[repository-audit](REPOSITORY_REVIEW_2026_10_09.md) az audit idején rögzített
-forrásokat és korlátokat őrzi. A következő nyitott kapu a kódazonos,
-ellenőrzött célgépes CPU-ismétlés. Ezt új
-[teljesmotoros gyűjtő](DISPATCH_ENGINE_TARGET_MEASUREMENT.md) támogatja:
-friss Release build, előzetes numerikus kapuk, két fordított sorrendű kör,
-külön referencia–referencia és jelöltgridek mind a négy hullámformán,
-statikus/modulált terheléssel. A gyűjtő elkészítése nem maga a Windows/M1
-célgépes CPU-elfogadás. A 3. CPU-kapu és a 4–8. lépés nyitott marad.
+## Aktuális állapot — 2026-10-12
 
-A #95 gyűjtője már mainben van (`cf1fae0`); a main Windows/macOS,
-kódminőségi és workflow-ellenőrzései sikeresek. A következő adatértékelést
-read-only archívumellenőrző támogatja: teljes kampány/hash/azonosító-kontroll,
-majd külön körönkénti p50/p99 és túllépések. Ez sem célgépes mérés vagy
-CPU-elfogadás; a következő érdemi kapu a tényleges Windows/M1 gyűjtés marad.
+Ellenőrzött main: `61e920539e22f8ebb0f70bcc7a32d8f1c3f228fc`.
+A main Windows/macOS, Code quality és workflow-validálási futásai sikeresek.
+Nyilvános kiadás: **1.0.4**; a következő kiadás verziója még nincs kijelölve.
+A kiadott csomag és a main, illetve a kutatási prémium motor külön állapotok.
 
-Az archívumellenőrző `--verify-raw` módja már a teljes nyers blokkgrideket és
-a mentett páros eredményeket is összeveti, a meglévő numerikus riportkontraktussal.
-Ez további adatellenőrzés; nem új CPU-mérés, és nem zárja le a 3. lépést.
-
-| Lépés | Feladat | Befejezési feltétel |
+| Mérföldkő | Lezárt fejlesztés | Fennmaradó korlát |
 | --- | --- | --- |
-| 1 | #82 modulált deadline-fixture stabilizálása, mérések értékelése | A pontos PR-head minden ellenőrzése sikeres; beolvasztás; statikus/modulált workload külön értelmezése. |
-| 2 | Lookup motor komponensenkénti CPU-profil | Ellenőrzött Windows/macOS grid, compiler/forrás/nyers eredet, domináns költségre adat alapú hipotézis. A profil nem additív CPU-felosztás. |
-| 3 | Domináns költség célzott optimalizálása | Változatlan minőségi korlátok, teljesmotor-regresszió, páros kis-bufferes p99/túllépés és kódazonos célgépes ismétlés. |
-| 4 | Filter/minőség/magasráta-policy; korai natív REAPER-próba | Mac mini M1-en telepített REAPER, tesztplugin és saját audioeszköz: hang/minőség/terhelés ellenőrzése; Windows célgépes kontroll. Dokumentált policy-döntés. |
-| 5 | Prémium LP12/LP24/HP12/BP12 production integráció | Meglévő GUI/ID-k megőrzése, Classic-csere, latency/state/automation és régi projektkompatibilitás ellenőrzése. |
-| 6 | Presetkoherencia és plugin-életciklus | Import lejátszás alatt, editor bezárás/újranyitás, unload, több példány, külső meghajtó és régi projekt/preset tesztek. |
-| 7 | Végleges factory presetek | Az elfogadott hangúton kiegyensúlyozott, ellenőrzött presetkészlet és mentés/visszatöltés. |
-| 8 | Végső natív Windows/macOS REAPER és kiadási kapuk | Production build célgépes elfogadása, csomagok/kézikönyvek/verzió/RC; kiadás külön döntés. |
+| #93 (`ec3c637`) | A négy hullámforma külön statikus/modulált teljesmotoros Windows/macOS kampánya elkészült: 16 grid, sikeres numerikus kontrollok. | A CPU-elfogadás nem teljesült; jobb SAW-medián mellett p99/túllépések és alternatív lassulások maradtak. |
+| #94 (`504f070`) | Classic filter inaktív módjainak denormáljavítása, underflow-regresszióval. | Nem prémium production integráció. |
+| #95 (`cf1fae0`) | Azonos forrású, friss Release buildes célgépes gyűjtő; külön referenciaismétlés és jelölt, két fordított sorrendű kör. | Az eszköz elkészülte nem Windows/M1 célgépes mérési eredmény. |
+| #96 (`933882a`) | Teljes archívum hash-, kampány- és riportazonosító-ellenőrzése; körönként külön p50/p99 és túllépések. | A hashok belső egyezést, nem az archívum hitelességét bizonyítják. |
+| #97 (`61e9205`) | `--verify-raw`: nyers gridek újraellenőrzése és a páros eredmények összevetése, változatlan numerikus szerződéssel. | A 32 grides regresszió szintetikus adatpróba; nincs új célgépes CPU- vagy natív elfogadás. |
+
+**Következő nyitott feladat:** ugyanazon forrás kontrollált Windows/M1
+teljesmotoros CPU-ismétlése, mind a négy hullámformán, statikus és modulált
+terheléssel; kis pufferek p99-ideje és határidő-túllépései külön értékelendők.
+[Gyűjtés és archívumellenőrzés](DISPATCH_ENGINE_TARGET_MEASUREMENT.md).
+Az offline méréshez nem kell REAPER; a korai natív hostpróbához igen.
+
+A roadmap 1–2. lépése elkészült, a 3. lépés CPU-elfogadása nyitott.
+Ezt követi a minőség/magasráta-policy és korai REAPER-próba, a prémium filter
+teljes Classic-cseréje a meglévő GUI/ID-kkel, latency/state/automation,
+presetkoherencia és plugin-életciklus, végleges factory presetek, majd natív
+Windows/macOS kiadási kapuk és külön publikálási döntés. A production motor
+még a Classic filtert használja. Függőségfrissítés, Linux plugin és 32 voice
+továbbra is halasztott; a lezárt click/pop kutatást nem nyitjuk újra.
+
+| Lépés | Állapot | Feladat | Befejezési feltétel |
+| --- | --- | --- | --- |
+| 1 | Kész | #82 modulált deadline-fixture stabilizálása, mérések értékelése | A pontos PR-head minden ellenőrzése sikeres; beolvasztás; statikus/modulált workload külön értelmezése. |
+| 2 | Kész | Lookup motor komponensenkénti CPU-profil | Ellenőrzött Windows/macOS grid, compiler/forrás/nyers eredet, domináns költségre adat alapú hipotézis. A profil nem additív CPU-felosztás. |
+| 3 | Nyitott | Domináns költség célzott optimalizálása | Változatlan minőségi korlátok, teljesmotor-regresszió, páros kis-bufferes p99/túllépés és kódazonos célgépes ismétlés. |
+| 4 | Nyitott | Filter/minőség/magasráta-policy; korai natív REAPER-próba | Mac mini M1-en telepített REAPER, tesztplugin és saját audioeszköz: hang/minőség/terhelés ellenőrzése; Windows célgépes kontroll. Dokumentált policy-döntés. |
+| 5 | Nyitott | Prémium LP12/LP24/HP12/BP12 production integráció | Meglévő GUI/ID-k megőrzése, Classic-csere, latency/state/automation és régi projektkompatibilitás ellenőrzése. |
+| 6 | Nyitott | Presetkoherencia és plugin-életciklus | Import lejátszás alatt, editor bezárás/újranyitás, unload, több példány, külső meghajtó és régi projekt/preset tesztek. |
+| 7 | Nyitott | Végleges factory presetek | Az elfogadott hangúton kiegyensúlyozott, ellenőrzött presetkészlet és mentés/visszatöltés. |
+| 8 | Nyitott | Végső natív Windows/macOS REAPER és kiadási kapuk | Production build célgépes elfogadása, csomagok/kézikönyvek/verzió/RC; kiadás külön döntés. |
 
 A 4. lépéshez a felhasználó gépén REAPER szükséges, a fejlesztés és offline
 CI 1–3. lépéséhez nem. A korai hostpróba és a végső production-elfogadás
@@ -55,7 +56,16 @@ forrásazonosító rögzíti, nem a tervezett feladat készre jelölése.
 
 A 2. lépés módszere: [komponensprofil](PREMIUM_COMPONENT_PROFILE.md).
 
-## A 2–3. lépés aktuális állapota
+## Történeti fejlesztési napló
+
+Az alábbi szakaszok a korábbi munkacsomagok sorrendjét és mérési eredményeit
+őrzik. A bennük szereplő „következő” feladatok az akkori állapotra vonatkoznak;
+az aktuális nyitott kapukat a fenti összefoglaló és táblázat adja. A #93
+kampánya és a #95–#97 eszközei már elkészültek, a célgépes CPU-elfogadás nem.
+A [2026-10-09-i audit](REPOSITORY_REVIEW_2026_10_09.md) korábbi megállapításait
+és mérési forrásazonosítóit nem írjuk át későbbi állapotként.
+
+## A 2–3. lépés korábbi állapota
 
 A Windows/macOS komponensprofil két teljes adatsora és provenance-a
 rögzített; a nyers és összesítő byte-hash ellenőrzött. 48/96 kHz-en a
