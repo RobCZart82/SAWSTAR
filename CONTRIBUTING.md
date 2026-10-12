@@ -13,3 +13,15 @@ for behavioral fixes and follow docs/BUILDING.md for checks.
 Do not commit credentials, local user presets or generated build trees. Keep
 external license notices with bundled dependencies; do not change submodule
 versions silently. Use original or explicitly licensed artwork and fonts.
+
+## Keep development status current
+
+When a milestone, acceptance decision, release gate or publication changes,
+update the current overview in docs/DEVELOPMENT_PLAN_POST_1.0.4.md and
+its matching status/order in docs/DEVELOPMENT_ROADMAP.md in the same PR.
+Record the review date, source commit and available CI/measurement evidence.
+After merge, reconcile merged/pending wording at the next status update;
+never label pending checks or native acceptance as completed.
+Keep historical sections dated and clearly marked as history. Preserve their
+original measurement sources and negative results. Completed tooling or
+synthetic tests do not establish target-machine CPU or native-host acceptance.
