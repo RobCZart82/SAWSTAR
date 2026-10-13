@@ -1,12 +1,12 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-12
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-13
 
 Ez az aktuális sorrend; kritikus bug vagy piros funkcionális CI megelőzi a
 következő fejlesztési lépést. A [részletes terv](DEVELOPMENT_PLAN_POST_1.0.4.md)
 korábbi dátumozott részei történeti naplóként maradnak meg.
 
-## Aktuális állapot — 2026-10-12
+## Aktuális állapot — 2026-10-13
 
-Ellenőrzött main: `61e920539e22f8ebb0f70bcc7a32d8f1c3f228fc`.
+Ellenőrzött main: `b01d63ba2fc49e690cfec20fa8bc0b365c7a48dc`.
 A main Windows/macOS, Code quality és workflow-validálási futásai sikeresek.
 Nyilvános kiadás: **1.0.4**; a következő kiadás verziója még nincs kijelölve.
 A kiadott csomag és a main, illetve a kutatási prémium motor külön állapotok.
@@ -18,6 +18,17 @@ A kiadott csomag és a main, illetve a kutatási prémium motor külön állapot
 | #95 (`cf1fae0`) | Azonos forrású, friss Release buildes célgépes gyűjtő; külön referenciaismétlés és jelölt, két fordított sorrendű kör. | Az eszköz elkészülte nem Windows/M1 célgépes mérési eredmény. |
 | #96 (`933882a`) | Teljes archívum hash-, kampány- és riportazonosító-ellenőrzése; körönként külön p50/p99 és túllépések. | A hashok belső egyezést, nem az archívum hitelességét bizonyítják. |
 | #97 (`61e9205`) | `--verify-raw`: nyers gridek újraellenőrzése és a páros eredmények összevetése, változatlan numerikus szerződéssel. | A 32 grides regresszió szintetikus adatpróba; nincs új célgépes CPU- vagy natív elfogadás. |
+
+### Folyamatban: megerősítő párbeszéd hosszú presetnevekkel
+
+A mentés megerősítő szövege hosszú, szóköz nélküli presetnévnél csak
+szóközökre támaszkodva tördelődött, így kifuthatott a szövegdobozból.
+A külön javítás UTF-8-kódponthatáron is tördel, a betűszélességet méri,
+és a szükséges sorszámhoz igazítja az ablakmagasságot. A helyi regresszió
+ellenőrzi a szöveg megőrzését, Unicode karaktereket és a gombok előtti helyet.
+A javítás PR/Windows/macOS build és natív GUI-ellenőrzése még nyitott;
+a DSP, paraméterazonosítók és a 3. lépés CPU-elfogadása nem változik.
+[Részletek és ellenőrzési korlátok](CONFIRMATION_TEXT_WRAP.md).
 
 **Következő nyitott feladat:** ugyanazon forrás kontrollált Windows/M1
 teljesmotoros CPU-ismétlése, mind a négy hullámformán, statikus és modulált
