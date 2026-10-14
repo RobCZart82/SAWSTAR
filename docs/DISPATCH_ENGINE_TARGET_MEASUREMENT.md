@@ -125,3 +125,32 @@ compiled címkék és rátafüggő routing. Újraszámolja a kilenc páros eredm
 esetén nincs sikeres riport. A mód nem ír az archívumba, nem futtat mérőprogramot,
 és nem igényli az eredeti checkoutot; a hitelességi és CPU-elfogadási korlátok
 változatlanok. Két körben összesen 2 359 296 nyers blokkot olvas újra.
+
+## Windows és Apple Silicon archívum közös áttekintése
+
+Két teljes célgépes gyűjtés után, a riportot mindkét archívumon kívül mentve:
+
+```powershell
+python scripts/compare-dispatch-engine-targets.py ../windows-results ../m1-results > ../target-comparison.md
+```
+
+macOS-en `python3` használható. A `--format json` géppel feldolgozható
+kimenetet ad. Az első bemenet Windows x64, a második Apple Silicon macOS.
+Mindkettő kötelező nyers CSV-újraellenőrzést kap; nincs gyorsított, csak
+hashokat ellenőrző mód. Hiányos vagy hibás második archívumnál sincs
+részleges sikeres stdout. A parancs egyik archívumba sem ír.
+
+Azonos commit, forrásfájl-hashjegyzék, körszám, Release konfiguráció és
+kutatási variáns szükséges. A gridek platform/gép címkéinek egyezniük kell
+a saját manifesttel. A fordítóhashok platformonként eltérhetnek: minden
+archívum a saját fordítóeredetét ellenőrzi. A platformcímkék archivált
+állítások, nem függetlenül hitelesített hardverazonosítók; az ARM64 címke
+önmagában nem bizonyítja, hogy a gép M1.
+
+A riport minden kört, terhelést, hullámformát, ráta/puffer cellát és
+referenciaismétlést külön tart meg. Az arányok az adott gépen belüli
+jelölt/referencia arányok, nem a két gép abszolút sebességének arányai.
+Nincs összevont medián, zajlevonás vagy automatikus CPU-/production-elfogadás.
+A regresszió szintetikus archívumokat és külön raw-validator híváskontrollt
+használ; ez nem új Windows/M1 mérés. A CSV-validátor valódi szintetikus
+teljes gridpróbája a meglévő archívum- és deadline-tesztekben marad.
