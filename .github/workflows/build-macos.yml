@@ -1,6 +1,7 @@
 name: Build macos foundation
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -85,3 +86,4 @@ jobs:
             dist/*.dmg
             dist/*.sha256
           if-no-files-found: error
+

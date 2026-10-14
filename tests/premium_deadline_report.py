@@ -219,6 +219,72 @@ class DeadlineReport(unittest.TestCase):
         finally:
             summary.write_bytes(original)
 
+    def test_rejects_malformed_csv_structure(self):
+        self.run_report('rate-unrolled-fir', 2)
+        context = {'SAWSTAR_PREMIUM_STUDY': 'rate-unrolled-fir',
+                   'SAWSTAR_PREMIUM_WORKLOAD': 'stationary-v1'}
+        for name in ('summary.csv', 'blocks.csv', 'factors.csv'):
+            path = self.root / name
+            original = path.read_bytes()
+            rows = list(csv.reader(io.StringIO(original.decode())))
+            malformed = []
+            # Duplicate columns must not shadow a corrupted original field.
+            duplicate = [row[:] for row in rows]
+            duplicate[0].append(rows[0][-1])
+            for row in duplicate[1:]:
+                row.append(row[-1])
+                row[-2] = 'corrupted'
+            malformed.append(duplicate)
+            for edit in ('extra-field', 'missing-field', 'unknown-header', 'missing-header'):
+                changed = [row[:] for row in rows]
+                if edit == 'extra-field': changed[1].append('unexpected')
+                elif edit == 'missing-field': changed[1].pop()
+                elif edit == 'unknown-header': changed[0][-1] = 'unknown'
+                else:
+                    for row in changed: row.pop()
+                malformed.append(changed)
+            try:
+                for index, changed in enumerate(malformed):
+                    out = io.StringIO(newline='')
+                    csv.writer(out).writerows(changed)
+                    path.write_text(out.getvalue(), encoding='utf-8')
+                    with self.subTest(file=name, mutation=index):
+                        with self.assertRaisesRegex(ValueError, 'CSV'):
+                            deadline.report(self.root, validation_only=True, context=context)
+            finally:
+                path.write_bytes(original)
+
+    def test_accepts_reordered_complete_csv_columns(self):
+        self.run_report('rate-unrolled-fir', 2)
+        originals = {}
+        try:
+            for name in ('summary.csv', 'blocks.csv', 'factors.csv'):
+                path = self.root / name
+                originals[path] = path.read_bytes()
+                rows = list(csv.reader(io.StringIO(originals[path].decode())))
+                with path.open('w', newline='', encoding='utf-8') as handle:
+                    csv.writer(handle).writerows(row[::-1] for row in rows)
+            result = deadline.report(self.root, validation_only=True, context={
+                'SAWSTAR_PREMIUM_STUDY': 'rate-unrolled-fir',
+                'SAWSTAR_PREMIUM_WORKLOAD': 'stationary-v1'})
+            self.assertEqual(len(result), 9)
+        finally:
+            for path, content in originals.items(): path.write_bytes(content)
+
+    def test_rejects_unclosed_csv_quotes(self):
+        self.run_report('rate-unrolled-fir', 2)
+        for name in ('summary.csv', 'blocks.csv', 'factors.csv'):
+            path = self.root / name
+            original = path.read_bytes()
+            try:
+                path.write_bytes(original + b'"unterminated')
+                with self.subTest(file=name), self.assertRaisesRegex(ValueError, 'Malformed CSV'):
+                    deadline.report(self.root, validation_only=True, context={
+                        'SAWSTAR_PREMIUM_STUDY': 'rate-unrolled-fir',
+                        'SAWSTAR_PREMIUM_WORKLOAD': 'stationary-v1'})
+            finally:
+                path.write_bytes(original)
+
     def test_unrolled_study_identity_and_provenance(self):
         result = self.run_report('rate-unrolled-fir', 2, workload='modulated-v1', requested='modulated-v1')
         self.assertEqual(result['reference_variant'], 'rate-lookup-loop')
@@ -237,4 +303,5 @@ class DeadlineReport(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 

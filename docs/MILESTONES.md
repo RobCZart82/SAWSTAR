@@ -1,5 +1,9 @@
 # Milestones
 
+Historical bootstrap plan. The incomplete/later labels below describe the
+original planning snapshot, not current release status. SAWSTAR 1.0.4 is
+published; see [the current roadmap](DEVELOPMENT_ROADMAP.md) for open work.
+
 ## Foundation (this repository bootstrap)
 
 - [x] Public SAWSTAR repository and MIT original-source license.
@@ -42,3 +46,4 @@ VST3 artifacts. Only then tag/release `v0.1.0` as First Sound.
 Custom 7-Saw/SuperSaw with measured detune/stereo behaviour; filters and effects;
 performance controls; arpeggiator and modulation; annotated factory presets and
 learning browser; AU/CLAP; signing and notarization/distribution automation.
+

@@ -1,6 +1,7 @@
 name: Build windows foundation
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -92,3 +93,4 @@ jobs:
             dist/*Setup.exe
             dist/*Setup.exe.sha256
           if-no-files-found: error
+
