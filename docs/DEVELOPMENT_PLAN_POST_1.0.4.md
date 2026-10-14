@@ -2,9 +2,9 @@
 
 **Aktuális sorrend: [elfogadott fejlesztési roadmap](DEVELOPMENT_ROADMAP.md).**
 
-## Aktuális állapot — 2026-10-13
+## Aktuális állapot — 2026-10-14
 
-Ellenőrzött main: `b01d63ba2fc49e690cfec20fa8bc0b365c7a48dc`.
+Ellenőrzött main: `c0b9d47b47c4e512d14cdced0a079da700b7a56c` (#100).
 A main Windows/macOS, Code quality és workflow-validálási futásai sikeresek.
 Nyilvános kiadás: **1.0.4**; a következő kiadás verziója még nincs kijelölve.
 A kiadott csomag és a main, illetve a kutatási prémium motor külön állapotok.
@@ -17,14 +17,15 @@ A kiadott csomag és a main, illetve a kutatási prémium motor külön állapot
 | #96 (`933882a`) | Teljes archívum hash-, kampány- és riportazonosító-ellenőrzése; körönként külön p50/p99 és túllépések. | A hashok belső egyezést, nem az archívum hitelességét bizonyítják. |
 | #97 (`61e9205`) | `--verify-raw`: nyers gridek újraellenőrzése és a páros eredmények összevetése, változatlan numerikus szerződéssel. | A 32 grides regresszió szintetikus adatpróba; nincs új célgépes CPU- vagy natív elfogadás. |
 
-### Folyamatban: megerősítő párbeszéd hosszú presetnevekkel
+### Beolvadt: megerősítő párbeszéd hosszú presetnevekkel
 
 A mentés megerősítő szövege hosszú, szóköz nélküli presetnévnél csak
 szóközökre támaszkodva tördelődött, így kifuthatott a szövegdobozból.
 A külön javítás UTF-8-kódponthatáron is tördel, a betűszélességet méri,
 és a szükséges sorszámhoz igazítja az ablakmagasságot. A helyi regresszió
 ellenőrzi a szöveg megőrzését, Unicode karaktereket és a gombok előtti helyet.
-A javítás PR/Windows/macOS build és natív GUI-ellenőrzése még nyitott;
+A #99 javítás beolvadt; a main Windows/macOS buildje, Code quality és
+workflow-validálása sikeres. A natív, skálázott GUI-ellenőrzés még nyitott;
 a DSP, paraméterazonosítók és a 3. lépés CPU-elfogadása nem változik.
 [Részletek és ellenőrzési korlátok](CONFIRMATION_TEXT_WRAP.md).
 
@@ -33,6 +34,35 @@ teljesmotoros CPU-ismétlése, mind a négy hullámformán, statikus és modulá
 terheléssel; kis pufferek p99-ideje és határidő-túllépései külön értékelendők.
 [Gyűjtés és archívumellenőrzés](DISPATCH_ENGINE_TARGET_MEASUREMENT.md).
 Az offline méréshez nem kell REAPER; a korai natív hostpróbához igen.
+
+A két célgép lezárt archívumához külön összevető parancs is használható:
+`scripts/compare-dispatch-engine-targets.py`. Mindkét teljes archívum nyers
+adatait újraellenőrzi, azonos commitot/forráshashokat és körszámot követel,
+és megőrzi a platformonként külön referenciaismétlést, jelöltet és köröket.
+Ez kiértékelési eszköz, nem új CPU-eredmény vagy elfogadás; a Windows/M1
+lezárt célgépes mérési pár továbbra sincs e dokumentumban igazolva.
+
+A production audio-benchmark CSV-ellenőrzése külön teljességi javítást kap:
+minden warmup/időzített futás mind a hat `dry_fx`/`full_fx`, 1/8/16 voice
+jelenetet tartalmazza, és a CPU-idő pozitív legyen. A CPU-, szint- és
+DC-küszöbök változatlanok; ez nem gyorsulás vagy prémium CPU-elfogadás.
+[Hiba, javítás és tesztszerződés](AUDIO_BENCHMARK_VALIDATION.md).
+
+### Folyamatban: mérési validátorok és CI karbantartása
+
+A #101 a production benchmark hat jelenetének teljességét és CSV-szerkezetét
+ellenőrzi. A folytatás minden jelenlegi warmup/időzített render DC-jét külön
+vizsgálja, és a kutatási deadline-riportokban kizárja a duplikált oszlopokat,
+eltérő sorszélességet és hibás CSV-t. Regressziós tesztek igazolják a régi
+hibákat és a megengedett határeseteket. A Windows/macOS build workflow-k
+pushra csak a mainen futnak; PR- és kézi indítás továbbra is elérhető.
+A javított PR-head CI-ellenőrzése és beolvasztása még nyitott.
+
+A korábbi `1ed6d698` macOS push-futás CPU-regresszióját megőrizzük:
+`dry_fx / 16 voice`: 11,6468% → 15,0679%, határ 14,5584%.
+A PR-futások sikere nem törli ezt a mérést; nincs automatikus újrapróbálás,
+kedvező kör kiválasztása vagy küszöblazítás. A változtatás nem érinti a DSP-t.
+[Részletek, regressziók és CI-bizonyíték](AUDIO_BENCHMARK_VALIDATION.md).
 
 A roadmap 1–2. lépése elkészült, a 3. lépés CPU-elfogadása nyitott.
 Ezt követi a minőség/magasráta-policy és korai REAPER-próba, a prémium filter
@@ -735,3 +765,4 @@ elutasítja a hiányzó vagy rosszul címkézett terhelést.
 
 Részletek: [modulációs blokkidő-vizsgálat](PREMIUM_MODULATED_DEADLINES.md).
 Linux/32 voice és a lezárt click/pop kutatás státusza változatlan.
+

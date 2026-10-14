@@ -50,6 +50,22 @@ jelenetet tartalmazza, és a CPU-idő pozitív legyen. A CPU-, szint- és
 DC-küszöbök változatlanok; ez nem gyorsulás vagy prémium CPU-elfogadás.
 [Hiba, javítás és tesztszerződés](AUDIO_BENCHMARK_VALIDATION.md).
 
+### Folyamatban: mérési validátorok és CI karbantartása
+
+A #101 a production benchmark hat jelenetének teljességét és CSV-szerkezetét
+ellenőrzi. A folytatás minden jelenlegi warmup/időzített render DC-jét külön
+vizsgálja, és a kutatási deadline-riportokban kizárja a duplikált oszlopokat,
+eltérő sorszélességet és hibás CSV-t. Regressziós tesztek igazolják a régi
+hibákat és a megengedett határeseteket. A Windows/macOS build workflow-k
+pushra csak a mainen futnak; PR- és kézi indítás továbbra is elérhető.
+A javított PR-head CI-ellenőrzése és beolvasztása még nyitott.
+
+A korábbi `1ed6d698` macOS push-futás CPU-regresszióját megőrizzük:
+`dry_fx / 16 voice`: 11,6468% → 15,0679%, határ 14,5584%.
+A PR-futások sikere nem törli ezt a mérést; nincs automatikus újrapróbálás,
+kedvező kör kiválasztása vagy küszöblazítás. A változtatás nem érinti a DSP-t.
+[Részletek, regressziók és CI-bizonyíték](AUDIO_BENCHMARK_VALIDATION.md).
+
 A roadmap 1–2. lépése elkészült, a 3. lépés CPU-elfogadása nyitott.
 Ezt követi a minőség/magasráta-policy és korai REAPER-próba, a prémium filter
 teljes Classic-cseréje a meglévő GUI/ID-kkel, latency/state/automation,
@@ -251,3 +267,4 @@ bitazonos hanggal és hullámformaváltási regresszióval. A kedvezőtlen
 alternatív ágakat ugyanúgy értékeljük. Az új platformos mérés még nyitott.
 A production DSP nem változik. A 3. lépés CPU-elfogadása és a 4-8. lépés
 továbbra is nyitott; kódazonos célgépes ismétlés és natív REAPER szükséges.
+

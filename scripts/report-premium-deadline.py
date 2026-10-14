@@ -12,6 +12,32 @@ import statistics
 import subprocess
 import sys
 
+CSV_FIELDS = {
+    "summary.csv": "engine,rate,voices,filter_mode,drive_db,fx,buffer,blocks,pair,order,median_block_percent,p95_block_percent,p99_block_percent,worst_block_percent,over_budget_blocks,peak,rms,checksum".split(","),
+    "blocks.csv": "engine,rate,filter_mode,buffer,pair,block,block_percent".split(","),
+    "factors.csv": "rate,reference_factor,study_factor".split(","),
+}
+
+
+def read_csv(folder, name):
+    """Reject ambiguous headers and ragged records before interpreting values."""
+    try:
+        with (folder / name).open(newline="", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle, strict=True)
+            fields = reader.fieldnames
+            expected = CSV_FIELDS[name]
+            if not fields or len(fields) != len(expected) or set(fields) != set(expected):
+                raise ValueError(f"Invalid CSV header in {name}: {fields}")
+            rows = []
+            for row in reader:
+                if None in row or any(value is None for value in row.values()):
+                    raise ValueError(f"Invalid CSV row width in {name}, line {reader.line_num}")
+                rows.append(row)
+            return rows
+    except csv.Error as error:
+        raise ValueError(f"Malformed CSV in {name}: {error}") from error
+
+
 def summarize_pairs(summaries):
     paired_results = []
     for rate in (48000, 96000, 192000):
@@ -46,10 +72,8 @@ def report(folder, *, validation_only=False, context=None):
     expected_workload = context.get("SAWSTAR_PREMIUM_WORKLOAD", "stationary-v1")
     if workload != expected_workload:
         raise ValueError("Compiled workload disagrees with requested workload")
-    with (folder / "summary.csv").open(newline="") as f:
-        rows = list(csv.DictReader(f))
-    with (folder / "blocks.csv").open(newline="") as f:
-        raw = list(csv.DictReader(f))
+    rows = read_csv(folder, "summary.csv")
+    raw = read_csv(folder, "blocks.csv")
     groups = {}
     for row in raw:
         key = (row["engine"], int(row["rate"]), int(row["filter_mode"]), int(row["buffer"]), int(row["pair"]))
@@ -130,8 +154,7 @@ def report(folder, *, validation_only=False, context=None):
     adaptive = study_kind in ("rate-simd-fir", "rate-gain-normalization", "rate-lookup", "rate-unrolled-fir", "rate-saw-dispatch")
     factors = {str(rate): (2 if adaptive and rate >= 176400 else 4)
                for rate in (48000, 96000, 192000)}
-    with (folder / "factors.csv").open(newline="") as f:
-        recorded = list(csv.DictReader(f))
+    recorded = read_csv(folder, "factors.csv")
     if len(recorded) != 3 or {row["rate"] for row in recorded} != set(factors):
         raise ValueError("Incomplete compiled routing record")
     for row in recorded:
@@ -218,4 +241,5 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         raise SystemExit("Usage: report-premium-deadline.py measurement-directory")
     report(sys.argv[1])
+
 

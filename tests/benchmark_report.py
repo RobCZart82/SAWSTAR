@@ -94,8 +94,37 @@ class ReportTest(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 benchmark.parse_report(text)
 
+    def test_current_dc_outlier_cannot_hide_in_median(self):
+        for dc in (0.2, -0.2):
+            bad = full_report().replace("full_fx,16,2,-3,-12,0\n",
+                                        f"full_fx,16,2,-3,-12,{dc}\n")
+            # One of eight current reports is unsafe; the old median was zero.
+            outputs = [full_report()] * 18
+            outputs[8] = bad
+            with self.subTest(dc=dc), patch.object(benchmark, "run", side_effect=outputs), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(RuntimeError, "DC"):
+                    benchmark.collect_reports({"baseline": "old", "current": "new"})
+
+    def test_current_warmup_dc_is_checked(self):
+        bad = full_report().replace(",-3,-12,0\n", ",-3,-12,0.2\n")
+        with patch.object(benchmark, "run", side_effect=[full_report(), bad] + [full_report()] * 16) as run:
+            with self.assertRaisesRegex(RuntimeError, "DC"):
+                benchmark.collect_reports({"baseline": "old", "current": "new"})
+        self.assertEqual(run.call_count, 2)
+
+    def test_current_dc_boundaries_and_baseline_policy(self):
+        baseline = full_report().replace(",-3,-12,0\n", ",-3,-12,0.2\n")
+        for dc in (-0.01, 0.01):
+            current = full_report().replace(",-3,-12,0\n", f",-3,-12,{dc}\n")
+            with patch.object(benchmark, "run", side_effect=lambda binary: baseline if binary == "old" else current), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                reports = benchmark.collect_reports({"baseline": "old", "current": "new"}, 2)
+            self.assertEqual(len(reports["current"]), 2)
+
     def test_shuffled_complete_report_is_valid(self):
         lines = full_report().splitlines(keepends=True)
         self.assertEqual(benchmark.parse_report(lines[0] + "".join(reversed(lines[1:]))),
                          benchmark.parse_report(full_report()))
 if __name__ == "__main__": unittest.main()
+

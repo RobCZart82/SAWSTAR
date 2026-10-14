@@ -123,6 +123,16 @@ def median_report(reports):
     return result
 
 
+def check_current_dc(report):
+    """A single unsafe current render must not disappear in a median."""
+    for key, metrics in report.items():
+        if abs(metrics["dc"]) > MAX_CURRENT_DC:
+            raise RuntimeError(
+                f"{key}: current DC={metrics['dc']:+.6f} exceeds "
+                f"±{MAX_CURRENT_DC:.3f} in an individual render"
+            )
+
+
 def collect_reports(binaries, repeats=REPEATS):
     """Warm both executables, then balance measurement order across pairs."""
     if repeats < 2 or repeats % 2:
@@ -130,7 +140,9 @@ def collect_reports(binaries, repeats=REPEATS):
     labels = ("baseline", "current")
     # Validate warm-up output too; invalid audio must never be silently ignored.
     for label in labels:
-        parse_report(run(str(binaries[label])))
+        report = parse_report(run(str(binaries[label])))
+        if label == "current":
+            check_current_dc(report)
     reports = {label: [] for label in labels}
     for repeat in range(repeats):
         order = labels if repeat % 2 == 0 else labels[::-1]
@@ -138,7 +150,10 @@ def collect_reports(binaries, repeats=REPEATS):
             output = run(str(binaries[label]))
             print(f"{label},repeat={repeat + 1}", flush=True)
             print(output, flush=True)
-            reports[label].append(parse_report(output))
+            report = parse_report(output)
+            if label == "current":
+                check_current_dc(report)
+            reports[label].append(report)
     return reports
 
 
@@ -305,8 +320,9 @@ def main():
         print(
             "\nBenchmark regression check passed."
         )
-    
+
 
 
 if __name__ == "__main__":
     main()
+

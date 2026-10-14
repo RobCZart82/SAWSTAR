@@ -1,13 +1,19 @@
 # Building SAWSTAR
 
-Use CMake 3.25+, Python 3, Git and a C++17 toolchain. The default build runs
+Use CMake 3.25+ (recommended), Python 3, Git and a C++17 toolchain.
+The top-level foundation minimum is CMake 3.21; the recommended toolchain
+also covers plugin development. The default build runs
 foundation tests without downloading plugin dependencies:
 
 ```sh
-cmake -S . -B build -DBUILD_TESTING=ON
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
 cmake --build build --config Release
 ctest --test-dir build -C Release --output-on-failure
 ```
+
+`CMAKE_BUILD_TYPE=Release` selects optimization for single-configuration
+generators such as Unix Makefiles and Ninja. `--config Release` selects the
+configuration for multi-configuration generators such as Visual Studio/Xcode.
 
 For the instrument, run `python3 scripts/bootstrap-plugin.py` first. This sets
 up the pinned iPlug2, DaisySP and VST3 SDK dependencies. The iPlug2 submodule
@@ -54,3 +60,6 @@ CI builds Debug/Release checks and Release VST3 bundles, validates plugins,
 packages installers and exercises installation/uninstallation on disposable
 runners. Windows x64 and ARM64 have separate jobs; macOS builds Universal.
 These checks do not replace manual GUI or dual-architecture coexistence QA.
+Platform builds run on pull requests, pushes to `main` and manual dispatch.
+Feature-branch pushes do not start a second copy of the same PR build.
+
