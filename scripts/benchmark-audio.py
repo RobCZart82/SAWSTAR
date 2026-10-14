@@ -14,6 +14,9 @@ root = pathlib.Path(__file__).resolve().parents[1]
 base = "0873064487e02b2e1da49b42d0fd12ca83e11ec7"
 
 REPEATS = 8
+EXPECTED_SCENARIOS = frozenset(
+    (scene, voices) for scene in ("dry_fx", "full_fx") for voices in (1, 8, 16)
+)
 
 # A CPU regression fails only when it exceeds BOTH limits:
 # more than +25% relative and more than +1.0 realtime percentage point.
@@ -56,7 +59,8 @@ def parse_report(text):
         "dc",
     }
 
-    if not reader.fieldnames or not required.issubset(reader.fieldnames):
+    if (not reader.fieldnames or set(reader.fieldnames) != required
+            or len(reader.fieldnames) != len(required)):
         raise RuntimeError(
             f"Unexpected benchmark CSV header: {reader.fieldnames}"
         )
@@ -64,26 +68,38 @@ def parse_report(text):
     report = {}
 
     for row in reader:
-        key = (row["scene"], int(row["voices"]))
+        if None in row or any(value is None for value in row.values()):
+            raise RuntimeError("Malformed benchmark CSV row")
+        try:
+            key = (row["scene"], int(row["voices"]))
+            metrics = {
+                metric: float(row[metric])
+                for metric in ("realtime_percent", "peak_dbfs", "rms_dbfs", "dc")
+            }
+        except (ValueError, TypeError) as error:
+            raise RuntimeError("Invalid benchmark numeric value") from error
 
         if key in report:
             raise RuntimeError(f"Duplicate benchmark row: {key}")
 
-        report[key] = {
-            "realtime_percent": float(row["realtime_percent"]),
-            "peak_dbfs": float(row["peak_dbfs"]),
-            "rms_dbfs": float(row["rms_dbfs"]),
-            "dc": float(row["dc"]),
-        }
+        report[key] = metrics
 
         for metric, value in report[key].items():
             if not math.isfinite(value):
                 raise RuntimeError(
                     f"Non-finite benchmark value for {key}, {metric}: {value}"
                 )
+        if metrics["realtime_percent"] <= 0:
+            raise RuntimeError(f"Non-positive benchmark CPU time for {key}")
 
     if not report:
         raise RuntimeError("Benchmark produced no data rows")
+    if set(report) != EXPECTED_SCENARIOS:
+        raise RuntimeError(
+            "Incomplete or unexpected benchmark scenarios: "
+            f"missing={sorted(EXPECTED_SCENARIOS - set(report))}, "
+            f"unexpected={sorted(set(report) - EXPECTED_SCENARIOS)}"
+        )
 
     return report
 

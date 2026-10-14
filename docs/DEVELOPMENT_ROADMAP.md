@@ -6,7 +6,7 @@ korábbi dátumozott részei történeti naplóként maradnak meg.
 
 ## Aktuális állapot — 2026-10-14
 
-Ellenőrzött main: `973db8c2ab48a6c96925158f2cccceb7dca056b4` (#99).
+Ellenőrzött main: `c0b9d47b47c4e512d14cdced0a079da700b7a56c` (#100).
 A main Windows/macOS, Code quality és workflow-validálási futásai sikeresek.
 Nyilvános kiadás: **1.0.4**; a következő kiadás verziója még nincs kijelölve.
 A kiadott csomag és a main, illetve a kutatási prémium motor külön állapotok.
@@ -43,6 +43,12 @@ adatait újraellenőrzi, azonos commitot/forráshashokat és körszámot követe
 és megőrzi a platformonként külön referenciaismétlést, jelöltet és köröket.
 Ez kiértékelési eszköz, nem új CPU-eredmény vagy elfogadás; a Windows/M1
 lezárt célgépes mérési pár továbbra sincs e dokumentumban igazolva.
+
+A production audio-benchmark CSV-ellenőrzése külön teljességi javítást kap:
+minden warmup/időzített futás mind a hat `dry_fx`/`full_fx`, 1/8/16 voice
+jelenetet tartalmazza, és a CPU-idő pozitív legyen. A CPU-, szint- és
+DC-küszöbök változatlanok; ez nem gyorsulás vagy prémium CPU-elfogadás.
+[Hiba, javítás és tesztszerződés](AUDIO_BENCHMARK_VALIDATION.md).
 
 A roadmap 1–2. lépése elkészült, a 3. lépés CPU-elfogadása nyitott.
 Ezt követi a minőség/magasráta-policy és korai REAPER-próba, a prémium filter
