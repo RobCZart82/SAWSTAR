@@ -287,6 +287,10 @@ if(BUILD_TESTING)
   target_link_libraries(sawstar_preset_import_job_tests PRIVATE SAWSTAR::Foundation)
   add_test(NAME preset_import_job COMMAND sawstar_preset_import_job_tests)
 
+  add_executable(sawstar_confirmation_wrap_tests tests/confirmation_wrap.cpp)
+  target_link_libraries(sawstar_confirmation_wrap_tests PRIVATE SAWSTAR::Foundation)
+  add_test(NAME confirmation_text_wrap COMMAND sawstar_confirmation_wrap_tests)
+
 
   add_executable(
     sawstar_user_preset_tests
