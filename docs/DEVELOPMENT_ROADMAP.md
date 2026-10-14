@@ -1,12 +1,12 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-13
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-14
 
 Ez az aktuális sorrend; kritikus bug vagy piros funkcionális CI megelőzi a
 következő fejlesztési lépést. A [részletes terv](DEVELOPMENT_PLAN_POST_1.0.4.md)
 korábbi dátumozott részei történeti naplóként maradnak meg.
 
-## Aktuális állapot — 2026-10-13
+## Aktuális állapot — 2026-10-14
 
-Ellenőrzött main: `b01d63ba2fc49e690cfec20fa8bc0b365c7a48dc`.
+Ellenőrzött main: `973db8c2ab48a6c96925158f2cccceb7dca056b4` (#99).
 A main Windows/macOS, Code quality és workflow-validálási futásai sikeresek.
 Nyilvános kiadás: **1.0.4**; a következő kiadás verziója még nincs kijelölve.
 A kiadott csomag és a main, illetve a kutatási prémium motor külön állapotok.
@@ -19,14 +19,15 @@ A kiadott csomag és a main, illetve a kutatási prémium motor külön állapot
 | #96 (`933882a`) | Teljes archívum hash-, kampány- és riportazonosító-ellenőrzése; körönként külön p50/p99 és túllépések. | A hashok belső egyezést, nem az archívum hitelességét bizonyítják. |
 | #97 (`61e9205`) | `--verify-raw`: nyers gridek újraellenőrzése és a páros eredmények összevetése, változatlan numerikus szerződéssel. | A 32 grides regresszió szintetikus adatpróba; nincs új célgépes CPU- vagy natív elfogadás. |
 
-### Folyamatban: megerősítő párbeszéd hosszú presetnevekkel
+### Beolvadt: megerősítő párbeszéd hosszú presetnevekkel
 
 A mentés megerősítő szövege hosszú, szóköz nélküli presetnévnél csak
 szóközökre támaszkodva tördelődött, így kifuthatott a szövegdobozból.
 A külön javítás UTF-8-kódponthatáron is tördel, a betűszélességet méri,
 és a szükséges sorszámhoz igazítja az ablakmagasságot. A helyi regresszió
 ellenőrzi a szöveg megőrzését, Unicode karaktereket és a gombok előtti helyet.
-A javítás PR/Windows/macOS build és natív GUI-ellenőrzése még nyitott;
+A #99 javítás beolvadt; a main Windows/macOS buildje, Code quality és
+workflow-validálása sikeres. A natív, skálázott GUI-ellenőrzés még nyitott;
 a DSP, paraméterazonosítók és a 3. lépés CPU-elfogadása nem változik.
 [Részletek és ellenőrzési korlátok](CONFIRMATION_TEXT_WRAP.md).
 
@@ -35,6 +36,13 @@ teljesmotoros CPU-ismétlése, mind a négy hullámformán, statikus és modulá
 terheléssel; kis pufferek p99-ideje és határidő-túllépései külön értékelendők.
 [Gyűjtés és archívumellenőrzés](DISPATCH_ENGINE_TARGET_MEASUREMENT.md).
 Az offline méréshez nem kell REAPER; a korai natív hostpróbához igen.
+
+A két célgép lezárt archívumához külön összevető parancs is használható:
+`scripts/compare-dispatch-engine-targets.py`. Mindkét teljes archívum nyers
+adatait újraellenőrzi, azonos commitot/forráshashokat és körszámot követel,
+és megőrzi a platformonként külön referenciaismétlést, jelöltet és köröket.
+Ez kiértékelési eszköz, nem új CPU-eredmény vagy elfogadás; a Windows/M1
+lezárt célgépes mérési pár továbbra sincs e dokumentumban igazolva.
 
 A roadmap 1–2. lépése elkészült, a 3. lépés CPU-elfogadása nyitott.
 Ezt követi a minőség/magasráta-policy és korai REAPER-próba, a prémium filter

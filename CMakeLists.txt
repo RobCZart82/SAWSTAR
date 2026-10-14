@@ -1531,5 +1531,7 @@ if(BUILD_TESTING)
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/dispatch_engine_target_runner.py")
     add_test(NAME dispatch_engine_archive_review
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/dispatch_engine_archive.py")
+    add_test(NAME dispatch_engine_target_comparison
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/dispatch_engine_target_comparison.py")
   endif()
 endif()
