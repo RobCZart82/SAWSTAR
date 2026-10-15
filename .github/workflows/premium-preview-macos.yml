@@ -41,7 +41,7 @@ jobs:
         run: |
           build-premium/sawstar_premium_preview_smoke
           arch -x86_64 build-premium/sawstar_premium_preview_smoke
-          lipo -verify_arch arm64 x86_64 build-premium/out/SAWSTARPremiumPreview.vst3/Contents/MacOS/SAWSTARPremiumPreview
+          lipo build-premium/out/SAWSTARPremiumPreview.vst3/Contents/MacOS/SAWSTARPremiumPreview -verify_arch arm64 x86_64
           codesign --force --deep --sign - build-premium/out/SAWSTARPremiumPreview.vst3
       - name: Validate actual preview VST3 on both slices
         run: python3 scripts/validate-plugin.py --bundle build-premium/out/SAWSTARPremiumPreview.vst3
