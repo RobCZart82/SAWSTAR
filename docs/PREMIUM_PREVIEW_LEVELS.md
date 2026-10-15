@@ -19,6 +19,37 @@ felhasználói pillanatnyi összevetés, hasonló saw hanggal; nem illesztett
 benchmark vagy általános szintetizátorrangsor. A hangkarakter pozitív
 értékelése nem zárja le a CPU-, magasráta-, lifecycle- és release-kapukat.
 
+## Hangerőkorrekció elfogadva — 2026-10-15
+
+**Állapot: kész, Robert felhasználói elfogadásával lezárva.** A korrigált
+Premium Preview és a régebbi Classic natív macOS/REAPER összehasonlítása
+azonos paraméterekkel, 16 hangos akkordmenettel és cutoff-automatizálással
+megfelelő kimeneti szintet adott. A fennmaradó **0,44 dB RMS-különbség
+elfogadott**, további általános erősítés nem szükséges. Robert a Premium
+filter változatosabb dinamikai viselkedéséhez tudatosan megtartja ezt a
+kis szinttartalékot; ez felhasználói döntés, nem minden filterállásra
+érvényes dinamikamérés.
+
+| A beküldött teljes render mérése | Classic | Korrigált Premium |
+| --- | ---: | ---: |
+| RMS | -31,18 dBFS | -31,62 dBFS |
+| Mintacsúcs | -13,49 dBFS | -15,87 dBFS |
+| Teljes kivezérlésű minták | 0 | 0 |
+
+Bizonyíték: Robert `SAWSTAR-PremiumFilterPreview-ClassicFilter-16Voice-Volume.wav`
+és `SAWSTAR-PremiumFilterPreview-PremiumFilter-16Voice-Volume.wav` renderei,
+a `SAWSTAR-PremiumFilterPreview(2).RPP` projekt és a 2026-10-15-i
+18:13:07 / 18:13:30 képernyőképek. Mindkét WAV 44,1 kHz-es, sztereó,
+24 bites PCM, 7,941179 másodperc. A projekt két pluginjának mentett
+paraméterei egyeznek; Output -5 dB, Boost +5 dB, LP24, rezonancia 25%,
+Drive 6 dB, teljes wet, azonos cutoff-automatizálás.
+A korábbi 16 hangos export renderhatára eltér, ezért az új és régi fájlok
+teljes RMS-különbsége nem mintánkénti gain-regressziós mérés.
+
+Ez a hangerőkorrekció és ennek natív zenei próbája lezárása. A CPU-,
+production-integrációs és release-kapuk külön követendők; az elfogadás
+nem minden preset és tetszőleges automatizálás clippingmentességi ígérete.
+
 ## Korrekció a külön Preview buildben
 
 - Teljes wet filternél **+3 dB** kimeneti korrekció, a mért teljes eltérésnél
@@ -93,4 +124,6 @@ build-premium/sawstar_premium_preview_levels > premium-levels.csv
 A macOS Preview workflow natív arm64 és Rosetta x86_64 szeleten is futtatja
 a szint- és headroom-kaput, a CSV-ket külön artifactban megőrzi, és csak
 siker után validálja/csomagolja a VST3-at. A PR és az új csomag CI-állapota
-külön ellenőrizendő; a helyi PASS nem állítja a natív REAPER-próba lezárását.
+külön ellenőrizendő; a helyi PASS önmagában nem helyettesíti a natív
+REAPER-próbát. A hangerőkorrekció fent dokumentált natív próbáját Robert
+2026-10-15-én elfogadta.
