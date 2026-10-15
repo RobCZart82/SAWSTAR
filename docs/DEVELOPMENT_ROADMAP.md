@@ -1,20 +1,79 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-14
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-15
+
+## Aktuális állapot és publikálási cél
+
+Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
+Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
+nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
+
+Ellenőrzött main: `3c8b31631df28d4f483a67a256360a58cc0e6911` (#103).
+A Windows/macOS build, Code quality és workflow-validálás sikeres.
+#102 és #103 beolvadt; a hátralévő engedélyezett sorrend **#104 → #105**.
+Minden új head összes releváns workflow-ját újra ellenőrizzük; merge után
+a main négy fő workflow-ja legyen sikeres a következő merge előtt.
+
+- A #102 LF/CRLF checkout-javítása és a teljes `38735317728` kampány
+  mindkét platformgyűjtése és Linuxos nyersellenőrzése/összevetése sikeres.
+  Ez CI-bizonyíték, nem célgépes CPU-elfogadás. A korábbi hibás kampány
+  és negatív mérési eredmények megmaradnak.
+- A #103 külön, alapból kikapcsolt Premium Preview buildet ad; a normál
+  production SAWSTAR továbbra is Classic filteres.
+- **Hangerőkorrekció: kész, Robert elfogadta és lezárta.** A #105 korrigált
+  Preview-jának 16 hangos, cutoff-automatizált REAPER-próbájában a Premium
+  RMS-szintje 0,44 dB-lel alacsonyabb a Classicnál; ez tudatosan elfogadott,
+  további általános hangerőemelés nem szükséges. A részletes bizonyíték a
+  #105 `docs/PREMIUM_PREVIEW_LEVELS.md` dokumentumában szerepel.
+- A hangkarakter pozitív natív visszajelzést kapott a kipróbált környezetben.
+  A CPU-, további mód-/rátaminőségi és végső production-kapuk külön nyitottak.
+
+## Elfogadott hátralévő munkasorrend
+
+| Sorrend | Feladat | Befejezési feltétel |
+| --- | --- | --- |
+| 1 | #104, majd #105 soros beolvasztása | Aktuális main szabályos beemelése, az új head minden releváns workflow-ja sikeres, squash merge, majd sikeres main CI. #104 dokumentáció, nem GUI-fix. |
+| 2 | Célgépes CPU-elfogadás | Kódazonos Windows/M1 teljesmotoros mérés és natív REAPER-kontroll; 16 hang, statikus/modulált terhelés, ráták és kis pufferek; p99, időkeret-túllépés és dropout értékelve. Dokumentált elfogadási döntés, nem végtelen optimalizálás. |
+| 3 | Filterminőség és magasráta-policy | LP12/LP24/HP12/BP12, rezonancia, Drive, moduláció és módváltás; a minőség/költség és támogatott működési tartomány dokumentált elfogadása. |
+| 4 | Premium production-integráció | Elfogadott motor és hangerőkalibráció beépítése; meglévő GUI/ID-k, latency, bypass, state, automatizálás és régi projektbetöltés ellenőrzött. A Classic teljes cseréje a korábbi tulajdonosi döntés szerint. |
+| 5 | GUI-méret host-state javítása | 75/100/125% példányonként mentődik és visszaáll; presetváltás nem írja át, régi state betölthető; macOS/Windows REAPER-próba. |
+| 6 | Presetkoherencia és plugin-életciklus | Mentés/import lejátszás alatt, editor bezárás/újranyitás, unload, több példány, külső meghajtó és projekt-visszatöltés rendben. |
+| 7 | Végleges factory presetkészlet | A production motoron minden preset zenei és szintellenőrzése, megfelelő headroom, mentés/visszatöltés; az elfogadott általános korrekció megtartása. |
+| 8 | Végső natív Windows/macOS REAPER-elfogadás | Pontos production RC telepítése, GUI, MIDI, automatizálás, lejátszás/render, ráták/pufferek, state és lifecycle dokumentált ellenőrzése. |
+| 9 | Dokumentáció és kiadási csomag | Roadmap/kézikönyv/install/release notes friss, verzió/RC kijelölt; a hallható filtercsere leírva; végleges csomagok, hashok és VST3-validator sikeresek. |
+| 10 | Publikálás | Pontos végleges commit minden kiadási kapuja teljesült, RC elfogadott, külön publikálási jóváhagyás. |
+
+Kritikus bug és piros funkcionális CI megelőzi a következő lépést.
+Linux plugin, 32 voice és függőségfrissítés halasztott; a lezárt click/pop
+kutatást nem nyitjuk újra.
+
+## GUI/state feladat
+
+A DAW-projekt újranyitásakor a 75%-os GUI alapméretre áll vissza.
+A javítás még nincs implementálva.
+[Hibaleírás és elfogadási feltételek](GUI_SCALE_PROJECT_STATE.md).
+
+## Történeti állapotfeljegyzések
+
+Az alábbi korábbi állapotok mérési és fejlesztési előzmények. A bennük
+szereplő „nyitott”, „következő” és korábbi main-azonosítók a feljegyzés
+idejére vonatkoznak; az aktuális sorrendet a fenti táblázat határozza meg.
+
+
+## Kampány-ellenőrzési hiba és javítás — 2026-10-15
+
+A #102 mindkét teljes platformgyűjtése sikeres, de az összevetés a Windows
+CRLF és macOS LF forrásbyte-ok miatt piros. Mind a 20 eltérést az eredeti
+Git blobokból és a letöltött artifactok hash-eiből igazoltuk. LF checkout-
+szabály és valós Git-regresszió készült; a javított head teljes új kampánya
+még szükséges. Nincs hash-/küszöblazítás, CPU-elfogadás vagy soron kívüli merge.
+[Bizonyíték, javítás és új kapu](DISPATCH_CHECKOUT_BYTES.md).
 
 Ez az aktuális sorrend; kritikus bug vagy piros funkcionális CI megelőzi a
 következő fejlesztési lépést. A [részletes terv](DEVELOPMENT_PLAN_POST_1.0.4.md)
 korábbi dátumozott részei történeti naplóként maradnak meg.
 
-## Nyitott GUI/state feladat — 2026-10-15
+## Aktuális állapot — 2026-10-15
 
-A DAW-projekt újranyitásakor a 75%-ra állított GUI visszaáll alapméretre.
-A példányonkénti GUI-skála host-state mentése és visszaállítása nyitott
-életciklus-feladat, Classic és Premium Preview ellenőrzéssel.
-[Hibaleírás és elfogadási feltételek](GUI_SCALE_PROJECT_STATE.md).
-Ez dokumentált feladat, még nem elkészült javítás; a CPU-kapuk változatlanok.
-
-## Aktuális állapot — 2026-10-14
-
-Ellenőrzött main: `c0b9d47b47c4e512d14cdced0a079da700b7a56c` (#100).
+Ellenőrzött main: `767a478a6646d7740a96d65ac74ef3e43018db5e` (#101).
 A main Windows/macOS, Code quality és workflow-validálási futásai sikeresek.
 Nyilvános kiadás: **1.0.4**; a következő kiadás verziója még nincs kijelölve.
 A kiadott csomag és a main, illetve a kutatási prémium motor külön állapotok.
@@ -58,7 +117,7 @@ jelenetet tartalmazza, és a CPU-idő pozitív legyen. A CPU-, szint- és
 DC-küszöbök változatlanok; ez nem gyorsulás vagy prémium CPU-elfogadás.
 [Hiba, javítás és tesztszerződés](AUDIO_BENCHMARK_VALIDATION.md).
 
-### Folyamatban: mérési validátorok és CI karbantartása
+### Beolvadt: mérési validátorok és CI karbantartása
 
 A #101 a production benchmark hat jelenetének teljességét és CSV-szerkezetét
 ellenőrzi. A folytatás minden jelenlegi warmup/időzített render DC-jét külön
@@ -66,13 +125,31 @@ vizsgálja, és a kutatási deadline-riportokban kizárja a duplikált oszlopoka
 eltérő sorszélességet és hibás CSV-t. Regressziós tesztek igazolják a régi
 hibákat és a megengedett határeseteket. A Windows/macOS build workflow-k
 pushra csak a mainen futnak; PR- és kézi indítás továbbra is elérhető.
-A javított PR-head CI-ellenőrzése és beolvasztása még nyitott.
+A #101 beolvadt; a `70a7fab` PR-head mind a hét workflow-ja és a
+`767a478` main mind a négy workflow-ja sikeres.
 
 A korábbi `1ed6d698` macOS push-futás CPU-regresszióját megőrizzük:
 `dry_fx / 16 voice`: 11,6468% → 15,0679%, határ 14,5584%.
 A PR-futások sikere nem törli ezt a mérést; nincs automatikus újrapróbálás,
 kedvező kör kiválasztása vagy küszöblazítás. A változtatás nem érinti a DSP-t.
 [Részletek, regressziók és CI-bizonyíték](AUDIO_BENCHMARK_VALIDATION.md).
+
+### Folyamatban: teljes páros CI CPU-kampány — 2026-10-15
+
+Az új `Full dispatch CPU campaign` a meglévő gyűjtővel platformonként
+két teljes kört futtat: referenciaismétlés és jelölt, statikus és modulált
+terhelés, négy hullámforma, 48/96/192 kHz és 32/64/128 buffer. A 32 grid
+platformonként 2 359 296 nyers blokkot őriz meg. A numerikus kapuk minden
+időzítés előtt futnak; a gyűjtésen belül nincs párhuzamos CPU-mérés.
+Mindkét teljes archívum független nyers újraellenőrzést kap, majd azonos
+forrású platformközi összevetés készül, minden kört és negatív eredményt
+megtartva. A mérési hibák részadatai is artifactként megmaradnak.
+
+Ez hosted Windows/macOS CI-bizonyíték. Nem bizonyít saját M1 hardvert,
+kontrollált háttérterhelést, CPU-nyereséget vagy natív REAPER-elfogadást.
+A kampány eredménye és a Windows/M1 célgépes ismétlés továbbra is nyitott;
+a 3. lépést nem jelöljük készre az adatgyűjtés puszta sikerétől.
+[Futtatás, eredet és kiértékelés](DISPATCH_ENGINE_TARGET_MEASUREMENT.md).
 
 A roadmap 1–2. lépése elkészült, a 3. lépés CPU-elfogadása nyitott.
 Ezt követi a minőség/magasráta-policy és korai REAPER-próba, a prémium filter
@@ -275,4 +352,5 @@ bitazonos hanggal és hullámformaváltási regresszióval. A kedvezőtlen
 alternatív ágakat ugyanúgy értékeljük. Az új platformos mérés még nyitott.
 A production DSP nem változik. A 3. lépés CPU-elfogadása és a 4-8. lépés
 továbbra is nyitott; kódazonos célgépes ismétlés és natív REAPER szükséges.
+
 

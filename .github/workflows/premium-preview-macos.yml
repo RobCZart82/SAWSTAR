@@ -1,0 +1,58 @@
+name: macOS Premium Preview
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/premium-preview-macos.yml'
+      - 'cmake/PremiumPreview.cmake'
+      - 'CMakeLists.txt'
+      - 'src/**'
+      - 'experiments/premium_filter/**'
+      - 'tests/premium_preview.cpp'
+      - 'tests/premium_preview_package.py'
+      - 'scripts/package-premium-preview.py'
+      - 'scripts/validate-plugin.py'
+      - 'docs/PREMIUM_PREVIEW.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: premium-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  preview:
+    runs-on: macos-14
+    timeout-minutes: 35
+    env:
+      SAWSTAR_MAC_ARCHS: 'arm64;x86_64'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Fetch pinned plugin dependencies
+        run: python3 scripts/bootstrap-plugin.py
+      - name: Test preview package isolation
+        run: python3 tests/premium_preview_package.py
+      - name: Configure separate Universal preview
+        run: cmake -S . -B build-premium -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PREVIEW=ON '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64' -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DIPLUG_DEPLOY_PLUGINS=OFF
+      - name: Build preview and engine smoke
+        run: cmake --build build-premium --config Release --target SAWSTARPremiumPreview-vst3 sawstar_premium_preview_smoke --parallel 3
+      - name: Check engine identity, audio and latency on both slices
+        run: |
+          build-premium/sawstar_premium_preview_smoke
+          arch -x86_64 build-premium/sawstar_premium_preview_smoke
+          lipo build-premium/out/SAWSTARPremiumPreview.vst3/Contents/MacOS/SAWSTARPremiumPreview -verify_arch arm64 x86_64
+          codesign --force --deep --sign - build-premium/out/SAWSTARPremiumPreview.vst3
+      - name: Validate actual preview VST3 on both slices
+        run: python3 scripts/validate-plugin.py --bundle build-premium/out/SAWSTARPremiumPreview.vst3
+      - name: Package the validated experimental preview
+        run: |
+          python3 scripts/package-premium-preview.py build-premium/out/SAWSTARPremiumPreview.vst3 SAWSTAR-Premium-Preview-macOS-Universal.zip
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: SAWSTAR-Premium-Preview-macOS-Universal
+          path: |
+            SAWSTAR-Premium-Preview-macOS-Universal.zip
+            SAWSTAR-Premium-Preview-macOS-Universal.zip.sha256
+          if-no-files-found: error
+          retention-days: 30

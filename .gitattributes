@@ -1,3 +1,7 @@
+# Keep compiled research/engine source bytes identical on Windows and macOS.
+*.h text eol=lf
+*.cpp text eol=lf
+CMakeLists.txt text eol=lf
 
 *.pdf binary
 
@@ -11,3 +15,4 @@ experiments/oscillator/measurements/2026-10-09-shared-frequency-target-ci-summar
 
 # Preserve the separate SAW dispatch campaign summaries and archive hashes.
 experiments/oscillator/measurements/2026-10-09-saw-dispatch-ci-summary/** -text whitespace=cr-at-eol
+

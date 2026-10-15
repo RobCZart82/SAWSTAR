@@ -1,0 +1,32 @@
+# Opt-in listening build. Production engine sources and identity stay unchanged.
+set(_preview_engine "${CMAKE_CURRENT_BINARY_DIR}/premium_preview_engine")
+file(MAKE_DIRECTORY "${_preview_engine}")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  "${PROJECT_SOURCE_DIR}/src/engine/Synth.h"
+  "${PROJECT_SOURCE_DIR}/src/engine/Synth.cpp")
+foreach(_part IN ITEMS h cpp)
+  file(READ "${PROJECT_SOURCE_DIR}/src/engine/Synth.${_part}" _preview)
+  if(NOT _preview MATCHES "namespace sawstar [{]")
+    message(FATAL_ERROR "Preview cannot find Synth namespace")
+  endif()
+  string(REPLACE "namespace sawstar {" "namespace sawstar::premium_preview_engine {" _preview "${_preview}")
+  if(_part STREQUAL "h")
+    if(NOT _preview MATCHES "LowPass filter;")
+      message(FATAL_ERROR "Preview cannot find per-voice filter")
+    endif()
+    string(REPLACE "#include \"dsp/LowPass.h\"" "#include \"EnginePremiumFilter.h\"" _preview "${_preview}")
+    string(REPLACE "LowPass filter;" "experimental::RateScaledLookupEnginePremiumFilter filter;" _preview "${_preview}")
+  else()
+    string(REPLACE "#include \"engine/Synth.h\"" "#include \"PremiumPreviewSynth.h\"" _preview "${_preview}")
+  endif()
+  file(WRITE "${_preview_engine}/PremiumPreviewSynth.${_part}" "${_preview}")
+endforeach()
+add_library(sawstar_premium_preview_engine STATIC "${_preview_engine}/PremiumPreviewSynth.cpp")
+set_target_properties(sawstar_premium_preview_engine PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_include_directories(sawstar_premium_preview_engine PUBLIC
+  "${_preview_engine}" "${PROJECT_SOURCE_DIR}/experiments/premium_filter")
+target_link_libraries(sawstar_premium_preview_engine PUBLIC sawstar_engine)
+# One consistent inline preset-folder definition across the preview build.
+target_compile_definitions(sawstar_foundation PUBLIC SAWSTAR_PREMIUM_PREVIEW=1)
+add_executable(sawstar_premium_preview_smoke tests/premium_preview.cpp)
+target_link_libraries(sawstar_premium_preview_smoke PRIVATE sawstar_premium_preview_engine)

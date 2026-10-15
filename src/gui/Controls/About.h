@@ -18,7 +18,11 @@ public:
  void Draw(IGraphics& g)override{
   g.FillRect(IColor(190,0,0,0),mRECT);const auto b=Box();
   DrawPanel(g,b,8);
+#ifdef SAWSTAR_PREMIUM_PREVIEW
+  g.DrawText(IText(25,Text).WithFont(fontLoaded_?"SAWSTAR-Orbitron":"Roboto-Regular"),PLUG_NAME,IRECT(b.L+25,b.T+30,b.R-25,b.T+112));
+#else
   g.DrawText(IText(54,Text).WithFont(fontLoaded_?"SAWSTAR-Orbitron":"Roboto-Regular"),"SAWSTAR",IRECT(b.L+25,b.T+30,b.R-25,b.T+112));
+#endif
   g.DrawText(IText(16,Text),"Simple Synth - Big Sound",IRECT(b.L,b.T+114,b.R,b.T+143));
   g.DrawText(IText(13,Text),Motto,IRECT(b.L+20,b.T+146,b.R-20,b.T+171));
   g.DrawLine(Blue,b.L+85,b.T+184,b.R-85,b.T+184);
