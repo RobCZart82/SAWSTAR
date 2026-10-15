@@ -25,6 +25,20 @@ Eltávolításához csak a `SAWSTARPremiumPreview.vst3` csomagot kell törölni.
 
 ## Mit lehet meghallgatni?
 
+### Korrigált kimeneti szint — 2026-10-15
+
+A friss Preview teljes wet filternél +3 dB kimeneti korrekciót használ,
+dry állásban nem emel. A factory presetek külön Volume-kalibrációt kapnak:
+a megadott 144 cellás helyi gridben legalább 6,5 dB headroom maradt a
+csúcsvédelem előtt. Ez a hangosság helyett a kivezérlési tartalékot helyezi
+előtérbe; az elfogadott filter/Drive karaktere változatlan.
+
+Régi projekt vagy saját preset mentett Volume/Boost értékeit nem írjuk át,
+ezek teljes wet hangja legfeljebb +3 dB-lel nő a korábbi Preview-hoz képest.
+Frissítés előtt ments másolatot a tesztprojektről, majd ellenőrizd a kivezérlést.
+A factory-kalibráció egy factory preset újbóli kiválasztásakor lép életbe.
+[Módszer, nyers adatok és korlátok](PREMIUM_PREVIEW_LEVELS.md).
+
 - Prémium LP12, LP24, HP12 és BP12, a meglévő Filter Mode választóval.
 - Prémium Drive a meglévő Filter Drive szabályzóval; a Filter Mixet emeld
   100%-ra a teljes wet hanghoz. Mixer/ADSR/LFO/ARP/FX kezelése a megszokott.
@@ -59,8 +73,9 @@ Alapból minden build továbbra is Classic. A preview külön buildkönyvtárban
 ```sh
 python3 scripts/bootstrap-plugin.py
 cmake -S . -B build-premium -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PREVIEW=ON '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64' -DIPLUG_DEPLOY_PLUGINS=OFF
-cmake --build build-premium --config Release --target SAWSTARPremiumPreview-vst3 sawstar_premium_preview_smoke --parallel 3
+cmake --build build-premium --config Release --target SAWSTARPremiumPreview-vst3 sawstar_premium_preview_smoke sawstar_premium_preview_levels --parallel 3
 build-premium/sawstar_premium_preview_smoke
+build-premium/sawstar_premium_preview_levels > premium-levels.csv
 python3 scripts/validate-plugin.py --bundle build-premium/out/SAWSTARPremiumPreview.vst3
 ```
 

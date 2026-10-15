@@ -7,6 +7,7 @@
 #include "gui/Controls/Keyboard.h"
 #include "plugin/Parameters.h"
 #include "plugin/State.h"
+#include "presets/FactoryPresets.h"
 #include "gui/Controls/PageButton.h"
 #include "gui/Controls/PerformanceWheel.h"
 #include "gui/Controls/PresetControls.h"
@@ -92,6 +93,12 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
       param->InitDouble(spec.name.data(), spec.initial, spec.minimum, spec.maximum, 0.001,
                         spec.unit.data(),IParam::kFlagsNone,group);
   }
+#ifdef SAWSTAR_PREMIUM_PREVIEW
+  // New instances start with the same calibrated Init as the factory browser.
+  // Restored host states and imported user presets retain their saved values.
+  GetParam(static_cast<int>(sawstar::ParameterId::OutputGain))->Set(
+    sawstar::FactoryPresets()[0].values[static_cast<size_t>(sawstar::ParameterId::OutputGain)]);
+#endif
   MakeDefaultPreset("Init", 1);
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [this]() {
