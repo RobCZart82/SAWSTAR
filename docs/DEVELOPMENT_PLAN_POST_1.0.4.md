@@ -1,5 +1,14 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
+## Kampány-ellenőrzési hiba és javítás — 2026-10-15
+
+A #102 mindkét teljes platformgyűjtése sikeres, de az összevetés a Windows
+CRLF és macOS LF forrásbyte-ok miatt piros. Mind a 20 eltérést az eredeti
+Git blobokból és a letöltött artifactok hash-eiből igazoltuk. LF checkout-
+szabály és valós Git-regresszió készült; a javított head teljes új kampánya
+még szükséges. Nincs hash-/küszöblazítás, CPU-elfogadás vagy soron kívüli merge.
+[Bizonyíték, javítás és új kapu](DISPATCH_CHECKOUT_BYTES.md).
+
 **Aktuális sorrend: [elfogadott fejlesztési roadmap](DEVELOPMENT_ROADMAP.md).**
 
 ## Aktuális állapot — 2026-10-15
@@ -783,4 +792,5 @@ elutasítja a hiányzó vagy rosszul címkézett terhelést.
 
 Részletek: [modulációs blokkidő-vizsgálat](PREMIUM_MODULATED_DEADLINES.md).
 Linux/32 voice és a lezárt click/pop kutatás státusza változatlan.
+
 

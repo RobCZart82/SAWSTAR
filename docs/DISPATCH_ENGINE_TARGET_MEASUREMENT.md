@@ -1,5 +1,14 @@
 # Teljesmotoros SAW-dispatch célgépes gyűjtés
 
+## Kampány-ellenőrzési hiba és javítás — 2026-10-15
+
+A #102 mindkét teljes platformgyűjtése sikeres, de az összevetés a Windows
+CRLF és macOS LF forrásbyte-ok miatt piros. Mind a 20 eltérést az eredeti
+Git blobokból és a letöltött artifactok hash-eiből igazoltuk. LF checkout-
+szabály és valós Git-regresszió készült; a javított head teljes új kampánya
+még szükséges. Nincs hash-/küszöblazítás, CPU-elfogadás vagy soron kívüli merge.
+[Bizonyíték, javítás és új kapu](DISPATCH_CHECKOUT_BYTES.md).
+
 ## Teljes hosted CI-kampány — 2026-10-15
 
 A `.github/workflows/dispatch-cpu-campaign.yml` a meglévő gyűjtőt futtatja
@@ -200,3 +209,4 @@ Nincs összevont medián, zajlevonás vagy automatikus CPU-/production-elfogadá
 A regresszió szintetikus archívumokat és külön raw-validator híváskontrollt
 használ; ez nem új Windows/M1 mérés. A CSV-validátor valódi szintetikus
 teljes gridpróbája a meglévő archívum- és deadline-tesztekben marad.
+

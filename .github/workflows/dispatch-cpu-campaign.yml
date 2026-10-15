@@ -33,6 +33,8 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify checkout line endings and preserve binary evidence
+        run: python tests/dispatch_checkout_bytes.py
       - name: Initialize the pinned MIT DaisySP core only
         run: git submodule update --init third_party/DaisySP
       - name: Collect all controls and candidate grids sequentially
@@ -97,3 +99,4 @@ jobs:
           path: ${{ runner.temp }}/dispatch-comparison/
           if-no-files-found: error
           retention-days: 90
+

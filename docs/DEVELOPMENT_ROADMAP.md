@@ -1,5 +1,14 @@
 # Elfogadott fejlesztési sorrend — állapot: 2026-10-15
 
+## Kampány-ellenőrzési hiba és javítás — 2026-10-15
+
+A #102 mindkét teljes platformgyűjtése sikeres, de az összevetés a Windows
+CRLF és macOS LF forrásbyte-ok miatt piros. Mind a 20 eltérést az eredeti
+Git blobokból és a letöltött artifactok hash-eiből igazoltuk. LF checkout-
+szabály és valós Git-regresszió készült; a javított head teljes új kampánya
+még szükséges. Nincs hash-/küszöblazítás, CPU-elfogadás vagy soron kívüli merge.
+[Bizonyíték, javítás és új kapu](DISPATCH_CHECKOUT_BYTES.md).
+
 Ez az aktuális sorrend; kritikus bug vagy piros funkcionális CI megelőzi a
 következő fejlesztési lépést. A [részletes terv](DEVELOPMENT_PLAN_POST_1.0.4.md)
 korábbi dátumozott részei történeti naplóként maradnak meg.
@@ -285,4 +294,5 @@ bitazonos hanggal és hullámformaváltási regresszióval. A kedvezőtlen
 alternatív ágakat ugyanúgy értékeljük. Az új platformos mérés még nyitott.
 A production DSP nem változik. A 3. lépés CPU-elfogadása és a 4-8. lépés
 továbbra is nyitott; kódazonos célgépes ismétlés és natív REAPER szükséges.
+
 
