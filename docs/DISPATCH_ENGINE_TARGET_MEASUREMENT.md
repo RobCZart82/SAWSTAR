@@ -1,5 +1,46 @@
 # Teljesmotoros SAW-dispatch célgépes gyűjtés
 
+## Teljes hosted CI-kampány — 2026-10-15
+
+A `.github/workflows/dispatch-cpu-campaign.yml` a meglévő gyűjtőt futtatja
+változatlan workload/numerikus szerződéssel Windows 2022 és macOS 14 runnereken.
+Platformonként egyetlen job egymás után méri mind a 32 gridet: két kör,
+külön referenciaismétlés/jelölt, két terhelés és négy hullámforma.
+Minden platform 2 359 296 nyers blokkot gyűjt, a két platform együtt
+4 718 592-t. A collector 90 perces jobkeretet kap; nincs automatikus retry
+vagy kedvezőbb kör kiválasztása. A workflow új commit miatt nem szakít meg
+egy már futó kampányt.
+
+A numerikus kvalifikáció az első mérés előtt fut. A lezárt archívumot
+platformonként újraellenőrizzük `--verify-raw` módban; a külön összevető job
+mindkét artifact letöltése után ismét ugyanazt a nyers validátort használja.
+Az összevetés eltérő forráscommitot/forráshashokat vagy hiányos archívumot
+nem fogad el. A review és comparison kimenete mindig a mérési archívumon
+kívül készül, hogy ne változtassa meg annak fájlkészletét.
+
+Artifactok: `dispatch-cpu-windows-2022`, `dispatch-cpu-macos-14`,
+`dispatch-cpu-comparison`. Megőrzésük 90 nap; az első kettő hibás gyűjtéskor
+is feltöltődik, ha már keletkezett adat. A comparison JSON minden kört,
+kontrollt, workloadot, hullámformát, rátát és puffert külön tart meg.
+A futási napló `DISPATCH_CPU_CAMPAIGN=` sora ugyanennek a JSON-nak a másolata.
+
+A workflow saját fájlját érintő PR-en automatikusan, később az Actions
+`Run workflow` lehetőségével, a kívánt forráság kiválasztásával indítható.
+Ez a ritka, hosszú kampány nem fut automatikusan minden DSP-PR-en;
+a meglévő rövidebb kutatási workflow-k változatlanul megmaradnak.
+
+**Értelmezés:** a zöld workflow a teljes adatgyűjtést és validálást igazolja,
+nem a jelölt CPU-elfogadását. A p50/p99 arányoknál az 1 feletti érték lassulás;
+a referencia és jelölt >100%-os blokkjai külön értékelendők. A referencia-
+ismétlés szóródását nem vonjuk le a jelöltből. A körökből, hullámformákból
+és terhelésekből nem képzünk kedvezőbb közös mediánt. A nyers sorok a négy
+filtermód külön vizsgálatához is megmaradnak.
+
+A hosted runner hardvercímkéje nem hitelesít saját M1 célgépet, és a manifest
+továbbra is `background_load_controlled=false`, `native_host_acceptance=false`,
+`production_promotion_allowed=false` értékeket tartalmaz. A célgépes CPU- és
+natív elfogadás ezekből az adatokból önmagában nem zárható le.
+
 A `scripts/run-dispatch-engine-target.py` a roadmap 3. lépésének ismétlési
 kapuját támogatja. A #93 teljesmotoros kampánya elkészült és beolvadt;
 a kedvező SAW-medián mellett a p99/túllépés és az alternatív hullámformák
