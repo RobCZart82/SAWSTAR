@@ -123,3 +123,41 @@ A `benchmark_report` regressziói ellenőrzik az összes próbálkozás sorrendj
 és byte-hashét, a hibás warmup/időzített CSV megőrzését elutasítás előtt,
 a sikertelen folyamat azonnali leállítását és részadatát, a korábbi
 könyvtár felülírásának tiltását, valamint a fordítási adatok szűrését.
+
+## Igazolt build-policy eltérés — 2026-10-15
+
+A javított `ad8aa7ff` PR-head mind az öt workflow-ja sikeres. A hozzá
+tartozó `eb80f7aa` ideiglenes PR-merge commit Windows/macOS mérési
+archívuma egyenként 18 kimenetet tartalmaz: két warmup és nyolc mérési pár.
+Mind a 36 fájl manifest szerinti hashét, valamint az artifact ZIP-ek
+GitHub által közölt SHA-256 digestjét függetlenül ellenőriztük.
+
+| Platform | Run | Artifact | ZIP SHA-256 |
+| --- | --- | --- | --- |
+| Windows | 38794231782 | 12001921891 | `0bc2ffd279e80fac937d3ad4f8c8b72daca56b95a90ea35249be4ee7addd1c8a` |
+| macOS | 38794231714 | 12001692369 | `904b4bb9f22f39511d7df0bc415826c5098c1f5b9e9cebb3caec352124862343` |
+
+A munkaterhelés SHA-256 mindkét platformon
+`ccdcd4533fc0f5d298da5d0e0a1ba2ef7f91e00405182ea785751601609e006e`.
+A referencia commit továbbra `0873064487e02b2e1da49b42d0fd12ca83e11ec7`.
+Windows: mindkét út MSVC 19.44.35229.0, `/O2 /Ob2 /DNDEBUG`.
+macOS: mindkét út AppleClang 15.0.0.15000309, `-O3 -DNDEBUG`, arm64.
+Viszont a baseline `CMAKE_OSX_DEPLOYMENT_TARGET` üres, a current értéke
+`11.0`; csak a current parancsban szerepel `-mmacosx-version-min=11.0`.
+Ez igazolt összehasonlíthatósági hiba, nem a korábbi piros CPU-arány
+bizonyított kizárólagos oka. A két friss gyűjtés sikere nem törli a hibát.
+
+A baseline konfigurálása most a current CMake cache-ből örökli a macOS
+célverziót és az explicit architektúrákat. Időzítés előtt külön kapu
+követeli a build típusának, generátornak, globális/Release C++ flag-eknek,
+macOS célverziónak és architektúráknak az egyezését. Eltérésnél a mérés
+el sem indul; az addigi manifest megmarad. A fordítóazonosítók és a
+célonkénti flag-ek továbbra is külön, olvasható bizonyítékok.
+
+Nincs baseline-forráscsere, kimeneti normalizálás, DSP-módosítás,
+küszöblazítás vagy kedvező kör kiválasztása. Az új mérés indoka a
+bizonyított build-policy javítása. A régi futások változatlanul maradnak.
+A helyi regresszió a valóban megfigyelt üres/11.0 eltérést elutasítja,
+az egyező policy-t elfogadja, és a `-O0`/`-O3` eltérést is észleli.
+A Windows út nem kap mesterséges macOS opciót. A CPU-/natív elfogadás
+és a main korábbi hibájának végső lezárása továbbra is külön kapu.

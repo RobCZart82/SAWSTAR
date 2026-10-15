@@ -21,6 +21,38 @@ def full_report(cpu=2):
     )
 
 class ReportTest(unittest.TestCase):
+    def test_baseline_inherits_macos_target_and_architecture_without_shell(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "CMakeCache.txt").write_text(
+                "CMAKE_OSX_DEPLOYMENT_TARGET:STRING=11.0\n"
+                "CMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64\n")
+            self.assertEqual(benchmark.baseline_platform_options(root),
+                ["-DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=11.0",
+                 "-DCMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64"])
+
+    def test_build_policy_rejects_real_missing_macos_minimum(self):
+        with tempfile.TemporaryDirectory() as temp:
+            baseline, current = Path(temp) / "old", Path(temp) / "new"
+            baseline.mkdir(); current.mkdir()
+            common = "CMAKE_BUILD_TYPE:STRING=Release\nCMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG\n"
+            (baseline / "CMakeCache.txt").write_text(common + "CMAKE_OSX_DEPLOYMENT_TARGET:STRING=\n")
+            (current / "CMakeCache.txt").write_text(common + "CMAKE_OSX_DEPLOYMENT_TARGET:STRING=11.0\n")
+            with self.assertRaisesRegex(RuntimeError, "CMAKE_OSX_DEPLOYMENT_TARGET"):
+                benchmark.verify_build_policy(baseline, current)
+            (baseline / "CMakeCache.txt").write_text((current / "CMakeCache.txt").read_text())
+            benchmark.verify_build_policy(baseline, current)
+            (baseline / "CMakeCache.txt").write_text(common.replace("-O3", "-O0") + "CMAKE_OSX_DEPLOYMENT_TARGET:STRING=11.0\n")
+            with self.assertRaisesRegex(RuntimeError, "CMAKE_CXX_FLAGS_RELEASE"):
+                benchmark.verify_build_policy(baseline, current)
+
+    def test_non_apple_build_keeps_default_platform_options(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "CMakeCache.txt").write_text("CMAKE_BUILD_TYPE:UNINITIALIZED=Release\n")
+            self.assertEqual(benchmark.baseline_platform_options(root), [])
+            benchmark.verify_build_policy(root, root)
+
     def test_evidence_preserves_all_attempts_without_changing_order_or_results(self):
         with tempfile.TemporaryDirectory() as temp:
             directory = Path(temp) / "evidence"

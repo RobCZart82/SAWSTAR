@@ -82,6 +82,33 @@ def build_identity(build, binary):
                 cmake_cache=selected, target_flags=flags, compiler=compiler)
 
 
+def cache_values(build):
+    values = {}
+    for line in (build / "CMakeCache.txt").read_text(encoding="utf-8").splitlines():
+        if not line.startswith(("//", "#")) and ":" in line and "=" in line:
+            name, value = line.split("=", 1)
+            values[name.split(":", 1)[0]] = value
+    return values
+
+
+def baseline_platform_options(current_build):
+    """The archived source must target the same macOS/architecture as current."""
+    cache = cache_values(current_build)
+    return [f"-D{key}:STRING={cache[key]}" for key in
+            ("CMAKE_OSX_DEPLOYMENT_TARGET", "CMAKE_OSX_ARCHITECTURES") if cache.get(key)]
+
+
+def verify_build_policy(baseline_build, current_build):
+    """Reject unequal build policy before any timing; thresholds stay unchanged."""
+    baseline, current = cache_values(baseline_build), cache_values(current_build)
+    keys = ("CMAKE_BUILD_TYPE", "CMAKE_GENERATOR", "CMAKE_CXX_FLAGS",
+            "CMAKE_CXX_FLAGS_RELEASE", "CMAKE_OSX_DEPLOYMENT_TARGET", "CMAKE_OSX_ARCHITECTURES")
+    differences = {key: dict(baseline=baseline.get(key, ""), current=current.get(key, ""))
+                   for key in keys if baseline.get(key, "") != current.get(key, "")}
+    if differences:
+        raise RuntimeError(f"Benchmark build policy mismatch: {differences}")
+
+
 def run(*args, cwd=root):
     return subprocess.check_output(args, cwd=cwd, text=True)
 
@@ -260,6 +287,7 @@ def main(evidence=None):
             "-DCMAKE_BUILD_TYPE=Release",
             "-DSAWSTAR_CHECK_DAISYSP=ON",
             "-DBUILD_TESTING=OFF",
+            *baseline_platform_options(root / "build"),
         )
 
         run(
@@ -284,6 +312,7 @@ def main(evidence=None):
                 "current": build_identity(root / "build", binaries["current"]),
             }
             evidence.write_manifest()
+        verify_build_policy(build, root / "build")
         runs = collect_reports(binaries, evidence=evidence)
 
         baseline = median_report(
