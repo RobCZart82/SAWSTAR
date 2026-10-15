@@ -14,11 +14,17 @@ else()
 endif()
 include(${IPLUG2_DIR}/iPlug2.cmake)
 find_package(iPlug2 REQUIRED)
-iplug_add_plugin(SAWSTAR
+set(_sawstar_product SAWSTAR)
+set(_sawstar_engine sawstar_engine)
+if(SAWSTAR_PREMIUM_PREVIEW)
+  set(_sawstar_product SAWSTARPremiumPreview)
+  set(_sawstar_engine sawstar_premium_preview_engine)
+endif()
+iplug_add_plugin(${_sawstar_product}
   FORMATS VST3
   SOURCES SAWSTAR.cpp SAWSTAR.h config.h ../gui/Controls/PageButton.h
-  LINK SAWSTAR::Foundation sawstar_engine)
-set_target_properties(SAWSTAR-vst3 PROPERTIES
+  LINK SAWSTAR::Foundation ${_sawstar_engine})
+set_target_properties(${_sawstar_product}-vst3 PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/out"
   LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/out")
 # Keep the SDK's Windows bundle layout (the generic properties above are macOS only).
@@ -28,8 +34,8 @@ if(WIN32)
   else()
     set(_sawstar_win_arch "x86_64-win")
   endif()
-  target_compile_definitions(SAWSTAR-vst3 PRIVATE WINVER=0x0A00 _WIN32_WINNT=0x0A00)
-  set_target_properties(SAWSTAR-vst3 PROPERTIES
+  target_compile_definitions(${_sawstar_product}-vst3 PRIVATE WINVER=0x0A00 _WIN32_WINNT=0x0A00)
+  set_target_properties(${_sawstar_product}-vst3 PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/out/SAWSTAR.vst3/Contents/${_sawstar_win_arch}"
     LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/out/SAWSTAR.vst3/Contents/${_sawstar_win_arch}")
 endif()
@@ -41,13 +47,13 @@ file(READ "${_font}" _font_hex HEX)
 string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," _font_bytes "${_font_hex}")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/AboutFont.h"
   "#pragma once\nnamespace sawstar::gui { inline unsigned char AboutFont[]={${_font_bytes}}; }\n")
-target_include_directories(SAWSTAR-vst3 PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_include_directories(${_sawstar_product}-vst3 PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 if(APPLE)
-  target_sources(SAWSTAR-vst3 PRIVATE ../gui/NativeImport.mm)
+  target_sources(${_sawstar_product}-vst3 PRIVATE ../gui/NativeImport.mm)
 else()
-  target_sources(SAWSTAR-vst3 PRIVATE ../gui/NativeImport.cpp)
-  target_link_libraries(SAWSTAR-vst3 PRIVATE comdlg32)
+  target_sources(${_sawstar_product}-vst3 PRIVATE ../gui/NativeImport.cpp)
+  target_link_libraries(${_sawstar_product}-vst3 PRIVATE comdlg32)
 endif()
 
 # Patch a build-directory copy only; keep the pinned dependency untouched.
@@ -76,6 +82,9 @@ if(NOT SAWSTAR_BUILD_ID)
   set(SAWSTAR_BUILD_ID "local")
 endif()
 include("${PROJECT_SOURCE_DIR}/cmake/BuildDisplayMetadata.cmake")
+if(SAWSTAR_PREMIUM_PREVIEW)
+  set(SAWSTAR_DISPLAY_VERSION "${SAWSTAR_DISPLAY_VERSION}-premium-preview")
+endif()
 configure_file(BuildVersion.h.in BuildVersion.h @ONLY)
 
 # Warnings apply to our adapter without adding flags to SDK implementation files.

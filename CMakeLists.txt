@@ -52,6 +52,11 @@ option(
   OFF
 )
 
+option(SAWSTAR_PREMIUM_PREVIEW "Build the separate experimental premium preview identity" OFF)
+if(SAWSTAR_PREMIUM_PREVIEW)
+  set(SAWSTAR_CHECK_DAISYSP ON)
+endif()
+
 if(SAWSTAR_BUILD_PLUGIN)
   enable_language(C)
 
@@ -1308,6 +1313,10 @@ endif()
 # ---------------------------------------------------------------------------
 # iPlug2 VST3 plugin
 # ---------------------------------------------------------------------------
+
+if(SAWSTAR_PREMIUM_PREVIEW)
+  include(cmake/PremiumPreview.cmake)
+endif()
 
 if(SAWSTAR_BUILD_PLUGIN)
   add_subdirectory(src/plugin)
