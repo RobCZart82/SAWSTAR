@@ -69,11 +69,11 @@ def build_identity(build, binary):
     cache = build / "CMakeCache.txt"
     selected = [line for line in cache.read_text(encoding="utf-8").splitlines()
                 if line.startswith(keys)] if cache.exists() else []
-    flags = {str(path.relative_to(build)): path.read_text(encoding="utf-8")
+    flags = {path.relative_to(build).as_posix(): path.read_text(encoding="utf-8")
              for path in sorted(build.rglob("flags.make"))
              if any(part in path.parts for part in
                     ("sawstar_engine.dir", "sawstar_daisy_primitives.dir", "sawstar_audio_benchmark.dir"))}
-    compiler = {str(path.relative_to(build)): [line for line in
+    compiler = {path.relative_to(build).as_posix(): [line for line in
                 path.read_text(encoding="utf-8").splitlines()
                 if line.startswith(("set(CMAKE_CXX_COMPILER ", "set(CMAKE_CXX_COMPILER_ID ",
                                     "set(CMAKE_CXX_COMPILER_VERSION ", "set(CMAKE_CXX_COMPILER_ARCHITECTURE_ID "))]
