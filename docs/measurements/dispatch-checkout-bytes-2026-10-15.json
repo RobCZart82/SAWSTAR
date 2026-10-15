@@ -1,0 +1,173 @@
+{
+  "source_sha": "29bfe4a2a2587d3461c70ba3c5aaa4f4a238dd36",
+  "workflow_run": 38699679057,
+  "windows_artifact_id": 11964756961,
+  "macos_artifact_id": 11963011517,
+  "windows_zip_sha256": "fb23c65aed4815041674c8699af4f86758fa430ba2a6fa1e9c04eedddbf2a65f",
+  "macos_zip_sha256": "887011518b8ef5ea8881acdec1068732b51656bcb4fb8cc51188381bf03f1cab",
+  "source_bytes_equivalent_after_crlf_conversion_only": true,
+  "raw_hashes_equal": false,
+  "cpu_acceptance": false,
+  "files": [
+    {
+      "path": "CMakeLists.txt",
+      "git_blob_sha1": "4618b702d86ef47c31ac7768cf81a46b2ffade59",
+      "macos_lf_sha256": "9649d8fdb03f5acacd91b4b07610b1950b91d5e5161911cbe7c3434b2be497a5",
+      "windows_crlf_sha256": "0fced59e883ec472d31178c63a73f9908f592712157f00e8e39d0606fe5c08b6",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "src/engine/Synth.h",
+      "git_blob_sha1": "66af87ac8fdaf48dd04cf1e780db3b5bb67ccb66",
+      "macos_lf_sha256": "cb51f02474dd451d21dceaea75db3625380672deb8bbeb87a8ef9d056206c28a",
+      "windows_crlf_sha256": "bc2dd828dd12ac45ad721c56fc922ccb11dbc29fcc3078d149caf08fa219bc72",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "src/engine/Synth.cpp",
+      "git_blob_sha1": "a03a9ecea9af73c74882daa8baf049db27c3a7e9",
+      "macos_lf_sha256": "76047659c870238fccf1cbb6eebf215f39d2ac6c01ef05d25c2f453f8bf678db",
+      "windows_crlf_sha256": "404f48a21f2ef57b2dc25bf8273f67bf7d700fb354f9e0d03f9135a09e7e9a24",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "src/dsp/SevenSaw.h",
+      "git_blob_sha1": "9b5faf70f1cb60fce4e790491a690085bb5021e3",
+      "macos_lf_sha256": "b2d4c2e910e929822d3a306a421599df43e8254022b128ac4dac42e4dce794b6",
+      "windows_crlf_sha256": "52cc870ecf3db04c0b0e6696721ecc19190be89c2ed4a5c3a84401701a4dea07",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "src/dsp/SevenSaw.cpp",
+      "git_blob_sha1": "9117df09105aa3070b6fad5821a4bffbe82e0367",
+      "macos_lf_sha256": "676e713324b6acd01ff9f93c8185cc2cb62dbd9e32407162d73c61304198f1e0",
+      "windows_crlf_sha256": "b607fd43cfba9d431a0ce20fb88cf1e9133b7b22d8153ed3756fcdf2ff66556d",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/oscillator/SawDispatchSevenSaw.h",
+      "git_blob_sha1": "011a0f2d002c886790541da3660f232db043983f",
+      "macos_lf_sha256": "9bf2156d7833043950aa6ef5cb9de4e643a4c023bb50383472eb849219f2d608",
+      "windows_crlf_sha256": "435149071fc11a698ade9a0646cc68c2d2902b48842b991cb73a29c104c8bb04",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/oscillator/SawDispatchSevenSaw.cpp",
+      "git_blob_sha1": "414d1653ed7dbfcab1d67a6128888b46c581b5dd",
+      "macos_lf_sha256": "9404c388b029bf02d5e61d4e9186b9921d0cd3b6cdc37fab3f1cfca60b8ea968",
+      "windows_crlf_sha256": "d075a68c41a3f1e2b57c7f2845f9d873681456cb75be0ea5b15a8a2a908f1e51",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/oscillator/benchmark_dispatch_engine.cpp",
+      "git_blob_sha1": "4559476d90858acf445c068e7aeb0127993d0739",
+      "macos_lf_sha256": "134e7fe32861540eee5f0c8f3028800b6e2b3097e54ce061bf3bd720535748c7",
+      "windows_crlf_sha256": "49f2ac4d429ae0ac06261b32492e322d07e9a8806c4fc4810d6fe8b49b486c6b",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "tests/oscillator_dispatch_engine.cpp",
+      "git_blob_sha1": "6c1be7ea782ff41e0355665c6995d7918e67fcf6",
+      "macos_lf_sha256": "2f0f9704823c4ddf26ded624739d276555ba0342bbc5e725d46280b703796812",
+      "windows_crlf_sha256": "d242ec7a373886524de7d087998cdab97fabee95f261082936ac08d1148b1c54",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/DeadlineModulation.h",
+      "git_blob_sha1": "e5454daab4b08cba7be1cf22daaea25e5cdef805",
+      "macos_lf_sha256": "5d38cc47e8cd9025f5eaf84c1638adf7c699728f46bba6200f12c5708ef946d0",
+      "windows_crlf_sha256": "44cfaae54b0f34078e10c57b3b4d997f5a3d2f2818184ee490e935663aa233f0",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/EnginePremiumFilter.h",
+      "git_blob_sha1": "925be136087fe331ba00c757e5d7642c3c433cb0",
+      "macos_lf_sha256": "45901bfb3f5d25da1c4dd2597a115f6d4609bed27fac6b8b18e03bd0c61f228b",
+      "windows_crlf_sha256": "23b7a155d67f17933f26c7efaaba2aa965f54cd85aa44bb537e2525da7c1a44a",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/FirLanes4.h",
+      "git_blob_sha1": "0522980f5773b6c8569aff207d7df87e187f7a7b",
+      "macos_lf_sha256": "b218369d25c122337783cfdef490ecd62bfc34dffefeb3c8657f3d6deeef4b1d",
+      "windows_crlf_sha256": "df984cfb7c8948ea6627b23a3b959c5b8c53d90de8516f751abe1a5635ce3b7a",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/LookupTanh.h",
+      "git_blob_sha1": "6376b24809b9f7957ef76e0e926b5832f5fd9e12",
+      "macos_lf_sha256": "d21d25356cb47a40dc4f5791589f3464ed68288d3e044c1e324f640e2226dc77",
+      "windows_crlf_sha256": "a713a13c324b23cc6676cfec1b13d4324336340f7aa9030e271306dbe7221517",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/LoopReferencePremiumDrive.h",
+      "git_blob_sha1": "ed8e2805863ef027e66f51a3fd77dc1af77481be",
+      "macos_lf_sha256": "0be64f6b0181a25dbc4c72663433a454355b350365e1ee8abe282ad207b91e12",
+      "windows_crlf_sha256": "b69cf7253fb477dd993ddf19f0d55778fe811569abf39ca5aac85e5b89145831",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/PremiumDrive.h",
+      "git_blob_sha1": "86bb34798f4e7a4fff0462a58d50223b0e82f3d6",
+      "macos_lf_sha256": "ca4348c7ddf4536fca9f82bc22c9b0ecc3ba31dfe49911c926b43f2a283a38a5",
+      "windows_crlf_sha256": "1be756d0c56f92e064b571292a5dda136e7050ae2845752357160a70c463c41b",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/PremiumLowPass.h",
+      "git_blob_sha1": "2b5e7326562a44ae2ed3678763d49e8dbb8741ab",
+      "macos_lf_sha256": "8af8790e249ea058ee2f988192bcd827804fff3bba13b8766ea7693ffc157844",
+      "windows_crlf_sha256": "c725e6d64d3e432552f0c7f11300d766a7d52f5447b74bb96b80040ce8ee7400",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/RateScaledPremiumDrive.h",
+      "git_blob_sha1": "dbb65b032c46df8822e32d440561797c7067a1f8",
+      "macos_lf_sha256": "38e3003edf69c0a240fe9957822263d7008812f804205e88bd9be95d6c9dd048",
+      "windows_crlf_sha256": "4a96aceb7c6f205265761f278f1b323022e59459e87b97e0b433a29edc68de56",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/ReferencePremiumDrive.h",
+      "git_blob_sha1": "9a2efe45ee08f093272016c610a5278444a87e60",
+      "macos_lf_sha256": "47b491a9d5d0057596292f215509693f2395fac0d652865fa20fd4a6cdf11710",
+      "windows_crlf_sha256": "17298c8bdcc67c1cfca446a8b71743ffc365316eac922c521e891fb016dd5b0e",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/ReferencePremiumFilter.h",
+      "git_blob_sha1": "f10478ba3cc2d028033cc178b5ea1fe82ef9dd3e",
+      "macos_lf_sha256": "f08e5696513baba566ab724ccc723c64e88dca21273909bce37eaaf31246c41e",
+      "windows_crlf_sha256": "95ff6dad51e36e5824482bd4d6c06df88195412c035a8b048d30790a5f41f981",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    },
+    {
+      "path": "experiments/premium_filter/ResearchTanh.h",
+      "git_blob_sha1": "7ab75448844c93f1031ea6573d9a1bf264859cd8",
+      "macos_lf_sha256": "88937a79c31fd55b6ce1d1f05a635d2edead46889ecd19685c938de5799eb4c1",
+      "windows_crlf_sha256": "acb025b4b76cde3379ea4bf2d297572bb4478fbc9b8a5339ec34206dcdfef735",
+      "git_lf_matches_macos": true,
+      "git_crlf_matches_windows": true
+    }
+  ]
+}

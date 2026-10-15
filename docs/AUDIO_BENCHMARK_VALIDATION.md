@@ -47,3 +47,47 @@ Ugyanezen commit PR-futásai sikeresek voltak. Ez eltérő runnereredmény,
 nem igazolt DSP-gyorsulás vagy bizonyítottan zajos mérés. A küszöb nem változik,
 az eredeti hibát nem írja felül egy későbbi sikeres futás.
 
+
+
+## A #104 utáni main CPU-hibája — 2026-10-15
+
+A `3ae88958910a647228602c6e97cf86a1d90930d7` main
+[macOS Release jobja](https://github.com/RobCZart82/SAWSTAR/actions/runs/38777419785/job/116568558159)
+a `dry_fx / 8 voice` CPU-kapun állt meg. Az előző,
+`3c8b31631df28d4f483a67a256360a58cc0e6911` main
+[azonos jobja](https://github.com/RobCZart82/SAWSTAR/actions/runs/38765437361/job/116527282882)
+sikeres volt.
+
+| Futás | Referencia audioidő (%) | Jelenlegi audioidő (%) | Relatív eltérés |
+| --- | ---: | ---: | ---: |
+| Előző sikeres main, 8 voice dry_fx | 6,607206 | 7,098519 | +7,44% |
+| #104 utáni main, 8 voice dry_fx | 5,991469 | 7,566858 | +26,29% |
+
+A hibás futás határa 7,489336%; a 7,566858% ezt 0,077522
+audioidő-százalékponttal lépi túl. A relatív és abszolút küszöb egyaránt
+érvényes; a különbség kis határtúllépése nem ok a kapu megkerülésére.
+A táblázat offline audioidő, nem a REAPER CPU-kijelzője.
+
+A két main commit közvetlen fájleltérése kizárólag
+`docs/DEVELOPMENT_ROADMAP.md` és `docs/GUI_SCALE_PROJECT_STATE.md`.
+A benchmark munkaterhelése, kódja, workflow-ja és a production DSP nem
+változott. Az összesített audio-metrikák a naplóban közölt pontosságig
+egyeznek: mind a hat jelenet peak/RMS/DC adatai azonosak a két futásban.
+Ez az időmérés változékonyságát mutatja, de nem bizonyítja a konkrét okot
+vagy a regression check téves riasztását. Az archivált production
+referenciához viszonyított tényleges regresszió lehetősége nyitott.
+
+A funkcionális Release suite, source quality, engine audit, macOS Debug,
+Universal VST3, Windows, Code quality és workflow-validálás sikeres.
+A CPU-ellenőrzés hibája ettől érvényben marad.
+
+**Állapot:** a soros merge megállítva, automatizmus szüneteltetve.
+Nincs rerun kedvezőbb mérésért, baselinecsere vagy küszöblazítás.
+A #105 mainre frissítése és friss PR-CI-je integrációs ellenőrzés,
+nem a hibás main-mérés törlése vagy CPU-elfogadás.
+
+Következő diagnosztikai feladat: a két bináris buildazonosságának,
+fordító-/optimalizálási beállításainak és mérési környezetének rögzítése,
+azonos binárisú kontrollal és minden nyers kör megőrzésével.
+A meglévő nyolc mérési pár, ±1 dB szint-, ±0,01 DC- és CPU-kapu maradjon meg.
+A Premium hangerőkorrekció elfogadása ettől külön, lezárt fejlesztési döntés.
