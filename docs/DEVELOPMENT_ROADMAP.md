@@ -1,12 +1,21 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-14
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-15
+
+## Kampány-ellenőrzési hiba és javítás — 2026-10-15
+
+A #102 mindkét teljes platformgyűjtése sikeres, de az összevetés a Windows
+CRLF és macOS LF forrásbyte-ok miatt piros. Mind a 20 eltérést az eredeti
+Git blobokból és a letöltött artifactok hash-eiből igazoltuk. LF checkout-
+szabály és valós Git-regresszió készült; a javított head teljes új kampánya
+még szükséges. Nincs hash-/küszöblazítás, CPU-elfogadás vagy soron kívüli merge.
+[Bizonyíték, javítás és új kapu](DISPATCH_CHECKOUT_BYTES.md).
 
 Ez az aktuális sorrend; kritikus bug vagy piros funkcionális CI megelőzi a
 következő fejlesztési lépést. A [részletes terv](DEVELOPMENT_PLAN_POST_1.0.4.md)
 korábbi dátumozott részei történeti naplóként maradnak meg.
 
-## Aktuális állapot — 2026-10-14
+## Aktuális állapot — 2026-10-15
 
-Ellenőrzött main: `c0b9d47b47c4e512d14cdced0a079da700b7a56c` (#100).
+Ellenőrzött main: `767a478a6646d7740a96d65ac74ef3e43018db5e` (#101).
 A main Windows/macOS, Code quality és workflow-validálási futásai sikeresek.
 Nyilvános kiadás: **1.0.4**; a következő kiadás verziója még nincs kijelölve.
 A kiadott csomag és a main, illetve a kutatási prémium motor külön állapotok.
@@ -50,7 +59,7 @@ jelenetet tartalmazza, és a CPU-idő pozitív legyen. A CPU-, szint- és
 DC-küszöbök változatlanok; ez nem gyorsulás vagy prémium CPU-elfogadás.
 [Hiba, javítás és tesztszerződés](AUDIO_BENCHMARK_VALIDATION.md).
 
-### Folyamatban: mérési validátorok és CI karbantartása
+### Beolvadt: mérési validátorok és CI karbantartása
 
 A #101 a production benchmark hat jelenetének teljességét és CSV-szerkezetét
 ellenőrzi. A folytatás minden jelenlegi warmup/időzített render DC-jét külön
@@ -58,13 +67,31 @@ vizsgálja, és a kutatási deadline-riportokban kizárja a duplikált oszlopoka
 eltérő sorszélességet és hibás CSV-t. Regressziós tesztek igazolják a régi
 hibákat és a megengedett határeseteket. A Windows/macOS build workflow-k
 pushra csak a mainen futnak; PR- és kézi indítás továbbra is elérhető.
-A javított PR-head CI-ellenőrzése és beolvasztása még nyitott.
+A #101 beolvadt; a `70a7fab` PR-head mind a hét workflow-ja és a
+`767a478` main mind a négy workflow-ja sikeres.
 
 A korábbi `1ed6d698` macOS push-futás CPU-regresszióját megőrizzük:
 `dry_fx / 16 voice`: 11,6468% → 15,0679%, határ 14,5584%.
 A PR-futások sikere nem törli ezt a mérést; nincs automatikus újrapróbálás,
 kedvező kör kiválasztása vagy küszöblazítás. A változtatás nem érinti a DSP-t.
 [Részletek, regressziók és CI-bizonyíték](AUDIO_BENCHMARK_VALIDATION.md).
+
+### Folyamatban: teljes páros CI CPU-kampány — 2026-10-15
+
+Az új `Full dispatch CPU campaign` a meglévő gyűjtővel platformonként
+két teljes kört futtat: referenciaismétlés és jelölt, statikus és modulált
+terhelés, négy hullámforma, 48/96/192 kHz és 32/64/128 buffer. A 32 grid
+platformonként 2 359 296 nyers blokkot őriz meg. A numerikus kapuk minden
+időzítés előtt futnak; a gyűjtésen belül nincs párhuzamos CPU-mérés.
+Mindkét teljes archívum független nyers újraellenőrzést kap, majd azonos
+forrású platformközi összevetés készül, minden kört és negatív eredményt
+megtartva. A mérési hibák részadatai is artifactként megmaradnak.
+
+Ez hosted Windows/macOS CI-bizonyíték. Nem bizonyít saját M1 hardvert,
+kontrollált háttérterhelést, CPU-nyereséget vagy natív REAPER-elfogadást.
+A kampány eredménye és a Windows/M1 célgépes ismétlés továbbra is nyitott;
+a 3. lépést nem jelöljük készre az adatgyűjtés puszta sikerétől.
+[Futtatás, eredet és kiértékelés](DISPATCH_ENGINE_TARGET_MEASUREMENT.md).
 
 A roadmap 1–2. lépése elkészült, a 3. lépés CPU-elfogadása nyitott.
 Ezt követi a minőség/magasráta-policy és korai REAPER-próba, a prémium filter
@@ -267,4 +294,5 @@ bitazonos hanggal és hullámformaváltási regresszióval. A kedvezőtlen
 alternatív ágakat ugyanúgy értékeljük. Az új platformos mérés még nyitott.
 A production DSP nem változik. A 3. lépés CPU-elfogadása és a 4-8. lépés
 továbbra is nyitott; kódazonos célgépes ismétlés és natív REAPER szükséges.
+
 
