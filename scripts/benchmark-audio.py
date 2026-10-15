@@ -2,11 +2,16 @@
 """Compare the current audio benchmark against a fixed baseline and fail CI on regressions."""
 
 import csv
+import argparse
+import hashlib
 import io
+import json
 import math
 import pathlib
+import platform
 import statistics
 import subprocess
+import os
 import tempfile
 import zipfile
 
@@ -28,6 +33,53 @@ LEVEL_DB_LIMIT = 1.0
 
 # The current render must not contain more than 1% full-scale DC.
 MAX_CURRENT_DC = 0.01
+
+
+class EvidenceRecorder:
+    """Preserve every attempt before validation; never reuse old evidence."""
+    def __init__(self, directory, metadata):
+        self.directory = pathlib.Path(directory)
+        self.directory.mkdir(parents=True, exist_ok=False)
+        self.manifest = dict(schema=1, status="incomplete", metadata=metadata, records=[])
+        self.write_manifest()
+
+    def write_manifest(self):
+        temporary = self.directory / "manifest.json.tmp"
+        temporary.write_text(json.dumps(self.manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        temporary.replace(self.directory / "manifest.json")
+
+    def record(self, label, phase, repeat, output, returncode=0):
+        name = f"{len(self.manifest['records']):03d}-{label}-{phase}-{repeat}.csv"
+        data = output.encode("utf-8")
+        with (self.directory / name).open("xb") as stream:
+            stream.write(data)
+        self.manifest["records"].append(dict(file=name, label=label, phase=phase,
+            repeat=repeat, returncode=returncode, sha256=hashlib.sha256(data).hexdigest()))
+        self.write_manifest()
+
+    def finish(self, status, error=None):
+        self.manifest.update(status=status, error=error)
+        self.write_manifest()
+
+
+def build_identity(build, binary):
+    """Record binaries and effective CMake flags without dumping environment secrets."""
+    keys = ("CMAKE_CXX_COMPILER:", "CMAKE_CXX_FLAGS", "CMAKE_BUILD_TYPE:",
+            "CMAKE_GENERATOR:", "CMAKE_OSX_ARCHITECTURES:", "CMAKE_OSX_DEPLOYMENT_TARGET:")
+    cache = build / "CMakeCache.txt"
+    selected = [line for line in cache.read_text(encoding="utf-8").splitlines()
+                if line.startswith(keys)] if cache.exists() else []
+    flags = {str(path.relative_to(build)): path.read_text(encoding="utf-8")
+             for path in sorted(build.rglob("flags.make"))
+             if any(part in path.parts for part in
+                    ("sawstar_engine.dir", "sawstar_daisy_primitives.dir", "sawstar_audio_benchmark.dir"))}
+    compiler = {str(path.relative_to(build)): [line for line in
+                path.read_text(encoding="utf-8").splitlines()
+                if line.startswith(("set(CMAKE_CXX_COMPILER ", "set(CMAKE_CXX_COMPILER_ID ",
+                                    "set(CMAKE_CXX_COMPILER_VERSION ", "set(CMAKE_CXX_COMPILER_ARCHITECTURE_ID "))]
+                for path in sorted(build.rglob("CMakeCXXCompiler.cmake"))}
+    return dict(binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),
+                cmake_cache=selected, target_flags=flags, compiler=compiler)
 
 
 def run(*args, cwd=root):
@@ -133,21 +185,31 @@ def check_current_dc(report):
             )
 
 
-def collect_reports(binaries, repeats=REPEATS):
+def collect_reports(binaries, repeats=REPEATS, evidence=None):
     """Warm both executables, then balance measurement order across pairs."""
     if repeats < 2 or repeats % 2:
         raise ValueError("Use a positive even number of measurement pairs")
     labels = ("baseline", "current")
+    def capture(label, phase, repeat):
+        try:
+            output = run(str(binaries[label]))
+        except subprocess.CalledProcessError as error:
+            if evidence is not None:
+                evidence.record(label, phase, repeat, error.output or "", error.returncode)
+            raise
+        if evidence is not None:
+            evidence.record(label, phase, repeat, output)
+        return output
     # Validate warm-up output too; invalid audio must never be silently ignored.
     for label in labels:
-        report = parse_report(run(str(binaries[label])))
+        report = parse_report(capture(label, "warmup", 0))
         if label == "current":
             check_current_dc(report)
     reports = {label: [] for label in labels}
     for repeat in range(repeats):
         order = labels if repeat % 2 == 0 else labels[::-1]
         for label in order:
-            output = run(str(binaries[label]))
+            output = capture(label, "timed", repeat + 1)
             print(f"{label},repeat={repeat + 1}", flush=True)
             print(output, flush=True)
             report = parse_report(output)
@@ -157,7 +219,7 @@ def collect_reports(binaries, repeats=REPEATS):
     return reports
 
 
-def main():
+def main(evidence=None):
     with tempfile.TemporaryDirectory(prefix="sawstar-benchmark-") as temp:
         source = pathlib.Path(temp) / "baseline"
         source.mkdir()
@@ -212,10 +274,17 @@ def main():
             "2",
         )
 
-        runs = collect_reports({
+        binaries = {
             "baseline": executable(build),
             "current": executable(root / "build"),
-        })
+        }
+        if evidence is not None:
+            evidence.manifest["builds"] = {
+                "baseline": build_identity(build, binaries["baseline"]),
+                "current": build_identity(root / "build", binaries["current"]),
+            }
+            evidence.write_manifest()
+        runs = collect_reports(binaries, evidence=evidence)
 
         baseline = median_report(
             runs["baseline"]
@@ -306,6 +375,9 @@ def main():
                 )
 
         if failures:
+            if evidence is not None:
+                evidence.manifest["failures"] = failures
+                evidence.write_manifest()
             print(
                 "\nBENCHMARK REGRESSION DETECTED:"
             )
@@ -324,5 +396,28 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--evidence-dir", type=pathlib.Path,
+                        help="New directory for raw reports and build identity (also on failure)")
+    args = parser.parse_args()
+    evidence = None
+    if args.evidence_dir is not None:
+        evidence = EvidenceRecorder(args.evidence_dir, dict(
+            current_commit=run("git", "rev-parse", "HEAD").strip(), baseline_commit=base,
+            platform=platform.platform(), machine=platform.machine(),
+            python=platform.python_version(), repeats=REPEATS,
+            thresholds=dict(cpu_relative=CPU_RELATIVE_LIMIT, cpu_absolute=CPU_ABSOLUTE_LIMIT,
+                            level_db=LEVEL_DB_LIMIT, dc=MAX_CURRENT_DC),
+            github={key: os.environ[key] for key in
+                    ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_SHA", "RUNNER_OS", "RUNNER_ARCH")
+                    if key in os.environ},
+            workload_sha256=hashlib.sha256((root / "tests/audio_benchmark.cpp").read_bytes()).hexdigest()))
+    try:
+        main(evidence)
+    except BaseException as error:
+        if evidence is not None:
+            evidence.finish("failed", f"{type(error).__name__}: {error}")
+        raise
+    else:
+        if evidence is not None:
+            evidence.finish("success")

@@ -91,3 +91,35 @@ fordító-/optimalizálási beállításainak és mérési környezetének rögz
 azonos binárisú kontrollal és minden nyers kör megőrzésével.
 A meglévő nyolc mérési pár, ±1 dB szint-, ±0,01 DC- és CPU-kapu maradjon meg.
 A Premium hangerőkorrekció elfogadása ettől külön, lezárt fejlesztési döntés.
+
+## A mérési bizonyíték automatikus megőrzése
+
+A `benchmark-audio.py --evidence-dir UJ_KONYVTAR` új, korábban nem létező
+könyvtárba menti mindkét warmup és az összes nyolc mérési pár CSV-kimenetét,
+még a parser/DC ellenőrzése előtt. Sikertelen folyamat részleges stdoutja
+és exitkódja is megmarad; nincs továbblépés vagy automatikus újrapróbálás.
+A fájlok SHA-256 hashét és a tényleges mérési sorrendet `manifest.json`+rögzíti. Meglévő könyvtárat elutasítunk, így egy új próbálkozás nem írja
+felül a korábbi bizonyítékot. Megszakított futás `incomplete`, kivételes
+kilépés `failed`, teljes siker `success` állapotú.
+
+A manifest tartalmazza a current/baseline commitot, munkaterheléshasht,
+binárishasheket, CMake fordítót/verziót és Release flag-eket, valamint az
+operációs rendszer/architektúra és CI-futás azonosítóit. Csak felsorolt
+CI-környezeti mezőket olvasunk ki; teljes környezetet vagy tetszőleges
+CMake-cache-bejegyzéseket nem exportálunk. Makefile-generátornál a motor,
+DaisySP és benchmark célok flags.make fájljait is rögzítjük.
+
+A Windows/macOS Release workflow `always()` feltétellel, 90 napos artifactba
+teszi az adatokat sikertelen összevetés után is. A hash belső azonossági
+bizonyíték, nem önálló hitelességi vagy realtime-elfogadási garancia.
+
+Ez diagnosztikai fejlesztés: a baseline, render, warmupok, nyolc pár,
+kiegyensúlyozott sorrend, mediánösszevetés és minden küszöb változatlan.
+Az evidencia írása a mért folyamatokon kívül történik. A korábbi piros
+main-mérés okát önmagában nem bizonyítja, és nem törli annak blokkoló
+állapotát. A friss PR sikeres CI-je sem helyettesíti az ok tisztázását.
+
+A `benchmark_report` regressziói ellenőrzik az összes próbálkozás sorrendjét
+és byte-hashét, a hibás warmup/időzített CSV megőrzését elutasítás előtt,
+a sikertelen folyamat azonnali leállítását és részadatát, a korábbi
+könyvtár felülírásának tiltását, valamint a fordítási adatok szűrését.

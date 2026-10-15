@@ -41,7 +41,15 @@ jobs:
         run: ctest --test-dir build -C Release -R '^(source_quality|engine_audit)$' --verbose
       - name: Compare audio CPU and level measurements
         if: matrix.config == 'Release'
-        run: python scripts/benchmark-audio.py
+run: python scripts/benchmark-audio.py --evidence-dir audio-benchmark-evidence
+      - name: Preserve audio benchmark evidence even on failure
+        if: always() && matrix.config == 'Release'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: audio-benchmark-macos-${{ github.sha }}-${{ github.run_attempt }}
+          path: audio-benchmark-evidence/
+          if-no-files-found: warn
+          retention-days: 90
 
   vst3:
     name: VST3 Universal / Release
@@ -86,4 +94,3 @@ jobs:
             dist/*.dmg
             dist/*.sha256
           if-no-files-found: error
-
