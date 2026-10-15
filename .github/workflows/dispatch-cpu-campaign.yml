@@ -22,7 +22,9 @@ jobs:
       matrix:
         os: [windows-2022, macos-14]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 90
+    # Four modulated grids took ~13 minutes in run 38633852888 on Windows.
+    # Thirty-two grids plus qualification/raw review can exceed 90 minutes.
+    timeout-minutes: 180
     defaults:
       run:
         shell: bash

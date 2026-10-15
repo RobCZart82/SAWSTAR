@@ -7,9 +7,14 @@ változatlan workload/numerikus szerződéssel Windows 2022 és macOS 14 runnere
 Platformonként egyetlen job egymás után méri mind a 32 gridet: két kör,
 külön referenciaismétlés/jelölt, két terhelés és négy hullámforma.
 Minden platform 2 359 296 nyers blokkot gyűjt, a két platform együtt
-4 718 592-t. A collector 90 perces jobkeretet kap; nincs automatikus retry
+4 718 592-t. A collector 180 perces jobkeretet kap; nincs automatikus retry
 vagy kedvezőbb kör kiválasztása. A workflow új commit miatt nem szakít meg
 egy már futó kampányt.
+
+A jobkeret alapja a korábbi `38633852888` futás: négy modulált Windows-grid
+körülbelül 13 percet igényelt, így 32 grid és a kvalifikáció túllépheti a
+kezdeti 90 percet. Ez kizárólag futtatási időkeret, nem audio-deadline vagy
+CPU-küszöb módosítása. A korábbi forráscommit futása külön bizonyíték marad.
 
 A numerikus kvalifikáció az első mérés előtt fut. A lezárt archívumot
 platformonként újraellenőrizzük `--verify-raw` módban; a külön összevető job
