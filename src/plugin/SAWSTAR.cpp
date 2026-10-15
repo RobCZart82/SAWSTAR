@@ -31,6 +31,12 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
 #endif
   for (const auto& spec : sawstar::kParameters) {
     auto* param = GetParam(static_cast<int>(spec.id));
+    double initial=spec.initial;
+#ifdef SAWSTAR_PREMIUM_PREVIEW
+    // Match factory Init for both new instances and host parameter reset.
+    if(spec.id==sawstar::ParameterId::OutputGain)
+      initial=sawstar::FactoryPresets()[0].values[static_cast<size_t>(spec.id)];
+#endif
     const auto prefix=spec.key.substr(0,spec.key.find('.'));
     const char* group=prefix=="amp"?"Amp Envelope":prefix=="filter"?"Filter":prefix=="output"?"Output":(prefix=="performance"||prefix=="voice")?"Performance":prefix=="mixer"||prefix=="noise"?"Mixer":prefix=="sub"?"Sub":prefix=="saw"||prefix=="osc1"?"Oscillator 1":prefix=="osc2"?"Oscillator 2":prefix=="lfo"?"LFO 1":prefix=="lfo2"?"LFO 2":prefix=="chorus"?"Chorus":prefix=="delay"?"Delay":prefix=="reverb"?"Reverb":prefix=="arp"?"Arpeggiator":"Modulation";
     const int id=static_cast<int>(spec.id);
@@ -87,16 +93,11 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     else if (spec.id == sawstar::ParameterId::Osc1Octave || spec.id == sawstar::ParameterId::Osc2Octave || spec.id == sawstar::ParameterId::SubOctave)
       param->InitInt(spec.name.data(),static_cast<int>(spec.initial),static_cast<int>(spec.minimum),static_cast<int>(spec.maximum),"oct",IParam::kFlagsNone,group);
     else if (spec.mapping == sawstar::Mapping::Logarithmic)
-      param->InitDouble(spec.name.data(), spec.initial, spec.minimum, spec.maximum, 0.01,
+      param->InitDouble(spec.name.data(), initial, spec.minimum, spec.maximum, 0.01,
                         spec.unit.data(), IParam::kFlagsNone, group, IParam::ShapeExp());
     else
-      param->InitDouble(spec.name.data(), spec.initial, spec.minimum, spec.maximum, 0.001,
+      param->InitDouble(spec.name.data(), initial, spec.minimum, spec.maximum, 0.001,
                         spec.unit.data(),IParam::kFlagsNone,group);
-#ifdef SAWSTAR_PREMIUM_PREVIEW
-    // New instances match factory Init; restored states retain saved values.
-    if(spec.id==sawstar::ParameterId::OutputGain)
-      param->Set(sawstar::FactoryPresets()[0].values[static_cast<size_t>(spec.id)]);
-#endif
   }
   MakeDefaultPreset("Init", 1);
 #if IPLUG_EDITOR
