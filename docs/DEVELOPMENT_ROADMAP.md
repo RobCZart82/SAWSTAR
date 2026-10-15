@@ -4,6 +4,14 @@ Ez az aktuális sorrend; kritikus bug vagy piros funkcionális CI megelőzi a
 következő fejlesztési lépést. A [részletes terv](DEVELOPMENT_PLAN_POST_1.0.4.md)
 korábbi dátumozott részei történeti naplóként maradnak meg.
 
+## Nyitott GUI/state feladat — 2026-10-15
+
+A DAW-projekt újranyitásakor a 75%-ra állított GUI visszaáll alapméretre.
+A példányonkénti GUI-skála host-state mentése és visszaállítása nyitott
+életciklus-feladat, Classic és Premium Preview ellenőrzéssel.
+[Hibaleírás és elfogadási feltételek](GUI_SCALE_PROJECT_STATE.md).
+Ez dokumentált feladat, még nem elkészült javítás; a CPU-kapuk változatlanok.
+
 ## Aktuális állapot — 2026-10-14
 
 Ellenőrzött main: `c0b9d47b47c4e512d14cdced0a079da700b7a56c` (#100).
