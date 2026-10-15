@@ -1,0 +1,102 @@
+name: Full dispatch CPU campaign
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/dispatch-cpu-campaign.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Keep started measurement evidence when another commit is pushed.
+# Each workflow run has its own immutable artifact IDs and source SHA.
+concurrency:
+  group: dispatch-cpu-campaign-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    name: Two complete rounds / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-14]
+    runs-on: ${{ matrix.os }}
+    # Four modulated grids took ~13 minutes in run 38633852888 on Windows.
+    # Thirty-two grids plus qualification/raw review can exceed 90 minutes.
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify checkout line endings and preserve binary evidence
+        run: python tests/dispatch_checkout_bytes.py
+      - name: Initialize the pinned MIT DaisySP core only
+        run: git submodule update --init third_party/DaisySP
+      - name: Collect all controls and candidate grids sequentially
+        run: |
+          python scripts/run-dispatch-engine-target.py --rounds 2 --build-dir "$RUNNER_TEMP/dispatch-build" --output-dir "$RUNNER_TEMP/dispatch-results"
+      - name: Independently verify every raw grid
+        run: |
+          python scripts/review-dispatch-engine-target.py "$RUNNER_TEMP/dispatch-results" --verify-raw > "$RUNNER_TEMP/dispatch-review.md"
+          cat "$RUNNER_TEMP/dispatch-review.md" >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve complete or failed evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dispatch-cpu-${{ matrix.os }}
+          path: ${{ runner.temp }}/dispatch-results/
+          if-no-files-found: error
+          retention-days: 90
+
+  compare:
+    name: Validate and compare both complete CI archives
+    needs: collect
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: dispatch-cpu-windows-2022
+          path: ${{ runner.temp }}/dispatch-windows
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: dispatch-cpu-macos-14
+          path: ${{ runner.temp }}/dispatch-macos
+      - name: Recompute raw evidence and retain every round
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/dispatch-comparison"
+          python scripts/compare-dispatch-engine-targets.py "$RUNNER_TEMP/dispatch-windows" "$RUNNER_TEMP/dispatch-macos" --format json > "$RUNNER_TEMP/dispatch-comparison/comparison.json"
+          python - <<'PY'
+          import importlib.util, json, os
+          from pathlib import Path
+          spec = importlib.util.spec_from_file_location('comparison', 'scripts/compare-dispatch-engine-targets.py')
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          root = Path(os.environ['RUNNER_TEMP']) / 'dispatch-comparison'
+          result = json.loads((root / 'comparison.json').read_text(encoding='utf-8'))
+          text = ('# Hosted CI evidence; dedicated Windows/M1 acceptance remains open\n\n'
+                  'Successful collection/validation does not establish CPU improvement. '
+                  'Runner hardware and background load are not controlled target-machine evidence.\n\n'
+                  + module.render(result))
+          (root / 'comparison.md').write_text(text, encoding='utf-8')
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a', encoding='utf-8') as summary:
+              summary.write(text)
+          print('DISPATCH_CPU_CAMPAIGN=' + json.dumps(result, separators=(',', ':'), allow_nan=False))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dispatch-cpu-comparison
+          path: ${{ runner.temp }}/dispatch-comparison/
+          if-no-files-found: error
+          retention-days: 90
+
