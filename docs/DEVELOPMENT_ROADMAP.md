@@ -1,5 +1,63 @@
 # Elfogadott fejlesztési sorrend — állapot: 2026-10-15
 
+## Aktuális állapot és publikálási cél
+
+Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
+Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
+nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
+
+Ellenőrzött main: `3c8b31631df28d4f483a67a256360a58cc0e6911` (#103).
+A Windows/macOS build, Code quality és workflow-validálás sikeres.
+#102 és #103 beolvadt; a hátralévő engedélyezett sorrend **#104 → #105**.
+Minden új head összes releváns workflow-ját újra ellenőrizzük; merge után
+a main négy fő workflow-ja legyen sikeres a következő merge előtt.
+
+- A #102 LF/CRLF checkout-javítása és a teljes `38735317728` kampány
+  mindkét platformgyűjtése és Linuxos nyersellenőrzése/összevetése sikeres.
+  Ez CI-bizonyíték, nem célgépes CPU-elfogadás. A korábbi hibás kampány
+  és negatív mérési eredmények megmaradnak.
+- A #103 külön, alapból kikapcsolt Premium Preview buildet ad; a normál
+  production SAWSTAR továbbra is Classic filteres.
+- **Hangerőkorrekció: kész, Robert elfogadta és lezárta.** A #105 korrigált
+  Preview-jának 16 hangos, cutoff-automatizált REAPER-próbájában a Premium
+  RMS-szintje 0,44 dB-lel alacsonyabb a Classicnál; ez tudatosan elfogadott,
+  további általános hangerőemelés nem szükséges. A részletes bizonyíték a
+  #105 `docs/PREMIUM_PREVIEW_LEVELS.md` dokumentumában szerepel.
+- A hangkarakter pozitív natív visszajelzést kapott a kipróbált környezetben.
+  A CPU-, további mód-/rátaminőségi és végső production-kapuk külön nyitottak.
+
+## Elfogadott hátralévő munkasorrend
+
+| Sorrend | Feladat | Befejezési feltétel |
+| --- | --- | --- |
+| 1 | #104, majd #105 soros beolvasztása | Aktuális main szabályos beemelése, az új head minden releváns workflow-ja sikeres, squash merge, majd sikeres main CI. #104 dokumentáció, nem GUI-fix. |
+| 2 | Célgépes CPU-elfogadás | Kódazonos Windows/M1 teljesmotoros mérés és natív REAPER-kontroll; 16 hang, statikus/modulált terhelés, ráták és kis pufferek; p99, időkeret-túllépés és dropout értékelve. Dokumentált elfogadási döntés, nem végtelen optimalizálás. |
+| 3 | Filterminőség és magasráta-policy | LP12/LP24/HP12/BP12, rezonancia, Drive, moduláció és módváltás; a minőség/költség és támogatott működési tartomány dokumentált elfogadása. |
+| 4 | Premium production-integráció | Elfogadott motor és hangerőkalibráció beépítése; meglévő GUI/ID-k, latency, bypass, state, automatizálás és régi projektbetöltés ellenőrzött. A Classic teljes cseréje a korábbi tulajdonosi döntés szerint. |
+| 5 | GUI-méret host-state javítása | 75/100/125% példányonként mentődik és visszaáll; presetváltás nem írja át, régi state betölthető; macOS/Windows REAPER-próba. |
+| 6 | Presetkoherencia és plugin-életciklus | Mentés/import lejátszás alatt, editor bezárás/újranyitás, unload, több példány, külső meghajtó és projekt-visszatöltés rendben. |
+| 7 | Végleges factory presetkészlet | A production motoron minden preset zenei és szintellenőrzése, megfelelő headroom, mentés/visszatöltés; az elfogadott általános korrekció megtartása. |
+| 8 | Végső natív Windows/macOS REAPER-elfogadás | Pontos production RC telepítése, GUI, MIDI, automatizálás, lejátszás/render, ráták/pufferek, state és lifecycle dokumentált ellenőrzése. |
+| 9 | Dokumentáció és kiadási csomag | Roadmap/kézikönyv/install/release notes friss, verzió/RC kijelölt; a hallható filtercsere leírva; végleges csomagok, hashok és VST3-validator sikeresek. |
+| 10 | Publikálás | Pontos végleges commit minden kiadási kapuja teljesült, RC elfogadott, külön publikálási jóváhagyás. |
+
+Kritikus bug és piros funkcionális CI megelőzi a következő lépést.
+Linux plugin, 32 voice és függőségfrissítés halasztott; a lezárt click/pop
+kutatást nem nyitjuk újra.
+
+## GUI/state feladat
+
+A DAW-projekt újranyitásakor a 75%-os GUI alapméretre áll vissza.
+A javítás még nincs implementálva.
+[Hibaleírás és elfogadási feltételek](GUI_SCALE_PROJECT_STATE.md).
+
+## Történeti állapotfeljegyzések
+
+Az alábbi korábbi állapotok mérési és fejlesztési előzmények. A bennük
+szereplő „nyitott”, „következő” és korábbi main-azonosítók a feljegyzés
+idejére vonatkoznak; az aktuális sorrendet a fenti táblázat határozza meg.
+
+
 ## Kampány-ellenőrzési hiba és javítás — 2026-10-15
 
 A #102 mindkét teljes platformgyűjtése sikeres, de az összevetés a Windows
