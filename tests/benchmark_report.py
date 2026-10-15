@@ -5,6 +5,10 @@ import unittest
 from unittest.mock import patch
 import contextlib
 import io
+import tempfile
+import json
+import hashlib
+import subprocess
 spec = importlib.util.spec_from_file_location("benchmark", Path(__file__).resolve().parents[1] / "scripts/benchmark-audio.py")
 benchmark = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(benchmark)
@@ -17,6 +21,108 @@ def full_report(cpu=2):
     )
 
 class ReportTest(unittest.TestCase):
+    def test_baseline_inherits_macos_target_and_architecture_without_shell(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "CMakeCache.txt").write_text(
+                "CMAKE_OSX_DEPLOYMENT_TARGET:STRING=11.0\n"
+                "CMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64\n")
+            self.assertEqual(benchmark.baseline_platform_options(root),
+                ["-DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=11.0",
+                 "-DCMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64"])
+
+    def test_build_policy_rejects_real_missing_macos_minimum(self):
+        with tempfile.TemporaryDirectory() as temp:
+            baseline, current = Path(temp) / "old", Path(temp) / "new"
+            baseline.mkdir(); current.mkdir()
+            common = "CMAKE_BUILD_TYPE:STRING=Release\nCMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG\n"
+            (baseline / "CMakeCache.txt").write_text(common + "CMAKE_OSX_DEPLOYMENT_TARGET:STRING=\n")
+            (current / "CMakeCache.txt").write_text(common + "CMAKE_OSX_DEPLOYMENT_TARGET:STRING=11.0\n")
+            with self.assertRaisesRegex(RuntimeError, "CMAKE_OSX_DEPLOYMENT_TARGET"):
+                benchmark.verify_build_policy(baseline, current)
+            (baseline / "CMakeCache.txt").write_text((current / "CMakeCache.txt").read_text())
+            benchmark.verify_build_policy(baseline, current)
+            (baseline / "CMakeCache.txt").write_text(common.replace("-O3", "-O0") + "CMAKE_OSX_DEPLOYMENT_TARGET:STRING=11.0\n")
+            with self.assertRaisesRegex(RuntimeError, "CMAKE_CXX_FLAGS_RELEASE"):
+                benchmark.verify_build_policy(baseline, current)
+
+    def test_non_apple_build_keeps_default_platform_options(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "CMakeCache.txt").write_text("CMAKE_BUILD_TYPE:UNINITIALIZED=Release\n")
+            self.assertEqual(benchmark.baseline_platform_options(root), [])
+            benchmark.verify_build_policy(root, root)
+
+    def test_evidence_preserves_all_attempts_without_changing_order_or_results(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp) / "evidence"
+            evidence = benchmark.EvidenceRecorder(directory, {"test": True})
+            with patch.object(benchmark, "run", return_value=full_report()) as run, \
+                    contextlib.redirect_stdout(io.StringIO()):
+                reports = benchmark.collect_reports({"baseline": "old", "current": "new"}, 2, evidence)
+            self.assertEqual(run.call_count, 6)
+            self.assertEqual(len(reports["current"]), 2)
+            records = json.loads((directory / "manifest.json").read_text())["records"]
+            self.assertEqual([(r["label"], r["phase"], r["repeat"]) for r in records],
+                [("baseline", "warmup", 0), ("current", "warmup", 0),
+                 ("baseline", "timed", 1), ("current", "timed", 1),
+                 ("current", "timed", 2), ("baseline", "timed", 2)])
+            for record in records:
+                data = (directory / record["file"]).read_bytes()
+                self.assertEqual(data, full_report().encode())
+                self.assertEqual(hashlib.sha256(data).hexdigest(), record["sha256"])
+            with self.assertRaises(FileExistsError):
+                benchmark.EvidenceRecorder(directory, {})
+
+    def test_evidence_keeps_invalid_warmup_and_timed_output_before_rejection(self):
+        for outputs in ([HEADER], [full_report(), full_report(), HEADER]):
+            with self.subTest(attempt=len(outputs)), tempfile.TemporaryDirectory() as temp:
+                evidence = benchmark.EvidenceRecorder(Path(temp) / "evidence", {})
+                with patch.object(benchmark, "run", side_effect=outputs) as run, \
+                        contextlib.redirect_stdout(io.StringIO()):
+                    with self.assertRaises(RuntimeError):
+                        benchmark.collect_reports({"baseline": "old", "current": "new"}, 2, evidence)
+                self.assertEqual(run.call_count, len(outputs))
+                records = evidence.manifest["records"]
+                self.assertEqual(len(records), len(outputs))
+                self.assertEqual((evidence.directory / records[-1]["file"]).read_text(), HEADER)
+                self.assertEqual(evidence.manifest["status"], "incomplete")
+
+    def test_evidence_preserves_failed_process_and_stops(self):
+        with tempfile.TemporaryDirectory() as temp:
+            evidence = benchmark.EvidenceRecorder(Path(temp) / "evidence", {})
+            error = subprocess.CalledProcessError(7, "old", output="partial output\n")
+            with patch.object(benchmark, "run", side_effect=error) as run:
+                with self.assertRaises(subprocess.CalledProcessError):
+                    benchmark.collect_reports({"baseline": "old", "current": "new"}, 2, evidence)
+            self.assertEqual(run.call_count, 1)
+            record = evidence.manifest["records"][0]
+            self.assertEqual(record["returncode"], 7)
+            self.assertEqual((evidence.directory / record["file"]).read_text(), "partial output\n")
+            evidence.finish("failed", "test failure")
+            manifest = json.loads((evidence.directory / "manifest.json").read_text())
+            self.assertEqual(manifest["status"], "failed")
+            self.assertEqual(len(manifest["records"]), 1)
+
+    def test_build_identity_records_flags_and_binary_hash(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            binary = root / "binary"
+            binary.write_bytes(b"test executable")
+            (root / "CMakeCache.txt").write_text(
+                "CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG\nPRIVATE_TOKEN:STRING=excluded\n")
+            flags = root / "CMakeFiles/sawstar_engine.dir/flags.make"
+            flags.parent.mkdir(parents=True)
+            flags.write_text("CXX_FLAGS = -O3 -DNDEBUG\n")
+            compiler = root / "CMakeFiles/version/CMakeCXXCompiler.cmake"
+            compiler.parent.mkdir(parents=True)
+            compiler.write_text('set(CMAKE_CXX_COMPILER_ID "AppleClang")\nset(CMAKE_CXX_COMPILER_VERSION "21.0")\n')
+            identity = benchmark.build_identity(root, binary)
+            self.assertEqual(identity["binary_sha256"], hashlib.sha256(binary.read_bytes()).hexdigest())
+            self.assertEqual(identity["cmake_cache"], ["CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG"])
+            self.assertEqual(identity["target_flags"]["CMakeFiles/sawstar_engine.dir/flags.make"], flags.read_text())
+            self.assertIn('set(CMAKE_CXX_COMPILER_VERSION "21.0")', identity["compiler"]["CMakeFiles/version/CMakeCXXCompiler.cmake"])
+
     def test_valid_report(self):
         report = benchmark.parse_report(full_report())
         self.assertEqual(len(report), 6)
@@ -127,4 +233,3 @@ class ReportTest(unittest.TestCase):
         self.assertEqual(benchmark.parse_report(lines[0] + "".join(reversed(lines[1:]))),
                          benchmark.parse_report(full_report()))
 if __name__ == "__main__": unittest.main()
-
