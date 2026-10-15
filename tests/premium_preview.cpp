@@ -7,6 +7,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <string_view>
+#define SAWSTAR_STRING_IMPL(value) #value
+#define SAWSTAR_STRING(value) SAWSTAR_STRING_IMPL(value)
 
 int main() {
   try {
@@ -14,6 +16,7 @@ int main() {
     static_assert(PLUG_UNIQUE_ID != 'SwSt', "Preview must not replace the release");
     if(std::string_view(PLUG_NAME)!="SAWSTAR Premium Preview" ||
        std::string_view(BUNDLE_NAME)!="SAWSTARPremiumPreview" ||
+       std::string_view(SAWSTAR_STRING(PLUG_CLASS_NAME))!="SAWSTARPremiumPreview" ||
        std::string_view(sawstar::kPresetProductFolder)!="SAWSTAR Premium Preview")
       throw std::runtime_error("Preview identity or preset isolation is missing");
     // Delayed dry and oversampled wet paths share the advertised latency.

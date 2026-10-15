@@ -6,12 +6,16 @@
 #define BUNDLE_NAME "SAWSTARPremiumPreview"
 #define PLUG_LATENCY 32
 #define SHARED_RESOURCES_SUBPATH "SAWSTARPremiumPreview"
+// Keep wrapper C++ symbols distinct when Classic and Preview are loaded together.
+#define SAWSTAR SAWSTARPremiumPreview
+#define PLUG_CLASS_NAME SAWSTARPremiumPreview
 #else
 #define PLUG_NAME "SAWSTAR"
 #define PLUG_UNIQUE_ID 'SwSt'
 #define BUNDLE_NAME "SAWSTAR"
 #define PLUG_LATENCY 0
 #define SHARED_RESOURCES_SUBPATH "SAWSTAR"
+#define PLUG_CLASS_NAME SAWSTAR
 #endif
 #define PLUG_MFR "RobCZart82"
 #define PLUG_VERSION_HEX 0x00010004
@@ -20,7 +24,6 @@
 #define PLUG_URL_STR "https://github.com/RobCZart82/SAWSTAR"
 #define PLUG_EMAIL_STR ""
 #define PLUG_COPYRIGHT_STR "Copyright (c) 2026 Gyuricza Róbert / RobCZart82"
-#define PLUG_CLASS_NAME SAWSTAR
 #define BUNDLE_MFR "robczart82"
 #define BUNDLE_DOMAIN "io.github"
 #define PLUG_CHANNEL_IO "0-2"
