@@ -1,0 +1,47 @@
+name: Production identical-binary timing control
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/production-timing-control.yml'
+      - 'scripts/control-audio-timing.py'
+      - 'tests/audio_timing_control.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: production-timing-control-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  control:
+    name: A/A control / ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [windows-2022, macos-14]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Test control and production report contracts
+        run: |
+          python tests/benchmark_report.py
+          python tests/audio_timing_control.py
+      - name: Initialize only the pinned DaisySP core
+        run: git submodule update --init third_party/DaisySP
+      - name: Configure Classic benchmark
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSAWSTAR_CHECK_DAISYSP=ON -DSAWSTAR_PREMIUM_PREVIEW=OFF
+      - name: Build only the benchmark and its dependencies
+        run: cmake --build build --config Release --target sawstar_audio_benchmark --parallel 2
+      - name: Run fixed eight-pair identical-binary control
+        run: python scripts/control-audio-timing.py --build-dir build --output timing-control-evidence --source-commit '${{ github.event.pull_request.head.sha || github.sha }}'
+      - name: Preserve every control attempt, including failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: identical-binary-control-${{ matrix.runner }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: timing-control-evidence/
+          if-no-files-found: warn
+          retention-days: 90

@@ -3,6 +3,9 @@
 #include <cmath>
 #include <initializer_list>
 #include <utility>
+#ifdef SAWSTAR_PREMIUM_PREVIEW
+#include "presets/PremiumPreviewLevels.h"
+#endif
 namespace sawstar {
 namespace {
 Snapshot Sound(std::initializer_list<std::pair<ParameterId,double>> edits) {
@@ -52,7 +55,18 @@ const std::array<FactoryPreset,kFactoryPresetCount>& FactoryPresets() {
   {"octave_steps","Octave Steps","Arp","An up/down octave pattern with short square and saw notes. A little swing and tempo delay; HOLD is off.",Sound({{P::OutputGain,-10},{P::Osc1Wave,1},{P::Osc1Level,65},{P::Osc2Level,35},{P::Osc2Mix,25},{P::Osc2Detune,8},{P::AmpAttack,2},{P::AmpDecay,220},{P::AmpSustain,.12},{P::AmpRelease,90},{P::FilterMix,100},{P::FilterCutoff,1100},{P::FilterEnvAmount,22},{P::FilterAttack,2},{P::FilterDecay,160},{P::FilterKeyTrack,60},{P::ArpEnabled,1},{P::ArpMode,2},{P::ArpOctaves,2},{P::ArpGate,55},{P::ArpSwing,8},{P::DelayEnabled,1},{P::DelaySync,1},{P::DelayMix,10},{P::DelayFeedback,18}}),"Up-down / Swing / Echo"},
   {"air_keys","Air Keys","Keys","Triangle keys with a quiet octave sine and pink noise. Short reverb gives air without continuous pulsing.",Sound({{P::Osc1Wave,2},{P::Osc1Level,85},{P::Osc2Wave,3},{P::Osc2Level,35},{P::Osc2Octave,1},{P::NoiseSource,3},{P::NoiseLevel,1},{P::NoiseColor,15},{P::AmpAttack,4},{P::AmpDecay,850},{P::AmpSustain,.2},{P::AmpRelease,400},{P::FilterMix,100},{P::FilterCutoff,5500},{P::FilterKeyTrack,50},{P::ReverbEnabled,1},{P::ReverbMix,14},{P::ReverbDecay,1.8}}),"Soft / Air / Decay"}
  }};
+#ifdef SAWSTAR_PREMIUM_PREVIEW
+ static_assert(kPremiumPreviewFactoryTrims.size()==kFactoryPresetCount,"Recalibrate new preview factory presets");
+ static const auto calibrated=[&]{
+   auto bank=presets;
+   for(auto& preset:bank)
+     preset.values[static_cast<size_t>(P::OutputGain)]-=PremiumPreviewFactoryTrim(preset.key);
+   return bank;
+ }();
+ return calibrated;
+#else
  return presets;
+#endif
 }
 int MatchFactoryPreset(const Snapshot& s) {
  const auto& presets=FactoryPresets();

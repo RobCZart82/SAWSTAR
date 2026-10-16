@@ -31,12 +31,15 @@ def package(bundle, output):
         if path.is_file(): files['licenses/' + path.name] = path
     files['LICENSE'] = ROOT / 'LICENSE'
     files['README-PREMIUM-PREVIEW.md'] = ROOT / 'docs/PREMIUM_PREVIEW.md'
+    files['PREMIUM_PREVIEW_LEVELS.md'] = ROOT / 'docs/PREMIUM_PREVIEW_LEVELS.md'
+    files['measurements/premium-preview-levels-2026-10-15-local-arm64.csv'] = ROOT / 'docs/measurements/premium-preview-levels-2026-10-15-local-arm64.csv'
     files['licenses/SAWSTAR-BRANDING-LICENSE.txt'] = ROOT / 'assets/branding/LICENSE.txt'
     notice = (ROOT / 'THIRD_PARTY_NOTICES.md').read_text(encoding='utf-8').replace('third_party/licenses/', 'licenses/').encode('utf-8')
     hashes = {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in files.items()}
     hashes['THIRD_PARTY_NOTICES.md'] = hashlib.sha256(notice).hexdigest()
     manifest = dict(product='SAWSTAR Premium Preview', experimental=True, source_commit=revision,
                     engine='RateScaledLookupEnginePremiumFilter', latency_samples=32,
+                    level_policy='wet-output-3db-factory-trim-v1',
                     production_promotion_allowed=False, files_sha256=hashes)
     output.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:

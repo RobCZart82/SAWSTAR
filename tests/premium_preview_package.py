@@ -25,7 +25,7 @@ class PreviewPackage(unittest.TestCase):
         self.binary.write_bytes(b'test binary');self.binary.chmod(0o755)
         self.info = dict(CFBundleIdentifier='io.github.robczart82.sawstarpremiumpreview', CFBundleSignature='SwPP')
         (self.bundle / 'Contents/Info.plist').write_bytes(plistlib.dumps(self.info))
-        for name in ('LICENSE','THIRD_PARTY_NOTICES.md','assets/branding/LICENSE.txt','docs/PREMIUM_PREVIEW.md','third_party/licenses/notice.txt'):
+        for name in ('LICENSE','THIRD_PARTY_NOTICES.md','assets/branding/LICENSE.txt','docs/PREMIUM_PREVIEW.md','docs/PREMIUM_PREVIEW_LEVELS.md','docs/measurements/premium-preview-levels-2026-10-15-local-arm64.csv','third_party/licenses/notice.txt'):
             path = self.root / name;path.parent.mkdir(parents=True, exist_ok=True);path.write_text('test notice')
         self.output = self.root / 'preview.zip'
 
@@ -40,6 +40,9 @@ class PreviewPackage(unittest.TestCase):
             self.assertTrue(manifest['experimental'])
             self.assertFalse(manifest['production_promotion_allowed'])
             self.assertEqual(manifest['latency_samples'],32)
+            self.assertEqual(manifest['level_policy'],'wet-output-3db-factory-trim-v1')
+            self.assertIn('PREMIUM_PREVIEW_LEVELS.md',archive.namelist())
+            self.assertIn('measurements/premium-preview-levels-2026-10-15-local-arm64.csv',archive.namelist())
             for name, digest in manifest['files_sha256'].items():
                 self.assertEqual(hashlib.sha256(archive.read(name)).hexdigest(),digest)
             self.assertTrue(archive.getinfo('SAWSTARPremiumPreview.vst3/Contents/MacOS/SAWSTARPremiumPreview').external_attr >> 16 & 0o111)
