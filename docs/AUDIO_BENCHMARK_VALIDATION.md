@@ -161,3 +161,46 @@ A helyi regresszió a valóban megfigyelt üres/11.0 eltérést elutasítja,
 az egyező policy-t elfogadja, és a `-O0`/`-O3` eltérést is észleli.
 A Windows út nem kap mesterséges macOS opciót. A CPU-/natív elfogadás
 és a main korábbi hibájának végső lezárása továbbra is külön kapu.
+
+## Azonos binárisú A/A kontroll — 2026-10-16
+
+A #105 `66f41f8d` head macOS production benchmarkja ismét hibázott:
+`dry_fx / 8 voice`, baseline 6,162273%, current 7,845225%, +27,31%.
+A main ugyanazon két binárissal sikeres volt. A független archívumellenőrzés
+mindkét oldalon 18 teljes CSV-t, a párosítás sorrendjét és a ZIP/fájlhashokat
+ellenőrizte; az egyik futás current binárisa a másik current binárisával,
+valamint a két baseline bináris egymással byte-azonos:
+
+- main artifact: 12032371927, ZIP SHA-256 `2c105eabecd82d5064f86f413f41ad737ccd74e4080ead0147ee1d16426f01d9`;
+- PR artifact: 12033055245, ZIP SHA-256 `832555ac684b171952ec99bfc9a65aa6f46ccb6bf6ea5bd2622109a8668aa138`;
+- baseline executable: `b07e537e3da257e2cc94cef118e6fac3eca4cc3715b34699759e5090eb4e866a`;
+- current executable: `e2d492f9b3271050ea7d64e797fddb2b2d8bb0dcd6957478981798e01c255de7`.
+
+Az új `scripts/control-audio-timing.py` **egyetlen abszolút executable
+útvonalat** futtat mindkét címkével. Ugyanaz a két warmup és nyolc,
+fordított sorrendű pár, teljes hat jelenettel; minden nyers jelentés
+megmarad. A bináris hashét a futás előtt és után ellenőrzi; a módosult
+bináris és az eltérő peak/RMS/DC kimenet hibás kontroll. Az új könyvtár
+követelménye megakadályozza a régi adatok felülírását.
+
+A kontroll az eredeti +25% ÉS +1 audioidő-százalékpontos határt használja,
+sikertelenségnél nem ismétel és nem szűr. Eredménye diagnosztika: még
+siker esetén is `production_regression_accepted=false` és
+`native_cpu_accepted=false`. Nem törli a korábbi hibás production futást,
+és nem helyettesíti annak sikeres pontos-head CI-kapuját.
+
+Első helyi arm64 kontroll: mind a hat jelenet határon belül, mediáneltérés
+-0,2068% és +0,1200% között; `dry_fx / 8 voice`: 5,64910835% és
+5,65141460%, relatív +0,040825%. A helyi Classic könyvtárakból linkelt
+bináris nem a CI runner executable-je; nincs ilyen eredet- vagy célgépes
+elfogadási állítás. A [nyers helyi bizonyíték](measurements/production-aa-local-arm64-2026-10-16.json)
+a fordítót, a linkparancsot, workload-/könyvtár-/binárishashokat, az összes
+18 nyers CSV-t és az eredményeket együtt őrzi meg. Ez egy megfigyelés,
+nem általános stabilitási garancia.
+
+A külön `Production identical-binary timing control` workflow friss
+Windows/macOS Release builddel futtatja a kontrollt; a kontrollfolyamatok
+platformonként szigorúan sorosak. A siker és hiba egyaránt 90 napos
+artifactba kerül. A normál production benchmark és küszöbei változatlanok.
+A négy új teszt bizonyítja az egyetlen bináris használatát, a fix 18
+hívást, az összes eredmény megőrzését és a hibás kontroll elutasítását.
