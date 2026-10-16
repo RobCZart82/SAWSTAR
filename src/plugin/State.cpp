@@ -7,6 +7,8 @@
 namespace sawstar {
 namespace {
 constexpr std::array<uint8_t, 8> magic{{'S','A','W','S','T','A','R',0}};
+constexpr uint32_t guiScaleRecord=0xfffffffeu;
+bool ValidGuiScale(double value) { return value==0. || value==.75 || value==1. || value==1.25; }
 uint64_t Read(const uint8_t* p, size_t n) {
   uint64_t value = 0; for (size_t i=0;i<n;++i) value |= uint64_t(p[i]) << (8*i); return value;
 }
@@ -82,5 +84,28 @@ size_t DecodePresetFile(const uint8_t* data, size_t size, Snapshot& output) {
     if (FindParameter(static_cast<uint32_t>(Read(data + pos, 4)))) known = true;
   if (!known) return 0;
   return DecodeState(data, size, output);
+}
+HostStateBytes EncodeHostState(const Snapshot& values,float guiScale) {
+  const auto sound=EncodeState(values);
+  HostStateBytes bytes{};std::copy(sound.begin(),sound.end(),bytes.begin());
+  Write(bytes.data()+12,bytes.size()-16,4);
+  Write(bytes.data()+sound.size(),guiScaleRecord,4);
+  const double scale=ValidGuiScale(guiScale)?guiScale:0.;uint64_t bits;
+  std::memcpy(&bits,&scale,8);Write(bytes.data()+sound.size()+4,bits,8);
+  return bytes;
+}
+size_t DecodeHostState(const uint8_t* data,size_t size,Snapshot& output,float& guiScale) {
+  Snapshot values{};const auto consumed=DecodeState(data,size,values);
+  if(!consumed)return 0;
+  float scale=0.f;bool seen=false;
+  if(consumed>=16 && std::equal(magic.begin(),magic.end(),data)) {
+    for(size_t pos=16;pos<consumed;pos+=12)if(Read(data+pos,4)==guiScaleRecord) {
+      if(seen)return 0;
+      seen=true;const double value=ReadDouble(data+pos+4);
+      // A damaged/unsupported editor preference must not discard a valid sound.
+      scale=ValidGuiScale(value)?static_cast<float>(value):0.f;
+    }
+  }
+  output=values;guiScale=scale;return consumed;
 }
 }

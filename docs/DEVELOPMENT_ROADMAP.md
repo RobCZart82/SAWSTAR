@@ -45,7 +45,7 @@ a main négy fő workflow-ja legyen sikeres a következő merge előtt.
 | 2 | Célgépes CPU-elfogadás — nyitott | M1 gyűjtés/nyers ellenőrzés kész, p99/túllépés-elfogadás nincs. Következő az azonos forrású Windows célgépes mérés és natív REAPER-kontroll; 16 hang, statikus/modulált terhelés, ráták és kis pufferek; p99, időkeret-túllépés és dropout értékelve. Dokumentált elfogadási döntés, nem végtelen optimalizálás. |
 | 3 | Filterminőség és magasráta-policy | LP12/LP24/HP12/BP12, rezonancia, Drive, moduláció és módváltás; a minőség/költség és támogatott működési tartomány dokumentált elfogadása. |
 | 4 | Premium production-integráció | Elfogadott motor és hangerőkalibráció beépítése; meglévő GUI/ID-k, latency, bypass, state, automatizálás és régi projektbetöltés ellenőrzött. A Classic teljes cseréje a korábbi tulajdonosi döntés szerint. |
-| 5 | GUI-méret host-state javítása | 75/100/125% példányonként mentődik és visszaáll; presetváltás nem írja át, régi state betölthető; macOS/Windows REAPER-próba. |
+| 5 | GUI-méret host-state javítása — implementálva, natív próba nyitott | 75/100/125% külön editorrekordban, hangszínformátum változatlan; codec/host-átadási regresszió kész. Még szükséges a macOS/Windows REAPER-próba, példányfüggetlenség, presetváltás és projektmentési jelzés natív ellenőrzése. |
 | 6 | Presetkoherencia és plugin-életciklus | Mentés/import lejátszás alatt, editor bezárás/újranyitás, unload, több példány, külső meghajtó és projekt-visszatöltés rendben. |
 | 7 | Végleges factory presetkészlet | A production motoron minden preset zenei és szintellenőrzése, megfelelő headroom, mentés/visszatöltés; az elfogadott általános korrekció megtartása. |
 | 8 | Végső natív Windows/macOS REAPER-elfogadás | Pontos production RC telepítése, GUI, MIDI, automatizálás, lejátszás/render, ráták/pufferek, state és lifecycle dokumentált ellenőrzése. |
@@ -59,7 +59,8 @@ kutatást nem nyitjuk újra.
 ## GUI/state feladat
 
 A DAW-projekt újranyitásakor a 75%-os GUI alapméretre áll vissza.
-A javítás még nincs implementálva.
+A javítás implementálva és helyi codec/host-átadási regresszióval ellenőrizve;
+a natív Windows/macOS REAPER-elfogadás még nyitott.
 [Hibaleírás és elfogadási feltételek](GUI_SCALE_PROJECT_STATE.md).
 
 ## Történeti állapotfeljegyzések

@@ -1,8 +1,8 @@
 # GUI-méret mentése DAW-projektbe
 
-## Állapot — 2026-10-15
+## Állapot — 2026-10-16
 
-**Nyitott, feljegyzett hiba; a javítás még nincs implementálva.**
+**Javítás implementálva; natív Windows/macOS REAPER-elfogadás még nyitott.**
 A natív macOS REAPER-próba során a Classic SAWSTAR és a külön
 SAWSTAR Premium Preview példány egyaránt elvesztette a 75%-os GUI-méretet
 a projekt újranyitásakor. Ez használhatósági/state-kezelési feladat;
@@ -26,12 +26,36 @@ a bejelentésben nincs külön igazolva.
 
 ## Forráskódban azonosított ok
 
-A `src/plugin/SAWSTAR.h` fájl `mGuiScale` értéke példányon belüli,
-memóriában tárolt editorbeállítás. A GUI-menü átírja és átméretezi
+A bejelentéskori `src/plugin/SAWSTAR.h` fájl `mGuiScale` értéke csak
+memóriában tárolt editorbeállítás volt. A GUI-menü átírta és átméretezte
 az ablakot, de a `SAWSTAR::SerializeState` csak a hangszínparamétereket
-kódolja. A `SAWSTAR::UnserializeState` sem állít vissza GUI-skálát.
+kódolta. A `SAWSTAR::UnserializeState` sem állított vissza GUI-skálát.
 Új példány létrehozásakor a méretet ezért ismét a képernyőhöz tartozó
-alapértelmezés határozza meg.
+alapértelmezés határozta meg.
+
+## Elkészült megoldás és ellenőrzési korlát
+
+A host-state egy külön, v1 olvasók számára ismeretlen editorrekordban tárolja
+a példány 75/100/125%-os választását. A régi olvasó ezt átugorja, a hangot
+továbbra is be tudja tölteni; a `.sawstar` hangszínfájlok kódolása változatlan.
+Régi projektben a hiányzó rekord automatikus képernyőméretet jelent. Hibás vagy
+nem támogatott méret szintén automatikusra esik vissza; duplikált editorrekord
+hibás állapot, ilyenkor sem a hang, sem a GUI-állapot nem változik.
+
+A host szálán atomikus beállításátadás történik, natív átméretezés nélkül.
+A GUI létrehozása vagy idle-je alkalmazza a méretet. A menü módosítása a VST3
+opcionális `IComponentHandler2::setDirty` jelzésével jelöli mentendőnek az
+állapotot, paramétergesztus és hangparaméter-módosítás nélkül. Ha a host nem
+biztosít ilyen handlert, az explicit projektmentés ettől még tartalmazza a
+méretet; az automatikus dirty-jelzés hostfüggő korlátja külön ellenőrizendő.
+
+A Classic és Preview ugyanazt a host-state/editor implementációt használja.
+A helyi codec- és a termelési metódusokat fordító host/GUI-átadási regressziók
+sikeresek, és a teljes macOS ARM64 VST3 lefordult, de a teszt-host nem natív DAW.
+A helyi Steinberg-validator konfigurálását a teljes Xcode hiánya megakadályozta
+(Command Line Tools van); nincs helyi validator-siker állítva. A platform-CI,
+a validator és a lenti REAPER-próbák külön kapuk; a hiba még nincs felhasználói
+próbával lezárva.
 
 ## Elvárt működés
 
@@ -64,6 +88,6 @@ alapértelmezés határozza meg.
 - [ ] VST3 bypass és hangállapot változatlan round-trip ellenőrzése.
 - [ ] Natív REAPER-ellenőrzés macOS-en és Windowson.
 
-A feladat a roadmap **presetkoherencia és plugin-életciklus** pontjához
-tartozik. A mostani bejegyzés a hibát és az elfogadási feltételeket rögzíti;
-a CPU-mérési sorrendet és a prémium DSP elfogadási kapuit nem módosítja.
+A feladat a roadmap **GUI-méret és presetkoherencia/plugin-életciklus**
+pontjához tartozik. Az implementáció és a helyi regresszió nem módosítja
+a CPU-mérési sorrendet vagy a prémium DSP elfogadási kapuit.

@@ -331,6 +331,19 @@ if(BUILD_TESTING)
     COMMAND sawstar_state_tests
   )
 
+  add_executable(sawstar_host_gui_state_tests tests/host_gui_state.cpp)
+  target_link_libraries(sawstar_host_gui_state_tests PRIVATE SAWSTAR::Foundation)
+  add_test(NAME host_gui_state_compatibility COMMAND sawstar_host_gui_state_tests)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/gui_scale_hook.py"
+    "${CMAKE_CURRENT_BINARY_DIR}/gui_scale_hooks.inc" COMMAND_ERROR_IS_FATAL ANY)
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    tests/gui_scale_hook.py src/plugin/SAWSTAR.cpp)
+  add_executable(sawstar_gui_scale_handoff_tests tests/gui_scale_handoff.cpp)
+  target_include_directories(sawstar_gui_scale_handoff_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  target_link_libraries(sawstar_gui_scale_handoff_tests PRIVATE SAWSTAR::Foundation Threads::Threads)
+  add_test(NAME gui_scale_host_handoff COMMAND sawstar_gui_scale_handoff_tests)
+
 
   add_executable(
     sawstar_state_roundtrip_tests

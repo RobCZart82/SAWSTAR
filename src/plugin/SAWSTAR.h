@@ -61,9 +61,13 @@ private:
   int mLfoPage = 0; // Editor selection only; both LFOs keep running.
   int mFxPage = 0; // Editor-only effect panel selection.
   float mGuiScale = 0.f; // Instance/editor preference, independent of sound presets.
+  std::atomic<float> mSavedGuiScale{0.f}; // Host state; never read a GUI-only float from the host thread.
+  std::atomic<bool> mGuiScaleRestored{false};
   int mPage = 0; // Editor-only state; never read by the audio callback.
 #if IPLUG_EDITOR
   sawstar::PresetImportJob mPresetImport;
   void SyncRestoredPreset();
+  void SyncRestoredGuiScale();
+  void SaveGuiScale(float scale);
 #endif
 };
