@@ -30,6 +30,10 @@ a main négy fő workflow-ja legyen sikeres a következő merge előtt.
   32/32 grid, két teljes kör, minden nyers hash és percentilis/túllépés ellenőrizve.
   A Saw p50 javult, de p99-romlás és túllépések maradtak; **CPU-elfogadás továbbra nyitott**.
   [Eredmények és korlátok](measurements/mac-target-arm64-2026-10-16.md).
+  A [Windows célgépes kontroll](WINDOWS_TARGET_CONTROL.md) pontosan a Macen mért
+  commitból indul, forrásbyte-előellenőrzéssel; a
+  [natív REAPER-jegyzőkönyv](NATIVE_REAPER_CPU_ACCEPTANCE.md) előkészítve.
+  Ez még nem Windows-/natív mérési eredmény vagy elfogadás.
 - A #106 buildpolicy-/nyersbizonyíték-javítása és a #105 azonos binárisos CI-időzítési
   kontrollja beolvadt. A korábbi piros mérések történeti bizonyítékai megmaradnak.
 

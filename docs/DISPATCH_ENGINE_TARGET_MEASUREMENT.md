@@ -63,6 +63,10 @@ a változatlan lookup referencia és a dispatch jelölt megismétlését segíti
 
 ## Futtatás saját Windows vagy M1 gépen
 
+A már lezárt 2026-10-16-i M1-gyűjtéshez tartozó Windows kontrollhoz a
+[rögzített commitos futtatási útmutatót](WINDOWS_TARGET_CONTROL.md) használd.
+A jelenlegi mainből indított új mérés nem ugyanaz a forráscommit.
+
 Python 3, Git, CMake/CTest és C++17 fordító szükséges (Windows: Visual Studio
 C++ Build Tools és SDK; macOS: Xcode Command Line Tools). A kiválasztott commit
 checkoutja és a rögzített DaisySP submodule legyen tiszta, inicializált.
