@@ -5,6 +5,7 @@
 #include "gui/Controls/DeveloperMark.h"
 #include "config.h"
 #include "BuildVersion.h"
+#include <functional>
 namespace sawstar::gui {
 // Full-editor overlay intercepts clicks and wheel events until OK is pressed.
 class AboutWindow final:public IControl {
@@ -40,15 +41,15 @@ public:
  bool OnKeyDown(float,float,const iplug::IKeyPress& key)override{if(key.VK==27||(key.VK&0x7fff)==13)Close();return true;}
 };
 class SettingsMenu final:public IControl {
- AboutWindow* about_;float& scale_;IPopupMenu menu_;
+ AboutWindow* about_;float& scale_;IPopupMenu menu_;std::function<void(float)> changed_;
 public:
- SettingsMenu(IRECT r,AboutWindow* about,float& scale):IControl(r),about_(about),scale_(scale){menu_.AddItem("GUI Scale: 75%");menu_.AddItem("GUI Scale: 100%");menu_.AddItem("GUI Scale: 125%");menu_.AddSeparator();menu_.AddItem("Updates / Downloads...");menu_.AddSeparator();menu_.AddItem("About SAWSTAR...");SetTooltip("GUI scale / Downloads / About");}
+ SettingsMenu(IRECT r,AboutWindow* about,float& scale,std::function<void(float)> changed={}):IControl(r),about_(about),scale_(scale),changed_(changed){menu_.AddItem("GUI Scale: 75%");menu_.AddItem("GUI Scale: 100%");menu_.AddItem("GUI Scale: 125%");menu_.AddSeparator();menu_.AddItem("Updates / Downloads...");menu_.AddSeparator();menu_.AddItem("About SAWSTAR...");SetTooltip("GUI scale / Downloads / About");}
  void Draw(IGraphics& g)override{
   const float x=mRECT.MW(),y=mRECT.MH();
   for(int i=0;i<8;++i){float a=i*.785398163f;g.DrawLine(Blue,x+std::cos(a)*9,y+std::sin(a)*9,x+std::cos(a)*14,y+std::sin(a)*14,nullptr,4);}
   g.DrawCircle(Blue,x,y,9,nullptr,4);g.FillCircle(PanelColor,x,y,5);
  }
  void OnMouseDown(float,float,const IMouseMod&)override{for(int i=0;i<3;++i)menu_.GetItem(i)->SetChecked(std::abs(scale_-(.75f+i*.25f))<.01f);GetUI()->CreatePopupMenu(*this,menu_,mRECT);}
- void OnPopupMenuSelection(IPopupMenu* menu,int)override{if(!menu)return;int i=menu->GetChosenItemIdx();if(i>=0&&i<3){scale_=.75f+i*.25f;GetUI()->Resize(PLUG_WIDTH,PLUG_HEIGHT,scale_);}else if(i==4)GetUI()->OpenURL("https://github.com/RobCZart82/SAWSTAR/releases");else if(i==6)about_->Open();}
+ void OnPopupMenuSelection(IPopupMenu* menu,int)override{if(!menu)return;int i=menu->GetChosenItemIdx();if(i>=0&&i<3){const float next=.75f+i*.25f;if(next!=scale_){scale_=next;GetUI()->Resize(PLUG_WIDTH,PLUG_HEIGHT,scale_);}if(changed_)changed_(scale_);}else if(i==4)GetUI()->OpenURL("https://github.com/RobCZart82/SAWSTAR/releases");else if(i==6)about_->Open();}
 };
 }

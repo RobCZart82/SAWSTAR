@@ -13,7 +13,7 @@
 #include "gui/Controls/PresetBrowser.h"
 #include <string>
 namespace sawstar::gui {
-inline void BuildLayout(IGraphics* g,float& guiScale,int& page,int& lfoPage,int& fxPage,const int& preset,std::function<void(int)> load,MeterMailbox& meter,const std::atomic<float>& cpu,const std::atomic<int>& rate,const std::atomic<int>& voices,UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply,PresetImportJob& importJob){
+inline void BuildLayout(IGraphics* g,float& guiScale,int& page,int& lfoPage,int& fxPage,const int& preset,std::function<void(int)> load,MeterMailbox& meter,const std::atomic<float>& cpu,const std::atomic<int>& rate,const std::atomic<int>& voices,UserPresetSelection& user,std::function<Snapshot()> current,std::function<void(const Snapshot&)> apply,PresetImportJob& importJob,std::function<void(float)> scaleChanged={}){
  auto* confirm=new ConfirmAction(IRECT(0,0,1280,760));
  g->AttachPanelBackground(IColor(255,17,24,28));g->EnableMouseOver(true);g->SetLayoutOnResize(false);ConfigurePopups(g);g->AttachTextEntryControl();g->LoadFont("Roboto-Regular","Arial",ETextStyle::Normal);g->LoadFont("SAWSTAR-Bold","Arial",ETextStyle::Bold);
  auto text=[&](IRECT r,const char* label,int size,const char* group=""){g->AttachControl(new ITextControl(r,label,IText(size,Text).WithAlign(EAlign::Near)),iplug::kNoTag,group);};
@@ -64,7 +64,7 @@ inline void BuildLayout(IGraphics* g,float& guiScale,int& page,int& lfoPage,int&
  g->AttachControl(new Keyboard(IRECT(115,654,1258,715),36,96,false,IColor(255,202,209,210),IColor(255,19,24,27),Blue,PanelColor,Text));g->AttachControl(new Status(IRECT(20,729,830,750),cpu,rate,voices),9101);
  g->AttachControl(new ITextControl(IRECT(830,729,1260,750),Motto,IText(14,Text).WithFont("SAWSTAR-Bold").WithAlign(EAlign::Far)));
  auto* about=new AboutWindow(IRECT(0,0,1280,760),brandFont);
- g->AttachControl(new SettingsMenu(IRECT(1228,20,1268,60),about,guiScale));
+ g->AttachControl(new SettingsMenu(IRECT(1228,20,1268,60),about,guiScale,scaleChanged));
  g->AttachControl(about);
  g->AttachControl(confirm);
  select(page);

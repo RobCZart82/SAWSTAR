@@ -102,6 +102,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
   MakeDefaultPreset("Init", 1);
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [this]() {
+    SyncRestoredGuiScale();
     if(mGuiScale<=0.f)mGuiScale=GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT);
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS,mGuiScale);
   };
@@ -128,11 +129,26 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
     sawstar::Snapshot current{};
     for(size_t i=0;i<current.size();++i)current[i]=GetParam(static_cast<int>(i))->Value();
     mFactoryIndex=sawstar::MatchFactoryPreset(current);
-    sawstar::gui::BuildLayout(g,mGuiScale,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mMeter,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply,mPresetImport);
+    sawstar::gui::BuildLayout(g,mGuiScale,mPage,mLfoPage,mFxPage,mFactoryIndex,loadFactory,mMeter,mCpu,mRate,mVoiceCount,mUserPreset,snapshot,apply,mPresetImport,[this](float scale){SaveGuiScale(scale);});
   };
 #endif
 }
 #if IPLUG_EDITOR
+void SAWSTAR::SaveGuiScale(float scale) {
+  if(mSavedGuiScale.exchange(scale)==scale)return;
+#if defined(VST3_API)
+  // Non-parameter state change: do not send fake edits for every sound parameter.
+  Steinberg::FUnknownPtr<Steinberg::Vst::IComponentHandler2> handler(GetComponentHandler());
+  if(handler)handler->setDirty(true);
+#endif
+}
+void SAWSTAR::SyncRestoredGuiScale() {
+  // Only called by GUI creation/idle, never by the host's state-loading thread.
+  if(!mGuiScaleRestored.exchange(false))return;
+  const float saved=mSavedGuiScale.load();
+  mGuiScale=saved>0.f?saved:GetScaleForScreen(PLUG_WIDTH,PLUG_HEIGHT);
+  if(auto* g=GetUI())g->Resize(PLUG_WIDTH,PLUG_HEIGHT,mGuiScale);
+}
 void SAWSTAR::SyncRestoredPreset() {
   // Host state callbacks may run away from the GUI thread. Consume only here.
   if(!mStateRestored.exchange(false))return;
@@ -232,6 +248,7 @@ void SAWSTAR::OnMidiMsgFromEditorOverflow() {
 }
 void SAWSTAR::OnIdle() {
 #if IPLUG_EDITOR
+  SyncRestoredGuiScale();
   SyncRestoredPreset();
   if(GetUI())if(auto* browser=dynamic_cast<sawstar::gui::PresetBrowser*>(GetUI()->GetControlWithTag(9102)))browser->PollImport();
   if(GetUI()){if(auto* meter=dynamic_cast<sawstar::gui::Meter*>(GetUI()->GetControlWithTag(9100)))meter->Update(mPage==0);}
@@ -267,19 +284,22 @@ void SAWSTAR::OnIdle() {
 bool SAWSTAR::SerializeState(IByteChunk& chunk) const {
   sawstar::Snapshot values{};
   for (size_t i=0;i<values.size();++i) values[i]=GetParam(static_cast<int>(i))->Value();
-  const auto bytes=sawstar::EncodeState(values);
+  const auto bytes=sawstar::EncodeHostState(values,mSavedGuiScale.load());
   return chunk.PutBytes(bytes.data(), static_cast<int>(bytes.size())) > 0;
 }
 int SAWSTAR::UnserializeState(const IByteChunk& chunk, int startPos) {
   if(startPos<0 || startPos>=chunk.Size() || !chunk.GetData()) return -1;
   sawstar::Snapshot values{};
-  const auto consumed=sawstar::DecodeState(chunk.GetData()+startPos,
-    static_cast<size_t>(chunk.Size()-startPos),values);
+  float guiScale=0.f;
+  const auto consumed=sawstar::DecodeHostState(chunk.GetData()+startPos,
+    static_cast<size_t>(chunk.Size()-startPos),values,guiScale);
   if(!consumed) return -1;
   // Validate the entire payload first, then use framework locking and reset hooks.
   IByteChunk params;
   for(double value:values) if(params.Put(&value)<0) return -1;
   if(UnserializeParams(params,0)<0) return -1;
+  mSavedGuiScale.store(guiScale);
+  mGuiScaleRestored.store(true);
   mArpReset.store(true);
   mStateRestored.store(true);
   return startPos+static_cast<int>(consumed);
