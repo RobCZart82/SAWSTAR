@@ -1,4 +1,4 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-15
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-16
 
 ## Aktuális állapot és publikálási cél
 
@@ -6,9 +6,9 @@ Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Ellenőrzött main: `3c8b31631df28d4f483a67a256360a58cc0e6911` (#103).
+Ellenőrzött main: `2f401939db95c4da51e80d041e8911d0258f3b39` (#105).
 A Windows/macOS build, Code quality és workflow-validálás sikeres.
-#102 és #103 beolvadt; a hátralévő engedélyezett sorrend **#104 → #105**.
+**#102, #103, #104, a javító #106 és #105 beolvadt.** A korábbi merge-sor lezárult.
 Minden új head összes releváns workflow-ját újra ellenőrizzük; merge után
 a main négy fő workflow-ja legyen sikeres a következő merge előtt.
 
@@ -22,16 +22,23 @@ a main négy fő workflow-ja legyen sikeres a következő merge előtt.
   Preview-jának 16 hangos, cutoff-automatizált REAPER-próbájában a Premium
   RMS-szintje 0,44 dB-lel alacsonyabb a Classicnál; ez tudatosan elfogadott,
   további általános hangerőemelés nem szükséges. A részletes bizonyíték a
-  #105 `docs/PREMIUM_PREVIEW_LEVELS.md` dokumentumában szerepel.
+  [hangerő-dokumentumban](PREMIUM_PREVIEW_LEVELS.md) szerepel.
 - A hangkarakter pozitív natív visszajelzést kapott a kipróbált környezetben.
   A CPU-, további mód-/rátaminőségi és végső production-kapuk külön nyitottak.
+
+- **Mac M1 célgépes motoridő-gyűjtés és nyers kiértékelés: kész.** 2026-10-16-án
+  32/32 grid, két teljes kör, minden nyers hash és percentilis/túllépés ellenőrizve.
+  A Saw p50 javult, de p99-romlás és túllépések maradtak; **CPU-elfogadás továbbra nyitott**.
+  [Eredmények és korlátok](measurements/mac-target-arm64-2026-10-16.md).
+- A #106 buildpolicy-/nyersbizonyíték-javítása és a #105 azonos binárisos CI-időzítési
+  kontrollja beolvadt. A korábbi piros mérések történeti bizonyítékai megmaradnak.
 
 ## Elfogadott hátralévő munkasorrend
 
 | Sorrend | Feladat | Befejezési feltétel |
 | --- | --- | --- |
-| 1 | #104, majd #105 soros beolvasztása | Aktuális main szabályos beemelése, az új head minden releváns workflow-ja sikeres, squash merge, majd sikeres main CI. #104 dokumentáció, nem GUI-fix. |
-| 2 | Célgépes CPU-elfogadás | Kódazonos Windows/M1 teljesmotoros mérés és natív REAPER-kontroll; 16 hang, statikus/modulált terhelés, ráták és kis pufferek; p99, időkeret-túllépés és dropout értékelve. Dokumentált elfogadási döntés, nem végtelen optimalizálás. |
+| 1 | Soros beolvasztás — kész | #102/#103/#104/#106/#105 beolvadt, a végső main négy fő workflow-ja sikeres. #104 dokumentáció, nem GUI-fix. |
+| 2 | Célgépes CPU-elfogadás — nyitott | M1 gyűjtés/nyers ellenőrzés kész, p99/túllépés-elfogadás nincs. Következő az azonos forrású Windows célgépes mérés és natív REAPER-kontroll; 16 hang, statikus/modulált terhelés, ráták és kis pufferek; p99, időkeret-túllépés és dropout értékelve. Dokumentált elfogadási döntés, nem végtelen optimalizálás. |
 | 3 | Filterminőség és magasráta-policy | LP12/LP24/HP12/BP12, rezonancia, Drive, moduláció és módváltás; a minőség/költség és támogatott működési tartomány dokumentált elfogadása. |
 | 4 | Premium production-integráció | Elfogadott motor és hangerőkalibráció beépítése; meglévő GUI/ID-k, latency, bypass, state, automatizálás és régi projektbetöltés ellenőrzött. A Classic teljes cseréje a korábbi tulajdonosi döntés szerint. |
 | 5 | GUI-méret host-state javítása | 75/100/125% példányonként mentődik és visszaáll; presetváltás nem írja át, régi state betölthető; macOS/Windows REAPER-próba. |
