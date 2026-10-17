@@ -12,7 +12,14 @@ Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Legutóbb ellenőrzött main (2026-10-17): `f1b559fa6a74f0931bfe748e432c93644cfcce06` (#111).
+Legutóbb ellenőrzött main (2026-10-17): `d434bf03c179afa4d09717ec796bd9eb825d0861` (#112).
+A #112 15 sikeres workflow és 50 job után beolvadt; előtte a #111 utáni
+main négy fő workflow-ja és 11 jobja is sikeres volt. A #112 utáni main
+ellenőrzése külön kapu, nem másoljuk át rá a korábbi eredményt.
+Az aktuális M1 részfeladat a
+[kalibrált Preview Reference/Candidate numerikus kvalifikáció](NATIVE_PREVIEW_PAIR_QUALIFICATION.md).
+Helyben 480/480 eset bitazonos; a külön natív Candidate VST3 még nincs kész,
+a platform-CI és a REAPER-próba még szükséges.
 A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.
 Robert 2026-10-17-én kizárólag erre a diagnosztikai PR-re engedélyezte a korábbi,
 piros main előfeltételének egyszeri feloldását; a GitHub-védelmek megmaradtak.
@@ -25,12 +32,11 @@ A gyermekfolyamat-CPU-idő és a teljes hívás eltelt ideje külön rögzül;
 az importált gyűjtő módosítása az A/A workflow-t is indítja. A friss PR-head
 Windows/macOS kontrolljai sikeresek voltak, az eredeti hibát nem törlik.
 
-A következő mérföldkő előkészítése a
-[ráta-/pufferpolicy](RATE_BUFFER_ACCEPTANCE_POLICY.md) és a
-[teljes, körönként külön célgépes összesítő](measurements/target-rate-readiness-2026-10-17.md).
+A #112-vel elkészült a [ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCEPTANCE_POLICY.md)
+és a [teljes, körönként külön célgépes összesítő](measurements/target-rate-readiness-2026-10-17.md).
 A lezárt 576 cellából generált 36 sor nem indít új mérést és nem jelöl
 működési tartományt elfogadottnak; következő a natív REAPER-bizonyíték.
-**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110 és #111 beolvadt.**
+**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111 és #112 beolvadt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
 A #109 utáni main Code quality első futása 600 másodperces tesztidőtúllépéssel hibás volt;
 a második kísérlet sikeres, az eredeti negatív napló megmarad.

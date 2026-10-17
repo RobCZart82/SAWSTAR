@@ -1,0 +1,88 @@
+name: Calibrated Preview engine pair qualification
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/native-preview-qualification.yml'
+      - 'CMakeLists.txt'
+      - 'cmake/PremiumPreview.cmake'
+      - 'src/**'
+      - 'experiments/premium_filter/**'
+      - 'experiments/oscillator/**'
+      - 'tests/oscillator_dispatch_engine.cpp'
+      - 'third_party/DaisySP'
+      - '.gitmodules'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: calibrated-preview-pair-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  qualify:
+    name: Calibrated Preview pair / ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [windows-2022, macos-14]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Initialize pinned DSP source only
+        run: git submodule update --init third_party/DaisySP
+      - name: Configure engine pair without plugin or host installation
+        run: cmake -S . -B build-pair -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_BUILD_PLUGIN=OFF
+      - name: Build calibrated engines and shared identity fixture
+        run: cmake --build build-pair --config Release --target sawstar_premium_native_pair sawstar_premium_preview_smoke --parallel 2
+      - name: Qualify all four waveforms and preserve exact provenance
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os, subprocess
+          build = Path('build-pair')
+          def binary(name):
+              paths = [p for p in build.rglob(name + '*') if p.is_file() and p.suffix in ('', '.exe')]
+              if len(paths) != 1:
+                  raise RuntimeError('Expected exactly one executable: ' + name)
+              return paths[0].resolve()
+          output = Path('pair-qualification'); output.mkdir(exist_ok=False)
+          pair, smoke = binary('sawstar_premium_native_pair'), binary('sawstar_premium_preview_smoke')
+          manifest = dict(schema=1, state='incomplete',
+              source_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              purpose='calibrated engine numerical qualification, not native host or CPU acceptance',
+              runner=os.environ.get('RUNNER_OS'),
+              executable_sha256=hashlib.sha256(pair.read_bytes()).hexdigest(),
+              native_host_acceptance=False, production_promotion_allowed=False, results=[])
+          def save():
+              (output/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
+          save()
+          try:
+              for name, executable, args in [('smoke', smoke, [])] + [('waveform-'+str(w), pair, ['--waveform', str(w)]) for w in range(4)]:
+                  path = output/(name+'.txt')
+                  with path.open('w', encoding='utf-8') as stream:
+                      result = subprocess.run([str(executable)] + args, stdout=stream, stderr=subprocess.STDOUT)
+                  manifest['results'].append(dict(name=name, returncode=result.returncode,
+                      log_sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
+                  save()
+                  result.check_returncode()
+              manifest['state']='complete'
+          except BaseException as error:
+              manifest['state']='failed'; manifest['error']=str(error)
+              raise
+          finally:
+              save()
+          PY
+      - name: Preserve qualification logs including failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: calibrated-preview-pair-${{ matrix.runner }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: pair-qualification/
+          if-no-files-found: warn
+          retention-days: 90

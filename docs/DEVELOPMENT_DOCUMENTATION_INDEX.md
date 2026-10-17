@@ -31,7 +31,8 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 | CPU-/natív elfogadás | Nyitott. A jobb p50 nem tünteti el a p99-romlásokat/túllépéseket. A valós REAPER-jegyzőkönyv és a támogatási döntés hiányzik. |
 | GUI-scale | Implementált #109; a 75/100/125% natív mentés/újranyitás és példányfüggetlenség elfogadása nyitott. |
 | CI-folyamat | #111 beolvadt 15 sikeres workflow / 50 job után, egyszeri tulajdonosi kivétellel a régi piros mainre. A kivétel nem általánosítható. |
-| Következő fejlesztési csomag | #112: ráta-/pufferösszesítő, release terv, REAPER-mátrix és dokumentációs állapotjavítás. A PR megnyitása nem merge vagy elfogadás. |
+| Dokumentációs mérföldkő | #112 beolvadt, 15 workflow / 50 job és az előző main 4 workflow / 11 job sikeres volt. Az új main CI-je külön kapu. |
+| Következő M1 részfeladat | [Kalibrált Preview-pár numerikus kvalifikáció](NATIVE_PREVIEW_PAIR_QUALIFICATION.md); a külön Candidate VST3-csomag és natív próba még nincs kész. |
 | Release | Native/CPU, minőség/policy, production-integráció, preset/lifecycle, végső RC és külön publikálási engedély még szükséges. |
 
 A CI pillanatképe auditkor a #111 utáni
@@ -40,7 +41,9 @@ A CI pillanatképe auditkor a #111 utáni
 [macOS](https://github.com/RobCZart82/SAWSTAR/actions/runs/39037844306) és
 [workflow lint](https://github.com/RobCZart82/SAWSTAR/actions/runs/39037844286)
 sikeres, [Code quality](https://github.com/RobCZart82/SAWSTAR/actions/runs/39037844321)
-még futott. Ez dátumozott ellenőrzési alap, nem állandó zöld állítás.
+a #112 merge-je előtt szintén sikeres volt. A #112 új mainje
+`d434bf03c179afa4d09717ec796bd9eb825d0861`, annak CI-jét külön kell ellenőrizni.
+Ez dátumozott ellenőrzési alap, nem állandó zöld állítás.
 Új main/head esetén a futásokat újra kell olvasni; függő CI nem tekinthető késznek.
 
 ## Tartós mérési bizonyíték
