@@ -30,6 +30,15 @@ vizsgált instrument szóljon; a másik legyen offline, ne pusztán némítva.
 A két egyidejű instrument külön rendszerterhelési próba lehet.
 A korábban elfogadott 0,44 dB RMS-különbséget nem korrigáljuk újabb globális gainnel.
 
+## A célgépes bizonyíték alapján kijelölt sorrend
+
+A [ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCEPTANCE_POLICY.md) és a
+[36 soros összesítő](measurements/target-rate-readiness-2026-10-17.md) mindkét
+kört és a rosszabb eredményeket is megtartja. Ezek nem kitöltött natív
+jegyzőkönyvek. A 48 kHz / 128, majd /64 sorrend megmarad; a 32 minta és
+96/192 kHz külön kockázati/minőségi kapu. A pluginban ettől nem lép életbe
+új korlátozás vagy automatikus minőségváltás.
+
 ## Első mérési sorozat
 
 1. Rögzített kezdeti tartomány: 48 kHz / 128, majd 48 kHz / 64 minta.
