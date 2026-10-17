@@ -143,6 +143,30 @@ class ArchiveTest(unittest.TestCase):
         self.save()
         with self.assertRaises(ValueError): audit.review(self.folder)
 
+    def test_optional_invocation_timing_retained_without_reclassifying_gate(self):
+        self.populate(current_cpu=4)
+        record = self.recorder.manifest['records'][0]
+        record['invocation_timing'] = dict(wall_seconds=3, child_cpu_available=True,
+            child_user_seconds=1, child_system_seconds=.1)
+        self.save()
+        result = audit.review(self.folder)
+        self.assertTrue(result['regression_detected'])
+        self.assertEqual(result['invocation_diagnostics'][0]['child_user_seconds'], 1)
+        for invalid in (-1, float('nan'), True):
+            record['invocation_timing']['child_user_seconds'] = invalid
+            self.save()
+            with self.assertRaises(ValueError): audit.review(self.folder)
+
+    def test_unavailable_cpu_cannot_be_fabricated_as_zero(self):
+        self.populate()
+        timing = dict(wall_seconds=1, child_cpu_available=False)
+        self.recorder.manifest['records'][0]['invocation_timing'] = timing
+        self.save()
+        self.assertFalse(audit.review(self.folder)['regression_detected'])
+        timing['child_user_seconds'] = 0
+        self.save()
+        with self.assertRaisesRegex(ValueError, 'fabricated'): audit.review(self.folder)
+
     def test_path_escape_rejected(self):
         self.populate()
         self.recorder.manifest['records'][0]['file'] = '../outside.csv'

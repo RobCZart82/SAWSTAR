@@ -11,6 +11,10 @@ Aktuális main: `8ad1b835690ce0486e7bdbaad79551da59737874` (#110).
 és a macOS Universal plugin sikeres; a macOS Release production benchmark
 `dry_fx / 16 voice` jelenete +26,49%-kal túllépte a változatlan CPU-határt.
 [Negatív nyers bizonyíték és diagnózis](AUDIO_BENCHMARK_VALIDATION.md#új-negatív-main-eredmény--2026-10-17).
+A #111 diagnosztikai fejlesztése a régi mérési párok ellenőrzése mellett
+a következő rendes CI-ben külön rögzíti a teljes benchmark-hívás eltelt
+és POSIX gyermekfolyamat-CPU-idejét. A régi main-adatban ez nincs meg;
+nem pótoljuk utólag, és ez nem CPU-javítás vagy elfogadás.
 **#102, #103, #104, a javító #106, #105, #107, #108, #109 és #110 beolvadt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
 A Code quality első main-futása 600 másodperces tesztidőtúllépéssel hibás volt;

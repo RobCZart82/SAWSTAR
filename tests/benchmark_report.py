@@ -9,6 +9,7 @@ import tempfile
 import json
 import hashlib
 import subprocess
+import sys
 spec = importlib.util.spec_from_file_location("benchmark", Path(__file__).resolve().parents[1] / "scripts/benchmark-audio.py")
 benchmark = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(benchmark)
@@ -21,6 +22,69 @@ def full_report(cpu=2):
     )
 
 class ReportTest(unittest.TestCase):
+    def test_real_serial_child_accounting_and_raw_output(self):
+        with tempfile.TemporaryDirectory() as temp:
+            evidence = benchmark.EvidenceRecorder(Path(temp) / 'evidence', {})
+            def child(_):
+                return subprocess.check_output([sys.executable, '-c',
+                    'import sys; sys.stdout.write(' + repr(full_report()) + ')'], text=True)
+            with patch.object(benchmark, 'run', side_effect=child), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                benchmark.collect_reports({'baseline': 'old', 'current': 'new'}, 2, evidence)
+            self.assertEqual(len(evidence.manifest['records']), 6)
+            for record in evidence.manifest['records']:
+                self.assertEqual((evidence.directory / record['file']).read_bytes(), full_report().encode())
+                timing = record['invocation_timing']
+                self.assertGreater(timing['wall_seconds'], 0)
+                if benchmark.resource is not None:
+                    self.assertTrue(timing['child_cpu_available'])
+                    self.assertGreater(timing['child_user_seconds'] + timing['child_system_seconds'], 0)
+                else:
+                    self.assertFalse(timing['child_cpu_available'])
+
+    def test_invocation_cpu_is_child_delta_not_parent_or_scene_cpu(self):
+        with patch.object(benchmark, 'child_cpu_usage', return_value=(102.5, 21.25)), \
+                patch.object(benchmark.time, 'perf_counter', return_value=15):
+            timing = benchmark.invocation_timing(10, (100, 20))
+        self.assertEqual(timing['wall_seconds'], 5)
+        self.assertEqual(timing['child_user_seconds'], 2.5)
+        self.assertEqual(timing['child_system_seconds'], 1.25)
+        self.assertTrue(timing['child_cpu_available'])
+        self.assertIn('not per-scene', timing['scope'])
+
+    def test_windows_missing_child_accounting_is_explicitly_unavailable(self):
+        with patch.object(benchmark, 'resource', None), \
+                patch.object(benchmark.time, 'perf_counter', return_value=15):
+            self.assertIsNone(benchmark.child_cpu_usage())
+            timing = benchmark.invocation_timing(10, None)
+        self.assertFalse(timing['child_cpu_available'])
+        self.assertNotIn('child_user_seconds', timing)
+        self.assertNotIn('child_system_seconds', timing)
+
+    def test_raw_collection_records_timing_without_extra_child_or_changed_csv(self):
+        with tempfile.TemporaryDirectory() as temp:
+            evidence = benchmark.EvidenceRecorder(Path(temp) / 'evidence', {})
+            calls = []
+            def fake_run(binary):
+                calls.append(binary)
+                return full_report()
+            # 18 ordinary child invocations, exactly two resource snapshots
+            # and two parent clock readings each; never an extra control run.
+            usage = [(100 + i, 20 + i * .5) for i in range(36)]
+            with patch.object(benchmark, 'run', side_effect=fake_run), \
+                    patch.object(benchmark, 'child_cpu_usage', side_effect=usage) as accounting, \
+                    patch.object(benchmark.time, 'perf_counter', side_effect=range(36)), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                benchmark.collect_reports({'baseline': 'old', 'current': 'new'}, evidence=evidence)
+            self.assertEqual(len(calls), 18)
+            self.assertEqual(accounting.call_count, 36)
+            for record in evidence.manifest['records']:
+                timing = record['invocation_timing']
+                self.assertEqual(timing['wall_seconds'], 1)
+                self.assertEqual(timing['child_user_seconds'], 1)
+                self.assertEqual(timing['child_system_seconds'], .5)
+                self.assertEqual((evidence.directory / record['file']).read_bytes(), full_report().encode())
+
     def test_baseline_inherits_macos_target_and_architecture_without_shell(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -98,6 +162,7 @@ class ReportTest(unittest.TestCase):
             self.assertEqual(run.call_count, 1)
             record = evidence.manifest["records"][0]
             self.assertEqual(record["returncode"], 7)
+            self.assertIn('invocation_timing', record)
             self.assertEqual((evidence.directory / record["file"]).read_text(), "partial output\n")
             evidence.finish("failed", "test failure")
             manifest = json.loads((evidence.directory / "manifest.json").read_text())

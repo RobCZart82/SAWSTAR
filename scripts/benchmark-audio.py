@@ -13,7 +13,12 @@ import statistics
 import subprocess
 import os
 import tempfile
+import time
 import zipfile
+try:
+    import resource
+except ImportError:  # Windows has no POSIX child resource accounting.
+    resource = None
 
 root = pathlib.Path(__file__).resolve().parents[1]
 base = "0873064487e02b2e1da49b42d0fd12ca83e11ec7"
@@ -48,13 +53,15 @@ class EvidenceRecorder:
         temporary.write_text(json.dumps(self.manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         temporary.replace(self.directory / "manifest.json")
 
-    def record(self, label, phase, repeat, output, returncode=0):
+    def record(self, label, phase, repeat, output, returncode=0, invocation_timing=None):
         name = f"{len(self.manifest['records']):03d}-{label}-{phase}-{repeat}.csv"
         data = output.encode("utf-8")
         with (self.directory / name).open("xb") as stream:
             stream.write(data)
         self.manifest["records"].append(dict(file=name, label=label, phase=phase,
             repeat=repeat, returncode=returncode, sha256=hashlib.sha256(data).hexdigest()))
+        if invocation_timing is not None:
+            self.manifest["records"][-1]["invocation_timing"] = invocation_timing
         self.write_manifest()
 
     def finish(self, status, error=None):
@@ -212,20 +219,49 @@ def check_current_dc(report):
             )
 
 
+def child_cpu_usage():
+    """Cumulative reaped-child CPU, not parent CPU or a DAW percentage."""
+    if resource is None:
+        return None
+    usage = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return usage.ru_utime, usage.ru_stime
+
+
+def invocation_timing(start, before):
+    # collect_reports invokes one child synchronously at a time. No compiler,
+    # parser, evidence write or second benchmark is started inside this span.
+    after = child_cpu_usage()
+    result = dict(wall_seconds=time.perf_counter() - start,
+        scope="whole invocation including startup, six scene warmups and renders; not per-scene timing",
+        child_cpu_available=before is not None and after is not None)
+    if result['child_cpu_available']:
+        result.update(child_user_seconds=after[0] - before[0],
+                      child_system_seconds=after[1] - before[1],
+                      source="POSIX getrusage(RUSAGE_CHILDREN) difference; serial child invocations")
+    else:
+        result['source'] = 'unavailable: POSIX child CPU accounting is not supported'
+    return result
+
+
 def collect_reports(binaries, repeats=REPEATS, evidence=None):
     """Warm both executables, then balance measurement order across pairs."""
     if repeats < 2 or repeats % 2:
         raise ValueError("Use a positive even number of measurement pairs")
     labels = ("baseline", "current")
     def capture(label, phase, repeat):
+        if evidence is not None:
+            before = child_cpu_usage()
+            started = time.perf_counter()
         try:
             output = run(str(binaries[label]))
         except subprocess.CalledProcessError as error:
             if evidence is not None:
-                evidence.record(label, phase, repeat, error.output or "", error.returncode)
+                evidence.record(label, phase, repeat, error.output or "", error.returncode,
+                                invocation_timing(started, before))
             raise
         if evidence is not None:
-            evidence.record(label, phase, repeat, output)
+            evidence.record(label, phase, repeat, output,
+                            invocation_timing=invocation_timing(started, before))
         return output
     # Validate warm-up output too; invalid audio must never be silently ignored.
     for label in labels:

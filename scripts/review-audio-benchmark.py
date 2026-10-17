@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import math
 from pathlib import Path
 import re
 import statistics
@@ -60,6 +61,7 @@ def review(folder):
     require(len(records) == len(schedule), 'Expected both warmups and every timed pair')
     names = {'manifest.json'}
     reports = {'baseline': [], 'current': []}
+    invocation_diagnostics = []
     for index, (record, expected) in enumerate(zip(records, schedule)):
         label, phase, repeat = expected
         require((record['label'], record['phase'], record['repeat']) == expected,
@@ -67,6 +69,22 @@ def review(folder):
         name = f'{index:03d}-{label}-{phase}-{repeat}.csv'
         require(record['file'] == name and record['returncode'] == 0,
                 'Unexpected raw filename or failed executable')
+        timing = record.get('invocation_timing')
+        if timing is not None:
+            require(type(timing['child_cpu_available']) is bool, 'Invalid child CPU availability')
+            fields = ['wall_seconds']
+            if timing['child_cpu_available']:
+                fields.extend(('child_user_seconds', 'child_system_seconds'))
+            else:
+                require('child_user_seconds' not in timing and 'child_system_seconds' not in timing,
+                        'Unavailable child CPU must not contain fabricated CPU values')
+            for field in fields:
+                value = timing[field]
+                require(type(value) in (float, int) and math.isfinite(value) and value >= 0,
+                        'Invalid invocation timing: ' + field)
+            require(timing['wall_seconds'] > 0, 'Non-positive invocation wall time')
+            invocation_diagnostics.append(dict(file=name, label=label, phase=phase,
+                                              repeat=repeat, **timing))
         names.add(name)
         path = folder / name
         require(not path.is_symlink(), 'Raw report symlink is not allowed')
@@ -118,6 +136,7 @@ def review(folder):
         recorded_status=manifest['status'], regression_detected=regression,
         manifest_sha256=hashlib.sha256(raw_manifest).hexdigest(), metadata=metadata,
         recorded_builds=manifest['builds'],
+        invocation_diagnostics=invocation_diagnostics,
         native_host_acceptance=False, production_promotion_allowed=False,
         limitation='Checks internal consistency, not authenticity or executable bytes; exit 0 means audit succeeded, even for a failed benchmark.')
 

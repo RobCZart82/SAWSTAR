@@ -273,3 +273,33 @@ nem igazolják. A benchmark nem az egyedi arányok többségét, hanem a két
 motor nyolc értékből számított külön mediánját hasonlítja: a main +26,49%-os
 hibája érvényben marad. Az új regressziós teszt az eredeti nyolc-nyolc
 értékkel tiltja a páronkénti többségre alapozott utólagos elfogadást.
+
+### Eltelt idő és gyermekfolyamat CPU-ideje
+
+A gyűjtő `--evidence-dir` használatakor minden meglévő benchmark-hívás
+köré két szülőoldali időpontot és POSIX rendszereken két
+`getrusage(RUSAGE_CHILDREN)` pillanatképet tesz. Az `invocation_timing`
+rekordban a teljes hívás eltelt ideje és a gyermek user/system CPU-idejének
+különbsége szerepel. A gyűjtő egy benchmarkot futtat egyszerre; ebben az
+intervallumban nem indít fordítást vagy másik gyermekfolyamatot. A szülő
+parserének és a bizonyíték írásának ideje kívül marad. Sikertelen
+gyermekfolyamat részleges CSV-je, exitkódja és időadata is megmarad.
+
+Ez a teljes folyamat ideje: indulás, mind a hat jelenet inicializálása,
+warmupja és renderelése. **Nem jelenetenkénti CPU-idő**, nem REAPER CPU%,
+és az eltelt idővel való különbsége önmagában nem bizonyít runnerzajt.
+Más gyermekfolyamatot párhuzamosan indító jövőbeli gyűjtőben az összesített
+POSIX különbség nem lenne elkülönített bizonyíték. Windows alatt a POSIX
+adat nem érhető el: `child_cpu_available=false`, a CPU-mezők hiányoznak;
+nem írunk helyettük nullát vagy a szülő Python CPU-idejét.
+
+Az időbélyegek a benchmark-folyamaton kívül készülnek; a C++ workload,
+CSV-formátum, két warmup, nyolc pár, sorrend és küszöb változatlan.
+Az új adat nem módosítja a production döntést és nem enged újrapróbálást.
+Az auditor a régi, időadat nélküli archívumokat is ellenőrzi, az új
+időadatokat külön megőrzi, hibás/nem véges/negatív időt és „nem elérhető”
+állapot mellett kitalált CPU-adatot elutasít.
+
+A korábbi main-artifactban ilyen adat nincs; utólag nem pótoljuk.
+A következő rendes PR-CI adhat új diagnosztikát, a régi hibás main futást
+nem indítjuk újra. CPU-elfogadás és a konkrét hibaok bizonyítása nyitott.
