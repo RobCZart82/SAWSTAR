@@ -6,9 +6,21 @@ Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Kiinduló main: `623a0e4f26f128e13e1691005351a259d3ee81c0` (#109).
-A Windows/macOS build, Code quality és workflow-validálás sikeres.
-**#102, #103, #104, a javító #106, #105, #107, #108 és #109 beolvadt.**
+Aktuális main: `8ad1b835690ce0486e7bdbaad79551da59737874` (#110).
+**A következő merge kapuja blokkolt:** Windows, Code quality, workflow-validálás
+és a macOS Universal plugin sikeres; a macOS Release production benchmark
+`dry_fx / 16 voice` jelenete +26,49%-kal túllépte a változatlan CPU-határt.
+[Negatív nyers bizonyíték és diagnózis](AUDIO_BENCHMARK_VALIDATION.md#új-negatív-main-eredmény--2026-10-17).
+A #111 diagnosztikai fejlesztése a régi mérési párok ellenőrzése mellett
+a következő rendes CI-ben külön rögzíti a teljes benchmark-hívás eltelt
+és POSIX gyermekfolyamat-CPU-idejét. A régi main-adatban ez nincs meg;
+nem pótoljuk utólag, és ez nem CPU-javítás vagy elfogadás.
+A `4aa7af2c` PR-head friss Windows/macOS archívumát ellenőriztük;
+a sikeres macOS teljes hívások CPU-idő/elteltidő aránya 99,35–99,53%,
+a régi main-hiba okát ez nem bizonyítja. A #111 javítja az importált
+gyűjtő hiányzó A/A workflow-triggerét és a kontroll CTest-regisztrációját;
+az új head külön kontrollfutását is ellenőrizni kell.
+**#102, #103, #104, a javító #106, #105, #107, #108, #109 és #110 beolvadt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
 A Code quality első main-futása 600 másodperces tesztidőtúllépéssel hibás volt;
 a második kísérlet sikeres, az eredeti negatív napló megmarad.

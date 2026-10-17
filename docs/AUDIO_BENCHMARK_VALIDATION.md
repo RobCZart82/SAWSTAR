@@ -98,7 +98,8 @@ A `benchmark-audio.py --evidence-dir UJ_KONYVTAR` új, korábban nem létező
 könyvtárba menti mindkét warmup és az összes nyolc mérési pár CSV-kimenetét,
 még a parser/DC ellenőrzése előtt. Sikertelen folyamat részleges stdoutja
 és exitkódja is megmarad; nincs továbblépés vagy automatikus újrapróbálás.
-A fájlok SHA-256 hashét és a tényleges mérési sorrendet `manifest.json`+rögzíti. Meglévő könyvtárat elutasítunk, így egy új próbálkozás nem írja
+A fájlok SHA-256 hashét és a tényleges mérési sorrendet `manifest.json`
+rögzíti. Meglévő könyvtárat elutasítunk, így egy új próbálkozás nem írja
 felül a korábbi bizonyítékot. Megszakított futás `incomplete`, kivételes
 kilépés `failed`, teljes siker `success` állapotú.
 
@@ -204,3 +205,140 @@ platformonként szigorúan sorosak. A siker és hiba egyaránt 90 napos
 artifactba kerül. A normál production benchmark és küszöbei változatlanok.
 A négy új teszt bizonyítja az egyetlen bináris használatát, a fix 18
 hívást, az összes eredmény megőrzését és a hibás kontroll elutasítását.
+
+
+## Új negatív main-eredmény — 2026-10-17
+
+A #110 squash utáni main `8ad1b835690ce0486e7bdbaad79551da59737874`
+[macOS Release futása](https://github.com/RobCZart82/SAWSTAR/actions/runs/39008233417/job/117325007221)
+a `dry_fx / 16 voice` esetben hibázott: baseline 11,1816896%, current
+14,14344585%, +26,4876%; a megengedett határ 13,977112%. A Universal
+plugin-build, Debug és a többi fő workflow sikeres, de a main kapuja nem zöld.
+
+A [PR-futás](https://github.com/RobCZart82/SAWSTAR/actions/runs/39005768567)
+ugyanezen esetben 11,01943125% → 12,2346417% (+11,0279%) eredménnyel
+sikeres volt. A két artifact ZIP-digestje és mind a 36 nyers CSV hash-e
+ellenőrizve; minden hatjelenetes warmup/timed jelentés, a nyolc fordított
+sorrendű pár, a szintek és a production medián/hard-limit újraszámolva.
+A main hibáját a független audit is ugyanúgy visszaadja.
+
+Mindkét futás ugyanazt a baseline-hash-t (`b07e537e...`) és ugyanazt a
+current-hash-t (`e2d492f9...`) rögzíti; ez a korábban dokumentált binárispár.
+A két motor egymással nem azonos. Az eredmény futások közötti szóródást
+bizonyít, nem a baseline/current különbség kizárólagos okát, nem CPU-elfogadást.
+A PR tesztmerge commitja és a main squash commitja külön azonosság;
+a manifestek mindkettőt az eredeti értékekkel őrzik.
+
+[Teljes tartós bizonyíték](measurements/production-ci-variance-2026-10-17.json):
+artifactazonosítók, teljes ZIP-hashok, eredeti manifest-szövegek, compiler/flags,
+18+18 eredeti CSV, és újraszámolt eredmények. Nem csak a kedvező kör marad meg.
+A binárisbyte-ok nincsenek ebben az artifactban: a hashok rögzített azonosságot,
+nem önálló eredethitelesítést jelentenek.
+
+Az új `scripts/review-audio-benchmark.py EVIDENCE_DIR` csak olvas:
+nem fordít, nem mér, nem írja át a fájlokat és nem indít retry-t. Elutasítja
+az átírt hashokat, hiányos párokat, hibás sorrendet/CSV-t, extra fájlokat,
+path-escape-et, módosított küszöböt és a számított döntéssel ellentétes státuszt.
+Exit 0 a nyers bizonyíték konzisztenciáját jelenti: a JSON-ban a hibás
+benchmark továbbra `regression_detected=true`, `recorded_status=failed`.
+Nem alkalmas hiányos, végrehajtási hibával megszakadt kampány sikeresre
+minősítésére. Az eredeti production gate, mérési eljárás és küszöb változatlan.
+
+Nem indult új Mac/Windows célgépes kampány vagy a hibás main újrapróbálása.
+A pontos ok még nyitott; a következő merge/release előtt szabályosan rendezni
+kell a main hibáját. A ráta-/pufferpolicy és a natív REAPER-próba ettől külön
+nyitott, CPU-/native-/production-elfogadás nélkül.
+
+### Futáspáronkénti diagnosztika — új mérés nélkül
+
+Az auditor a nyolc eredeti időzített párt külön is kiírja: ismétlésszám,
+elsőként futó motor, mindkét CPU-adat, relatív eltérés és a változatlan
+CPU-határ páronkénti túllépése. A két motor minimuma/maximuma és a teljes
+tartomány saját mediánhoz viszonyított mérete is megmarad. Ez tartomány,
+nem szórásbecslés, p99 vagy realtime dropout. Nincs körök eldobása.
+
+| dry_fx / 16 voice | PR #110 | main #110 |
+| --- | ---: | ---: |
+| Baseline minimum–maximum (%) | 10,686825–11,6510542 | 10,6453916–15,6788125 |
+| Current minimum–maximum (%) | 11,1737125–13,5829459 | 11,3804542–17,1935 |
+| Baseline tartomány / saját medián | 8,75% | 45,01% |
+| Current tartomány / saját medián | 19,69% | 41,10% |
+| Páronként határt túllépő eset | 1/8 | 2/8 |
+| Eredeti production döntés | sikeres | **hibás** |
+
+A main 1. párjában +41,42%, a 6. párjában +59,88% az eltérés; a két
+kiugrás eltérő futási sorrendben keletkezett. A baseline 4. és 8. köre is
+lassabb volt. Ezek megfigyelések; a runner terhelését vagy a konkrét okot
+nem igazolják. A benchmark nem az egyedi arányok többségét, hanem a két
+motor nyolc értékből számított külön mediánját hasonlítja: a main +26,49%-os
+hibája érvényben marad. Az új regressziós teszt az eredeti nyolc-nyolc
+értékkel tiltja a páronkénti többségre alapozott utólagos elfogadást.
+
+### Eltelt idő és gyermekfolyamat CPU-ideje
+
+A gyűjtő `--evidence-dir` használatakor minden meglévő benchmark-hívás
+köré két szülőoldali időpontot és POSIX rendszereken két
+`getrusage(RUSAGE_CHILDREN)` pillanatképet tesz. Az `invocation_timing`
+rekordban a teljes hívás eltelt ideje és a gyermek user/system CPU-idejének
+különbsége szerepel. A gyűjtő egy benchmarkot futtat egyszerre; ebben az
+intervallumban nem indít fordítást vagy másik gyermekfolyamatot. A szülő
+parserének és a bizonyíték írásának ideje kívül marad. Sikertelen
+gyermekfolyamat részleges CSV-je, exitkódja és időadata is megmarad.
+
+Ez a teljes folyamat ideje: indulás, mind a hat jelenet inicializálása,
+warmupja és renderelése. **Nem jelenetenkénti CPU-idő**, nem REAPER CPU%,
+és az eltelt idővel való különbsége önmagában nem bizonyít runnerzajt.
+Más gyermekfolyamatot párhuzamosan indító jövőbeli gyűjtőben az összesített
+POSIX különbség nem lenne elkülönített bizonyíték. Windows alatt a POSIX
+adat nem érhető el: `child_cpu_available=false`, a CPU-mezők hiányoznak;
+nem írunk helyettük nullát vagy a szülő Python CPU-idejét.
+
+Az időbélyegek a benchmark-folyamaton kívül készülnek; a C++ workload,
+CSV-formátum, két warmup, nyolc pár, sorrend és küszöb változatlan.
+Az új adat nem módosítja a production döntést és nem enged újrapróbálást.
+Az auditor a régi, időadat nélküli archívumokat is ellenőrzi, az új
+időadatokat külön megőrzi, hibás/nem véges/negatív időt és „nem elérhető”
+állapot mellett kitalált CPU-adatot elutasít.
+
+A korábbi main-artifactban ilyen adat nincs; utólag nem pótoljuk.
+A következő rendes PR-CI adhat új diagnosztikát, a régi hibás main futást
+nem indítjuk újra. CPU-elfogadás és a konkrét hibaok bizonyítása nyitott.
+
+### Első CI-adatok és hiányzó kontrollfüggőség — 2026-10-17
+
+A `4aa7af2c` PR-head összesen 14 workflow-ja és 48 checkje sikeres.
+A macOS [futás](https://github.com/RobCZart82/SAWSTAR/actions/runs/39024216746)
+és a Windows [futás](https://github.com/RobCZart82/SAWSTAR/actions/runs/39024216709)
+nyers archívumának ZIP-digestjét, mind a 36 CSV hashét, az összes jelenetet
+és az eredeti döntést az auditor ellenőrizte. A tényleges tesztmerge commit
+`6ca1846730e6640ff3b98a30522a329eb7319093`; ez különbözik a PR-headtől.
+
+| Nyolc időzített teljes hívás összege, macOS | Baseline | Current |
+| --- | ---: | ---: |
+| Eltelt idő (s) | 4,712651498 | 5,019970000 |
+| Gyermek user + system CPU-idő (s) | 4,682108 | 4,996534 |
+| CPU-idő / eltelt idő | 99,3519% | 99,5331% |
+
+Ebben a futásban a teljes hívások eltelt idejének közel egésze számolt
+CPU-idő. Ez nem mutat jelentős összesített várakozást, de a frekvencia,
+cache-versengés vagy jelenetenkénti eltérés okát nem különíti el, és nem
+magyarázza utólag a régi hibás main-futást. A `dry_fx / 16 voice` itt
++15,9772%, a Windows futásban −1,4082%; mindkét eredeti CPU-kapu sikeres.
+Windows alatt mind a 18 rekord helyesen jelöli a gyermek-CPU-adat hiányát.
+Az eredeti binárispár macOS hashai a korábbi main/PR hashokkal egyeznek;
+ez továbbra rögzített azonosság, nem külön binárisbyte-hitelesítés.
+
+[Teljes új bizonyíték](measurements/production-ci-invocation-timing-2026-10-17.json):
+mindkét eredeti manifest, mind a 36 CSV, a pontos CPU-idők, újraszámolt
+eredmények és ZIP-hashok. A régi negatív archívum változatlanul megmarad.
+
+A külön `Production identical-binary timing control` workflow útvonalszűrője
+eddig csak saját wrapperét és tesztjét figyelte, az importált
+`benchmark-audio.py` változását nem. Emiatt az új időadatgyűjtővel nem indult
+el a kontroll. A szűrő most az importált gyűjtőt, benchmarktesztet,
+C++ workloadot, CMake-et, motor/DSP-forrást és a függőség rögzítését is figyeli.
+A négy `audio_timing_control.py` regresszió külön CTestként is regisztrált,
+így az általános tesztfutásból sem marad ki. Az új PR-head emiatt a külön
+Windows/macOS A/A workflow sikerét is megköveteli; az előző 14 zöld nem
+helyettesíti ezt. Ez új kódváltozás normál CI-ellenőrzése, nem a régi
+hibás main újrapróbálása. Az A/A kontroll eredménye sem ad CPU-elfogadást.
