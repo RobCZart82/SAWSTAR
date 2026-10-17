@@ -1,5 +1,10 @@
 # Elfogadott fejlesztési sorrend — állapot: 2026-10-17
 
+**A release-ig vezető részletes végrehajtási terv és a valós REAPER CPU-elfogadás:**
+[NEXT_RELEASE_DEVELOPMENT_PLAN.md](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
+Ez írja le a mérföldköveket, a 28 esetes natív mátrixot, a döntési feltételeket
+és a külön végső RC-kaput. A lenti roadmap tömör állapotkövetés.
+
 ## Aktuális állapot és publikálási cél
 
 Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a

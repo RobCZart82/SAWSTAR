@@ -4,6 +4,12 @@
 A korábbi pozitív hangkarakter-/hangerő-visszajelzés és REAPER CPU-pillanatképek
 megmaradnak, de nem töltik ki automatikusan ezt a jegyzőkönyvet.
 
+Ez a dokumentum a végrehajtási adatlap. A kiadásig vezető sorrendet,
+a teljes C/V/G/F tesztmátrixot és a döntési feltételeket a
+[release fejlesztési terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md) tartalmazza.
+A terv natív tartalékcélja futás előtt rögzítendő javaslat, nem meglévő
+mérési eredmény vagy az offline CPU-küszöb átírása.
+
 ## Mit mérünk?
 
 A cél a tényleges plugin/host működés és hallható kimaradások ellenőrzése.
@@ -43,8 +49,10 @@ jegyzőkönyvek. A 48 kHz / 128, majd /64 sorrend megmarad; a 32 minta és
 
 1. Rögzített kezdeti tartomány: 48 kHz / 128, majd 48 kHz / 64 minta.
    A teszt leírása nem állítja, hogy más tartomány már támogatott/elfogadott.
-2. Azonos MIDI-menettel 1, 8 és 16 hang, statikus és automatizált cutoff;
-   a négy filtermód külön kerüljön sorra. A hangok/release-ek átfedését is jegyezd fel.
+2. A release terv C/V/G/F mátrixa szerint 1/8/16 hang, mind a négy filtermód,
+   statikus és automatizált cutoff, GUI- és FX-kontroll. A 28 kijelölt eset
+   nem minden változó teljes keresztszorzata; az ott megadott fedettséget
+   tartjuk meg. A hangok/release-ek átfedését is jegyezd fel.
 3. Rögzített 10 másodperc bemelegítés után 60 másodperc mérési ablak minden
    esetben; egyszer A→B, egyszer B→A sorrend, mindkét eredmény megtartásával.
 4. GUI nyitva és zárva külön kontroll; végül stop után a teljes tail kifutása
@@ -61,6 +69,23 @@ Az A/B nem általános piaci szintirangsor, a két sorrend sem kedvező eredmén
 keresése. Minden előre kijelölt eset és ismétlés megmarad; hibánál nincs
 automatikus ismétlés. A CPU-méréshez szükséges headroomot mindkét oldalon azonos,
 rögzített beállítással biztosítsd, ne menet közben állíts hangerőt vagy limitert.
+
+## Teszteset-azonosítás és ablakonkénti adatok
+
+A teljes mátrix és időbecslés a release terv 4.3. pontjában található.
+Példa azonosítók: `C-128-LP12-STATIC`, `C-64-BP12-AUTO`,
+`V-128-8-HP12`, `G-64-LP24-OPEN`, `F-128-P1`.
+Minden azonosítóhoz A→B és B→A sorrend, összesen négy külön megfigyelési
+ablak tartozik; a buildazonosság és az ablak kezdete/vége is rögzítendő.
+
+- CPU-átlag/maximum csak ha a mérő biztosítja; egyébként megfigyelt tartomány.
+- RT-adat külön oszlop, az FX CPU%-ból nem számolunk tartalékot.
+- Xrun induló/végérték, vagy `N/A – nem hozzáférhető`; az N/A nem nulla.
+- Hanghiba, clipping, crash és state/GUI-hiba külön, időponttal és bizonyítékkal.
+- Döntés: `PASS`, `nyitott` vagy `blokkolt`, pontos scope-pal és indokkal.
+
+A fő A/B összevetés, a kétpéldányos tartalékpróba és az idle/tail külön
+adatsor. Nincs automatikus újrapróbálás vagy a hibás ablak törlése.
 
 ## Kitöltendő eredménytábla
 

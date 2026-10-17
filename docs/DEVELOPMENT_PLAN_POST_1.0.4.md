@@ -1,5 +1,12 @@
 # SAWSTAR — fejlesztés az 1.0.4 kiadás után
 
+**Aktuális release-végrehajtási terv:**
+[NEXT_RELEASE_DEVELOPMENT_PLAN.md](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
+**Aktuális készültség:** [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md).
+Az alábbi dátumozott bejegyzések fejlesztési előzmények. A bennük szereplő
+„következő”, „nyitott” és korábbi main-azonosítók a bejegyzés idejére
+vonatkoznak; nem kérik a már lezárt M1/Windows mérési kampány újraindítását.
+
 ## Kampány-ellenőrzési hiba és javítás — 2026-10-15
 
 A #102 mindkét teljes platformgyűjtése sikeres, de az összevetés a Windows
