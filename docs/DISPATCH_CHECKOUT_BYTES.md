@@ -1,5 +1,15 @@
 # Dispatch CPU-kampány: Windows/macOS forrásbyte-egyezés
 
+## Javítás lezárása — 2026-10-17-i állapot
+
+A sorvégjavítás beolvadt #102-vel; az új teljes kampány `38735317728`
+mindkét gyűjtője és Linuxos nyers összevetése sikeres volt.
+A #102/#103/#104/#106/#105 sorozat beolvadt. Az alábbi „Következő kapu”
+a javítás előtti történeti követelmény, mára teljesült; nem kér új kampányt.
+A régi hibás kampány és hashai megmaradnak, nincs utólagos normalizálás.
+Aktuális CPU-/natív feladat: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
+
+
 ## Feltárt hiba — 2026-10-15
 
 A #102 `29bfe4a2a2587d3461c70ba3c5aaa4f4a238dd36` headjén a

@@ -1,5 +1,14 @@
 # Lookup motor komponensprofil — 2026-10-08
 
+**Történeti kutatási feljegyzés — státuszfrissítés: 2026-10-17.**
+Az alábbi jelölt-, mérési és „következő” állítások a feljegyzés időpontjára
+vonatkoznak; nem új kampányindítási utasítások. A lezárt M1/Windows gyűjtés
+és nyers összevetés kész, CPU-/natív elfogadás és production-promóció nincs.
+Aktuális sorrend: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md),
+[roadmap](DEVELOPMENT_ROADMAP.md), [dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+A korábbi negatív eredmények és a jelöltek közötti különbségek megmaradnak.
+
+
 A következő CPU-optimalizálás előfeltétele: az aktuális, rátafüggő
 SIMD/reciprok/lookup kutatási motor költségének feltérképezése Windows és
 macOS alatt. Ez offline diagnosztika; nincs production aktiválás vagy natív

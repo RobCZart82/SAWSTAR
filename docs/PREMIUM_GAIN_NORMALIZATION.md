@@ -1,5 +1,14 @@
 # Opt-in Drive normalization candidate
 
+**Történeti kutatási feljegyzés — státuszfrissítés: 2026-10-17.**
+Az alábbi jelölt-, mérési és „következő” állítások a feljegyzés időpontjára
+vonatkoznak; nem új kampányindítási utasítások. A lezárt M1/Windows gyűjtés
+és nyers összevetés kész, CPU-/natív elfogadás és production-promóció nincs.
+Aktuális sorrend: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md),
+[roadmap](DEVELOPMENT_ROADMAP.md), [dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+A korábbi negatív eredmények és a jelöltek közötti különbségek megmaradnak.
+
+
 The next CPU candidate computes `1 / gain` once per stereo host frame and
 multiplies each oversampled nonlinear phase by that reciprocal. The default
 path retains `tanh(gain * x) / gain`. At non-unity gain this removes repeated

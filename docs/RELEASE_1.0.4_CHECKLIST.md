@@ -1,5 +1,12 @@
 # SAWSTAR 1.0.4 — kiadási terv és publikálási eredmény
 
+**Lezárt kiadás történeti jegyzőkönyve.** Az 1.0.4 2026-10-02-án megjelent.
+Az alábbi publikálási sorrend, nyitottként feljegyzett akkori tételek és
+engedélyek az 1.0.4 kiadására vonatkoznak, nem a következő Premium release-re.
+Aktuális [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md) és
+[dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+
+
 Frissítve: 2026-10-02. Ez az 1.0.4 publikálásának közös, végrehajtható terve.
 A táblákban a „nyitott” ténylegesen hátralévő feladat; nem feltételezett hiba.
 Új eredménynél a konkrét buildet és a bizonyítékot kell rögzíteni, majd a státuszt frissíteni.

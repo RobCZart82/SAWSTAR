@@ -1,31 +1,41 @@
 # Elfogadott fejlesztési sorrend — állapot: 2026-10-17
 
+**A release-ig vezető részletes végrehajtási terv és a valós REAPER CPU-elfogadás:**
+[NEXT_RELEASE_DEVELOPMENT_PLAN.md](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
+[Dokumentációs index és aktuális/historikus besorolás](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+Ez írja le a mérföldköveket, a 28 esetes natív mátrixot, a döntési feltételeket
+és a külön végső RC-kaput. A lenti roadmap tömör állapotkövetés.
+
 ## Aktuális állapot és publikálási cél
 
 Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Aktuális main: `8ad1b835690ce0486e7bdbaad79551da59737874` (#110).
-**A következő merge kapuja blokkolt:** Windows, Code quality, workflow-validálás
-és a macOS Universal plugin sikeres; a macOS Release production benchmark
-`dry_fx / 16 voice` jelenete +26,49%-kal túllépte a változatlan CPU-határt.
-[Negatív nyers bizonyíték és diagnózis](AUDIO_BENCHMARK_VALIDATION.md#új-negatív-main-eredmény--2026-10-17).
-A #111 diagnosztikai fejlesztése a régi mérési párok ellenőrzése mellett
-a következő rendes CI-ben külön rögzíti a teljes benchmark-hívás eltelt
-és POSIX gyermekfolyamat-CPU-idejét. A régi main-adatban ez nincs meg;
-nem pótoljuk utólag, és ez nem CPU-javítás vagy elfogadás.
-A `4aa7af2c` PR-head friss Windows/macOS archívumát ellenőriztük;
-a sikeres macOS teljes hívások CPU-idő/elteltidő aránya 99,35–99,53%,
-a régi main-hiba okát ez nem bizonyítja. A #111 javítja az importált
-gyűjtő hiányzó A/A workflow-triggerét és a kontroll CTest-regisztrációját;
-az új head külön kontrollfutását is ellenőrizni kell.
-**#102, #103, #104, a javító #106, #105, #107, #108, #109 és #110 beolvadt.**
+Legutóbb ellenőrzött main (2026-10-17): `f1b559fa6a74f0931bfe748e432c93644cfcce06` (#111).
+A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.
+Robert 2026-10-17-én kizárólag erre a diagnosztikai PR-re engedélyezte a korábbi,
+piros main előfeltételének egyszeri feloldását; a GitHub-védelmek megmaradtak.
+A merge utáni main négy fő workflow-ját külön kell ellenőrizni; az egyszeri
+kivétel nem vihető tovább a következő PR-re. A régi `8ad1b835` main
+`dry_fx / 16 voice` +26,49%-os CPU-hibája megőrzött negatív bizonyíték;
+a #111 nem DSP-gyorsítás és nem CPU-/natív elfogadás.
+[Bizonyíték és diagnózis](AUDIO_BENCHMARK_VALIDATION.md#új-negatív-main-eredmény--2026-10-17).
+A gyermekfolyamat-CPU-idő és a teljes hívás eltelt ideje külön rögzül;
+az importált gyűjtő módosítása az A/A workflow-t is indítja. A friss PR-head
+Windows/macOS kontrolljai sikeresek voltak, az eredeti hibát nem törlik.
+
+A következő mérföldkő előkészítése a
+[ráta-/pufferpolicy](RATE_BUFFER_ACCEPTANCE_POLICY.md) és a
+[teljes, körönként külön célgépes összesítő](measurements/target-rate-readiness-2026-10-17.md).
+A lezárt 576 cellából generált 36 sor nem indít új mérést és nem jelöl
+működési tartományt elfogadottnak; következő a natív REAPER-bizonyíték.
+**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110 és #111 beolvadt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
-A Code quality első main-futása 600 másodperces tesztidőtúllépéssel hibás volt;
+A #109 utáni main Code quality első futása 600 másodperces tesztidőtúllépéssel hibás volt;
 a második kísérlet sikeres, az eredeti negatív napló megmarad.
 [A teljes 480 esetet megtartó tesztfelbontás](DISPATCH_IDENTITY_CI_TIMEOUT.md)
-a jelen fejlesztési fázis része.
+a #110-ben beolvadt javítás; nem nyitott implementációs feladat.
 A jelen fejlesztési fázis külön PR-head-/main-ellenőrzést igényel.
 Minden új head összes releváns workflow-ját újra ellenőrizzük; merge után
 a main négy fő workflow-ja legyen sikeres a következő merge előtt.
@@ -52,7 +62,7 @@ a main négy fő workflow-ja legyen sikeres a következő merge előtt.
   mind a 20 forráshash, 32/32 grid, két kör. Saw p50 mindkét körben javult
   2,8–4,8%-kal, de p99-romlások és sok túllépés maradt; ez nem CPU-elfogadás.
   [Windows eredmény és korlátok](measurements/windows-target-x64-2026-10-16.md).
-  Következő a ráta-/pufferpolicy döntése és a
+  A ráta-/pufferkészenlét összesítése kész; következő a végleges policy döntése és a
   [natív REAPER/dropout-jegyzőkönyv](NATIVE_REAPER_CPU_ACCEPTANCE.md) kitöltése.
   Nem indítunk újra lezárt Mac-/Windows-kampányt kedvező eredményért.
 - A #106 buildpolicy-/nyersbizonyíték-javítása és a #105 azonos binárisos CI-időzítési
@@ -62,7 +72,7 @@ a main négy fő workflow-ja legyen sikeres a következő merge előtt.
 
 | Sorrend | Feladat | Befejezési feltétel |
 | --- | --- | --- |
-| 1 | Soros beolvasztás — kész | #102/#103/#104/#106/#105 beolvadt, a végső main négy fő workflow-ja sikeres. #104 dokumentáció, nem GUI-fix. |
+| 1 | Korábbi #102–#105 PR-sorozat — kész | #102/#103/#104/#106/#105 beolvadt, a végső main négy fő workflow-ja sikeres. #104 dokumentáció, nem GUI-fix. |
 | 2 | Célgépes CPU-elfogadás — nyitott | M1 és Windows azonos forrású gyűjtése, nyers ellenőrzése és összevetése kész, p99/túllépés-elfogadás nincs. Következő a ráta-/pufferpolicy és natív REAPER-kontroll; 16 hang, statikus/modulált terhelés, ráták és kis pufferek; p99, időkeret-túllépés és dropout értékelve. Dokumentált elfogadási döntés, nem végtelen optimalizálás. |
 | 3 | Filterminőség és magasráta-policy | LP12/LP24/HP12/BP12, rezonancia, Drive, moduláció és módváltás; a minőség/költség és támogatott működési tartomány dokumentált elfogadása. |
 | 4 | Premium production-integráció | Elfogadott motor és hangerőkalibráció beépítése; meglévő GUI/ID-k, latency, bypass, state, automatizálás és régi projektbetöltés ellenőrzött. A Classic teljes cseréje a korábbi tulajdonosi döntés szerint. |

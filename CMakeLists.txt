@@ -1520,6 +1520,8 @@ if(BUILD_TESTING)
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/audio_benchmark_archive.py")
   add_test(NAME audio_timing_control
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/audio_timing_control.py")
+  add_test(NAME target_rate_readiness
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/target_rate_readiness.py")
 endif()
 
 if(BUILD_TESTING)

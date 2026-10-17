@@ -1,5 +1,19 @@
 # Teljesmotoros SAW-dispatch célgépes gyűjtés
 
+## Aktuális eredmény és használati korlát — 2026-10-17
+
+A javított #102 teljes hosted kampánya (`38735317728`) és nyers összevetése
+sikeres, #102 beolvadt. Az alábbi CRLF-hiba/javítás és új kampányra utaló
+mondatok a 2026-10-15-i történeti állapotot őrzik.
+A [M1](measurements/mac-target-arm64-2026-10-16.md) és
+[Windows](measurements/windows-target-x64-2026-10-16.md) valódi célgépes
+gyűjtés, nyers ellenőrzés és forrásazonos összevetés szintén kész.
+A 32+32 grid nem indítandó újra kedvezőbb számokért. Az alábbi parancsok
+eszközreferenciák; következő a [natív REAPER-kapu](NATIVE_REAPER_CPU_ACCEPTANCE.md)
+és a [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md), nem új offline kampány.
+CPU-/natív elfogadás és production-promóció továbbra nincs.
+
+
 ## Kampány-ellenőrzési hiba és javítás — 2026-10-15
 
 A #102 mindkét teljes platformgyűjtése sikeres, de az összevetés a Windows

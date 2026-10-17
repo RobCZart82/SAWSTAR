@@ -1,5 +1,15 @@
 # SAWSTAR Premium Preview — ideiglenes macOS tesztplugin
 
+**Fejlesztési állapot — 2026-10-17:** a Preview külön, alapból kikapcsolt;
+a production Classic marad. A hangkarakter és a hangerőkorrekció Robert által
+elfogadott, a megmaradó 0,44 dB RMS-különbség lezárt döntés. A GUI-méret
+host-state javítása implementált, natív visszatöltési elfogadása nyitott.
+A M1/Windows offline gyűjtés és nyers összevetés kész; a formális natív
+CPU-kapu nyitott, a Saw-dispatch nincs ebben a Preview-ban.
+[Release terv és REAPER-mátrix](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
+A lenti 256/512-es gyorsindító puffer óvatos hallásos indulás; nem azonos
+az előre kijelölt 48 kHz /128, majd /64 CPU-elfogadási mátrixszal.
+
 Ez egy külön, kísérleti VST3 hangszer hallásos próbához. Nem végleges kiadás,
 és a CPU-, preset-/projektkompatibilitási és natív host-elfogadása még nyitott.
 A Classic SAWSTAR mellé telepíthető; nem helyettesíti a meglévő példányokat.

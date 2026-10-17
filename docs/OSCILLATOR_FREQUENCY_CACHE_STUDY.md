@@ -1,5 +1,14 @@
 # Oszcillátor-frekvencia cache — kutatási jelölt
 
+**Történeti kutatási feljegyzés — státuszfrissítés: 2026-10-17.**
+Az alábbi jelölt-, mérési és „következő” állítások a feljegyzés időpontjára
+vonatkoznak; nem új kampányindítási utasítások. A lezárt M1/Windows gyűjtés
+és nyers összevetés kész, CPU-/natív elfogadás és production-promóció nincs.
+Aktuális sorrend: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md),
+[roadmap](DEVELOPMENT_ROADMAP.md), [dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+A korábbi negatív eredmények és a jelöltek közötti különbségek megmaradnak.
+
+
 A #86 beolvadt a `645cab8` main-ba, mind a 35 exact-head ellenőrzés
 sikeres. A FIR-kibontás nem hozott igazolt teljesmotoros CPU-nyereséget.
 A komponensprofil szerint az OSC1/OSC2 oszcillátorbank költsége is érdemi,

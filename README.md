@@ -65,9 +65,11 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Magyar PDF](docs/manuals/SAWSTAR-User-Manual-HU.pdf)
 - [Factory library](docs/FACTORY_LIBRARY.md)
 - [Changelog](CHANGELOG.md) and [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md)
-- [1.0.4 publication plan and remaining test gates](docs/RELEASE_1.0.4_CHECKLIST.md)
+- [1.0.4 publication record and historical checklist](docs/RELEASE_1.0.4_CHECKLIST.md)
+- [Development documentation index and current status](docs/DEVELOPMENT_DOCUMENTATION_INDEX.md)
+- [Next release plan and real REAPER CPU acceptance](docs/NEXT_RELEASE_DEVELOPMENT_PLAN.md)
 - [Current development order and open release gates](docs/DEVELOPMENT_ROADMAP.md)
-- [Development log and measurement evidence](docs/DEVELOPMENT_PLAN_POST_1.0.4.md)
+- [Historical development log and measurement evidence](docs/DEVELOPMENT_PLAN_POST_1.0.4.md)
 - [Repository review, 2026-10-09](docs/REPOSITORY_REVIEW_2026_10_09.md)
 - [Repository review and release readiness, 2026-10-02](docs/REPOSITORY_REVIEW_2026_10_02.md)
 

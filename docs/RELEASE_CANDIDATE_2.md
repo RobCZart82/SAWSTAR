@@ -1,5 +1,14 @@
 # 1.0.0 RC2 - presentation and distribution candidate
 
+**Történeti fejlesztési/kiadási feljegyzés.** A lent leírt verzió, RC,
+„következő kiadás” és készültségi adatok az eredeti bejegyzés időpontjára
+vonatkoznak. A jelenlegi nyilvános kiadás 1.0.4; a következő verzió még nincs
+kijelölve. Az itt rögzített korábbi publikálási engedély nem új release-engedély.
+Aktuális dokumentumok: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md),
+[roadmap](DEVELOPMENT_ROADMAP.md), [dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+Az eredeti forrásazonosítók, csomaghashok és eredmények változatlanul megmaradnak.
+
+
 Binary source: `d515c7cdd9e2228da8fd092d8f72912cf1cd89d6`.
 Built 2026-09-11. No public release or v1.0.0 tag is created by this record.
 
