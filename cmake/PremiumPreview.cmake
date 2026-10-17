@@ -42,6 +42,19 @@ foreach(_part IN ITEMS h cpp)
     string(REPLACE "const float scale=outputGain_/16.f;" "const float scale=outputGain_/16.f*previewLevel_.Process(filterMix_);" _preview "${_preview}")
   endif()
   file(WRITE "${_preview_engine}/PremiumPreviewSynth.${_part}" "${_preview}")
+  # Candidate qualification uses the actual calibrated Preview as reference.
+  # Neither this engine nor its pair test is linked into the VST3 target.
+  string(REPLACE "premium_preview_engine" "premium_native_candidate_engine" _candidate "${_preview}")
+  string(REPLACE "PremiumPreviewSynth.h" "PremiumNativeCandidateSynth.h" _candidate "${_candidate}")
+  if(_part STREQUAL "h")
+    string(FIND "${_candidate}" "SevenSaw osc, osc2;" _osc_member)
+    if(_osc_member EQUAL -1)
+      message(FATAL_ERROR "Native candidate cannot locate the two oscillator banks")
+    endif()
+    string(REPLACE "#include \"dsp/SevenSaw.h\"" "#include \"dsp/SevenSaw.h\"\n#include \"SawDispatchSevenSaw.h\"" _candidate "${_candidate}")
+    string(REPLACE "SevenSaw osc, osc2;" "experimental_oscillator::SawDispatchSevenSaw osc, osc2;" _candidate "${_candidate}")
+  endif()
+  file(WRITE "${_preview_engine}/PremiumNativeCandidateSynth.${_part}" "${_candidate}")
   # Measurement-only copy observes the pre-guard peak. Never linked to the VST3.
   string(REPLACE "premium_preview_engine" "premium_preview_meter" _meter "${_preview}")
   string(REPLACE "PremiumPreviewSynth.h" "MeteredPreviewSynth.h" _meter "${_meter}")
@@ -64,6 +77,26 @@ set_target_properties(sawstar_premium_preview_engine PROPERTIES POSITION_INDEPEN
 target_include_directories(sawstar_premium_preview_engine PUBLIC
   "${_preview_engine}" "${PROJECT_SOURCE_DIR}/experiments/premium_filter")
 target_link_libraries(sawstar_premium_preview_engine PUBLIC sawstar_engine)
+add_library(sawstar_premium_native_candidate_engine STATIC EXCLUDE_FROM_ALL
+  "${_preview_engine}/PremiumNativeCandidateSynth.cpp"
+  "${PROJECT_SOURCE_DIR}/experiments/oscillator/SawDispatchSevenSaw.cpp")
+set_target_properties(sawstar_premium_native_candidate_engine PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_include_directories(sawstar_premium_native_candidate_engine PUBLIC
+  "${PROJECT_SOURCE_DIR}/experiments/oscillator")
+target_link_libraries(sawstar_premium_native_candidate_engine PUBLIC sawstar_premium_preview_engine)
+add_executable(sawstar_premium_native_pair tests/oscillator_dispatch_engine.cpp)
+if(NOT BUILD_TESTING)
+  set_target_properties(sawstar_premium_native_pair PROPERTIES EXCLUDE_FROM_ALL TRUE)
+endif()
+target_compile_definitions(sawstar_premium_native_pair PRIVATE SAWSTAR_CALIBRATED_PREVIEW_PAIR=1)
+target_link_libraries(sawstar_premium_native_pair PRIVATE sawstar_premium_native_candidate_engine)
+if(BUILD_TESTING)
+  foreach(_wave RANGE 0 3)
+    add_test(NAME premium_native_pair_waveform_${_wave}
+      COMMAND sawstar_premium_native_pair --waveform ${_wave})
+    set_tests_properties(premium_native_pair_waveform_${_wave} PROPERTIES TIMEOUT 600)
+  endforeach()
+endif()
 # One consistent inline preset-folder definition across the preview build.
 target_compile_definitions(sawstar_foundation PUBLIC SAWSTAR_PREMIUM_PREVIEW=1)
 add_executable(sawstar_premium_preview_smoke tests/premium_preview.cpp)

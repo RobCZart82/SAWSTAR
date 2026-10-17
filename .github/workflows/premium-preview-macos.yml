@@ -7,6 +7,8 @@ on:
       - 'CMakeLists.txt'
       - 'src/**'
       - 'experiments/premium_filter/**'
+      - 'experiments/oscillator/**'
+      - 'tests/oscillator_dispatch_engine.cpp'
       - 'tests/premium_preview.cpp'
       - 'tests/premium_preview_levels.cpp'
       - 'tests/premium_preview_package.py'
@@ -37,7 +39,13 @@ jobs:
       - name: Configure separate Universal preview
         run: cmake -S . -B build-premium -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PREVIEW=ON '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64' -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DIPLUG_DEPLOY_PLUGINS=OFF
       - name: Build preview and engine smoke
-        run: cmake --build build-premium --config Release --target SAWSTARPremiumPreview-vst3 sawstar_premium_preview_smoke sawstar_premium_preview_levels --parallel 3
+        run: cmake --build build-premium --config Release --target SAWSTARPremiumPreview-vst3 sawstar_premium_preview_smoke sawstar_premium_preview_levels sawstar_premium_native_pair --parallel 3
+      - name: Qualify calibrated Preview reference and dispatch candidate on both slices
+        run: |
+          for wave in 0 1 2 3; do
+            build-premium/sawstar_premium_native_pair --waveform "$wave"
+            arch -x86_64 build-premium/sawstar_premium_native_pair --waveform "$wave"
+          done
       - name: Check engine identity, audio and latency on both slices
         run: |
           build-premium/sawstar_premium_preview_smoke

@@ -1,15 +1,25 @@
 // SPDX-License-Identifier: MIT
 // Synth API control timeline only: not VST3 automation or native acceptance.
+#ifdef SAWSTAR_CALIBRATED_PREVIEW_PAIR
+#include "PremiumNativeCandidateSynth.h"
+#include "PremiumPreviewSynth.h"
+#else
 #include "DispatchPremiumSynth.h"
 #include "LookupPremiumSynth.h"
+#endif
 #include <cmath>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#ifdef SAWSTAR_CALIBRATED_PREVIEW_PAIR
+using Reference = sawstar::premium_preview_engine::Synth;
+using Study = sawstar::premium_native_candidate_engine::Synth;
+#else
 using Reference = sawstar::experimental_lookup_engine::Synth;
 using Study = sawstar::experimental_dispatch_engine::Synth;
+#endif
 static_assert(sizeof(Reference)==sizeof(Study), "Dispatch engine adds no state");
 int Waveform = 0;
 void Require(bool ok, const char* why) { if (!ok) throw std::runtime_error(why); }
