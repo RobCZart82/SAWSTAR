@@ -5,6 +5,14 @@ on:
       - '.github/workflows/production-timing-control.yml'
       - 'scripts/control-audio-timing.py'
       - 'tests/audio_timing_control.py'
+      - 'scripts/benchmark-audio.py'
+      - 'tests/benchmark_report.py'
+      - 'tests/audio_benchmark.cpp'
+      - 'CMakeLists.txt'
+      - 'src/engine/**'
+      - 'src/dsp/**'
+      - 'third_party/DaisySP'
+      - '.gitmodules'
   workflow_dispatch:
 permissions:
   contents: read

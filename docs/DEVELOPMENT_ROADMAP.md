@@ -15,6 +15,11 @@ A #111 diagnosztikai fejlesztése a régi mérési párok ellenőrzése mellett
 a következő rendes CI-ben külön rögzíti a teljes benchmark-hívás eltelt
 és POSIX gyermekfolyamat-CPU-idejét. A régi main-adatban ez nincs meg;
 nem pótoljuk utólag, és ez nem CPU-javítás vagy elfogadás.
+A `4aa7af2c` PR-head friss Windows/macOS archívumát ellenőriztük;
+a sikeres macOS teljes hívások CPU-idő/elteltidő aránya 99,35–99,53%,
+a régi main-hiba okát ez nem bizonyítja. A #111 javítja az importált
+gyűjtő hiányzó A/A workflow-triggerét és a kontroll CTest-regisztrációját;
+az új head külön kontrollfutását is ellenőrizni kell.
 **#102, #103, #104, a javító #106, #105, #107, #108, #109 és #110 beolvadt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
 A Code quality első main-futása 600 másodperces tesztidőtúllépéssel hibás volt;

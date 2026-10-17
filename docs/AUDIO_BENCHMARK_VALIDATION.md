@@ -303,3 +303,42 @@ időadatokat külön megőrzi, hibás/nem véges/negatív időt és „nem elér
 A korábbi main-artifactban ilyen adat nincs; utólag nem pótoljuk.
 A következő rendes PR-CI adhat új diagnosztikát, a régi hibás main futást
 nem indítjuk újra. CPU-elfogadás és a konkrét hibaok bizonyítása nyitott.
+
+### Első CI-adatok és hiányzó kontrollfüggőség — 2026-10-17
+
+A `4aa7af2c` PR-head összesen 14 workflow-ja és 48 checkje sikeres.
+A macOS [futás](https://github.com/RobCZart82/SAWSTAR/actions/runs/39024216746)
+és a Windows [futás](https://github.com/RobCZart82/SAWSTAR/actions/runs/39024216709)
+nyers archívumának ZIP-digestjét, mind a 36 CSV hashét, az összes jelenetet
+és az eredeti döntést az auditor ellenőrizte. A tényleges tesztmerge commit
+`6ca1846730e6640ff3b98a30522a329eb7319093`; ez különbözik a PR-headtől.
+
+| Nyolc időzített teljes hívás összege, macOS | Baseline | Current |
+| --- | ---: | ---: |
+| Eltelt idő (s) | 4,712651498 | 5,019970000 |
+| Gyermek user + system CPU-idő (s) | 4,682108 | 4,996534 |
+| CPU-idő / eltelt idő | 99,3519% | 99,5331% |
+
+Ebben a futásban a teljes hívások eltelt idejének közel egésze számolt
+CPU-idő. Ez nem mutat jelentős összesített várakozást, de a frekvencia,
+cache-versengés vagy jelenetenkénti eltérés okát nem különíti el, és nem
+magyarázza utólag a régi hibás main-futást. A `dry_fx / 16 voice` itt
++15,9772%, a Windows futásban −1,4082%; mindkét eredeti CPU-kapu sikeres.
+Windows alatt mind a 18 rekord helyesen jelöli a gyermek-CPU-adat hiányát.
+Az eredeti binárispár macOS hashai a korábbi main/PR hashokkal egyeznek;
+ez továbbra rögzített azonosság, nem külön binárisbyte-hitelesítés.
+
+[Teljes új bizonyíték](measurements/production-ci-invocation-timing-2026-10-17.json):
+mindkét eredeti manifest, mind a 36 CSV, a pontos CPU-idők, újraszámolt
+eredmények és ZIP-hashok. A régi negatív archívum változatlanul megmarad.
+
+A külön `Production identical-binary timing control` workflow útvonalszűrője
+eddig csak saját wrapperét és tesztjét figyelte, az importált
+`benchmark-audio.py` változását nem. Emiatt az új időadatgyűjtővel nem indult
+el a kontroll. A szűrő most az importált gyűjtőt, benchmarktesztet,
+C++ workloadot, CMake-et, motor/DSP-forrást és a függőség rögzítését is figyeli.
+A négy `audio_timing_control.py` regresszió külön CTestként is regisztrált,
+így az általános tesztfutásból sem marad ki. Az új PR-head emiatt a külön
+Windows/macOS A/A workflow sikerét is megköveteli; az előző 14 zöld nem
+helyettesíti ezt. Ez új kódváltozás normál CI-ellenőrzése, nem a régi
+hibás main újrapróbálása. Az A/A kontroll eredménye sem ad CPU-elfogadást.
