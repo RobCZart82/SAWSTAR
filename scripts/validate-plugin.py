@@ -60,7 +60,9 @@ if args.module_info_output:
         raise SystemExit('Refusing to overwrite previous identity evidence')
     subprocess.run([str(tools[0]), '-create', '-version',
                     json.loads((root / 'release.json').read_text())['version'],
-                    '-path', str(bundle), '-output', str(output)], check=True)
+                    # The pinned Win32 Module::create derives name using '/' only.
+                    # Preserve strict package identity checks; pass a portable SDK path.
+                    '-path', bundle.as_posix(), '-output', str(output)], check=True)
     if hashlib.sha256(binary.read_bytes()).hexdigest() != before:
         raise SystemExit('Plugin changed during identity inspection')
     def revision(path):
