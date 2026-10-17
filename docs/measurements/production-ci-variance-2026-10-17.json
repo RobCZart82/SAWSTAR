@@ -207,7 +207,513 @@
         "native_host_acceptance": false,
         "production_promotion_allowed": false,
         "limitation": "Checks internal consistency, not authenticity or executable bytes; exit 0 means audit succeeded, even for a failed benchmark."
-      }
+      },
+      "timing_diagnostics": [
+        {
+          "scene": "dry_fx",
+          "voices": 1,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 0.9169959,
+              "current_cpu": 0.8631042,
+              "cpu_change_pct": -5.876983746601261,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 0.9075333,
+              "current_cpu": 1.1515542,
+              "cpu_change_pct": 26.88836872432121,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 1.1183583,
+              "current_cpu": 0.968675,
+              "cpu_change_pct": -13.384198963784677,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 2.8197584,
+              "current_cpu": 1.0552583,
+              "cpu_change_pct": -62.57628667761039,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 0.9100791,
+              "current_cpu": 1.0651625,
+              "cpu_change_pct": 17.040650642345256,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 1.0070291,
+              "current_cpu": 0.9048541,
+              "cpu_change_pct": -10.146181475788541,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 0.9664625,
+              "current_cpu": 0.98375,
+              "cpu_change_pct": 1.7887398631607487,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 0.8901625,
+              "current_cpu": 0.9442584,
+              "cpu_change_pct": 6.077081431761067,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 0.8901625,
+              "max": 2.8197584,
+              "span_pct_of_median": 204.8992321784224
+            },
+            "current": {
+              "min": 0.8631042,
+              "max": 1.1515542,
+              "span_pct_of_median": 29.547869956592454
+            }
+          },
+          "pair_threshold_exceedances": 0,
+          "replaces_production_gate": false
+        },
+        {
+          "scene": "dry_fx",
+          "voices": 8,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 6.831625,
+              "current_cpu": 5.9878083,
+              "cpu_change_pct": -12.351624979415575,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 5.6121,
+              "current_cpu": 6.62565,
+              "cpu_change_pct": 18.060084460362447,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 6.5098542,
+              "current_cpu": 6.9916625,
+              "cpu_change_pct": 7.401214915074439,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 5.3392583,
+              "current_cpu": 6.2597,
+              "cpu_change_pct": 17.239130386331002,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 5.5785,
+              "current_cpu": 5.8414583,
+              "cpu_change_pct": 4.713781482477364,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 5.7753,
+              "current_cpu": 5.7301042,
+              "cpu_change_pct": -0.7825706023929402,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 6.3749958,
+              "current_cpu": 5.4532333,
+              "cpu_change_pct": -14.459029133791745,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 5.5164542,
+              "current_cpu": 5.8765625,
+              "cpu_change_pct": 6.527894312980975,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 5.3392583,
+              "max": 6.831625,
+              "span_pct_of_median": 26.210841807611917
+            },
+            "current": {
+              "min": 5.4532333,
+              "max": 6.9916625,
+              "span_pct_of_median": 25.933599445492728
+            }
+          },
+          "pair_threshold_exceedances": 0,
+          "replaces_production_gate": false
+        },
+        {
+          "scene": "dry_fx",
+          "voices": 16,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 10.686825,
+              "current_cpu": 13.5829459,
+              "cpu_change_pct": 27.099918825282533,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 10.8064083,
+              "current_cpu": 12.4624,
+              "cpu_change_pct": 15.324163718670537,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 11.6510542,
+              "current_cpu": 11.6717083,
+              "cpu_change_pct": 0.1772723707696766,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 11.2324542,
+              "current_cpu": 12.5640292,
+              "cpu_change_pct": 11.854711145850928,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 10.7906625,
+              "current_cpu": 11.4869625,
+              "cpu_change_pct": 6.452801206598768,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 11.4636167,
+              "current_cpu": 11.1737125,
+              "cpu_change_pct": -2.5289069548181886,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 11.2507333,
+              "current_cpu": 12.4525125,
+              "cpu_change_pct": 10.681785515260579,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 10.7653791,
+              "current_cpu": 12.0167709,
+              "cpu_change_pct": 11.624224176183429,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 10.686825,
+              "max": 11.6510542,
+              "span_pct_of_median": 8.750262859528254
+            },
+            "current": {
+              "min": 11.1737125,
+              "max": 13.5829459,
+              "span_pct_of_median": 19.691899927073464
+            }
+          },
+          "pair_threshold_exceedances": 1,
+          "replaces_production_gate": false
+        },
+        {
+          "scene": "full_fx",
+          "voices": 1,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 1.319075,
+              "current_cpu": 2.1990875,
+              "cpu_change_pct": 66.71436423251143,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 1.5581208,
+              "current_cpu": 1.572575,
+              "cpu_change_pct": 0.9276687661187832,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 1.465225,
+              "current_cpu": 1.3630875,
+              "cpu_change_pct": -6.9707724069682175,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 1.4369417,
+              "current_cpu": 1.5624791,
+              "cpu_change_pct": 8.736429599057494,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 1.348075,
+              "current_cpu": 1.3423333,
+              "cpu_change_pct": -0.42591843925596784,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 1.4498167,
+              "current_cpu": 1.3053375,
+              "cpu_change_pct": -9.965342515367626,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 1.4120458,
+              "current_cpu": 1.4493208,
+              "cpu_change_pct": 2.639786896430696,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 1.2703916,
+              "current_cpu": 1.3922791,
+              "cpu_change_pct": 9.594482520192994,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 1.2703916,
+              "max": 1.5581208,
+              "span_pct_of_median": 20.198698660489036
+            },
+            "current": {
+              "min": 1.3053375,
+              "max": 2.1990875,
+              "span_pct_of_median": 62.90470379028377
+            }
+          },
+          "pair_threshold_exceedances": 0,
+          "replaces_production_gate": false
+        },
+        {
+          "scene": "full_fx",
+          "voices": 8,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 7.3444916,
+              "current_cpu": 10.9865417,
+              "cpu_change_pct": 49.58886602852131,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 7.9229083,
+              "current_cpu": 7.9433917,
+              "cpu_change_pct": 0.2585338517675506,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 8.7066459,
+              "current_cpu": 8.2682166,
+              "cpu_change_pct": -5.0355705863724065,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 7.5881708,
+              "current_cpu": 8.7758375,
+              "cpu_change_pct": 15.65155465398853,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 9.2808833,
+              "current_cpu": 7.5213834,
+              "cpu_change_pct": -18.958323719036517,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 7.5404791,
+              "current_cpu": 7.6130417,
+              "cpu_change_pct": 0.9623075541711934,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 8.0079375,
+              "current_cpu": 7.4103375,
+              "cpu_change_pct": -7.462595705823139,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 7.7816125,
+              "current_cpu": 7.7168042,
+              "cpu_change_pct": -0.8328389520809387,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 7.3444916,
+              "max": 9.2808833,
+              "span_pct_of_median": 24.660309278586837
+            },
+            "current": {
+              "min": 7.4103375,
+              "max": 10.9865417,
+              "span_pct_of_median": 45.67253465839466
+            }
+          },
+          "pair_threshold_exceedances": 1,
+          "replaces_production_gate": false
+        },
+        {
+          "scene": "full_fx",
+          "voices": 16,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 14.8570833,
+              "current_cpu": 18.1076375,
+              "cpu_change_pct": 21.878817896915216,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 14.2547208,
+              "current_cpu": 15.1461792,
+              "cpu_change_pct": 6.253776643594455,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 15.391875,
+              "current_cpu": 16.2789709,
+              "cpu_change_pct": 5.763403743858375,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 14.8164958,
+              "current_cpu": 15.4871916,
+              "cpu_change_pct": 4.526683023120759,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 15.4388292,
+              "current_cpu": 14.8258834,
+              "cpu_change_pct": -3.970157270733976,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 15.0022917,
+              "current_cpu": 15.7048334,
+              "cpu_change_pct": 4.682895880500704,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 16.2996791,
+              "current_cpu": 14.7450542,
+              "cpu_change_pct": -9.537763844688197,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 14.8311792,
+              "current_cpu": 14.1167584,
+              "cpu_change_pct": -4.8170195394847575,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 14.2547208,
+              "max": 16.2996791,
+              "span_pct_of_median": 13.69726124542124
+            },
+            "current": {
+              "min": 14.1167584,
+              "max": 18.1076375,
+              "span_pct_of_median": 26.055762038436846
+            }
+          },
+          "pair_threshold_exceedances": 0,
+          "replaces_production_gate": false
+        }
+      ]
     },
     {
       "label": "main #110 squash",
@@ -410,7 +916,513 @@
         "native_host_acceptance": false,
         "production_promotion_allowed": false,
         "limitation": "Checks internal consistency, not authenticity or executable bytes; exit 0 means audit succeeded, even for a failed benchmark."
-      }
+      },
+      "timing_diagnostics": [
+        {
+          "scene": "dry_fx",
+          "voices": 1,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 1.3259417,
+              "current_cpu": 0.9063958,
+              "cpu_change_pct": -31.641353462222366,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 0.84465,
+              "current_cpu": 0.922075,
+              "cpu_change_pct": 9.166518676374835,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 0.8671166,
+              "current_cpu": 1.05155,
+              "cpu_change_pct": 21.269734658522268,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 1.3142292,
+              "current_cpu": 3.8508084,
+              "cpu_change_pct": 193.00889068664736,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 0.8647834,
+              "current_cpu": 2.1705666,
+              "cpu_change_pct": 150.99540532346018,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 0.8749542,
+              "current_cpu": 0.9267083,
+              "cpu_change_pct": 5.915063897058848,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 0.8695625,
+              "current_cpu": 0.9698,
+              "cpu_change_pct": 11.527348522964132,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 0.9341833,
+              "current_cpu": 0.9474042,
+              "cpu_change_pct": 1.4152361747421516,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 0.84465,
+              "max": 1.3259417,
+              "span_pct_of_median": 55.17765464784602
+            },
+            "current": {
+              "min": 0.9063958,
+              "max": 3.8508084,
+              "span_pct_of_median": 307.156911089596
+            }
+          },
+          "pair_threshold_exceedances": 2,
+          "replaces_production_gate": false
+        },
+        {
+          "scene": "dry_fx",
+          "voices": 8,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 6.08295,
+              "current_cpu": 5.7680208,
+              "cpu_change_pct": -5.177244593494934,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 5.2211292,
+              "current_cpu": 5.9160167,
+              "cpu_change_pct": 13.309142014719733,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 5.3740917,
+              "current_cpu": 5.9686875,
+              "cpu_change_pct": 11.064117123271267,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 8.0253333,
+              "current_cpu": 6.0676542,
+              "cpu_change_pct": -24.3937420019677,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 5.3250917,
+              "current_cpu": 7.2166333,
+              "cpu_change_pct": 35.52129628115137,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 5.4216125,
+              "current_cpu": 5.9517792,
+              "cpu_change_pct": 9.778764159186949,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 5.4943292,
+              "current_cpu": 6.9762291,
+              "cpu_change_pct": 26.97144357494996,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 5.7358334,
+              "current_cpu": 6.0203791,
+              "cpu_change_pct": 4.960843179301566,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 5.2211292,
+              "max": 8.0253333,
+              "span_pct_of_median": 51.37814358242677
+            },
+            "current": {
+              "min": 5.7680208,
+              "max": 7.2166333,
+              "span_pct_of_median": 24.165559310513782
+            }
+          },
+          "pair_threshold_exceedances": 2,
+          "replaces_production_gate": false
+        },
+        {
+          "scene": "dry_fx",
+          "voices": 16,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 11.5395708,
+              "current_cpu": 16.3196875,
+              "cpu_change_pct": 41.42369575825127,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 11.3939709,
+              "current_cpu": 11.3804542,
+              "cpu_change_pct": -0.11863028367045114,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 10.6453916,
+              "current_cpu": 12.3714625,
+              "cpu_change_pct": 16.214254626386882,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 15.6788125,
+              "current_cpu": 16.8464125,
+              "cpu_change_pct": 7.446992557631527,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 10.8907625,
+              "current_cpu": 11.7780583,
+              "cpu_change_pct": 8.147233033499734,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 10.7539667,
+              "current_cpu": 17.1935,
+              "cpu_change_pct": 59.880539708199045,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 10.9694083,
+              "current_cpu": 12.86495,
+              "cpu_change_pct": 17.28025476086983,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 13.5140833,
+              "current_cpu": 15.4219417,
+              "cpu_change_pct": 14.117556904507179,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 10.6453916,
+              "max": 15.6788125,
+              "span_pct_of_median": 45.01485088622027
+            },
+            "current": {
+              "min": 11.3804542,
+              "max": 17.1935,
+              "span_pct_of_median": 41.10063319541044
+            }
+          },
+          "pair_threshold_exceedances": 2,
+          "replaces_production_gate": false
+        },
+        {
+          "scene": "full_fx",
+          "voices": 1,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 1.2907084,
+              "current_cpu": 1.9634625,
+              "cpu_change_pct": 52.12285749438061,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 1.3502458,
+              "current_cpu": 1.4066083,
+              "cpu_change_pct": 4.174239979120853,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 1.2811833,
+              "current_cpu": 1.3559167,
+              "cpu_change_pct": 5.833154397188922,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 1.6741167,
+              "current_cpu": 1.9680333,
+              "cpu_change_pct": 17.556518013349987,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 1.3254792,
+              "current_cpu": 1.3032417,
+              "cpu_change_pct": -1.6776951309382948,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 1.3777209,
+              "current_cpu": 1.3567125,
+              "cpu_change_pct": -1.5248661757254256,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 1.3408708,
+              "current_cpu": 1.3397042,
+              "cpu_change_pct": -0.08700316242251649,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 1.3557917,
+              "current_cpu": 2.084325,
+              "cpu_change_pct": 53.73489895239809,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 1.2811833,
+              "max": 1.6741167,
+              "span_pct_of_median": 29.202257531316185
+            },
+            "current": {
+              "min": 1.3032417,
+              "max": 2.084325,
+              "span_pct_of_median": 56.532220218513906
+            }
+          },
+          "pair_threshold_exceedances": 0,
+          "replaces_production_gate": false
+        },
+        {
+          "scene": "full_fx",
+          "voices": 8,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 8.1143292,
+              "current_cpu": 8.0299917,
+              "cpu_change_pct": -1.039365028473338,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 7.1794709,
+              "current_cpu": 10.8311833,
+              "cpu_change_pct": 50.86325233242466,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 7.2341375,
+              "current_cpu": 7.5702125,
+              "cpu_change_pct": 4.645681672486868,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 7.7239125,
+              "current_cpu": 11.6331167,
+              "cpu_change_pct": 50.61171006274348,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 7.846725,
+              "current_cpu": 7.4672792,
+              "cpu_change_pct": -4.835721909459045,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 10.8461042,
+              "current_cpu": 7.6101458,
+              "cpu_change_pct": -29.83521401168172,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 7.6398167,
+              "current_cpu": 7.850075,
+              "cpu_change_pct": 2.7521380192276235,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 7.4649542,
+              "current_cpu": 10.7920042,
+              "cpu_change_pct": 44.56892716099985,
+              "threshold_exceeded": true
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 7.1794709,
+              "max": 10.8461042,
+              "span_pct_of_median": 47.731032645381426
+            },
+            "current": {
+              "min": 7.4672792,
+              "max": 11.6331167,
+              "span_pct_of_median": 52.466246882955474
+            }
+          },
+          "pair_threshold_exceedances": 3,
+          "replaces_production_gate": false
+        },
+        {
+          "scene": "full_fx",
+          "voices": 16,
+          "pairs": [
+            {
+              "repeat": 1,
+              "first": "baseline",
+              "baseline_cpu": 14.5316667,
+              "current_cpu": 14.6319042,
+              "cpu_change_pct": 0.6897866712012979,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 2,
+              "first": "current",
+              "baseline_cpu": 18.6400542,
+              "current_cpu": 14.9814542,
+              "cpu_change_pct": -19.6276253316903,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 3,
+              "first": "baseline",
+              "baseline_cpu": 17.1282625,
+              "current_cpu": 16.879725,
+              "cpu_change_pct": -1.4510374300954365,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 4,
+              "first": "current",
+              "baseline_cpu": 14.3690125,
+              "current_cpu": 24.96255,
+              "cpu_change_pct": 73.72488192908177,
+              "threshold_exceeded": true
+            },
+            {
+              "repeat": 5,
+              "first": "baseline",
+              "baseline_cpu": 16.5980292,
+              "current_cpu": 14.834725,
+              "cpu_change_pct": -10.623575719459499,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 6,
+              "first": "current",
+              "baseline_cpu": 15.209375,
+              "current_cpu": 14.8316292,
+              "cpu_change_pct": -2.4836378878159038,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 7,
+              "first": "baseline",
+              "baseline_cpu": 14.887725,
+              "current_cpu": 15.3292583,
+              "cpu_change_pct": 2.965754002038601,
+              "threshold_exceeded": false
+            },
+            {
+              "repeat": 8,
+              "first": "current",
+              "baseline_cpu": 18.1739625,
+              "current_cpu": 17.2495584,
+              "cpu_change_pct": -5.086420201428266,
+              "threshold_exceeded": false
+            }
+          ],
+          "variation": {
+            "baseline": {
+              "min": 14.3690125,
+              "max": 18.6400542,
+              "span_pct_of_median": 26.855644510594807
+            },
+            "current": {
+              "min": 14.6319042,
+              "max": 24.96255,
+              "span_pct_of_median": 68.16498160510085
+            }
+          },
+          "pair_threshold_exceedances": 1,
+          "replaces_production_gate": false
+        }
+      ]
     }
   ],
   "same_recorded_baseline_and_current_binary_hashes_across_runs": true

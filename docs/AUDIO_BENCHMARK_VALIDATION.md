@@ -98,7 +98,8 @@ A `benchmark-audio.py --evidence-dir UJ_KONYVTAR` új, korábban nem létező
 könyvtárba menti mindkét warmup és az összes nyolc mérési pár CSV-kimenetét,
 még a parser/DC ellenőrzése előtt. Sikertelen folyamat részleges stdoutja
 és exitkódja is megmarad; nincs továbblépés vagy automatikus újrapróbálás.
-A fájlok SHA-256 hashét és a tényleges mérési sorrendet `manifest.json`+rögzíti. Meglévő könyvtárat elutasítunk, így egy új próbálkozás nem írja
+A fájlok SHA-256 hashét és a tényleges mérési sorrendet `manifest.json`
+rögzíti. Meglévő könyvtárat elutasítunk, így egy új próbálkozás nem írja
 felül a korábbi bizonyítékot. Megszakított futás `incomplete`, kivételes
 kilépés `failed`, teljes siker `success` állapotú.
 
@@ -247,3 +248,28 @@ Nem indult új Mac/Windows célgépes kampány vagy a hibás main újrapróbál�
 A pontos ok még nyitott; a következő merge/release előtt szabályosan rendezni
 kell a main hibáját. A ráta-/pufferpolicy és a natív REAPER-próba ettől külön
 nyitott, CPU-/native-/production-elfogadás nélkül.
+
+### Futáspáronkénti diagnosztika — új mérés nélkül
+
+Az auditor a nyolc eredeti időzített párt külön is kiírja: ismétlésszám,
+elsőként futó motor, mindkét CPU-adat, relatív eltérés és a változatlan
+CPU-határ páronkénti túllépése. A két motor minimuma/maximuma és a teljes
+tartomány saját mediánhoz viszonyított mérete is megmarad. Ez tartomány,
+nem szórásbecslés, p99 vagy realtime dropout. Nincs körök eldobása.
+
+| dry_fx / 16 voice | PR #110 | main #110 |
+| --- | ---: | ---: |
+| Baseline minimum–maximum (%) | 10,686825–11,6510542 | 10,6453916–15,6788125 |
+| Current minimum–maximum (%) | 11,1737125–13,5829459 | 11,3804542–17,1935 |
+| Baseline tartomány / saját medián | 8,75% | 45,01% |
+| Current tartomány / saját medián | 19,69% | 41,10% |
+| Páronként határt túllépő eset | 1/8 | 2/8 |
+| Eredeti production döntés | sikeres | **hibás** |
+
+A main 1. párjában +41,42%, a 6. párjában +59,88% az eltérés; a két
+kiugrás eltérő futási sorrendben keletkezett. A baseline 4. és 8. köre is
+lassabb volt. Ezek megfigyelések; a runner terhelését vagy a konkrét okot
+nem igazolják. A benchmark nem az egyedi arányok többségét, hanem a két
+motor nyolc értékből számított külön mediánját hasonlítja: a main +26,49%-os
+hibája érvényben marad. Az új regressziós teszt az eredeti nyolc-nyolc
+értékkel tiltja a páronkénti többségre alapozott utólagos elfogadást.

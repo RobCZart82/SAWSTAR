@@ -61,6 +61,53 @@ class ArchiveTest(unittest.TestCase):
         self.populate(current_cpu=3)
         self.assertFalse(audit.review(self.folder)['regression_detected'])
 
+    def test_pairs_retain_outlier_and_order_without_replacing_median_gate(self):
+        self.populate()
+        record = self.recorder.manifest['records'][3]
+        path = self.folder / record['file']
+        data = path.read_bytes().replace(b',2,-3,-12,0', b',20,-3,-12,0')
+        path.write_bytes(data)
+        record['sha256'] = hashlib.sha256(data).hexdigest()
+        self.save()
+        result = audit.review(self.folder)
+        self.assertFalse(result['regression_detected'])
+        for row in result['scenes']:
+            timing = row['timing_diagnostics']
+            self.assertEqual(len(timing['pairs']), 8)
+            self.assertEqual([p['repeat'] for p in timing['pairs']], list(range(1, 9)))
+            self.assertEqual([p['first'] for p in timing['pairs']], ['baseline', 'current'] * 4)
+            self.assertEqual(timing['pairs'][0]['current_cpu'], 20)
+            self.assertEqual(timing['pair_threshold_exceedances'], 1)
+            self.assertEqual(timing['variation']['current']['max'], 20)
+            self.assertEqual(timing['variation']['current']['min'], 2)
+            self.assertEqual(timing['variation']['current']['span_pct_of_median'], 900)
+            self.assertFalse(timing['replaces_production_gate'])
+
+    def test_observed_main_failure_cannot_be_accepted_by_pair_majority(self):
+        self.populate()
+        # The preserved main dry_fx/16 data: only two paired ratios exceed
+        # the limit, but the required comparison of medians still fails.
+        values = dict(
+            baseline=[11.5395708, 11.3939709, 10.6453916, 15.6788125,
+                      10.8907625, 10.7539667, 10.9694083, 13.5140833],
+            current=[16.3196875, 11.3804542, 12.3714625, 16.8464125,
+                     11.7780583, 17.1935, 12.86495, 15.4219417])
+        for record in self.recorder.manifest['records']:
+            if record['phase'] != 'timed':
+                continue
+            path = self.folder / record['file']
+            value = values[record['label']][record['repeat'] - 1]
+            data = path.read_bytes().replace(b'dry_fx,16,2,', f'dry_fx,16,{value},'.encode())
+            path.write_bytes(data)
+            record['sha256'] = hashlib.sha256(data).hexdigest()
+        self.recorder.finish('failed')
+        result = audit.review(self.folder)
+        row = next(r for r in result['scenes'] if (r['scene'], r['voices']) == ('dry_fx', 16))
+        self.assertTrue(row['cpu_regression'])
+        self.assertTrue(result['regression_detected'])
+        self.assertAlmostEqual(row['cpu_change_pct'], 26.48756, places=4)
+        self.assertEqual(row['timing_diagnostics']['pair_threshold_exceedances'], 2)
+
     def test_changed_raw_bytes_rejected(self):
         self.populate()
         p = self.folder / self.recorder.manifest['records'][0]['file']

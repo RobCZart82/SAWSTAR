@@ -7,6 +7,7 @@ import importlib.util
 import json
 from pathlib import Path
 import re
+import statistics
 
 spec = importlib.util.spec_from_file_location('production_benchmark',
     Path(__file__).resolve().with_name('benchmark-audio.py'))
@@ -86,10 +87,30 @@ def review(folder):
         limit = max(old * benchmark.CPU_RELATIVE_LIMIT, old + benchmark.CPU_ABSOLUTE_LIMIT)
         peak = current['peak_dbfs'] - baseline['peak_dbfs']
         rms = current['rms_dbfs'] - baseline['rms_dbfs']
+        # Diagnostic only: keep every pair and both execution orders. The
+        # production decision below still compares the two original medians.
+        pairs = []
+        for index in range(benchmark.REPEATS):
+            old_pair, new_pair = (reports[label][index][scene, voices]['realtime_percent']
+                                  for label in ('baseline', 'current'))
+            pairs.append(dict(repeat=index + 1,
+                first='baseline' if index % 2 == 0 else 'current',
+                baseline_cpu=old_pair, current_cpu=new_pair,
+                cpu_change_pct=100 * (new_pair / old_pair - 1),
+                threshold_exceeded=new_pair > max(old_pair * benchmark.CPU_RELATIVE_LIMIT,
+                                                  old_pair + benchmark.CPU_ABSOLUTE_LIMIT)))
+        variation = {}
+        for label in ('baseline', 'current'):
+            values = [row[label + '_cpu'] for row in pairs]
+            variation[label] = dict(min=min(values), max=max(values),
+                span_pct_of_median=100 * (max(values) - min(values)) / statistics.median(values))
         scenes.append(dict(scene=scene, voices=voices, baseline_cpu=old, current_cpu=new,
             cpu_change_pct=100 * (new / old - 1), cpu_limit=limit,
             cpu_regression=new > limit, peak_delta_db=peak, rms_delta_db=rms,
-            level_regression=abs(peak) > benchmark.LEVEL_DB_LIMIT or abs(rms) > benchmark.LEVEL_DB_LIMIT))
+            level_regression=abs(peak) > benchmark.LEVEL_DB_LIMIT or abs(rms) > benchmark.LEVEL_DB_LIMIT,
+            timing_diagnostics=dict(pairs=pairs, variation=variation,
+                pair_threshold_exceedances=sum(row['threshold_exceeded'] for row in pairs),
+                replaces_production_gate=False)))
     regression = any(row['cpu_regression'] or row['level_regression'] for row in scenes)
     require(manifest['status'] == ('failed' if regression else 'success'),
             'Recorded status disagrees with recomputed production gate')
