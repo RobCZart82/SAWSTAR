@@ -2,6 +2,7 @@
 
 **A release-ig vezető részletes végrehajtási terv és a valós REAPER CPU-elfogadás:**
 [NEXT_RELEASE_DEVELOPMENT_PLAN.md](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
+[Dokumentációs index és aktuális/historikus besorolás](DEVELOPMENT_DOCUMENTATION_INDEX.md).
 Ez írja le a mérföldköveket, a 28 esetes natív mátrixot, a döntési feltételeket
 és a külön végső RC-kaput. A lenti roadmap tömör állapotkövetés.
 
@@ -11,7 +12,7 @@ Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Aktuális main: `f1b559fa6a74f0931bfe748e432c93644cfcce06` (#111).
+Legutóbb ellenőrzött main (2026-10-17): `f1b559fa6a74f0931bfe748e432c93644cfcce06` (#111).
 A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.
 Robert 2026-10-17-én kizárólag erre a diagnosztikai PR-re engedélyezte a korábbi,
 piros main előfeltételének egyszeri feloldását; a GitHub-védelmek megmaradtak.
@@ -31,10 +32,10 @@ A lezárt 576 cellából generált 36 sor nem indít új mérést és nem jelöl
 működési tartományt elfogadottnak; következő a natív REAPER-bizonyíték.
 **#102, #103, #104, a javító #106, #105, #107, #108, #109, #110 és #111 beolvadt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
-A Code quality első main-futása 600 másodperces tesztidőtúllépéssel hibás volt;
+A #109 utáni main Code quality első futása 600 másodperces tesztidőtúllépéssel hibás volt;
 a második kísérlet sikeres, az eredeti negatív napló megmarad.
 [A teljes 480 esetet megtartó tesztfelbontás](DISPATCH_IDENTITY_CI_TIMEOUT.md)
-a jelen fejlesztési fázis része.
+a #110-ben beolvadt javítás; nem nyitott implementációs feladat.
 A jelen fejlesztési fázis külön PR-head-/main-ellenőrzést igényel.
 Minden új head összes releváns workflow-ját újra ellenőrizzük; merge után
 a main négy fő workflow-ja legyen sikeres a következő merge előtt.
@@ -71,7 +72,7 @@ a main négy fő workflow-ja legyen sikeres a következő merge előtt.
 
 | Sorrend | Feladat | Befejezési feltétel |
 | --- | --- | --- |
-| 1 | Soros beolvasztás — kész | #102/#103/#104/#106/#105 beolvadt, a végső main négy fő workflow-ja sikeres. #104 dokumentáció, nem GUI-fix. |
+| 1 | Korábbi #102–#105 PR-sorozat — kész | #102/#103/#104/#106/#105 beolvadt, a végső main négy fő workflow-ja sikeres. #104 dokumentáció, nem GUI-fix. |
 | 2 | Célgépes CPU-elfogadás — nyitott | M1 és Windows azonos forrású gyűjtése, nyers ellenőrzése és összevetése kész, p99/túllépés-elfogadás nincs. Következő a ráta-/pufferpolicy és natív REAPER-kontroll; 16 hang, statikus/modulált terhelés, ráták és kis pufferek; p99, időkeret-túllépés és dropout értékelve. Dokumentált elfogadási döntés, nem végtelen optimalizálás. |
 | 3 | Filterminőség és magasráta-policy | LP12/LP24/HP12/BP12, rezonancia, Drive, moduláció és módváltás; a minőség/költség és támogatott működési tartomány dokumentált elfogadása. |
 | 4 | Premium production-integráció | Elfogadott motor és hangerőkalibráció beépítése; meglévő GUI/ID-k, latency, bypass, state, automatizálás és régi projektbetöltés ellenőrzött. A Classic teljes cseréje a korábbi tulajdonosi döntés szerint. |

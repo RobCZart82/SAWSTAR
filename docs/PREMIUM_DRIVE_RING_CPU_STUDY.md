@@ -1,5 +1,14 @@
 # Capacity-only Drive CPU study
 
+**Történeti kutatási feljegyzés — státuszfrissítés: 2026-10-17.**
+Az alábbi jelölt-, mérési és „következő” állítások a feljegyzés időpontjára
+vonatkoznak; nem új kampányindítási utasítások. A lezárt M1/Windows gyűjtés
+és nyers összevetés kész, CPU-/natív elfogadás és production-promóció nincs.
+Aktuális sorrend: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md),
+[roadmap](DEVELOPMENT_ROADMAP.md), [dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+A korábbi negatív eredmények és a jelöltek közötti különbségek megmaradnak.
+
+
 The [storage reduction](PREMIUM_DRIVE_RING_STORAGE.md) in #75 is merged as
 `1e99508dc0564dbd84190b7fe7c41beff6e9fb68`, with every PR check successful.
 It proves a 4,096-byte saving per stereo 2x Drive. This study asks whether that

@@ -1,5 +1,12 @@
 # Oszcillátormérés saját célgépen
 
+**Eszközreferencia; aktuális állapot: 2026-10-17.** Az izolált cache/shared/
+dispatch mérések az alábbi korábbi kutatási lépésekhez tartoznak. A teljesmotoros
+M1/Windows célgépes pár már elkészült; nem ismételjük kedvezőbb számokért.
+Következő a [natív elfogadás és release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
+Az alábbi „először”/„következő” mondatok az eredeti kutatási sorrendet őrzik.
+
+
 A `scripts/run-oscillator-target.py` ugyanazon tiszta commitból készít friss
 Release buildet, futtatja a SevenSaw, a megosztott frekvenciaszámítás és a
 riport numerikus ellenőrzéseit, majd külön referencia- és jelöltkampányokat

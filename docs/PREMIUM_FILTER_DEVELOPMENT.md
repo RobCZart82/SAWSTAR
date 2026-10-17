@@ -1,5 +1,22 @@
 # SAWSTAR prémium filter fejlesztése
 
+## Aktuális állapot — 2026-10-17
+
+Production továbbra **Classic**; a külön Premium Preview alapból kikapcsolt.
+A későbbi teljes filtercsere célja megmarad, de nem történt meg productionben.
+Robert a Premium hangkarakterét és a korrigált hangerőt elfogadta; a megmaradó
+0,44 dB RMS-különbség marad, nincs új globális gain-feladat.
+A két célgépes offline kampány és nyers ellenőrzése kész; a p99/túllépések miatt
+CPU-/natív elfogadás nyitott. A Saw-dispatch jelölt nincs a mostani Preview-ban.
+A GUI-scale fix implementált, natív visszatöltési elfogadása nyitott.
+
+A végrehajtandó sorrend és valós REAPER CPU-terv a
+[release tervben](NEXT_RELEASE_DEVELOPMENT_PLAN.md), a készültség a
+[roadmapben](DEVELOPMENT_ROADMAP.md) található.
+Az alábbi 2026-10-04-től vezetett kutatási napló korábbi döntési pontokat őriz;
+„következő” és „frissítve” állításai nem a mai feladatlistát jelentik.
+
+
 Frissítve: 2026-10-04. Kutatási kiindulás: a kiadott 1.0.4 filter és a `71a4855` main.
 A cél határozottabb cutoff-karakter, zeneileg használható rezonancia, tiszta
 moduláció és jó minőségű Drive. A „prémium” hallásos elfogadási cél, nem a

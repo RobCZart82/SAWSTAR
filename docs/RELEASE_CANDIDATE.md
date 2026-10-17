@@ -1,5 +1,14 @@
 # 1.0.0 RC1 package record
 
+**Történeti fejlesztési/kiadási feljegyzés.** A lent leírt verzió, RC,
+„következő kiadás” és készültségi adatok az eredeti bejegyzés időpontjára
+vonatkoznak. A jelenlegi nyilvános kiadás 1.0.4; a következő verzió még nincs
+kijelölve. Az itt rögzített korábbi publikálási engedély nem új release-engedély.
+Aktuális dokumentumok: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md),
+[roadmap](DEVELOPMENT_ROADMAP.md), [dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+Az eredeti forrásazonosítók, csomaghashok és eredmények változatlanul megmaradnak.
+
+
 Candidate source: `c84be79f96877de3b565dd543be14b484f426936`.
 Prepared 2026-09-11. No v1.0.0 tag or public GitHub Release was created.
 The binaries identify themselves as **1.0.0 Pre Release** and show a Build date.

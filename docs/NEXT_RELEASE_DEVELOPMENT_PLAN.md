@@ -4,6 +4,10 @@ Terv dátuma: **2026-10-17**. Tulajdonos és zenei elfogadó: Robert.
 A kiinduló nyilvános verzió 1.0.4; az új verziószám és kiadási dátum még nincs kijelölve.
 A végrehajtási terv nem jelent release-, tag- vagy publikálási engedélyt.
 
+[Dokumentációs index és karbantartási rend](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+A kiinduló PR/main-azonosítók dátumozott ellenőrzési alapok; a mindenkori
+CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
+
 ## 1. Kiinduló állapot
 
 - A #102–#111 fejlesztési sorozat beolvadt, a javító #106-tal együtt.

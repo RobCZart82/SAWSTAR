@@ -1,5 +1,14 @@
 # RC2 to 1.0.0 distribution plan
 
+**Történeti fejlesztési/kiadási feljegyzés.** A lent leírt verzió, RC,
+„következő kiadás” és készültségi adatok az eredeti bejegyzés időpontjára
+vonatkoznak. A jelenlegi nyilvános kiadás 1.0.4; a következő verzió még nincs
+kijelölve. Az itt rögzített korábbi publikálási engedély nem új release-engedély.
+Aktuális dokumentumok: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md),
+[roadmap](DEVELOPMENT_ROADMAP.md), [dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+Az eredeti forrásazonosítók, csomaghashok és eredmények változatlanul megmaradnak.
+
+
 ## Implemented for candidate validation
 
 - Header spacing and centered developer credit.

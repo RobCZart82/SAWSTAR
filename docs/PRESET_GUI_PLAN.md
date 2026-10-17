@@ -1,5 +1,14 @@
 # Preset reliability and GUI completion plan
 
+**Történeti fejlesztési/kiadási feljegyzés.** A lent leírt verzió, RC,
+„következő kiadás” és készültségi adatok az eredeti bejegyzés időpontjára
+vonatkoznak. A jelenlegi nyilvános kiadás 1.0.4; a következő verzió még nincs
+kijelölve. Az itt rögzített korábbi publikálási engedély nem új release-engedély.
+Aktuális dokumentumok: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md),
+[roadmap](DEVELOPMENT_ROADMAP.md), [dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+Az eredeti forrásazonosítók, csomaghashok és eredmények változatlanul megmaradnak.
+
+
 The consolidated remaining work and approved version/date display are in
 [FIRST_RELEASE_PLAN.md](FIRST_RELEASE_PLAN.md).
 

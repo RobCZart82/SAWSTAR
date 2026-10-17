@@ -1,5 +1,14 @@
 # Opt-in lookup saturation qualification
 
+**Történeti kutatási feljegyzés — státuszfrissítés: 2026-10-17.**
+Az alábbi jelölt-, mérési és „következő” állítások a feljegyzés időpontjára
+vonatkoznak; nem új kampányindítási utasítások. A lezárt M1/Windows gyűjtés
+és nyers összevetés kész, CPU-/natív elfogadás és production-promóció nincs.
+Aktuális sorrend: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md),
+[roadmap](DEVELOPMENT_ROADMAP.md), [dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+A korábbi negatív eredmények és a jelöltek közötti különbségek megmaradnak.
+
+
 The earlier component measurements identify Drive/FIR/nonlinearity as a larger
 isolated cost than the linear filter. This candidate changes only the tanh
 evaluation. `FixedRatePremiumDrive` has a sixth, default-false `Lookup` argument;

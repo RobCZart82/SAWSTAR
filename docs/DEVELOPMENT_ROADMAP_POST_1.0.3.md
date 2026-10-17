@@ -1,5 +1,14 @@
 # SAWSTAR — összevont fejlesztési terv a v1.0.3 után
 
+**Történeti fejlesztési/kiadási feljegyzés.** A lent leírt verzió, RC,
+„következő kiadás” és készültségi adatok az eredeti bejegyzés időpontjára
+vonatkoznak. A jelenlegi nyilvános kiadás 1.0.4; a következő verzió még nincs
+kijelölve. Az itt rögzített korábbi publikálási engedély nem új release-engedély.
+Aktuális dokumentumok: [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md),
+[roadmap](DEVELOPMENT_ROADMAP.md), [dokumentációs index](DEVELOPMENT_DOCUMENTATION_INDEX.md).
+Az eredeti forrásazonosítók, csomaghashok és eredmények változatlanul megmaradnak.
+
+
 **Aktuális fejlesztési terv:** [Az 1.0.4 kiadásáig és utána](DEVELOPMENT_PLAN_POST_1.0.4.md).
 **Publikálási kapuk és natív tesztek:** [1.0.4 checklist](RELEASE_1.0.4_CHECKLIST.md).
 **Legutóbbi ellenőrzés:** [2026-10-02-i jelentés](REPOSITORY_REVIEW_2026_10_02.md),
