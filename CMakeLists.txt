@@ -1027,7 +1027,19 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     target_link_libraries(sawstar_premium_dispatch_probe PUBLIC sawstar_premium_lookup_probe sawstar_oscillator_dispatch_probe)
     add_executable(sawstar_dispatch_engine_tests tests/oscillator_dispatch_engine.cpp)
     target_link_libraries(sawstar_dispatch_engine_tests PRIVATE sawstar_premium_dispatch_probe)
-    add_test(NAME oscillator_dispatch_engine_identity COMMAND sawstar_dispatch_engine_tests)
+    # Preserve all 480 cases, splitting the instrumented workload across four
+    # CTests with the existing 600-second CI limit. The binary without arguments still runs
+    # the complete grid for existing callers and archived qualifications.
+    foreach(wave RANGE 0 3)
+      add_test(NAME oscillator_dispatch_engine_identity_waveform_${wave}
+        COMMAND sawstar_dispatch_engine_tests --waveform ${wave})
+    endforeach()
+    foreach(invalid_wave IN ITEMS -1 4 1x)
+      add_test(NAME oscillator_dispatch_engine_reject_${invalid_wave}
+        COMMAND sawstar_dispatch_engine_tests --waveform ${invalid_wave})
+      set_tests_properties(oscillator_dispatch_engine_reject_${invalid_wave}
+        PROPERTIES WILL_FAIL TRUE)
+    endforeach()
     add_executable(sawstar_dispatch_engine_deadline experiments/oscillator/benchmark_dispatch_engine.cpp)
     target_link_libraries(sawstar_dispatch_engine_deadline PRIVATE sawstar_premium_dispatch_probe)
     add_test(NAME oscillator_dispatch_engine_deadline_fixture COMMAND sawstar_dispatch_engine_deadline)

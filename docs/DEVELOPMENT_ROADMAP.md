@@ -1,4 +1,4 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-16
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-17
 
 ## Aktuális állapot és publikálási cél
 
@@ -6,9 +6,15 @@ Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Ellenőrzött main: `2f401939db95c4da51e80d041e8911d0258f3b39` (#105).
+Kiinduló main: `623a0e4f26f128e13e1691005351a259d3ee81c0` (#109).
 A Windows/macOS build, Code quality és workflow-validálás sikeres.
-**#102, #103, #104, a javító #106 és #105 beolvadt.** A korábbi merge-sor lezárult.
+**#102, #103, #104, a javító #106, #105, #107, #108 és #109 beolvadt.**
+A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
+A Code quality első main-futása 600 másodperces tesztidőtúllépéssel hibás volt;
+a második kísérlet sikeres, az eredeti negatív napló megmarad.
+[A teljes 480 esetet megtartó tesztfelbontás](DISPATCH_IDENTITY_CI_TIMEOUT.md)
+a jelen fejlesztési fázis része.
+A jelen fejlesztési fázis külön PR-head-/main-ellenőrzést igényel.
 Minden új head összes releváns workflow-ját újra ellenőrizzük; merge után
 a main négy fő workflow-ja legyen sikeres a következő merge előtt.
 
@@ -30,10 +36,13 @@ a main négy fő workflow-ja legyen sikeres a következő merge előtt.
   32/32 grid, két teljes kör, minden nyers hash és percentilis/túllépés ellenőrizve.
   A Saw p50 javult, de p99-romlás és túllépések maradtak; **CPU-elfogadás továbbra nyitott**.
   [Eredmények és korlátok](measurements/mac-target-arm64-2026-10-16.md).
-  A [Windows célgépes kontroll](WINDOWS_TARGET_CONTROL.md) pontosan a Macen mért
-  commitból indul, forrásbyte-előellenőrzéssel; a
-  [natív REAPER-jegyzőkönyv](NATIVE_REAPER_CPU_ACCEPTANCE.md) előkészítve.
-  Ez még nem Windows-/natív mérési eredmény vagy elfogadás.
+  **Windows x64 gyűjtés és nyers/Mac-összevetés is kész:** ugyanaz a commit és
+  mind a 20 forráshash, 32/32 grid, két kör. Saw p50 mindkét körben javult
+  2,8–4,8%-kal, de p99-romlások és sok túllépés maradt; ez nem CPU-elfogadás.
+  [Windows eredmény és korlátok](measurements/windows-target-x64-2026-10-16.md).
+  Következő a ráta-/pufferpolicy döntése és a
+  [natív REAPER/dropout-jegyzőkönyv](NATIVE_REAPER_CPU_ACCEPTANCE.md) kitöltése.
+  Nem indítunk újra lezárt Mac-/Windows-kampányt kedvező eredményért.
 - A #106 buildpolicy-/nyersbizonyíték-javítása és a #105 azonos binárisos CI-időzítési
   kontrollja beolvadt. A korábbi piros mérések történeti bizonyítékai megmaradnak.
 
@@ -42,7 +51,7 @@ a main négy fő workflow-ja legyen sikeres a következő merge előtt.
 | Sorrend | Feladat | Befejezési feltétel |
 | --- | --- | --- |
 | 1 | Soros beolvasztás — kész | #102/#103/#104/#106/#105 beolvadt, a végső main négy fő workflow-ja sikeres. #104 dokumentáció, nem GUI-fix. |
-| 2 | Célgépes CPU-elfogadás — nyitott | M1 gyűjtés/nyers ellenőrzés kész, p99/túllépés-elfogadás nincs. Következő az azonos forrású Windows célgépes mérés és natív REAPER-kontroll; 16 hang, statikus/modulált terhelés, ráták és kis pufferek; p99, időkeret-túllépés és dropout értékelve. Dokumentált elfogadási döntés, nem végtelen optimalizálás. |
+| 2 | Célgépes CPU-elfogadás — nyitott | M1 és Windows azonos forrású gyűjtése, nyers ellenőrzése és összevetése kész, p99/túllépés-elfogadás nincs. Következő a ráta-/pufferpolicy és natív REAPER-kontroll; 16 hang, statikus/modulált terhelés, ráták és kis pufferek; p99, időkeret-túllépés és dropout értékelve. Dokumentált elfogadási döntés, nem végtelen optimalizálás. |
 | 3 | Filterminőség és magasráta-policy | LP12/LP24/HP12/BP12, rezonancia, Drive, moduláció és módváltás; a minőség/költség és támogatott működési tartomány dokumentált elfogadása. |
 | 4 | Premium production-integráció | Elfogadott motor és hangerőkalibráció beépítése; meglévő GUI/ID-k, latency, bypass, state, automatizálás és régi projektbetöltés ellenőrzött. A Classic teljes cseréje a korábbi tulajdonosi döntés szerint. |
 | 5 | GUI-méret host-state javítása — implementálva, natív próba nyitott | 75/100/125% külön editorrekordban, hangszínformátum változatlan; codec/host-átadási regresszió kész. Még szükséges a macOS/Windows REAPER-próba, példányfüggetlenség, presetváltás és projektmentési jelzés natív ellenőrzése. |
@@ -58,7 +67,7 @@ kutatást nem nyitjuk újra.
 
 ## GUI/state feladat
 
-A DAW-projekt újranyitásakor a 75%-os GUI alapméretre áll vissza.
+A jelentett hiba a DAW-projekt újranyitásakor a 75%-os GUI alapméretre visszaállása volt.
 A javítás implementálva és helyi codec/host-átadási regresszióval ellenőrizve;
 a natív Windows/macOS REAPER-elfogadás még nyitott.
 [Hibaleírás és elfogadási feltételek](GUI_SCALE_PROJECT_STATE.md).

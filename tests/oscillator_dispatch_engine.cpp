@@ -72,8 +72,16 @@ template<class S> void Event(S& s, int n, int filter, int voice) {
   }
   if (n == 3584) s.Midi(0x80, 60, 0);
 }
-int main() {
+int main(int argc, char** argv) {
   try {
+    int firstWave = 0, endWave = 4;
+    if (argc != 1) {
+      Require(argc == 3 && std::strcmp(argv[1], "--waveform") == 0,
+              "Usage: oscillator_dispatch_engine [--waveform 0|1|2|3]");
+      Require(std::strlen(argv[2]) == 1 && argv[2][0] >= '0' && argv[2][0] <= '3',
+              "Waveform must be exactly 0, 1, 2 or 3");
+      firstWave = argv[2][0] - '0'; endWave = firstWave + 1;
+    }
     // The bit identity guard must reject a deliberately altered signal.
     bool rejected = false;
     try {
@@ -82,7 +90,7 @@ int main() {
     Require(rejected, "Engine comparison accepted altered audio");
     int cases = 0;
     std::cout << std::setprecision(17) << "waveform,rate,filter_mode,voice_mode,fx,output_peak_error,output_relative_rms,prefx_peak_error,prefx_relative_rms\n";
-    for (Waveform=0; Waveform<4; ++Waveform) for (double rate : {48000., 96000., 176400., 192000., 384000.})
+    for (Waveform=firstWave; Waveform<endWave; ++Waveform) for (double rate : {48000., 96000., 176400., 192000., 384000.})
       for (int filter = 0; filter < 4; ++filter) for (int voice = 0; voice < 3; ++voice)
         for (bool fx : {false, true}) {
           auto a = std::make_unique<Reference>(); auto b = std::make_unique<Study>();
@@ -113,7 +121,7 @@ int main() {
           }
           ++cases;
         }
-    Require(cases == 480, "Incomplete engine grid");
+    Require(cases == 120 * (endWave - firstWave), "Incomplete engine grid");
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
 

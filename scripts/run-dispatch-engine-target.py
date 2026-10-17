@@ -67,7 +67,7 @@ def collect(build, output, rounds=2, cmake='cmake', ctest='ctest'):
         command([cmake, '--build', build, '--config', 'Release', '--parallel', '2',
                  '--target', *targets], output / 'build.txt')
         command([ctest, '--test-dir', build, '-C', 'Release', '--verbose', '--timeout', '600',
-                 '--no-tests=error', '-R', '^(oscillator_dispatch_(bit_identity|engine_identity|engine_deadline_fixture|engine_reference_contract)|premium_deadline_report|dispatch_engine_target_runner)$'],
+                 '--no-tests=error', '-R', '^(oscillator_dispatch_(bit_identity|engine_identity(_waveform_[0-3])?|engine_deadline_fixture|engine_reference_contract)|premium_deadline_report|dispatch_engine_target_runner)$'],
                 output / 'contracts.txt')
 
         def executable(name):
