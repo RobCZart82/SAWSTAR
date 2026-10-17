@@ -1,6 +1,6 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
-Terv dátuma: **2026-10-17**. Tulajdonos és zenei elfogadó: Robert.
+Terv dátuma: **2026-10-17**, állapotfrissítés: **2026-10-18**. Tulajdonos és zenei elfogadó: Robert.
 A kiinduló nyilvános verzió 1.0.4; az új verziószám és kiadási dátum még nincs kijelölve.
 A végrehajtási terv nem jelent release-, tag- vagy publikálási engedélyt.
 
@@ -19,7 +19,8 @@ CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
   beolvadt (`d434bf03`). A beolvasztás nem CPU-/natív elfogadás.
 - A #113 kalibrált motorpár numerikus kapuja beolvadt (`dd5853b1`), 7 workflow /
   18 job sikerével. A [külön natív Candidate identitása és macOS csomagolási útja](NATIVE_PREVIEW_PAIR_QUALIFICATION.md)
-  implementált; friss CI és célgépes telepítési próba szükséges. Windows VST3-csomagolás nyitott.
+  a #114-ben beolvadt, 16 workflow / 55 job sikeres. A [Windows x64 csomagolás](PREMIUM_PREVIEW_WINDOWS.md)
+  implementált; friss CI/validator és mindkét célgép tényleges telepítési próbája szükséges.
 - Production: **Classic filter**. Premium: külön, alapból kikapcsolt Preview.
   A Saw-dispatch csak az explicit, külön Candidate identitásban választható;
   a meglévő Premium Preview a natív pár változatlan referenciája.
@@ -38,7 +39,7 @@ CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
 
 | Sorrend | Mérföldkő | Elvégzendő munka | Lezárás bizonyítéka |
 | --- | --- | --- | --- |
-| M0 | Stabil fejlesztési alap | #111 utáni main és #112 pontos head ellenőrzése; szükséges CI-hibajavítás. | Minden releváns PR-workflow és job sikeres, a main négy fő workflow-ja is sikeres; szabályos soros merge. |
+| M0 | Stabil fejlesztési alap | #114 utáni main és minden új PR pontos headjének ellenőrzése; szükséges CI-hibajavítás. | Minden releváns PR-workflow és job sikeres, a main négy fő workflow-ja is sikeres; szabályos soros merge. |
 | M1 | Natív tesztelhető jelölt | Pontosan azonosított, külön Reference/Candidate tesztbuild a Premium lookup és Saw-dispatch úthoz; azonos filter, gain, paraméterek és buildpolicy. Numerikus regressziók, validator, telepítési próba. | Két egyértelmű buildazonosság és binárishash, azonos tesztprojekt; a jelölt nincs ettől productionné minősítve. |
 | M2 | Natív CPU-/dropout-elfogadás | Az alábbi REAPER-terv végrehajtása M1 és Windows célgépen, minden eredménnyel és külön tartalékvizsgálattal. | Konfigurációnként kitöltött jegyzőkönyv; hibák rendezve; Robert név szerint elfogadja a megjelölt buildet és tartományt. |
 | M3 | Filterminőség és végleges ráta-/pufferpolicy | LP12/LP24/HP12/BP12, rezonancia, Drive, cutoff, módváltás, magas hangok, nagy ráta; zenei és műszaki ellenőrzés. | Dokumentált minőség/költség döntés és támogatási tartomány; hibás és nem vizsgált tartományok is feltüntetve. |

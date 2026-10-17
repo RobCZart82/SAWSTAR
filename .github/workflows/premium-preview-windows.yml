@@ -1,0 +1,94 @@
+name: Windows Premium Preview pair
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/premium-preview-windows.yml'
+      - 'CMakeLists.txt'
+      - 'cmake/PremiumPreview.cmake'
+      - 'src/**'
+      - 'experiments/premium_filter/**'
+      - 'experiments/oscillator/**'
+      - 'tests/oscillator_dispatch_engine.cpp'
+      - 'tests/premium_preview.cpp'
+      - 'tests/premium_preview_package.py'
+      - 'scripts/bootstrap-plugin.py'
+      - 'scripts/package-premium-preview.py'
+      - 'scripts/validate-plugin.py'
+      - 'scripts/check-windows-runtime.py'
+      - 'docs/PREMIUM_PREVIEW_WINDOWS.md'
+      - 'docs/NATIVE_PREVIEW_PAIR_QUALIFICATION.md'
+      - 'third_party/iPlug2'
+      - 'third_party/DaisySP'
+      - '.gitmodules'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: premium-preview-windows-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  preview:
+    name: Windows x64 / ${{ matrix.role }}
+    runs-on: windows-2022
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - role: reference
+            candidate: 'OFF'
+            product: SAWSTARPremiumPreview
+            artifact: SAWSTAR-Premium-Preview
+          - role: candidate
+            candidate: 'ON'
+            product: SAWSTARPremiumCandidate
+            artifact: SAWSTAR-Premium-Candidate
+    defaults:
+      run:
+        shell: bash
+    env:
+      SAWSTAR_WINDOWS_ARCH: x64
+      SAWSTAR_PAIR_ROLE: ${{ matrix.role }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Fetch pinned plugin dependencies
+        run: python scripts/bootstrap-plugin.py
+      - name: Test package identity and binary-bound provenance gates
+        run: python tests/premium_preview_package.py
+      - name: Configure separate Release identity without installation
+        run: cmake -S . -B build-premium -A x64 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_PREMIUM_NATIVE_CANDIDATE=${{ matrix.candidate }} -DIPLUG_DEPLOY_PLUGINS=OFF
+      - name: Build actual VST3, selected identity smoke and calibrated engine pair
+        run: cmake --build build-premium --config Release --target ${{ matrix.product }}-vst3 sawstar_premium_preview_smoke sawstar_premium_native_pair --parallel 3
+      - name: Qualify selected identity and all 480 calibrated pair cases
+        run: |
+          mkdir -p preview-evidence
+          build-premium/Release/sawstar_premium_preview_smoke.exe 2>&1 | tee preview-evidence/identity-smoke.txt
+          for wave in 0 1 2 3; do
+            build-premium/Release/sawstar_premium_native_pair.exe --waveform "$wave" 2>&1 | tee "preview-evidence/pair-waveform-$wave.csv"
+          done
+      - name: Audit actual x64 image and static runtime
+        run: python scripts/check-windows-runtime.py build-premium/out/${{ matrix.product }}.vst3/Contents/x86_64-win/${{ matrix.product }}.vst3 x64 2>&1 | tee preview-evidence/runtime.txt
+      - name: Validate actual VST3 and export SDK factory identity with provenance
+        run: python scripts/validate-plugin.py --bundle build-premium/out/${{ matrix.product }}.vst3 --module-info-output preview-evidence/moduleinfo.json 2>&1 | tee preview-evidence/validator.txt
+      - name: Package only the validated matching role
+        run: python scripts/package-premium-preview.py build-premium/out/${{ matrix.product }}.vst3 ${{ matrix.artifact }}-Windows-x64.zip --role ${{ matrix.role }} --platform windows-x64 --module-info preview-evidence/moduleinfo.json
+      - name: Preserve logs and identity evidence including failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ${{ matrix.artifact }}-Windows-x64-evidence
+          path: preview-evidence/
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Upload test package and checksum
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ${{ matrix.artifact }}-Windows-x64
+          path: |
+            ${{ matrix.artifact }}-Windows-x64.zip
+            ${{ matrix.artifact }}-Windows-x64.zip.sha256
+          if-no-files-found: error
+          retention-days: 30

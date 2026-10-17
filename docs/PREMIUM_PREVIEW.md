@@ -17,6 +17,8 @@ Ez egy külön, kísérleti VST3 hangszer hallásos próbához. Nem végleges ki
 és a CPU-, preset-/projektkompatibilitási és natív host-elfogadása még nyitott.
 A Classic SAWSTAR mellé telepíthető; nem helyettesíti a meglévő példányokat.
 
+Windows x64 esetén a [külön Windows tesztpár útmutatóját](PREMIUM_PREVIEW_WINDOWS.md) használd.
+
 ## Letöltés és telepítés REAPER-hez
 
 1. Az Actions `macOS Premium Preview` sikeres futásának Artifacts részéből

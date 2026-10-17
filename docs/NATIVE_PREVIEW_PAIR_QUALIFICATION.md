@@ -2,9 +2,10 @@
 
 Állapot: **az M1 mérföldkő első fejlesztési lépése; nem natív host- vagy CPU-elfogadás**.
 A #113 numerikus előfeltétele beolvadt (7 workflow / 18 job sikeres).
-A külön Candidate-identitás és a macOS Universal csomagolási út implementált;
-a jelen módosítás pontos-head CI-je és a célgépes telepítési próba külön kapu.
-Windows VST3-tesztcsomagolás és natív elfogadás még hátralévő feladat.
+A #114 külön Candidate-identitása és macOS Universal tesztcsomagjai beolvadtak
+(16 workflow / 55 job sikeres, a két szerep mindkét szeletének validátora zöld).
+A Windows x64 VST3-tesztcsomagolási út implementált; friss CI és tényleges
+telepítési/natív elfogadás még szükséges.
 
 ## Miért kell külön kapu?
 
@@ -122,11 +123,21 @@ A jelen Linux környezetben nincs macOS VST3-/REAPER-telepítési próba.
 A helyi Release Candidate smoke, 480 esetes bitazonosság és Reference smoke
 ellenőrizhető, a macOS bundle/validator kaput a friss CI-nek kell bizonyítania.
 
+## Windows x64 tesztpár
+
+A [Windows útmutató](PREMIUM_PREVIEW_WINDOWS.md) leírja az azonos forrású két
+csomag letöltését, hash-/factory-CID ellenőrzését és a telepítési smoke-ot.
+A `Windows Premium Preview pair` workflow két explicit szerepet épít, nem
+production installert. A numerikus pár, saját smoke, PE/statikus runtime audit,
+validator és binárishashhoz kötött SDK factory-eredetjegyzék külön kapuk.
+Windows ARM64 támogatást és tényleges REAPER-/ASIO-elfogadást ez nem ad.
+
 ## Hátralévő M1 munka
 
 1. A külön Candidate VST3 macOS pontos-head platform-CI-je és két kész
    csomag/binárishash ellenőrzése, tényleges célgépes telepítési smoke.
-2. Windows Reference/Candidate VST3-csomagolás, validator és telepítési smoke.
+2. Az implementált Windows x64 csomagolás friss CI-/validator-/hash-kapuja,
+   utána tényleges célgépes telepítési smoke. A Linux csomagolási fixture nem natív bizonyíték.
 3. Ezután a [valós REAPER-mátrix](NEXT_RELEASE_DEVELOPMENT_PLAN.md) végrehajtása,
    a [natív adatlap](NATIVE_REAPER_CPU_ACCEPTANCE.md) kitöltésével.
 

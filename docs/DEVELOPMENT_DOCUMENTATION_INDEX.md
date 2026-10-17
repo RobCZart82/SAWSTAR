@@ -1,6 +1,6 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
-Utolsó tartalmi audit: **2026-10-17**. Ez az index választja el az aktuális
+Utolsó állapotfrissítés: **2026-10-18**; a teljes történeti audit 2026-10-17-én készült. Ez az index választja el az aktuális
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 
@@ -16,12 +16,13 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 | [Premium Preview](PREMIUM_PREVIEW.md) | A külön tesztplugin hatóköre, identitása, telepítése és korlátai. |
 | [Elfogadott hangerőkorrekció](PREMIUM_PREVIEW_LEVELS.md) | A +3 dB wet / dry unity korrekció, factory headroom és Robert 0,44 dB RMS-eltérésre adott elfogadása. |
 | [GUI-méret host-state](GUI_SCALE_PROJECT_STATE.md) | A #109-ben implementált javítás és a még nyitott natív projekt-visszatöltési próbák. |
+| [Windows natív Preview-tesztcsomag](PREMIUM_PREVIEW_WINDOWS.md) | Külön Reference/Candidate x64 build, factory-azonossági és csomagolási kapuk, telepítési smoke. |
 | [Windows célgépes útmutató és állapot](WINDOWS_TARGET_CONTROL.md) | A lezárt Windows-gyűjtés bizonyítéka, azonos forrású kontroll és további natív feladat. |
 | [Production benchmark validálása](AUDIO_BENCHMARK_VALIDATION.md) | Eltérő mérési szerepek, régi hibák, változatlan küszöbök, nyers archívum-audit és új időadatok. |
 
 ## Ellenőrzött készültség
 
-| Terület | 2026-10-17-i tartalmi állapot |
+| Terület | 2026-10-18-i tartalmi állapot |
 | --- | --- |
 | Nyilvános kiadás | **1.0.4**, 2026-10-02-i publikálás. A következő verzió/dátum nincs kijelölve. |
 | Production hangút | Classic. A későbbi teljes Premium-csere cél, nem elkészült integráció. |
@@ -32,7 +33,7 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 | GUI-scale | Implementált #109; a 75/100/125% natív mentés/újranyitás és példányfüggetlenség elfogadása nyitott. |
 | CI-folyamat | #111 beolvadt 15 sikeres workflow / 50 job után, egyszeri tulajdonosi kivétellel a régi piros mainre. A kivétel nem általánosítható. |
 | Dokumentációs mérföldkő | #112 beolvadt, 15 workflow / 50 job és az előző main 4 workflow / 11 job sikeres volt. Az új main CI-je külön kapu. |
-| Következő M1 részfeladat | #113 numerikus kapuja beolvadt (7 workflow / 18 job). [Külön Candidate-identitás és macOS csomagolási út](NATIVE_PREVIEW_PAIR_QUALIFICATION.md) implementált; friss CI, telepítési próba és Windows VST3-csomagolás szükséges. |
+| Következő M1 részfeladat | #114 külön Candidate-identitása és macOS csomagjai beolvadtak, 16 workflow / 55 job sikeres. [Windows x64 csomagolás](PREMIUM_PREVIEW_WINDOWS.md) implementált; friss CI és mindkét célgép telepítési/REAPER-próbája szükséges. |
 | Release | Native/CPU, minőség/policy, production-integráció, preset/lifecycle, végső RC és külön publikálási engedély még szükséges. |
 
 A CI pillanatképe auditkor a #111 utáni
