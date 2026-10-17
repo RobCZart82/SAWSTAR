@@ -204,3 +204,46 @@ platformonként szigorúan sorosak. A siker és hiba egyaránt 90 napos
 artifactba kerül. A normál production benchmark és küszöbei változatlanok.
 A négy új teszt bizonyítja az egyetlen bináris használatát, a fix 18
 hívást, az összes eredmény megőrzését és a hibás kontroll elutasítását.
+
+
+## Új negatív main-eredmény — 2026-10-17
+
+A #110 squash utáni main `8ad1b835690ce0486e7bdbaad79551da59737874`
+[macOS Release futása](https://github.com/RobCZart82/SAWSTAR/actions/runs/39008233417/job/117325007221)
+a `dry_fx / 16 voice` esetben hibázott: baseline 11,1816896%, current
+14,14344585%, +26,4876%; a megengedett határ 13,977112%. A Universal
+plugin-build, Debug és a többi fő workflow sikeres, de a main kapuja nem zöld.
+
+A [PR-futás](https://github.com/RobCZart82/SAWSTAR/actions/runs/39005768567)
+ugyanezen esetben 11,01943125% → 12,2346417% (+11,0279%) eredménnyel
+sikeres volt. A két artifact ZIP-digestje és mind a 36 nyers CSV hash-e
+ellenőrizve; minden hatjelenetes warmup/timed jelentés, a nyolc fordított
+sorrendű pár, a szintek és a production medián/hard-limit újraszámolva.
+A main hibáját a független audit is ugyanúgy visszaadja.
+
+Mindkét futás ugyanazt a baseline-hash-t (`b07e537e...`) és ugyanazt a
+current-hash-t (`e2d492f9...`) rögzíti; ez a korábban dokumentált binárispár.
+A két motor egymással nem azonos. Az eredmény futások közötti szóródást
+bizonyít, nem a baseline/current különbség kizárólagos okát, nem CPU-elfogadást.
+A PR tesztmerge commitja és a main squash commitja külön azonosság;
+a manifestek mindkettőt az eredeti értékekkel őrzik.
+
+[Teljes tartós bizonyíték](measurements/production-ci-variance-2026-10-17.json):
+artifactazonosítók, teljes ZIP-hashok, eredeti manifest-szövegek, compiler/flags,
+18+18 eredeti CSV, és újraszámolt eredmények. Nem csak a kedvező kör marad meg.
+A binárisbyte-ok nincsenek ebben az artifactban: a hashok rögzített azonosságot,
+nem önálló eredethitelesítést jelentenek.
+
+Az új `scripts/review-audio-benchmark.py EVIDENCE_DIR` csak olvas:
+nem fordít, nem mér, nem írja át a fájlokat és nem indít retry-t. Elutasítja
+az átírt hashokat, hiányos párokat, hibás sorrendet/CSV-t, extra fájlokat,
+path-escape-et, módosított küszöböt és a számított döntéssel ellentétes státuszt.
+Exit 0 a nyers bizonyíték konzisztenciáját jelenti: a JSON-ban a hibás
+benchmark továbbra `regression_detected=true`, `recorded_status=failed`.
+Nem alkalmas hiányos, végrehajtási hibával megszakadt kampány sikeresre
+minősítésére. Az eredeti production gate, mérési eljárás és küszöb változatlan.
+
+Nem indult új Mac/Windows célgépes kampány vagy a hibás main újrapróbálása.
+A pontos ok még nyitott; a következő merge/release előtt szabályosan rendezni
+kell a main hibáját. A ráta-/pufferpolicy és a natív REAPER-próba ettől külön
+nyitott, CPU-/native-/production-elfogadás nélkül.
