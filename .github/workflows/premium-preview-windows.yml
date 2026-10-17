@@ -57,7 +57,9 @@ jobs:
       - name: Fetch pinned plugin dependencies
         run: python scripts/bootstrap-plugin.py
       - name: Test package identity and binary-bound provenance gates
-        run: python tests/premium_preview_package.py
+        # macOS ZIP permission/symlink cases run in the macOS matrix; Windows
+        # exercises both Windows roles and their actual platform metadata here.
+        run: python tests/premium_preview_package.py WindowsPreviewPackage
       - name: Configure separate Release identity without installation
         run: cmake -S . -B build-premium -A x64 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_PREMIUM_NATIVE_CANDIDATE=${{ matrix.candidate }} -DIPLUG_DEPLOY_PLUGINS=OFF
       - name: Build actual VST3, selected identity smoke and calibrated engine pair
