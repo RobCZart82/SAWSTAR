@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -103,6 +104,13 @@ class DispatchTargetTest(unittest.TestCase):
         before = self.commands[:first_timing]
         self.assertEqual(sum('--modulation-contract' in c for c in before), 4)
         self.assertTrue(any('--no-tests=error' in c for c in before))
+        qualification = next(c for c in before if '--no-tests=error' in c)
+        selection = qualification[qualification.index('-R') + 1]
+        for wave in range(4):
+            self.assertIsNotNone(re.fullmatch(selection,
+                f'oscillator_dispatch_engine_identity_waveform_{wave}'))
+        self.assertIsNone(re.fullmatch(selection,
+            'oscillator_dispatch_engine_identity_waveform_4'))
         for run in result['runs']:
             for name, sha in run['files_sha256'].items():
                 self.assertEqual(hashlib.sha256((self.output / run['folder'] / name).read_bytes()).hexdigest(), sha)

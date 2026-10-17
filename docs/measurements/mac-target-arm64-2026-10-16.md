@@ -2,6 +2,10 @@
 
 **A gyűjtés és nyers ellenőrzés kész; a CPU-/natív elfogadás nyitott.**
 
+2026-10-17-i kiegészítés: az azonos forrású Windows-kontroll és a két teljes
+nyers archívum összevetése is kész. [Eredmény és fennmaradó kapuk](windows-target-x64-2026-10-16.md).
+Az alábbi eredeti Mac-mérési összefoglaló változatlan történeti eredményt őriz.
+
 Ez a Premium lookup teljesmotor-referencia (`rate-lookup-seven-saw`) és az
 oszcillátor-dispatch jelölt (`rate-lookup-saw-dispatch-v1`) offline összevetése.
 Nem Classic/Premium REAPER CPU%-mérés, és nem mért DAW-dropout.

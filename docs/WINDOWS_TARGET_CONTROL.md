@@ -1,6 +1,8 @@
 # Windows célgépes kontroll a lezárt M1-mérés mellé
 
-Állapot: **előkészítve, Windows-mérés még nem futott**. A hosted Windows CI
+Állapot: **a 2026-10-16–17-i Windows-gyűjtés, nyers ellenőrzés és azonos forrású Mac-összevetés kész; CPU-/natív elfogadás nincs**.
+[Eredmény, korlátok és eredetjegyzék](measurements/windows-target-x64-2026-10-16.md).
+Az alábbi futtatási útmutató reprodukciós leírás: a már lezárt kampányt nem indítjuk újra. A hosted Windows CI
 nem helyettesíti ezt a saját célgépes kontrollt. A Mac-gyűjtést nem ismételjük.
 
 ## Rögzített forrás és előfeltételek
