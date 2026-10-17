@@ -53,6 +53,10 @@ option(
 )
 
 option(SAWSTAR_PREMIUM_PREVIEW "Build the separate experimental premium preview identity" OFF)
+option(SAWSTAR_PREMIUM_NATIVE_CANDIDATE "Build the separate Saw-dispatch Premium Candidate identity" OFF)
+if(SAWSTAR_PREMIUM_NATIVE_CANDIDATE AND NOT SAWSTAR_PREMIUM_PREVIEW)
+  message(FATAL_ERROR "Premium Candidate requires SAWSTAR_PREMIUM_PREVIEW=ON; production cannot select it")
+endif()
 if(SAWSTAR_PREMIUM_PREVIEW)
   set(SAWSTAR_CHECK_DAISYSP ON)
 endif()

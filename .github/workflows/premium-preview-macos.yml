@@ -15,6 +15,7 @@ on:
       - 'scripts/package-premium-preview.py'
       - 'scripts/validate-plugin.py'
       - 'docs/PREMIUM_PREVIEW.md'
+      - 'docs/NATIVE_PREVIEW_PAIR_QUALIFICATION.md'
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,6 +24,19 @@ concurrency:
   cancel-in-progress: true
 jobs:
   preview:
+    name: Universal / ${{ matrix.role }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - role: reference
+            candidate: 'OFF'
+            product: SAWSTARPremiumPreview
+            artifact: SAWSTAR-Premium-Preview
+          - role: candidate
+            candidate: 'ON'
+            product: SAWSTARPremiumCandidate
+            artifact: SAWSTAR-Premium-Candidate
     runs-on: macos-14
     timeout-minutes: 35
     env:
@@ -37,9 +51,9 @@ jobs:
       - name: Test preview package isolation
         run: python3 tests/premium_preview_package.py
       - name: Configure separate Universal preview
-        run: cmake -S . -B build-premium -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PREVIEW=ON '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64' -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DIPLUG_DEPLOY_PLUGINS=OFF
+        run: cmake -S . -B build-premium -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_PREMIUM_NATIVE_CANDIDATE=${{ matrix.candidate }} '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64' -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DIPLUG_DEPLOY_PLUGINS=OFF
       - name: Build preview and engine smoke
-        run: cmake --build build-premium --config Release --target SAWSTARPremiumPreview-vst3 sawstar_premium_preview_smoke sawstar_premium_preview_levels sawstar_premium_native_pair --parallel 3
+        run: cmake --build build-premium --config Release --target ${{ matrix.product }}-vst3 sawstar_premium_preview_smoke sawstar_premium_preview_levels sawstar_premium_native_pair --parallel 3
       - name: Qualify calibrated Preview reference and dispatch candidate on both slices
         run: |
           for wave in 0 1 2 3; do
@@ -50,29 +64,29 @@ jobs:
         run: |
           build-premium/sawstar_premium_preview_smoke
           arch -x86_64 build-premium/sawstar_premium_preview_smoke
-          lipo build-premium/out/SAWSTARPremiumPreview.vst3/Contents/MacOS/SAWSTARPremiumPreview -verify_arch arm64 x86_64
-          codesign --force --deep --sign - build-premium/out/SAWSTARPremiumPreview.vst3
-      - name: Check calibrated factory headroom and unchanged character on both slices
+          lipo build-premium/out/${{ matrix.product }}.vst3/Contents/MacOS/${{ matrix.product }} -verify_arch arm64 x86_64
+          codesign --force --deep --sign - build-premium/out/${{ matrix.product }}.vst3
+      - name: Check reference factory headroom and calibration on both slices
         run: |
           build-premium/sawstar_premium_preview_levels > premium-levels-arm64.csv
           arch -x86_64 build-premium/sawstar_premium_preview_levels > premium-levels-x86_64.csv
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: SAWSTAR-Premium-Preview-level-measurements
+          name: ${{ matrix.artifact }}-reference-level-measurements
           path: premium-levels-*.csv
           if-no-files-found: warn
           retention-days: 30
       - name: Validate actual preview VST3 on both slices
-        run: python3 scripts/validate-plugin.py --bundle build-premium/out/SAWSTARPremiumPreview.vst3
+        run: python3 scripts/validate-plugin.py --bundle build-premium/out/${{ matrix.product }}.vst3
       - name: Package the validated experimental preview
         run: |
-          python3 scripts/package-premium-preview.py build-premium/out/SAWSTARPremiumPreview.vst3 SAWSTAR-Premium-Preview-macOS-Universal.zip
+          python3 scripts/package-premium-preview.py build-premium/out/${{ matrix.product }}.vst3 ${{ matrix.artifact }}-macOS-Universal.zip --role ${{ matrix.role }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: SAWSTAR-Premium-Preview-macOS-Universal
+          name: ${{ matrix.artifact }}-macOS-Universal
           path: |
-            SAWSTAR-Premium-Preview-macOS-Universal.zip
-            SAWSTAR-Premium-Preview-macOS-Universal.zip.sha256
+            ${{ matrix.artifact }}-macOS-Universal.zip
+            ${{ matrix.artifact }}-macOS-Universal.zip.sha256
           if-no-files-found: error
           retention-days: 30

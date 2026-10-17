@@ -1,6 +1,17 @@
 // SPDX-License-Identifier: MIT
 #pragma once
-#ifdef SAWSTAR_PREMIUM_PREVIEW
+#if defined(SAWSTAR_PREMIUM_NATIVE_CANDIDATE) && !defined(SAWSTAR_PREMIUM_PREVIEW)
+#error Premium Candidate requires Premium Preview calibration
+#endif
+#ifdef SAWSTAR_PREMIUM_NATIVE_CANDIDATE
+#define PLUG_NAME "SAWSTAR Premium Candidate"
+#define PLUG_UNIQUE_ID 'SwPC'
+#define BUNDLE_NAME "SAWSTARPremiumCandidate"
+#define PLUG_LATENCY 32
+#define SHARED_RESOURCES_SUBPATH "SAWSTARPremiumCandidate"
+#define SAWSTAR SAWSTARPremiumCandidate
+#define PLUG_CLASS_NAME SAWSTARPremiumCandidate
+#elif defined(SAWSTAR_PREMIUM_PREVIEW)
 #define PLUG_NAME "SAWSTAR Premium Preview"
 #define PLUG_UNIQUE_ID 'SwPP'
 #define BUNDLE_NAME "SAWSTARPremiumPreview"

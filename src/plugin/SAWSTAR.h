@@ -2,7 +2,9 @@
 #pragma once
 #include "IPlug_include_in_plug_hdr.h"
 #include "engine/Synth.h"
-#ifdef SAWSTAR_PREMIUM_PREVIEW
+#ifdef SAWSTAR_PREMIUM_NATIVE_CANDIDATE
+#include "PremiumNativeCandidateSynth.h"
+#elif defined(SAWSTAR_PREMIUM_PREVIEW)
 #include "PremiumPreviewSynth.h"
 #endif
 #include "midi/Arpeggiator.h"
@@ -36,7 +38,9 @@ public:
 #endif
 private:
 #if IPLUG_DSP
-#ifdef SAWSTAR_PREMIUM_PREVIEW
+#ifdef SAWSTAR_PREMIUM_NATIVE_CANDIDATE
+  sawstar::premium_native_candidate_engine::Synth mSynth;
+#elif defined(SAWSTAR_PREMIUM_PREVIEW)
   sawstar::premium_preview_engine::Synth mSynth;
 #else
   sawstar::Synth mSynth;
