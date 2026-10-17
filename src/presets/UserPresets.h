@@ -11,7 +11,9 @@
 #include <memory>
 namespace sawstar {
 namespace fs=std::filesystem;
-#ifdef SAWSTAR_PREMIUM_PREVIEW
+#ifdef SAWSTAR_PREMIUM_NATIVE_CANDIDATE
+inline constexpr const char* kPresetProductFolder="SAWSTAR Premium Candidate";
+#elif defined(SAWSTAR_PREMIUM_PREVIEW)
 inline constexpr const char* kPresetProductFolder="SAWSTAR Premium Preview";
 #else
 inline constexpr const char* kPresetProductFolder="SAWSTAR";

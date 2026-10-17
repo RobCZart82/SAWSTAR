@@ -9,6 +9,9 @@ CPU-kapu nyitott, a Saw-dispatch nincs ebben a Preview-ban.
 [Release terv és REAPER-mátrix](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
 A lenti 256/512-es gyorsindító puffer óvatos hallásos indulás; nem azonos
 az előre kijelölt 48 kHz /128, majd /64 CPU-elfogadási mátrixszal.
+A külön **SAWSTAR Premium Candidate** a Saw-dispatch jelölt tesztidentitása;
+[csomagok, szerepek és telepítési smoke](NATIVE_PREVIEW_PAIR_QUALIFICATION.md).
+A jelen dokumentum `SAWSTARPremiumPreview.vst3` neve mindig a Reference-et jelenti.
 
 Ez egy külön, kísérleti VST3 hangszer hallásos próbához. Nem végleges kiadás,
 és a CPU-, preset-/projektkompatibilitási és natív host-elfogadása még nyitott.

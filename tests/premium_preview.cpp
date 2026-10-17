@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: MIT
+#ifdef SAWSTAR_PREMIUM_NATIVE_CANDIDATE
+#include "PremiumNativeCandidateSynth.h"
+using PreviewSynth = sawstar::premium_native_candidate_engine::Synth;
+#else
 #include "PremiumPreviewSynth.h"
+using PreviewSynth = sawstar::premium_preview_engine::Synth;
+#endif
 #include "engine/Synth.h"
 #include "plugin/config.h"
 #include "presets/UserPresets.h"
@@ -14,10 +20,19 @@ int main() {
   try {
     static_assert(PLUG_LATENCY == 32, "Preview must report its adapter latency");
     static_assert(PLUG_UNIQUE_ID != 'SwSt', "Preview must not replace the release");
+#ifdef SAWSTAR_PREMIUM_NATIVE_CANDIDATE
+    static_assert(PLUG_UNIQUE_ID == 'SwPC', "Candidate must not replace Preview");
+    if(std::string_view(PLUG_NAME)!="SAWSTAR Premium Candidate" ||
+       std::string_view(BUNDLE_NAME)!="SAWSTARPremiumCandidate" ||
+       std::string_view(SAWSTAR_STRING(PLUG_CLASS_NAME))!="SAWSTARPremiumCandidate" ||
+       std::string_view(sawstar::kPresetProductFolder)!="SAWSTAR Premium Candidate")
+#else
+    static_assert(PLUG_UNIQUE_ID == 'SwPP', "Reference identity must remain unchanged");
     if(std::string_view(PLUG_NAME)!="SAWSTAR Premium Preview" ||
        std::string_view(BUNDLE_NAME)!="SAWSTARPremiumPreview" ||
        std::string_view(SAWSTAR_STRING(PLUG_CLASS_NAME))!="SAWSTARPremiumPreview" ||
        std::string_view(sawstar::kPresetProductFolder)!="SAWSTAR Premium Preview")
+#endif
       throw std::runtime_error("Preview identity or preset isolation is missing");
     // Delayed dry and oversampled wet paths share the advertised latency.
     for(float rate:{44100.f,48000.f,96000.f,192000.f}) {
@@ -32,7 +47,7 @@ int main() {
     // Exercise the actual preview Synth, all modes, MIDI and rate reset.
     double difference=0,energy=0;
     for(float rate:{44100.f,48000.f,96000.f}) for(int mode=0;mode<4;++mode) {
-      sawstar::premium_preview_engine::Synth preview;
+      PreviewSynth preview;
       sawstar::Synth classic;
       auto setup=[&](auto& synth){
         synth.Reset(rate);synth.SetParameters(-6,1,20,.6,20);
@@ -53,7 +68,7 @@ int main() {
       if(preview.ActiveVoices()!=0)throw std::runtime_error("Preview panic left a voice active");
     }
     if(energy<=0||difference<=0)throw std::runtime_error("Preview is silent or still uses Classic");
-    std::cout<<"Premium preview identity, 32-sample dry latency and four-mode engine smoke PASS\n";
+    std::cout<<PLUG_NAME<<" identity, 32-sample dry latency and four-mode engine smoke PASS\n";
     return 0;
   } catch(const std::exception& error) { std::cerr<<error.what()<<'\n';return 1; }
 }

@@ -17,10 +17,12 @@ CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
   A merge utáni main CI-t külön kell ellenőrizni; ez nem általános kivétel.
 - A #112 a lezárt célgépes bizonyíték ráta-/pufferösszesítőjével és e tervvel
   beolvadt (`d434bf03`). A beolvasztás nem CPU-/natív elfogadás.
-- M1 első részfeladata a [kalibrált motorpár numerikus kapuja](NATIVE_PREVIEW_PAIR_QUALIFICATION.md).
-  A külön natív Candidate pluginazonosság/csomag még hátralévő feladat.
+- A #113 kalibrált motorpár numerikus kapuja beolvadt (`dd5853b1`), 7 workflow /
+  18 job sikerével. A [külön natív Candidate identitása és macOS csomagolási útja](NATIVE_PREVIEW_PAIR_QUALIFICATION.md)
+  implementált; friss CI és célgépes telepítési próba szükséges. Windows VST3-csomagolás nyitott.
 - Production: **Classic filter**. Premium: külön, alapból kikapcsolt Preview.
-  A kutatási Saw-dispatch jelölt natív Preview-integrációja még külön feladat.
+  A Saw-dispatch csak az explicit, külön Candidate identitásban választható;
+  a meglévő Premium Preview a natív pár változatlan referenciája.
 - A hangerőkorrekció Robert által elfogadva: a Premium átlagos RMS-szintje
   0,44 dB-lel alacsonyabb maradhat. Ez lezárt döntés; nem indítunk újabb globális
   hangerőemelést vagy automatikus hangerő-kiegyenlítést.

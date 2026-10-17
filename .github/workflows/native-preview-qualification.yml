@@ -9,6 +9,7 @@ on:
       - 'experiments/premium_filter/**'
       - 'experiments/oscillator/**'
       - 'tests/oscillator_dispatch_engine.cpp'
+      - 'tests/premium_preview.cpp'
       - 'third_party/DaisySP'
       - '.gitmodules'
   workflow_dispatch:
@@ -19,13 +20,16 @@ concurrency:
   cancel-in-progress: true
 jobs:
   qualify:
-    name: Calibrated Preview pair / ${{ matrix.runner }}
+    name: Calibrated Preview pair / ${{ matrix.runner }} / ${{ matrix.role }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
         runner: [windows-2022, macos-14]
+        role: [reference, candidate]
+    env:
+      SAWSTAR_PAIR_ROLE: ${{ matrix.role }}
     defaults:
       run:
         shell: bash
@@ -37,7 +41,7 @@ jobs:
       - name: Initialize pinned DSP source only
         run: git submodule update --init third_party/DaisySP
       - name: Configure engine pair without plugin or host installation
-        run: cmake -S . -B build-pair -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_BUILD_PLUGIN=OFF
+        run: cmake -S . -B build-pair -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_PREMIUM_NATIVE_CANDIDATE=${{ matrix.role == 'candidate' && 'ON' || 'OFF' }} -DSAWSTAR_BUILD_PLUGIN=OFF
       - name: Build calibrated engines and shared identity fixture
         run: cmake --build build-pair --config Release --target sawstar_premium_native_pair sawstar_premium_preview_smoke --parallel 2
       - name: Qualify all four waveforms and preserve exact provenance
@@ -56,7 +60,8 @@ jobs:
           manifest = dict(schema=1, state='incomplete',
               source_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
               purpose='calibrated engine numerical qualification, not native host or CPU acceptance',
-              runner=os.environ.get('RUNNER_OS'),
+              runner=os.environ.get('RUNNER_OS'), pair_role=os.environ['SAWSTAR_PAIR_ROLE'],
+              smoke_executable_sha256=hashlib.sha256(smoke.read_bytes()).hexdigest(),
               executable_sha256=hashlib.sha256(pair.read_bytes()).hexdigest(),
               native_host_acceptance=False, production_promotion_allowed=False, results=[])
           def save():
@@ -82,7 +87,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: calibrated-preview-pair-${{ matrix.runner }}-${{ github.event.pull_request.head.sha || github.sha }}
+          name: calibrated-preview-pair-${{ matrix.runner }}-${{ matrix.role }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: pair-qualification/
           if-no-files-found: warn
           retention-days: 90

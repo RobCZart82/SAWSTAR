@@ -12,14 +12,15 @@ Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Legutóbb ellenőrzött main (2026-10-17): `d434bf03c179afa4d09717ec796bd9eb825d0861` (#112).
-A #112 15 sikeres workflow és 50 job után beolvadt; előtte a #111 utáni
-main négy fő workflow-ja és 11 jobja is sikeres volt. A #112 utáni main
-ellenőrzése külön kapu, nem másoljuk át rá a korábbi eredményt.
-Az aktuális M1 részfeladat a
-[kalibrált Preview Reference/Candidate numerikus kvalifikáció](NATIVE_PREVIEW_PAIR_QUALIFICATION.md).
-Helyben 480/480 eset bitazonos; a külön natív Candidate VST3 még nincs kész,
-a platform-CI és a REAPER-próba még szükséges.
+Legutóbb ellenőrzött main (2026-10-17): `dd5853b1d052b707089526f1f9ec2dfc634a593f` (#113).
+A #113 7 sikeres releváns workflow és 18 job után beolvadt; előtte a #112
+utáni main négy fő workflow-ja és 11 jobja is sikeres volt. Az új main
+CI-je külön kapu; a PR eredményét nem másoljuk át automatikusan rá.
+Az M1 numerikus előfeltétele kész; következő a
+[külön Preview Reference/Candidate natív tesztpár](NATIVE_PREVIEW_PAIR_QUALIFICATION.md).
+A Candidate-identitás és macOS Universal csomagolási út implementált;
+pontos-head CI és célgépes telepítési smoke még szükséges. Windows VST3-csomagolás,
+natív REAPER-/CPU-elfogadás külön nyitott. Production továbbra Classic.
 A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.
 Robert 2026-10-17-én kizárólag erre a diagnosztikai PR-re engedélyezte a korábbi,
 piros main előfeltételének egyszeri feloldását; a GitHub-védelmek megmaradtak.
@@ -36,7 +37,7 @@ A #112-vel elkészült a [ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCE
 és a [teljes, körönként külön célgépes összesítő](measurements/target-rate-readiness-2026-10-17.md).
 A lezárt 576 cellából generált 36 sor nem indít új mérést és nem jelöl
 működési tartományt elfogadottnak; következő a natív REAPER-bizonyíték.
-**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111 és #112 beolvadt.**
+**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112 és #113 beolvadt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
 A #109 utáni main Code quality első futása 600 másodperces tesztidőtúllépéssel hibás volt;
 a második kísérlet sikeres, az eredeti negatív napló megmarad.

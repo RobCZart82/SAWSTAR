@@ -1,7 +1,10 @@
 # Kalibrált Preview Reference/Candidate — numerikus előfeltétel
 
 Állapot: **az M1 mérföldkő első fejlesztési lépése; nem natív host- vagy CPU-elfogadás**.
-A külön telepíthető Candidate VST3-identitás/csomag még nincs implementálva.
+A #113 numerikus előfeltétele beolvadt (7 workflow / 18 job sikeres).
+A külön Candidate-identitás és a macOS Universal csomagolási út implementált;
+a jelen módosítás pontos-head CI-je és a célgépes telepítési próba külön kapu.
+Windows VST3-tesztcsomagolás és natív elfogadás még hátralévő feladat.
 
 ## Miért kell külön kapu?
 
@@ -18,9 +21,9 @@ A régi 480 eset nem címkézhető át automatikusan erre az új fordítási vá
   már kalibrált motorból készül. Csak az OSC1/OSC2 `SevenSaw` típusa cserélődik
   `SawDispatchSevenSaw`-ra. A filter, Drive, latency-adapter, kalibráció,
   envelope/MIDI/moduláció, SUB, FX és state ugyanaz marad.
-- A két motor külön namespace-ben fordul. A jelölt könyvtár csak a páros
-  tesztexecutable függősége; **a VST3-target nem linkeli**. A production Classic
-  és a már létező Premium Preview identitása/hangútja ettől nem vált át.
+- A két motor külön namespace-ben fordul. A jelölt könyvtárat a páros
+  tesztexecutable és kizárólag az explicit Candidate VST3-target használja.
+  A production Classic és a már létező Premium Preview identitása/hangútja megmarad.
 - A közös `oscillator_dispatch_engine.cpp` fixture külön fordítási definícióval
   választja ezt a párt. Az eredeti lookup/dispatch kutatási fixture megmarad.
   Nem keverjük a régi célgépes forrás/hashjegyzékkel az új tesztforrást.
@@ -44,6 +47,8 @@ nem CPU-időmérés, nem validator- vagy REAPER-eredmény.
 
 A külön `Calibrated Preview engine pair qualification` workflow Windows x64
 és macOS runneren fordítja/futtatja a numerikus párt, plugintelepítés nélkül.
+A Reference és Candidate buildkapcsoló külön mátrixdimenzió, saját smoke-kal
+és role/executable/log hashokat tartalmazó manifesttel. Ez Windows alatt sem VST3-/host-próba.
 A normál Universal Preview workflow a valódi Preview VST3 építése mellett
 mindkét arm64/x86_64 szeleten futtatja a páros ellenőrzést is.
 A külön workflow manifestje megőrzi a pontos checkout SHA-t, executable-
@@ -62,13 +67,67 @@ CMake-generátortól függ (Windows esetén jellemzően `Release/` almappa és `
 BUILD_TESTING=ON esetén négy külön `premium_native_pair_waveform_*` CTest is
 regisztrált. Ez kvalifikáció, nem új lezárt M1/Windows mérési kampány.
 
+## Külön natív identitás és macOS tesztcsomag
+
+| Szerep | REAPER név | Bundle / wrapper osztály | Plugin-ID | Presetmappa |
+| --- | --- | --- | --- | --- |
+| Production | SAWSTAR | `SAWSTAR` | `SwSt` | `SAWSTAR` |
+| Reference | SAWSTAR Premium Preview | `SAWSTARPremiumPreview` | `SwPP` | `SAWSTAR Premium Preview` |
+| Candidate | SAWSTAR Premium Candidate | `SAWSTARPremiumCandidate` | `SwPC` | `SAWSTAR Premium Candidate` |
+
+A Candidate két kapcsolót igényel: `SAWSTAR_PREMIUM_PREVIEW=ON` és
+`SAWSTAR_PREMIUM_NATIVE_CANDIDATE=ON`; mindkettő alapból OFF. Preview nélkül
+Candidate-et konfigurálni hiba. A VST3-adapter kizárólag ebben a külön
+identitásban használ `PremiumNativeCandidateSynth`-et. A 32 mintás latency,
+paraméterek/state, GUI-scale rekord, wet +3 dB / dry unity kalibráció és
+factory trim közös. Az About verzió `-premium-candidate` utótagot kap.
+Nincs új felhasználói Classic/Premium modellválasztó.
+
+A `macOS Premium Preview` workflow két külön mátrixjobban, ugyanarról a
+pontos checkout SHA-ról, ugyanazon Release/Universal beállításokkal készít
+Reference és Candidate buildet. Mindkét job mindkét szeletén lefut a 480
+esetes motorpár és a **kiválasztott saját motor** identity/audio/latency smoke.
+A factory headroom-executable továbbra a kalibrált Reference/meterezett
+Reference 144 esetét méri; nem címkézzük át Candidate mérésnek.
+Mindkét tényleges VST3-bundle saját validator-próbát kap arm64 és Rosetta
+x86_64 alatt. Ez utóbbi nem natív Intel REAPER-bizonyíték.
+
+Csak sikeres, azonos SHA-jú jobok artifactjai használhatók párként:
+
+- Reference: `SAWSTAR-Premium-Preview-macOS-Universal`.
+- Candidate: `SAWSTAR-Premium-Candidate-macOS-Universal`.
+
+Az artifacton belüli ZIP és `.sha256` ellenőrzendő. A `PACKAGE-MANIFEST.json`
+megadja a forráscommitot, a `pair_role`-t, külön oscillator/ID-t, a tényleges
+Universal executable SHA-256 hashát és minden csomagfájl hashát. A csomagoló
+explicit `--role candidate` nélkül visszautasítja a Candidate-et; a bundle
+átnevezése önmagában nem írhatja felül a plist-identitás kapuját.
+`native_host_acceptance=false`, `production_promotion_allowed=false` marad.
+A CI ad hoc aláírást használ, nincs Developer ID/notarizálás vagy publikálás.
+
+Telepítési smoke a Mac célgépen, REAPER bezárása után:
+
+1. A két azonos forrású ZIP teljes `.vst3` bundle-jét másold
+   `~/Library/Audio/Plug-Ins/VST3/` alá. A Classic maradhat mellettük.
+2. REAPER rescan után a fenti **két külön FX-név** legyen elérhető;
+   About-ban ellenőrizd a forrásazonosítót és a két eltérő verzióutótagot.
+3. Külön példányban ugyanazt a `.sawstar` hangszínt/MIDI-t/automatizálást töltsd
+   be; ne a régebbi Classic vagy korábbi Preview-letöltést kezeld az új párként.
+4. Ellenőrizd a hangot, GUI-t, 75/100/125% projektmentést/újranyitást és a
+   két külön presetmappát. Jegyezd fel a pontos csomag-/binárishashokat.
+5. A CPU A/B-próbában egyszerre csak a mért hangszer legyen online;
+   a másik legyen offline. A két hangszer együttes szólása külön tartalékteszt.
+
+A jelen Linux környezetben nincs macOS VST3-/REAPER-telepítési próba.
+A helyi Release Candidate smoke, 480 esetes bitazonosság és Reference smoke
+ellenőrizhető, a macOS bundle/validator kaput a friss CI-nek kell bizonyítania.
+
 ## Hátralévő M1 munka
 
-1. A kalibrált Reference/Candidate numerikus kapu pontos-head platform-CI-je.
-2. Külön natív Candidate VST3-identitás, presetmappa és buildazonosítás;
-   a Classic és meglévő Preview megőrzése. A két natív buildazonosság dokumentálása.
-3. Csomagolás/forrás-/binárishashok, validator és telepítési smoke Windows/macOS alatt.
-4. Ezután a [valós REAPER-mátrix](NEXT_RELEASE_DEVELOPMENT_PLAN.md) végrehajtása,
+1. A külön Candidate VST3 macOS pontos-head platform-CI-je és két kész
+   csomag/binárishash ellenőrzése, tényleges célgépes telepítési smoke.
+2. Windows Reference/Candidate VST3-csomagolás, validator és telepítési smoke.
+3. Ezután a [valós REAPER-mátrix](NEXT_RELEASE_DEVELOPMENT_PLAN.md) végrehajtása,
    a [natív adatlap](NATIVE_REAPER_CPU_ACCEPTANCE.md) kitöltésével.
 
 A régi p99/túllépés-eredmények és a 0,44 dB RMS-korrekció elfogadása megmarad.

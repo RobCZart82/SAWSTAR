@@ -32,7 +32,7 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 | GUI-scale | Implementált #109; a 75/100/125% natív mentés/újranyitás és példányfüggetlenség elfogadása nyitott. |
 | CI-folyamat | #111 beolvadt 15 sikeres workflow / 50 job után, egyszeri tulajdonosi kivétellel a régi piros mainre. A kivétel nem általánosítható. |
 | Dokumentációs mérföldkő | #112 beolvadt, 15 workflow / 50 job és az előző main 4 workflow / 11 job sikeres volt. Az új main CI-je külön kapu. |
-| Következő M1 részfeladat | [Kalibrált Preview-pár numerikus kvalifikáció](NATIVE_PREVIEW_PAIR_QUALIFICATION.md); a külön Candidate VST3-csomag és natív próba még nincs kész. |
+| Következő M1 részfeladat | #113 numerikus kapuja beolvadt (7 workflow / 18 job). [Külön Candidate-identitás és macOS csomagolási út](NATIVE_PREVIEW_PAIR_QUALIFICATION.md) implementált; friss CI, telepítési próba és Windows VST3-csomagolás szükséges. |
 | Release | Native/CPU, minőség/policy, production-integráció, preset/lifecycle, végső RC és külön publikálási engedély még szükséges. |
 
 A CI pillanatképe auditkor a #111 utáni
