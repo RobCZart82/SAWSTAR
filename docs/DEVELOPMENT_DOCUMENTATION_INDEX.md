@@ -10,6 +10,7 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 | --- | --- |
 | [Következő release fejlesztési terve](NEXT_RELEASE_DEVELOPMENT_PLAN.md) | Az M0–M9 sorrend, a valós REAPER CPU-terv, a döntési feltételek és a külön végső RC/publikálási kapu. Ez a részletes végrehajtási terv. |
 | [Fejlesztési roadmap](DEVELOPMENT_ROADMAP.md) | Kész/implementált/nyitott állapotok rövid követése. A régi dátumozott részek előzmények. |
+| [Natív REAPER-tesztkészlet](NATIVE_REAPER_TEST_KIT.md) | Azonos forrású csomagok/hashok, 28 eset / 112 üres ablak, MIDI és hostban még rögzítendő bemenetek. Nem natív eredmény. |
 | [Natív REAPER-adatlap](NATIVE_REAPER_CPU_ACCEPTANCE.md) | Környezet/buildazonosság, teszteset és ablakonkénti bizonyíték, PASS / nyitott / blokkolt döntés. |
 | [Ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCEPTANCE_POLICY.md) | A negatív offline adatokból következő korlátok és a natív döntéshez szükséges következő lépés; nem automatikus működési korlátozás. |
 | [Teljes ráta-/pufferösszesítő](measurements/target-rate-readiness-2026-10-17.md) | 576 lezárt cellából 36 körönként külön sor; a referenciaismétlés és a rosszabb eredmények megmaradnak. |
@@ -33,7 +34,7 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 | GUI-scale | Implementált #109; a 75/100/125% natív mentés/újranyitás és példányfüggetlenség elfogadása nyitott. |
 | CI-folyamat | #111 beolvadt 15 sikeres workflow / 50 job után, egyszeri tulajdonosi kivétellel a régi piros mainre. A kivétel nem általánosítható. |
 | Dokumentációs mérföldkő | #112 beolvadt, 15 workflow / 50 job és az előző main 4 workflow / 11 job sikeres volt. Az új main CI-je külön kapu. |
-| Következő M1 részfeladat | #114 külön Candidate-identitása és macOS csomagjai beolvadtak, 16 workflow / 55 job sikeres. [Windows x64 csomagolás](PREMIUM_PREVIEW_WINDOWS.md) implementált; friss CI és mindkét célgép telepítési/REAPER-próbája szükséges. |
+| Következő M1/M2 részfeladat | #115 Windows/macOS tesztpárja és utána a main 4 workflow / 11 job sikeres. [Üres REAPER-tesztkészlet](NATIVE_REAPER_TEST_KIT.md) implementált; tényleges telepítési/host-/CPU-próba és elfogadás nyitott. |
 | Release | Native/CPU, minőség/policy, production-integráció, preset/lifecycle, végső RC és külön publikálási engedély még szükséges. |
 
 A CI pillanatképe auditkor a #111 utáni

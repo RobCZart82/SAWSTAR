@@ -20,7 +20,8 @@ CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
 - A #113 kalibrált motorpár numerikus kapuja beolvadt (`dd5853b1`), 7 workflow /
   18 job sikerével. A [külön natív Candidate identitása és macOS csomagolási útja](NATIVE_PREVIEW_PAIR_QUALIFICATION.md)
   a #114-ben beolvadt, 16 workflow / 55 job sikeres. A [Windows x64 csomagolás](PREMIUM_PREVIEW_WINDOWS.md)
-  implementált; friss CI/validator és mindkét célgép tényleges telepítési próbája szükséges.
+  a #115-ben beolvadt (6 workflow / 15 job); az új main mind a 4 fő workflow-ja / 11 jobja sikeres.
+  A négy azonos forrású tesztcsomag/hash ellenőrizve. Mindkét célgép tényleges telepítési próbája szükséges.
 - Production: **Classic filter**. Premium: külön, alapból kikapcsolt Preview.
   A Saw-dispatch csak az explicit, külön Candidate identitásban választható;
   a meglévő Premium Preview a natív pár változatlan referenciája.
@@ -39,7 +40,7 @@ CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
 
 | Sorrend | Mérföldkő | Elvégzendő munka | Lezárás bizonyítéka |
 | --- | --- | --- | --- |
-| M0 | Stabil fejlesztési alap | #114 utáni main és minden új PR pontos headjének ellenőrzése; szükséges CI-hibajavítás. | Minden releváns PR-workflow és job sikeres, a main négy fő workflow-ja is sikeres; szabályos soros merge. |
+| M0 | Stabil fejlesztési alap | #115 utáni main sikeres; minden új PR pontos headjének ellenőrzése; szükséges CI-hibajavítás. | Minden releváns PR-workflow és job sikeres, a main négy fő workflow-ja is sikeres; szabályos soros merge. |
 | M1 | Natív tesztelhető jelölt | Pontosan azonosított, külön Reference/Candidate tesztbuild a Premium lookup és Saw-dispatch úthoz; azonos filter, gain, paraméterek és buildpolicy. Numerikus regressziók, validator, telepítési próba. | Két egyértelmű buildazonosság és binárishash, azonos tesztprojekt; a jelölt nincs ettől productionné minősítve. |
 | M2 | Natív CPU-/dropout-elfogadás | Az alábbi REAPER-terv végrehajtása M1 és Windows célgépen, minden eredménnyel és külön tartalékvizsgálattal. | Konfigurációnként kitöltött jegyzőkönyv; hibák rendezve; Robert név szerint elfogadja a megjelölt buildet és tartományt. |
 | M3 | Filterminőség és végleges ráta-/pufferpolicy | LP12/LP24/HP12/BP12, rezonancia, Drive, cutoff, módváltás, magas hangok, nagy ráta; zenei és műszaki ellenőrzés. | Dokumentált minőség/költség döntés és támogatási tartomány; hibás és nem vizsgált tartományok is feltüntetve. |
@@ -75,6 +76,11 @@ DSP-/host-adapter-/buildpolicy-változás után az érintett natív eseteket új
 kell értékelni; egy dokumentációs módosítás önmagában nem indok új célgépes kampányra.
 
 ## 4. Valós REAPER CPU-tesztterv
+
+A [natív tesztkészlet előkészítője](NATIVE_REAPER_TEST_KIT.md) ellenőrzi a
+letöltött párt és létrehozza az üres C/V/G/F adatlapokat, MIDI-bemeneteket és
+cutoff-tervet. Ez nem helyettesíti a hostban mentett presetet/envelope-ot,
+a telepítést vagy a valós CPU-/dropout-megfigyelést.
 
 ### 4.1 Környezet és bizonyíték
 

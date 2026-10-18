@@ -1,0 +1,29 @@
+name: Native REAPER test kit preparation
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/native-reaper-kit.yml'
+      - 'scripts/prepare-native-reaper-kit.py'
+      - 'tests/native_reaper_kit.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: native-reaper-kit-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  kit:
+    name: Test kit / ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, windows-2022, macos-14]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify package gates, complete matrix and MIDI semantics without native measurement
+        run: python -W error::ResourceWarning tests/native_reaper_kit.py

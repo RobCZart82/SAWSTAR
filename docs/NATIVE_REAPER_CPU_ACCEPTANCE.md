@@ -10,12 +10,16 @@ a teljes C/V/G/F tesztmátrixot és a döntési feltételeket a
 A terv natív tartalékcélja futás előtt rögzítendő javaslat, nem meglévő
 mérési eredmény vagy az offline CPU-küszöb átírása.
 
+A [tesztkészlet-előkészítő](NATIVE_REAPER_TEST_KIT.md) azonos forrású, hash-ellenőrzött
+csomagpárból 28 esetet / 112 üres ablakot és determinisztikus MIDI-t készít.
+Az előkészítés állapota `prepared_not_measured`; üres adat nem mérési eredmény.
+
 ## Mit mérünk?
 
 A cél a tényleges plugin/host működés és hallható kimaradások ellenőrzése.
-Az offline oszcillátor-dispatch jelölt **nincs ettől beépítve** a Preview-ba:
-a meglévő Preview tesztje nem igazolja automatikusan a kutatási jelölt natív
-teljesítményét. Mindig a tesztelt bináris pontos azonosságát és szerepét írjuk le.
+A meglévő Premium Preview marad a lookup Reference. A Saw-dispatch jelölt
+a külön Premium Candidate VST3-ban elérhető (#114/#115); a Reference vagy
+a Classic tesztje önmagában nem igazolja a Candidate natív teljesítményét. Mindig a tesztelt bináris pontos azonosságát és szerepét írjuk le.
 A végleges production RC-t integráció után újra, önállóan el kell fogadni.
 
 ## Futtatásonként rögzítendő adatok

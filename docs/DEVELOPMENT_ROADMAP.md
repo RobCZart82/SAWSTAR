@@ -12,17 +12,18 @@ Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Legutóbb ellenőrzött main (2026-10-18): `f72c8709fc98c5982ec9f716e0a991fd2c0df7ce` (#114).
-A #114 16 sikeres releváns workflow és 55 job után beolvadt; előtte a #113
-utáni main négy fő workflow-ja és 11 jobja is sikeres volt. Az új main CI-je
-külön kapu; a PR eredményét nem másoljuk át automatikusan rá.
-Az M1 numerikus előfeltétele és külön Candidate-identitása implementált;
-a macOS Universal Reference/Candidate tesztcsomagok CI-je és mindkét szelet
-validátora sikeres. A [Windows x64 build-/csomagolási út](PREMIUM_PREVIEW_WINDOWS.md)
-implementált, friss pontos-head CI/validator-ellenőrzése szükséges.
-Mindkét célgép tényleges telepítési smoke-ja és a
-[natív REAPER-/CPU-elfogadás](NATIVE_PREVIEW_PAIR_QUALIFICATION.md) nyitott.
-Production továbbra Classic; a meglévő Preview marad a változatlan referencia.
+Legutóbb ellenőrzött main (2026-10-18): `547f84d4f72a792aaf0b229c9d73b7a8a00fae40` (#115).
+A #115 javított headje mind a 6 releváns workflow / 15 job sikerével beolvadt;
+a merge utáni main 4 fő workflow-ja és 11 jobja is sikeres.
+A Windows/macOS külön Reference/Candidate VST3-tesztcsomagok ugyanarról a
+`c55ca8f` forrásról elkészültek, a hashok/fájlok újraellenőrizve.
+[Eredetjegyzék és üres natív tesztkészlet](NATIVE_REAPER_TEST_KIT.md):
+a 28 eset / 112 ablak, a determinisztikus 1/8/16 hangos MIDI és a cutoff-terv
+előkészítője implementált; friss platform-CI-je külön kapu.
+Mindkét célgép tényleges telepítési smoke-ja, a host-envelope/preset/projekt
+rögzítése és a natív REAPER-/CPU-elfogadás még nyitott.
+Production továbbra Classic; a meglévő Preview a referencia, a Saw-dispatch
+csak a külön Candidate identitásban van. A régi negatív bizonyítékok megmaradnak.
 A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.
 Robert 2026-10-17-én kizárólag erre a diagnosztikai PR-re engedélyezte a korábbi,
 piros main előfeltételének egyszeri feloldását; a GitHub-védelmek megmaradtak.
@@ -39,7 +40,7 @@ A #112-vel elkészült a [ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCE
 és a [teljes, körönként külön célgépes összesítő](measurements/target-rate-readiness-2026-10-17.md).
 A lezárt 576 cellából generált 36 sor nem indít új mérést és nem jelöl
 működési tartományt elfogadottnak; következő a natív REAPER-bizonyíték.
-**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112, #113 és #114 beolvadt.**
+**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112, #113, #114 és #115 beolvadt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
 A #109 utáni main Code quality első futása 600 másodperces tesztidőtúllépéssel hibás volt;
 a második kísérlet sikeres, az eredeti negatív napló megmarad.

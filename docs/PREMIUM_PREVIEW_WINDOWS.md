@@ -1,7 +1,9 @@
 # Premium Reference/Candidate — Windows x64 REAPER tesztcsomag
 
 Állapot: **2026-10-18, implementált build-/csomagolási út; a friss CI és a
-célgépes telepítési/REAPER-próba külön ellenőrzendő**. Ez nem nyilvános release.
+célgépes telepítési/REAPER-próba külön ellenőrzendő**.
+A javított #115 beolvadt: 6 releváns workflow / 15 job sikeres; az új main
+4 fő workflow / 11 job sikeres. Az [azonos forrású csomagpár és üres tesztadatlap](NATIVE_REAPER_TEST_KIT.md) elérhető. Ez nem nyilvános release.
 A production SAWSTAR Classic marad. A hangerőkorrekció lezárt, a 0,44 dB
 RMS-különbség marad; a CPU-/natív elfogadás továbbra nyitott.
 

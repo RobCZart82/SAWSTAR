@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "purpose": "Verified test-package pair identity, not native measurement or acceptance",
+  "source_commit": "c55ca8f826c414064c62a3c71961533aeff4fa52",
+  "integrated_main": "547f84d4f72a792aaf0b229c9d73b7a8a00fae40",
+  "native_host_acceptance": false,
+  "production_promotion_allowed": false,
+  "packages": [
+    {
+      "role": "reference",
+      "platform": "windows-x64",
+      "source_commit": "c55ca8f826c414064c62a3c71961533aeff4fa52",
+      "product": "SAWSTAR Premium Preview",
+      "zip_name": "SAWSTAR-Premium-Preview-Windows-x64.zip",
+      "zip_sha256": "ec954b09acd243c5e8437f9d8765fcfec748387a0c462539ea8cff0ba6a75e8c",
+      "binary_relative_path": "SAWSTARPremiumPreview.vst3/Contents/x86_64-win/SAWSTARPremiumPreview.vst3",
+      "binary_sha256": "5bd377396df2d968257cc5be5c36f13fe1958f186fd4326a19833018e546c532",
+      "artifact_id": 12116899452,
+      "artifact_url": "https://github.com/RobCZart82/SAWSTAR/actions/runs/39077670677/artifacts/12116899452",
+      "workflow_run": 39077670677,
+      "artifact_outer_zip_sha256": "6ecea729712a456f092169a0b3ed5892f1d2e9e66ee2b3fc0c0bd3b4e97a00e4",
+      "expires_at": "2026-11-16T23:07:49Z"
+    },
+    {
+      "role": "candidate",
+      "platform": "windows-x64",
+      "source_commit": "c55ca8f826c414064c62a3c71961533aeff4fa52",
+      "product": "SAWSTAR Premium Candidate",
+      "zip_name": "SAWSTAR-Premium-Candidate-Windows-x64.zip",
+      "zip_sha256": "7ca13f8fedc2624d44376cffd795d784f324d07a3db52ecc57d44313b20faecf",
+      "binary_relative_path": "SAWSTARPremiumCandidate.vst3/Contents/x86_64-win/SAWSTARPremiumCandidate.vst3",
+      "binary_sha256": "7d40cd6a1fe9a01e0e3d4ac7652666f7f2db8e1159669fc98e1335b685f64ac8",
+      "artifact_id": 12117229524,
+      "artifact_url": "https://github.com/RobCZart82/SAWSTAR/actions/runs/39077670677/artifacts/12117229524",
+      "workflow_run": 39077670677,
+      "artifact_outer_zip_sha256": "3bbb8c7e41f09c80d8f844ad3df6355e3e8c8c5e531d3f54e050ac4fa767b24c",
+      "expires_at": "2026-11-16T23:09:08Z"
+    },
+    {
+      "role": "reference",
+      "platform": "macos",
+      "source_commit": "c55ca8f826c414064c62a3c71961533aeff4fa52",
+      "product": "SAWSTAR Premium Preview",
+      "zip_name": "SAWSTAR-Premium-Preview-macOS-Universal.zip",
+      "zip_sha256": "daced98067434a73182d0894b6dfa0531830e790d1b3ed2eae291949746f46d9",
+      "binary_relative_path": "SAWSTARPremiumPreview.vst3/Contents/MacOS/SAWSTARPremiumPreview",
+      "binary_sha256": "bfc282c37566bee7f05a294464478238095e95e9da00c8874e1034e7f453e94e",
+      "artifact_id": 12118310254,
+      "artifact_url": "https://github.com/RobCZart82/SAWSTAR/actions/runs/39077670551/artifacts/12118310254",
+      "workflow_run": 39077670551,
+      "artifact_outer_zip_sha256": "c6ab59ddf41a7e1253177525a8976b4de142e6ad70d5085ec571e50a4689d2b2",
+      "expires_at": "2026-11-16T23:12:25Z"
+    },
+    {
+      "role": "candidate",
+      "platform": "macos",
+      "source_commit": "c55ca8f826c414064c62a3c71961533aeff4fa52",
+      "product": "SAWSTAR Premium Candidate",
+      "zip_name": "SAWSTAR-Premium-Candidate-macOS-Universal.zip",
+      "zip_sha256": "24c8e754033653f62f4c5b1e6a471ced6f504c2381111e317dee383284989d39",
+      "binary_relative_path": "SAWSTARPremiumCandidate.vst3/Contents/MacOS/SAWSTARPremiumCandidate",
+      "binary_sha256": "17b5f97621c56c05098ca2a0b371c5a02db4bc388a47b6ebb2356ecb3a3217fc",
+      "artifact_id": 12118335254,
+      "artifact_url": "https://github.com/RobCZart82/SAWSTAR/actions/runs/39077670551/artifacts/12118335254",
+      "workflow_run": 39077670551,
+      "artifact_outer_zip_sha256": "6bae7e5b6e9300e33763cdb10989258716a1fa8a18740aa03d5a8333d5a31f57",
+      "expires_at": "2026-11-16T23:13:33Z"
+    }
+  ]
+}

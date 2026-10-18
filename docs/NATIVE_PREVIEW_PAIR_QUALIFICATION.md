@@ -4,8 +4,10 @@
 A #113 numerikus előfeltétele beolvadt (7 workflow / 18 job sikeres).
 A #114 külön Candidate-identitása és macOS Universal tesztcsomagjai beolvadtak
 (16 workflow / 55 job sikeres, a két szerep mindkét szeletének validátora zöld).
-A Windows x64 VST3-tesztcsomagolási út implementált; friss CI és tényleges
-telepítési/natív elfogadás még szükséges.
+A Windows x64 csomagok a javító #115-ben beolvadtak (6 workflow / 15 job),
+a merge utáni main 4 fő workflow / 11 job sikeres. A négy azonos forrású
+csomag/hash ellenőrzött; a [natív tesztkészlet](NATIVE_REAPER_TEST_KIT.md)
+előkészíti a próbát, tényleges telepítési/natív elfogadás még szükséges.
 
 ## Miért kell külön kapu?
 
@@ -121,7 +123,8 @@ Telepítési smoke a Mac célgépen, REAPER bezárása után:
 
 A jelen Linux környezetben nincs macOS VST3-/REAPER-telepítési próba.
 A helyi Release Candidate smoke, 480 esetes bitazonosság és Reference smoke
-ellenőrizhető, a macOS bundle/validator kaput a friss CI-nek kell bizonyítania.
+ellenőrizhető. A #115 macOS bundle/validator kapuja CI-ben sikeres volt;
+minden új head saját ellenőrzést igényel, a REAPER-próbát a CI nem helyettesíti.
 
 ## Windows x64 tesztpár
 
@@ -134,10 +137,10 @@ Windows ARM64 támogatást és tényleges REAPER-/ASIO-elfogadást ez nem ad.
 
 ## Hátralévő M1 munka
 
-1. A külön Candidate VST3 macOS pontos-head platform-CI-je és két kész
-   csomag/binárishash ellenőrzése, tényleges célgépes telepítési smoke.
-2. Az implementált Windows x64 csomagolás friss CI-/validator-/hash-kapuja,
-   utána tényleges célgépes telepítési smoke. A Linux csomagolási fixture nem natív bizonyíték.
+1. A Windows/macOS külön csomagok, pontos-head CI, validator és hash-kapu kész (#115).
+   A tényleges célgépes telepítési smoke mindkét platformon nyitott.
+2. Az üres tesztkészlet után host-preset/MIDI/envelope/projekt azonosítása és
+   a környezet/adatlap futás előtti kitöltése. A Linux előkészítés nem natív bizonyíték.
 3. Ezután a [valós REAPER-mátrix](NEXT_RELEASE_DEVELOPMENT_PLAN.md) végrehajtása,
    a [natív adatlap](NATIVE_REAPER_CPU_ACCEPTANCE.md) kitöltésével.
 
