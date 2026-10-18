@@ -12,6 +12,8 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <cstdint>
+#include <sstream>
 #include <stdexcept>
 #ifdef SAWSTAR_CALIBRATED_PREVIEW_PAIR
 using Reference = sawstar::premium_preview_engine::Synth;
@@ -23,15 +25,40 @@ using Study = sawstar::experimental_dispatch_engine::Synth;
 static_assert(sizeof(Reference)==sizeof(Study), "Dispatch engine adds no state");
 int Waveform = 0;
 void Require(bool ok, const char* why) { if (!ok) throw std::runtime_error(why); }
+struct ComparisonContext {
+  double rate = 0;
+  int filter = -1, voice = -1, frame = -1;
+  bool fx = false;
+  const char* phase = "negative_control";
+} Context;
 struct Error {
+  const char* point = "negative_control";
   double peak = 0, squared = 0, energy = 0;
   void Add(sawstar::StereoSample a, sawstar::StereoSample b) {
+    int channel = 0;
     for (auto pair : {std::pair<float, float>{a.left, b.left}, {a.right, b.right}}) {
       Require(std::isfinite(pair.first) && std::isfinite(pair.second), "Nonfinite engine comparison");
-      Require(std::memcmp(&pair.first, &pair.second, sizeof(float)) == 0, "Dispatch engine bit identity");
+      if (std::memcmp(&pair.first, &pair.second, sizeof(float)) != 0) {
+        uint32_t candidateBits = 0, referenceBits = 0;
+        static_assert(sizeof(candidateBits) == sizeof(float), "Diagnostic requires 32-bit float");
+        std::memcpy(&candidateBits, &pair.first, sizeof(float));
+        std::memcpy(&referenceBits, &pair.second, sizeof(float));
+        std::ostringstream message;
+        message << std::setprecision(17) << "Dispatch engine bit identity"
+                << " waveform=" << Waveform << " rate=" << Context.rate
+                << " filter_mode=" << Context.filter << " voice_mode=" << Context.voice
+                << " fx=" << Context.fx << " phase=" << Context.phase << " frame=" << Context.frame
+                << " point=" << point << " channel=" << (channel == 0 ? "left" : "right")
+                << " candidate_bits=0x" << std::hex << std::setw(8) << std::setfill('0') << candidateBits
+                << " reference_bits=0x" << std::setw(8) << referenceBits << std::dec
+                << " candidate=" << pair.first << " reference=" << pair.second
+                << " delta=" << double(pair.first) - double(pair.second);
+        throw std::runtime_error(message.str());
+      }
       const double delta = double(pair.first) - pair.second;
       peak = std::max(peak, std::abs(delta)); squared += delta * delta;
       energy += double(pair.second) * pair.second;
+      ++channel;
     }
   }
   double Relative() const { Require(energy > 1e-12, "Silent engine fixture"); return std::sqrt(squared / energy); }
@@ -96,19 +123,26 @@ int main(int argc, char** argv) {
     bool rejected = false;
     try {
       Error altered; altered.Add({.1f, .1f}, {.09f, .09f}); altered.Check();
-    } catch (const std::runtime_error&) { rejected = true; }
+    } catch (const std::runtime_error& error) {
+      const std::string message = error.what();
+      rejected = message.find("point=negative_control channel=left") != std::string::npos &&
+                 message.find("candidate_bits=0x3dcccccd reference_bits=0x3db851ec") != std::string::npos &&
+                 message.find("phase=negative_control frame=-1") != std::string::npos;
+    }
     Require(rejected, "Engine comparison accepted altered audio");
     int cases = 0;
-    std::cout << std::setprecision(17) << "waveform,rate,filter_mode,voice_mode,fx,output_peak_error,output_relative_rms,prefx_peak_error,prefx_relative_rms\n";
+    std::cout << std::unitbuf << std::setprecision(17) << "waveform,rate,filter_mode,voice_mode,fx,output_peak_error,output_relative_rms,prefx_peak_error,prefx_relative_rms\n";
     for (Waveform=firstWave; Waveform<endWave; ++Waveform) for (double rate : {48000., 96000., 176400., 192000., 384000.})
       for (int filter = 0; filter < 4; ++filter) for (int voice = 0; voice < 3; ++voice)
         for (bool fx : {false, true}) {
+          Context = {rate, filter, voice, -1, fx, "setup"};
           auto a = std::make_unique<Reference>(); auto b = std::make_unique<Study>();
           Setup(*a, rate, filter, voice, fx); Setup(*b, rate, filter, voice, fx);
           Require(a->ActiveVoices() == (voice == 0 ? 16 : 1) && a->ActiveVoices() == b->ActiveVoices(),
                   "Missing sounding voice fixture");
-          Error out, pre;
+          Error out{"output"}, pre{"pre_fx"};
           for (int n = 0; n < 4096; ++n) {
+            Context.phase = "main"; Context.frame = n;
             Event(*a, n, filter, voice); Event(*b, n, filter, voice);
             const auto x = a->ProcessStereo(), y = b->ProcessStereo();
             Require(std::max({std::abs(x.left), std::abs(x.right), std::abs(y.left), std::abs(y.right)}) <= .98001f,
@@ -118,6 +152,7 @@ int main(int argc, char** argv) {
             for (int note : {36, 48, 50, 60}) Require(a->Held(note) == b->Held(note), "MIDI ownership mismatch");
           }
           for (int n = 0; n < int(rate / 10); ++n) {
+            Context.phase = "tail"; Context.frame = n;
             out.Add(b->ProcessStereo(), a->ProcessStereo()); pre.Add(b->PreFX(), a->PreFX());
           }
           Require(a->ActiveVoices() == 0 && b->ActiveVoices() == 0, "Release did not complete");

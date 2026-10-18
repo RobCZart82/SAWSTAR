@@ -10,6 +10,10 @@ nem módosít DSP-t, presetet vagy hangerőt. Előkészíti az azonos bemeneteke
 és az üres adatlapot a [release terv](NEXT_RELEASE_DEVELOPMENT_PLAN.md)
 28 esetes, 112 ablakos C/V/G/F mátrixához.
 
+**Nyitott numerikus blokkoló:** a #116 első PR-headjén Rosetta bitazonossági
+hiba jelentkezett. [Tények és diagnosztika](PREVIEW_BIT_IDENTITY_FAILURE_2026_10_18.md).
+A kit előkészítő sikerét nem tekintjük a hiba kijavításának vagy CPU-elfogadásnak.
+
 ## Ellenőrzött csomagpár
 
 A [csomagazonosító jegyzék](test-fixtures/native-preview-pair-2026-10-18.json)

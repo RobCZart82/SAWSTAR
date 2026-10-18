@@ -56,10 +56,57 @@ jobs:
         run: cmake --build build-premium --config Release --target ${{ matrix.product }}-vst3 sawstar_premium_preview_smoke sawstar_premium_preview_levels sawstar_premium_native_pair --parallel 3
       - name: Qualify calibrated Preview reference and dispatch candidate on both slices
         run: |
-          for wave in 0 1 2 3; do
-            build-premium/sawstar_premium_native_pair --waveform "$wave"
-            arch -x86_64 build-premium/sawstar_premium_native_pair --waveform "$wave"
-          done
+          python3 - <<'PYCODE'
+          import hashlib, json, platform, shutil, subprocess, sys
+          from pathlib import Path
+          if platform.system() != 'Darwin' or platform.machine() != 'arm64':
+              raise SystemExit('Expected Apple Silicon for explicit arm64/Rosetta qualification')
+          output = Path('preview-qualification')
+          output.mkdir(exist_ok=False)
+          executable = Path('build-premium/sawstar_premium_native_pair').resolve()
+          shutil.copy2(executable, output/executable.name)
+          shutil.copy2('build-premium/CMakeCache.txt', output/'CMakeCache.txt')
+          manifest = dict(schema=1, state='incomplete',
+              source_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              executable_sha256=hashlib.sha256(executable.read_bytes()).hexdigest(),
+              cmake_cache_sha256=hashlib.sha256((output/'CMakeCache.txt').read_bytes()).hexdigest(),
+              runtime_platform=platform.platform(),
+              purpose='bit identity qualification; not CPU measurement or native host acceptance',
+              native_host_acceptance=False, production_promotion_allowed=False, results=[])
+          def save():
+              (output/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
+          save()
+          try:
+              # Each slice/waveform runs exactly once. A failed stream remains failed;
+              # the other planned streams still produce diagnostics, never a retry.
+              for wave in range(4):
+                  for arch_name in ('arm64', 'x86_64'):
+                      log = output/(arch_name+'-waveform-'+str(wave)+'.txt')
+                      with log.open('w', encoding='utf-8') as stream:
+                          result = subprocess.run(['arch', '-'+arch_name, str(executable),
+                              '--waveform', str(wave)], stdout=stream, stderr=subprocess.STDOUT)
+                      manifest['results'].append(dict(waveform=wave, architecture=arch_name,
+                          translated=arch_name=='x86_64', returncode=result.returncode,
+                          log_sha256=hashlib.sha256(log.read_bytes()).hexdigest()))
+                      save()
+                      print(arch_name, 'waveform', wave, 'exit', result.returncode, flush=True)
+              manifest['state'] = 'failed' if any(r['returncode'] for r in manifest['results']) else 'complete'
+          except BaseException as error:
+              manifest['state']='failed'; manifest['error']=str(error)
+              raise
+          finally:
+              save()
+          if manifest['state'] != 'complete':
+              raise SystemExit('Calibrated pair failed; inspect preserved per-slice logs')
+          PYCODE
+      - name: Preserve exact-head numerical qualification including failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ${{ matrix.artifact }}-numerical-qualification
+          path: preview-qualification/
+          if-no-files-found: warn
+          retention-days: 90
       - name: Check engine identity, audio and latency on both slices
         run: |
           build-premium/sawstar_premium_preview_smoke

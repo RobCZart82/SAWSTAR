@@ -24,6 +24,13 @@ Mindkét célgép tényleges telepítési smoke-ja, a host-envelope/preset/proje
 rögzítése és a natív REAPER-/CPU-elfogadás még nyitott.
 Production továbbra Classic; a meglévő Preview a referencia, a Saw-dispatch
 csak a külön Candidate identitásban van. A régi negatív bizonyítékok megmaradnak.
+**Aktuális blokkoló — #116:** az első PR-head Universal Reference-jobjának
+x86_64/Rosetta numerikus párja bitazonossági hibával leállt (17/18 job sikeres).
+[A hiba és a tartós eredeti napló](PREVIEW_BIT_IDENTITY_FAILURE_2026_10_18.md).
+Az első eltérés diagnosztikája és szeletenkénti naplómegőrzése fejlesztés alatt;
+DSP-ok/javítás még nincs bizonyítva. A #116 nem olvadt be, a numerikus kaput
+nem zárjuk le pusztán egy későbbi zöld futással.
+
 A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.
 Robert 2026-10-17-én kizárólag erre a diagnosztikai PR-re engedélyezte a korábbi,
 piros main előfeltételének egyszeri feloldását; a GitHub-védelmek megmaradtak.
