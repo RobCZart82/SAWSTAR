@@ -1,4 +1,4 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-17
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-18
 
 **A release-ig vezető részletes végrehajtási terv és a valós REAPER CPU-elfogadás:**
 [NEXT_RELEASE_DEVELOPMENT_PLAN.md](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
@@ -12,15 +12,17 @@ Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Legutóbb ellenőrzött main (2026-10-17): `dd5853b1d052b707089526f1f9ec2dfc634a593f` (#113).
-A #113 7 sikeres releváns workflow és 18 job után beolvadt; előtte a #112
-utáni main négy fő workflow-ja és 11 jobja is sikeres volt. Az új main
-CI-je külön kapu; a PR eredményét nem másoljuk át automatikusan rá.
-Az M1 numerikus előfeltétele kész; következő a
-[külön Preview Reference/Candidate natív tesztpár](NATIVE_PREVIEW_PAIR_QUALIFICATION.md).
-A Candidate-identitás és macOS Universal csomagolási út implementált;
-pontos-head CI és célgépes telepítési smoke még szükséges. Windows VST3-csomagolás,
-natív REAPER-/CPU-elfogadás külön nyitott. Production továbbra Classic.
+Legutóbb ellenőrzött main (2026-10-18): `f72c8709fc98c5982ec9f716e0a991fd2c0df7ce` (#114).
+A #114 16 sikeres releváns workflow és 55 job után beolvadt; előtte a #113
+utáni main négy fő workflow-ja és 11 jobja is sikeres volt. Az új main CI-je
+külön kapu; a PR eredményét nem másoljuk át automatikusan rá.
+Az M1 numerikus előfeltétele és külön Candidate-identitása implementált;
+a macOS Universal Reference/Candidate tesztcsomagok CI-je és mindkét szelet
+validátora sikeres. A [Windows x64 build-/csomagolási út](PREMIUM_PREVIEW_WINDOWS.md)
+implementált, friss pontos-head CI/validator-ellenőrzése szükséges.
+Mindkét célgép tényleges telepítési smoke-ja és a
+[natív REAPER-/CPU-elfogadás](NATIVE_PREVIEW_PAIR_QUALIFICATION.md) nyitott.
+Production továbbra Classic; a meglévő Preview marad a változatlan referencia.
 A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.
 Robert 2026-10-17-én kizárólag erre a diagnosztikai PR-re engedélyezte a korábbi,
 piros main előfeltételének egyszeri feloldását; a GitHub-védelmek megmaradtak.
@@ -37,7 +39,7 @@ A #112-vel elkészült a [ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCE
 és a [teljes, körönként külön célgépes összesítő](measurements/target-rate-readiness-2026-10-17.md).
 A lezárt 576 cellából generált 36 sor nem indít új mérést és nem jelöl
 működési tartományt elfogadottnak; következő a natív REAPER-bizonyíték.
-**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112 és #113 beolvadt.**
+**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112, #113 és #114 beolvadt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
 A #109 utáni main Code quality első futása 600 másodperces tesztidőtúllépéssel hibás volt;
 a második kísérlet sikeres, az eredeti negatív napló megmarad.
