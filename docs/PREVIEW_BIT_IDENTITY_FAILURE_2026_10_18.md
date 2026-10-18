@@ -48,23 +48,56 @@ meg automatikusan ezt a később észlelt numerikus hibát.
    main/tail szakaszt, mintaszámot, output/pre-FX pontot, bal/jobb csatornát,
    két float értéket, 32 bites hex bitmintájukat és a numerikus különbséget.
    A szándékos negatív kontroll a diagnosztika ismert bitmintáit is ellenőrzi.
-3. A Universal workflow szerepenként nyolc külön streamet futtat, mindet
-   **egyszer**: négy waveform × arm64/x86_64. A többi előre kijelölt stream
-   hiba esetén is naplót ad, a hibás streamet nem futtatjuk újra.
-4. A tényleges Universal tesztexecutable és CMakeCache is megmarad az artifactban.
-   Pontos checkout-/executable-/cache-/loghash, architektúra/Rosetta-jelölés és exitkód
-   kerül a megőrzött manifestbe, az állapot hiánynál incomplete, hibánál failed.
-   Egyetlen hibás stream is teljes jobhibát eredményez; nem készül tesztplugin-csomag.
-5. Az új naplók és manifest 90 napos artifactot kapnak a workflow-ban;
-   a mostani eredeti hibás joblog a repositoryban tartósan megmarad.
+3. A `089445cb` diagnosztikai head mind a 9 workflow-ja és 26 jobja sikeres
+   ([Universal futás](https://github.com/RobCZart82/SAWSTAR/actions/runs/39141889969)).
+   Ez nem reprodukálta a hibát, nem bizonyítja az okát és nem oldja fel a merge-kaput.
+4. A következő, előre rögzített reprodukciós próba szerepenként **14 stream**:
+   az eredeti nyolc waveform × architektúra stream, majd három további Triangle
+   hidegfolyamat mindkét architektúrán. Így Triangle esetén pontosan **4 külön
+   folyamat / architektúra** fut, minden kijelölt sorszám egyszer. Nincs
+   sikerig ismétlés, kedvező eredmény kiválasztása vagy CPU-kampány.
+5. Az opt-in `--diagnostic-waveform` az eredeti 120 esetet futtatja, és a végső
+   output/pre-FX minták Reference/Candidate ujjlenyomatát is kiírja.
+   FNV-1a-64 diagnosztikai ujjlenyomatot használ, explicit little-endian float
+   byte-sorrenddel; **ez nem kriptográfiai nyershang-hash**. A kanonikus
+   ujjlenyomattábla és az eredeti log/executable/cache eredetigazolása SHA-256.
+   Azonos architektúra külön folyamatait hasonlítjuk össze, nem arm64-et x86_64-gyel.
+   Az eredeti alapértelmezett és `--waveform` CSV 9 oszlopa változatlan.
+6. A 0. sorszámú Triangle-folyamat az előre kijelölt alap. Ha hibás vagy hiányos,
+   későbbi siker nem helyettesítheti. A teljes 120-as grid, nulla biteltérés,
+   páron belüli ujjlenyomat-egyezés és a külön folyamatok közötti egyezés is kapu.
+   A folyamatok közötti eltérés akkor is blokkol, ha mindegyik exitkód 0.
+7. A tényleges Universal tesztexecutable és CMakeCache is megmarad az artifactban.
+   Pontos checkout-/executable-/cache-/loghash, architektúra/Rosetta-jelölés,
+   hidegfolyamat-sorszám, exitkód és ellenőrzési hiba kerül a manifestbe.
+   Hiba esetén a többi előre kijelölt stream is megmarad; bármelyik hibája az
+   egész jobot failed állapotban tartja, és nem készül tesztplugin-csomag.
+   Az első biteltérés az FP-kerekítési módot, x86-on az MXCSR-t is rögzíti,
+   még a lebegőpontos diagnosztikai formázás előtt.
+8. Az új naplók és manifest 90 napos artifactot kapnak a workflow-ban;
+   az eredeti hibás joblog a repositoryban tartósan megmarad.
 
-Helyi ellenőrzés: Linux GNU 13.3 Release. A kalibrált pár teljes 480 esete
-sikeres; az eredeti kutatási pár ugyanazzal a közös fixture-rel szintén
-480/480 esetben sikeres. Mindkettő megtartja a diagnosztikai negatív kontrollt.
-A workflow-orkesztráció helyi mockolt siker/egyetlen-hiba kontrolljában
-mind a nyolc stream egyszer futott, a loghashok helyesek, a hiba failed maradt.
-Ez nem Rosetta-reprodukció és nem a hiba okának bizonyítása.
+## Helyi ellenőrzés és korlátai
 
-Következő: a friss pontos-head diagnosztikai CI kiértékelése, szükség esetén
-célzott reprodukció; csak bizonyított ok/javítás után zárható le a numerikus hiba.
-Nincs küszöblazítás, kedvező számokért újraindított mérés vagy vak merge.
+Linux GNU 13.3 Release: a kalibrált pár teljes 480 esete sikeres. A két külön
+Triangle-folyamat 120/120 esete és azonos architektúrás ujjlenyomattáblája egyezik;
+a kutatási motorpár diagnosztikai 120 esete is sikeres. Az FP-állapot rögzítésének
+formázás elé helyezése után mindkét target újrafordult; a végső kalibrált Triangle
+ellenőrzés 120/120 esete sikeres, ujjlenyomattáblája a korábbi kettővel egyezik. Az eredeti negatív módosított-jel
+kontroll és az ismert float-ujjlenyomat kontroll megmarad.
+
+A reprodukciós orkesztráció 7 regressziós tesztje ellenőrzi a teljes 14 streamet,
+az összes 0 exitkód ellenére változó jelet, a hibás alap megőrzését, hiányos gridet,
+páron belüli eltérést, menet közben módosuló executable-t, a meglévő bizonyíték
+felülírásának és a nem natív futtatásnak a tiltását. A meglévő natív tesztkészlet
+7 regressziója is sikeres. Ezek mockolt vezérlési kontrollok, nem natív hostmérések.
+
+Egy inicializálási hipotézist a konstrukciós lánc és a valódi, nem aggregate
+`SevenSaw` osztállyal végzett értékinicializálási próba nem igazolt: a `Voice{}`
+útvonalon a vizsgált Daisy-oszcillátor előzőkimenet-tagja nullázódott.
+Ezen az alapon nincs DSP-módosítás, és ez nem bizonyítja az eredeti hiba okát.
+
+Következő: a friss pontos-head, véges reprodukciós CI kiértékelése; csak
+bizonyított ok/javítás után zárható le a numerikus hiba. Egy véges próba sikere
+önmagában nem bizonyít hibamentességet. Nincs küszöblazítás, kedvező számokért
+újraindított mérés, CPU-/natív elfogadás, production-promóció vagy vak merge.

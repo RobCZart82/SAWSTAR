@@ -27,8 +27,10 @@ csak a külön Candidate identitásban van. A régi negatív bizonyítékok megm
 **Aktuális blokkoló — #116:** az első PR-head Universal Reference-jobjának
 x86_64/Rosetta numerikus párja bitazonossági hibával leállt (17/18 job sikeres).
 [A hiba és a tartós eredeti napló](PREVIEW_BIT_IDENTITY_FAILURE_2026_10_18.md).
-Az első eltérés diagnosztikája és szeletenkénti naplómegőrzése fejlesztés alatt;
-DSP-ok/javítás még nincs bizonyítva. A #116 nem olvadt be, a numerikus kaput
+Az első eltérés diagnosztikája és szeletenkénti naplómegőrzése implementált;
+a `089445cb` head 9 workflow-ja / 26 jobja zöld, de DSP-ok/javítás nincs bizonyítva.
+A következő vizsgálat előre rögzített 4 külön Triangle-folyamat / architektúra
+ujjlenyomatát is összeveti (14 stream / szerep); minden negatív eredmény blokkol. A #116 nem olvadt be, a numerikus kaput
 nem zárjuk le pusztán egy későbbi zöld futással.
 
 A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.

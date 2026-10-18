@@ -5,6 +5,8 @@ on:
       - '.github/workflows/native-reaper-kit.yml'
       - 'scripts/prepare-native-reaper-kit.py'
       - 'tests/native_reaper_kit.py'
+      - 'scripts/qualify-preview-slices.py'
+      - 'tests/preview_slice_qualification.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,3 +29,5 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Verify package gates, complete matrix and MIDI semantics without native measurement
         run: python -W error::ResourceWarning tests/native_reaper_kit.py
+      - name: Verify bounded numerical reproduction with synthetic process/log controls
+        run: python -W error::ResourceWarning tests/preview_slice_qualification.py

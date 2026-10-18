@@ -14,6 +14,10 @@
 #include <memory>
 #include <cstdint>
 #include <sstream>
+#include <cfenv>
+#if defined(__SSE__) || defined(_M_X64)
+#include <xmmintrin.h>
+#endif
 #include <stdexcept>
 #ifdef SAWSTAR_CALIBRATED_PREVIEW_PAIR
 using Reference = sawstar::premium_preview_engine::Synth;
@@ -24,6 +28,7 @@ using Study = sawstar::experimental_dispatch_engine::Synth;
 #endif
 static_assert(sizeof(Reference)==sizeof(Study), "Dispatch engine adds no state");
 int Waveform = 0;
+bool SignalDigests = false;
 void Require(bool ok, const char* why) { if (!ok) throw std::runtime_error(why); }
 struct ComparisonContext {
   double rate = 0;
@@ -34,6 +39,18 @@ struct ComparisonContext {
 struct Error {
   const char* point = "negative_control";
   double peak = 0, squared = 0, energy = 0;
+  uint64_t referenceDigest = 14695981039346656037ull;
+  uint64_t candidateDigest = 14695981039346656037ull;
+  static void HashFloat(uint64_t& digest, float value) {
+    uint32_t bits = 0;
+    std::memcpy(&bits, &value, sizeof(bits));
+    // FNV-1a over the four IEEE float bytes in a declared little-endian order.
+    // Diagnostic fingerprint only; archive provenance still uses SHA-256.
+    for (unsigned shift = 0; shift < 32; shift += 8) {
+      digest ^= (bits >> shift) & 255u;
+      digest *= 1099511628211ull;
+    }
+  }
   void Add(sawstar::StereoSample a, sawstar::StereoSample b) {
     int channel = 0;
     for (auto pair : {std::pair<float, float>{a.left, b.left}, {a.right, b.right}}) {
@@ -43,6 +60,10 @@ struct Error {
         static_assert(sizeof(candidateBits) == sizeof(float), "Diagnostic requires 32-bit float");
         std::memcpy(&candidateBits, &pair.first, sizeof(float));
         std::memcpy(&referenceBits, &pair.second, sizeof(float));
+        const int roundingMode = std::fegetround();
+#if defined(__SSE__) || defined(_M_X64)
+        const unsigned mxcsr = _mm_getcsr();
+#endif
         std::ostringstream message;
         message << std::setprecision(17) << "Dispatch engine bit identity"
                 << " waveform=" << Waveform << " rate=" << Context.rate
@@ -53,7 +74,15 @@ struct Error {
                 << " reference_bits=0x" << std::setw(8) << referenceBits << std::dec
                 << " candidate=" << pair.first << " reference=" << pair.second
                 << " delta=" << double(pair.first) - double(pair.second);
+        message << " fp_rounding=" << roundingMode;
+#if defined(__SSE__) || defined(_M_X64)
+        message << " mxcsr=0x" << std::hex << mxcsr << std::dec;
+#endif
         throw std::runtime_error(message.str());
+      }
+      if (SignalDigests) {
+        HashFloat(candidateDigest, pair.first);
+        HashFloat(referenceDigest, pair.second);
       }
       const double delta = double(pair.first) - pair.second;
       peak = std::max(peak, std::abs(delta)); squared += delta * delta;
@@ -113,8 +142,10 @@ int main(int argc, char** argv) {
   try {
     int firstWave = 0, endWave = 4;
     if (argc != 1) {
-      Require(argc == 3 && std::strcmp(argv[1], "--waveform") == 0,
-              "Usage: oscillator_dispatch_engine [--waveform 0|1|2|3]");
+      Require(argc == 3 && (std::strcmp(argv[1], "--waveform") == 0 ||
+                            std::strcmp(argv[1], "--diagnostic-waveform") == 0),
+              "Usage: oscillator_dispatch_engine [--waveform|--diagnostic-waveform 0|1|2|3]");
+      SignalDigests = std::strcmp(argv[1], "--diagnostic-waveform") == 0;
       Require(std::strlen(argv[2]) == 1 && argv[2][0] >= '0' && argv[2][0] <= '3',
               "Waveform must be exactly 0, 1, 2 or 3");
       firstWave = argv[2][0] - '0'; endWave = firstWave + 1;
@@ -131,7 +162,17 @@ int main(int argc, char** argv) {
     }
     Require(rejected, "Engine comparison accepted altered audio");
     int cases = 0;
-    std::cout << std::unitbuf << std::setprecision(17) << "waveform,rate,filter_mode,voice_mode,fx,output_peak_error,output_relative_rms,prefx_peak_error,prefx_relative_rms\n";
+    // Independent FNV known vector also rejects a diagnostic implementation
+    // that returns one constant digest for every signal.
+    uint64_t known = 14695981039346656037ull;
+    Error::HashFloat(known, 0.f);
+    Require(known == 0x4d25767f9dce13f5ull, "Float fingerprint known vector");
+    uint64_t alteredDigest = 14695981039346656037ull;
+    Error::HashFloat(alteredDigest, 1.f);
+    Require(known != alteredDigest, "Float fingerprint accepted changed signal");
+    std::cout << std::unitbuf << std::setprecision(17) << "waveform,rate,filter_mode,voice_mode,fx,output_peak_error,output_relative_rms,prefx_peak_error,prefx_relative_rms";
+    if (SignalDigests) std::cout << ",output_reference_digest,output_candidate_digest,prefx_reference_digest,prefx_candidate_digest";
+    std::cout << '\n';
     for (Waveform=firstWave; Waveform<endWave; ++Waveform) for (double rate : {48000., 96000., 176400., 192000., 384000.})
       for (int filter = 0; filter < 4; ++filter) for (int voice = 0; voice < 3; ++voice)
         for (bool fx : {false, true}) {
@@ -158,7 +199,14 @@ int main(int argc, char** argv) {
           Require(a->ActiveVoices() == 0 && b->ActiveVoices() == 0, "Release did not complete");
           out.Check(); pre.Check();
           std::cout << Waveform << ',' << rate << ',' << filter << ',' << voice << ',' << fx << ',' << out.peak << ',' << out.Relative()
-                    << ',' << pre.peak << ',' << pre.Relative() << '\n';
+                    << ',' << pre.peak << ',' << pre.Relative();
+          if (SignalDigests) {
+            for (uint64_t value : {out.referenceDigest, out.candidateDigest,
+                                   pre.referenceDigest, pre.candidateDigest})
+              std::cout << ',' << std::hex << std::setw(16) << std::setfill('0') << value << std::dec;
+            std::cout << std::setfill(' ');
+          }
+          std::cout << '\n';
           a->Reset(rate); b->Reset(rate);
           for (int n = 0; n < 64; ++n) {
             const auto x = a->ProcessStereo(), y = b->ProcessStereo();
