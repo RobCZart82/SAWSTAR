@@ -48,10 +48,17 @@ class SliceQualification(unittest.TestCase):
             else:self.assertEqual(flag,'--waveform');stdout.write('ordinary fixture log\n')
             if kind=='binary_changed' and len(self.calls)==14:self.executable.write_bytes(b'changed binary')
             return subprocess.CompletedProcess(command,1 if kind=='exit_failure' and arch=='-x86_64' and wave=='2' and cold==0 else 0)
-        with patch.object(slices.platform,'system',return_value='Darwin'),patch.object(slices.platform,'machine',return_value='arm64'),patch.object(slices.subprocess,'check_output',return_value='a'*40),patch.object(slices.subprocess,'run',side_effect=run),contextlib.redirect_stdout(io.StringIO()):
+        def git_head(command, **kwargs):
+            # Reject accidental interception of platform.py's binary `file`
+            # probe: only the declared text-mode Git query belongs to this mock.
+            self.assertEqual(command,['git','rev-parse','HEAD'])
+            self.assertEqual(kwargs,{'text':True})
+            return 'a'*40
+        with patch.object(slices.platform,'system',return_value='Darwin'),patch.object(slices.platform,'machine',return_value='arm64'),patch.object(slices.platform,'platform',return_value='synthetic-Darwin-arm64'),patch.object(slices.subprocess,'check_output',side_effect=git_head),patch.object(slices.subprocess,'run',side_effect=run),contextlib.redirect_stdout(io.StringIO()):
             return slices.qualify(self.executable,self.cache,self.output)
 
     def assert_evidence(self,result):
+        self.assertEqual(result['runtime_platform'],'synthetic-Darwin-arm64')
         self.assertEqual(len(result['results']),14)
         self.assertEqual(len(self.calls),14)
         self.assertEqual(len(set(self.calls)),14)

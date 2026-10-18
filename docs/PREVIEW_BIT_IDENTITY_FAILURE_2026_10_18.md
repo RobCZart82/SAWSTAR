@@ -101,3 +101,23 @@ Következő: a friss pontos-head, véges reprodukciós CI kiértékelése; csak
 bizonyított ok/javítás után zárható le a numerikus hiba. Egy véges próba sikere
 önmagában nem bizonyít hibamentességet. Nincs küszöblazítás, kedvező számokért
 újraindított mérés, CPU-/natív elfogadás, production-promóció vagy vak merge.
+
+## Külön tesztizolációs CI-hiba — `fdbb72e`, 2026-10-18
+
+A [tesztkészlet macOS-jobja](https://github.com/RobCZart82/SAWSTAR/actions/runs/39151695138/job/117746489201)
+Python 3.14 alatt a szintetikus orkesztrációs tesztben hibázott: a globálisan
+helyettesített `subprocess.check_output` szöveget adott vissza a `platform.platform()`
+belső, byte-eredményt váró `file` lekérdezésének is. Ebből lett az
+`AttributeError: 'str' object has no attribute 'decode'` (7 teszt / 6 error).
+A Linux és Windows tesztjob sikeres volt. A tényleges
+[Universal numerikus workflow](https://github.com/RobCZart82/SAWSTAR/actions/runs/39151695028)
+sikeres; ez a mostani Python-hiba a teszt helyettesítési határának hibája,
+nem abból a workflow-ból érkező hangmintaeltérés.
+
+A javítás a tesztben külön rögzíti a szintetikus platformleírást, és szigorúan
+ellenőrzi, hogy a folyamatlekérdezési mock kizárólag a deklarált szöveges
+`git rev-parse HEAD` hívást kapja. A valódi gyűjtő gépadat-lekérdezése és minden
+numerikus kapuja változatlan. A naplóban látott str/bytes ütközést helyileg,
+szintetikus Darwin-metaadat útvonallal reprodukáltuk. A javított 7 teszt és a
+meglévő 7 tesztkészlet-regresszió helyileg sikeres; a friss head háromplatformos
+CI-je külön ellenőrzés. Az eredeti `05b730d` Rosetta-hiba ettől továbbra nyitott.
