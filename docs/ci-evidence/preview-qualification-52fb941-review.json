@@ -1,0 +1,317 @@
+{
+  "schema": 1,
+  "review_date": "2026-10-19",
+  "source_commit": "52fb941c3f5a907087a78df84c3099de9878c778",
+  "workflow_run": 39156492489,
+  "review": "downloaded artifact SHA-256, executable/cache/log SHA-256, every CSV grid and diagnostic fingerprint table independently recalculated",
+  "native_host_acceptance": false,
+  "production_promotion_allowed": false,
+  "original_numerical_failure_resolved": false,
+  "roles": [
+    {
+      "role": "reference",
+      "artifact_id": 12147595575,
+      "artifact_sha256": "9bd43986ed6244298aacc8d252cddab16b23e0617ce3b8565baf9241140ef50f",
+      "artifact_bytes": 163211,
+      "manifest_sha256": "a8537b77ffd78cb507393f5ef6697b49388c0181f61588eee65b784ad88a0421",
+      "executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+      "cmake_cache_sha256": "2ee72e00fce2d5db3f8360342c63977e4718a6d37d3c7e3a8fe0651d340081a4",
+      "streams": 14,
+      "case_observations": 1680,
+      "triangle_processes_per_architecture": 4,
+      "triangle_fingerprint_tables": {
+        "arm64": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2",
+        "x86_64": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+      },
+      "results": [
+        {
+          "waveform": 0,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+          "log_file": "arm64-waveform-0.txt"
+        },
+        {
+          "waveform": 0,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+          "log_file": "x86_64-waveform-0.txt"
+        },
+        {
+          "waveform": 1,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+          "log_file": "arm64-waveform-1.txt"
+        },
+        {
+          "waveform": 1,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+          "log_file": "x86_64-waveform-1.txt"
+        },
+        {
+          "waveform": 2,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+          "log_file": "arm64-waveform-2.txt",
+          "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+        },
+        {
+          "waveform": 2,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+          "log_file": "x86_64-waveform-2.txt",
+          "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+        },
+        {
+          "waveform": 3,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+          "log_file": "arm64-waveform-3.txt"
+        },
+        {
+          "waveform": 3,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+          "log_file": "x86_64-waveform-3.txt"
+        },
+        {
+          "waveform": 2,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 1,
+          "returncode": 0,
+          "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+          "log_file": "arm64-waveform-2-cold-1.txt",
+          "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+        },
+        {
+          "waveform": 2,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 1,
+          "returncode": 0,
+          "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+          "log_file": "x86_64-waveform-2-cold-1.txt",
+          "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+        },
+        {
+          "waveform": 2,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 2,
+          "returncode": 0,
+          "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+          "log_file": "arm64-waveform-2-cold-2.txt",
+          "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+        },
+        {
+          "waveform": 2,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 2,
+          "returncode": 0,
+          "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+          "log_file": "x86_64-waveform-2-cold-2.txt",
+          "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+        },
+        {
+          "waveform": 2,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 3,
+          "returncode": 0,
+          "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+          "log_file": "arm64-waveform-2-cold-3.txt",
+          "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+        },
+        {
+          "waveform": 2,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 3,
+          "returncode": 0,
+          "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+          "log_file": "x86_64-waveform-2-cold-3.txt",
+          "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+        }
+      ]
+    },
+    {
+      "role": "candidate",
+      "artifact_id": 12146249837,
+      "artifact_sha256": "9631f39f8a2db181d07e202d3991982aee70c341dccdbd225ebc877bd4bac842",
+      "artifact_bytes": 163212,
+      "manifest_sha256": "36c62ba0f139cc179ecc24328301429f77beaccaea0c72453b73a231137a4f37",
+      "executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+      "cmake_cache_sha256": "724ef070e4f53f378735996c4f76517784a2e44b5618971234633efd5b6100b1",
+      "streams": 14,
+      "case_observations": 1680,
+      "triangle_processes_per_architecture": 4,
+      "triangle_fingerprint_tables": {
+        "arm64": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2",
+        "x86_64": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+      },
+      "results": [
+        {
+          "waveform": 0,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+          "log_file": "arm64-waveform-0.txt"
+        },
+        {
+          "waveform": 0,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+          "log_file": "x86_64-waveform-0.txt"
+        },
+        {
+          "waveform": 1,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+          "log_file": "arm64-waveform-1.txt"
+        },
+        {
+          "waveform": 1,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+          "log_file": "x86_64-waveform-1.txt"
+        },
+        {
+          "waveform": 2,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+          "log_file": "arm64-waveform-2.txt",
+          "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+        },
+        {
+          "waveform": 2,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+          "log_file": "x86_64-waveform-2.txt",
+          "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+        },
+        {
+          "waveform": 3,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+          "log_file": "arm64-waveform-3.txt"
+        },
+        {
+          "waveform": 3,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 0,
+          "returncode": 0,
+          "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+          "log_file": "x86_64-waveform-3.txt"
+        },
+        {
+          "waveform": 2,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 1,
+          "returncode": 0,
+          "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+          "log_file": "arm64-waveform-2-cold-1.txt",
+          "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+        },
+        {
+          "waveform": 2,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 1,
+          "returncode": 0,
+          "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+          "log_file": "x86_64-waveform-2-cold-1.txt",
+          "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+        },
+        {
+          "waveform": 2,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 2,
+          "returncode": 0,
+          "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+          "log_file": "arm64-waveform-2-cold-2.txt",
+          "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+        },
+        {
+          "waveform": 2,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 2,
+          "returncode": 0,
+          "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+          "log_file": "x86_64-waveform-2-cold-2.txt",
+          "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+        },
+        {
+          "waveform": 2,
+          "architecture": "arm64",
+          "translated": false,
+          "cold_run": 3,
+          "returncode": 0,
+          "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+          "log_file": "arm64-waveform-2-cold-3.txt",
+          "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+        },
+        {
+          "waveform": 2,
+          "architecture": "x86_64",
+          "translated": true,
+          "cold_run": 3,
+          "returncode": 0,
+          "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+          "log_file": "x86_64-waveform-2-cold-3.txt",
+          "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+        }
+      ]
+    }
+  ],
+  "state": "verified"
+}

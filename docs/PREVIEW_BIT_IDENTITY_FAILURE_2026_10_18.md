@@ -121,3 +121,50 @@ numerikus kapuja változatlan. A naplóban látott str/bytes ütközést helyile
 szintetikus Darwin-metaadat útvonallal reprodukáltuk. A javított 7 teszt és a
 meglévő 7 tesztkészlet-regresszió helyileg sikeres; a friss head háromplatformos
 CI-je külön ellenőrzés. Az eredeti `05b730d` Rosetta-hiba ettől továbbra nyitott.
+
+## Kiértékelt diagnosztikai eredmény — 2026-10-19
+
+A `52fb941c3f5a907087a78df84c3099de9878c778` pontos PR-head **mind a 9 releváns
+workflow-ja és 26 jobja completed/success**, beleértve a három platformon futó
+[tesztkészletet](https://github.com/RobCZart82/SAWSTAR/actions/runs/39156492724).
+Ez igazolja a külön Python-tesztizolációs javítást a macOS-runneren is.
+A későbbi dokumentációs head ellenőrzései ettől külön kapuk.
+
+A [Universal futás](https://github.com/RobCZart82/SAWSTAR/actions/runs/39156492489)
+két numerikus artifactját letöltöttük, a GitHub által közölt külső ZIP SHA-256-ot
+ellenőriztük. A megőrzött executable/cache és az összes log SHA-256-ja, a teljes
+14 stream / szerep, a 120 sor / stream, az esetazonosítók, a nulla biteltérések és
+a Triangle-ujjlenyomattáblák SHA-256-ja a nyers CSV-ből újraellenőrzött.
+Összesen **28 stream / 3360 esetmegfigyelés** sikeres; a megismételt esetek nem
+új egyedi konfigurációk. Azonos architektúrán a négy külön Triangle-folyamat
+mindkét szerepben egyezik. arm64 és x86_64 hangmintáit nem követeljük egyezőnek.
+
+A két szerep jobja ugyanazt a numerikus tesztexecutable-t tartalmazza, SHA-256:
+`3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0`.
+Ez két job eredménye, nem két külön DSP-implementáció bizonyítéka: mindkét
+executable a Reference/Candidate párt hasonlítja össze.
+
+| Bizonyíték | Artifact ID | Külső ZIP SHA-256 |
+| --- | --- | --- |
+| Reference-job numerikus archívuma | 12147595575 | `9bd43986ed6244298aacc8d252cddab16b23e0617ce3b8565baf9241140ef50f` |
+| Candidate-job numerikus archívuma | 12146249837 | `9631f39f8a2db181d07e202d3991982aee70c341dccdbd225ebc877bd4bac842` |
+
+A részletes, szeletenkénti és logonkénti eredetjegyzék:
+[preview-qualification-52fb941-review.json](ci-evidence/preview-qualification-52fb941-review.json).
+A két eredeti ZIP, a GitHub artifact-metaadatok és a review változtatás nélkül
+külön tartós másolatban is megmaradnak:
+`SAWSTAR-52fb941-numerical-evidence-2026-10-19.zip`, 340 881 byte,
+SHA-256 `204ba2173eb875d5a73bf10a7f71621c0c33e913935b7fe2e91f0ee1d832f4e3`.
+A nyers logokat/executable-t nem másoljuk tömegesen a gitbe.
+
+**Következtetés:** az előre deklarált véges reprodukciós próbában nem jelentkezett
+eltérés. Ez nem az eredeti `05b730d` hiba okának bizonyítása vagy DSP-javítása.
+Az eredeti hibás Reference-job még nem őrizte meg a tesztexecutable-t és az
+első eltérés pontos mintáját; a futás artifact-listájában csak a sikeres
+Candidate csomagja és szintadatai maradtak. Az eredeti joblog megvan, de ebből az
+eltérés mérete és pontos mintája utólag nem számítható vissza.
+Ez korlátozza az eredeti hiba reprodukálhatóságát; nem indok a bizonyíték törlésére.
+A #116 beolvasztása továbbra blokkolt. Az okfeltárást a rögzített forrás
+és a most már megőrzött bináris-/elsőeltérés-diagnosztika alapján kell folytatni;
+újabb azonos próbát nem indítunk pusztán további zöld eredményért.
+CPU-/natív elfogadás és production-promóció változatlanul nincs.

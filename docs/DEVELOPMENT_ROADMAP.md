@@ -1,4 +1,4 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-18
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-19
 
 **A release-ig vezető részletes végrehajtási terv és a valós REAPER CPU-elfogadás:**
 [NEXT_RELEASE_DEVELOPMENT_PLAN.md](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
@@ -12,7 +12,7 @@ Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Legutóbb ellenőrzött main (2026-10-18): `547f84d4f72a792aaf0b229c9d73b7a8a00fae40` (#115).
+Legutóbb ellenőrzött main (2026-10-19): `547f84d4f72a792aaf0b229c9d73b7a8a00fae40` (#115).
 A #115 javított headje mind a 6 releváns workflow / 15 job sikerével beolvadt;
 a merge utáni main 4 fő workflow-ja és 11 jobja is sikeres.
 A Windows/macOS külön Reference/Candidate VST3-tesztcsomagok ugyanarról a
@@ -27,10 +27,13 @@ csak a külön Candidate identitásban van. A régi negatív bizonyítékok megm
 **Aktuális blokkoló — #116:** az első PR-head Universal Reference-jobjának
 x86_64/Rosetta numerikus párja bitazonossági hibával leállt (17/18 job sikeres).
 [A hiba és a tartós eredeti napló](PREVIEW_BIT_IDENTITY_FAILURE_2026_10_18.md).
-Az első eltérés diagnosztikája és szeletenkénti naplómegőrzése implementált;
-a `089445cb` head 9 workflow-ja / 26 jobja zöld, de DSP-ok/javítás nincs bizonyítva.
-A következő vizsgálat előre rögzített 4 külön Triangle-folyamat / architektúra
-ujjlenyomatát is összeveti (14 stream / szerep); minden negatív eredmény blokkol. A #116 nem olvadt be, a numerikus kaput
+Az első eltérés diagnosztikája és szeletenkénti naplómegőrzése implementált.
+A `52fb941` head 9 workflow-ja / 26 jobja sikeres; a külön macOS Python-teszt
+izolációs hibája javítva és CI-ben igazolva. A véges numerikus próba 28 streamje /
+3360 esetmegfigyelése és összes hashja nyersadatból újraellenőrzött; azonos
+architektúrán a négy külön Triangle-folyamat mindkét szerepben egyezik.
+Az eredeti bináris/hibás minta hiánya miatt az eredeti eltérés oka továbbra
+ismeretlen; újabb zöld futásért nem ismételjük a próbát. DSP-javítás nincs bizonyítva. A #116 nem olvadt be, a numerikus kaput
 nem zárjuk le pusztán egy későbbi zöld futással.
 
 A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.
