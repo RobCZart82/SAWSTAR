@@ -11,6 +11,8 @@ on:
       - 'tests/oscillator_dispatch_engine.cpp'
       - 'scripts/qualify-preview-slices.py'
       - 'tests/preview_slice_qualification.py'
+      - 'scripts/review-preview-slices.py'
+      - 'tests/preview_slice_review.py'
       - 'tests/premium_preview.cpp'
       - 'tests/premium_preview_levels.cpp'
       - 'tests/premium_preview_package.py'
@@ -59,6 +61,8 @@ jobs:
       - name: Qualify calibrated Preview reference and dispatch candidate on both slices
         run: |
           python3 scripts/qualify-preview-slices.py --executable build-premium/sawstar_premium_native_pair --cache build-premium/CMakeCache.txt --output preview-qualification
+      - name: Independently review retained numerical evidence without executing it
+        run: python3 scripts/review-preview-slices.py preview-qualification --expected-source "$(git rev-parse HEAD)"
       - name: Preserve exact-head numerical qualification including failures
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

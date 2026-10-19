@@ -168,3 +168,37 @@ A #116 beolvasztása továbbra blokkolt. Az okfeltárást a rögzített forrás
 és a most már megőrzött bináris-/elsőeltérés-diagnosztika alapján kell folytatni;
 újabb azonos próbát nem indítunk pusztán további zöld eredményért.
 CPU-/natív elfogadás és production-promóció változatlanul nincs.
+
+## Újra használható, csak olvasó bizonyítékellenőrző
+
+A `scripts/review-preview-slices.py` a megőrzött schema-2 könyvtárat olvassa.
+Ellenőrzi a kívülről megadott teljes forrás-SHA-t, a manifest sikeres állapotát,
+a deklarált 14 stream sorrendjét/sorszámát, a fájlneveket és az összes
+executable/cache/log SHA-256-ot. Minden waveform mind a 120 esetét ellenőrzi;
+a Triangle-táblát a CSV-ből újraképezi, páron belül és architektúránként a négy
+külön folyamat között is összeveti. Hiány, duplázás, extra fájl, hibás exitkód,
+eltérő ujjlenyomat vagy elfogadást állító manifest esetén exit 1 / failed JSON
+az eredmény. Siker esetén exit 0 / verified JSON készül, az elfogadási jelzők
+false értéken maradnak, az eredeti hiba lezárását sem állítja.
+
+Az ellenőrző nem indítja el a binárist, nem gyűjt új hangot/időadatot, és
+nem ír az eredménykönyvtárba. A külső ZIP megbízható eredetét előbb a GitHub
+artifact-metaadat szerinti SHA-256 ellenőrzésével kell rögzíteni, majd biztonságos
+útvonalakkal üres könyvtárba kibontani. A belső ellenőrzés konzisztenciát igazol;
+a manifest önmagában nem digitális aláírás vagy hiteles hostmérési bizonyíték.
+A review JSON-t a kibontott bizonyítékon kívülre kell irányítani.
+
+Példa a most ellenőrzött forráshoz (a könyvtárnevet a tényleges kibontásra állítsd):
+
+```sh
+python3 scripts/review-preview-slices.py work/reference-evidence --expected-source 52fb941c3f5a907087a78df84c3099de9878c778 > work/reference-review.json
+```
+
+A Universal workflow ezt a független visszaellenőrzést a gyűjtés után,
+csomagolás előtt futtatja; a jelenlegi HEAD-et adja át elvárt forrásként.
+Az artifact `always()` megőrzése hibánál is megmarad. A kilenc regressziós teszt
+Linux/Windows/macOS CI-be került. Helyileg a kilenc teszt és az előző két
+héttesztes készlet is sikeres (összesen 23); a megőrzött két valódi artifact
+14–14 streamjét / 1680–1680 esetét az eszköz változtatás nélkül verified állapotban
+ellenőrizte. A friss head CI-je külön kapu; ez a fejlesztés nem DSP-javítás
+és nem oldja fel az eredeti Rosetta-hiba merge-blokkolását.

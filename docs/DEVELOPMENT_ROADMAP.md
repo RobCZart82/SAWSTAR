@@ -33,7 +33,11 @@ izolációs hibája javítva és CI-ben igazolva. A véges numerikus próba 28 s
 3360 esetmegfigyelése és összes hashja nyersadatból újraellenőrzött; azonos
 architektúrán a négy külön Triangle-folyamat mindkét szerepben egyezik.
 Az eredeti bináris/hibás minta hiánya miatt az eredeti eltérés oka továbbra
-ismeretlen; újabb zöld futásért nem ismételjük a próbát. DSP-javítás nincs bizonyítva. A #116 nem olvadt be, a numerikus kaput
+ismeretlen; újabb zöld futásért nem ismételjük a próbát. DSP-javítás nincs bizonyítva.
+A megőrzött numerikus bizonyítékhoz csak olvasó `review-preview-slices.py`
+ellenőrző készült, teljes 14 streames terv-/grid-/hash-/ujjlenyomat-kapuval,
+kilenc negatív/pozitív regresszióval és Universal csomagolás előtti bekötéssel.
+Mindkét korábbi valódi artifactot sikeresen visszaellenőrizte; friss CI-je külön kapu. A #116 nem olvadt be, a numerikus kaput
 nem zárjuk le pusztán egy későbbi zöld futással.
 
 A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.

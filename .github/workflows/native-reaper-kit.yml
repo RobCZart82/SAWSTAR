@@ -7,6 +7,8 @@ on:
       - 'tests/native_reaper_kit.py'
       - 'scripts/qualify-preview-slices.py'
       - 'tests/preview_slice_qualification.py'
+      - 'scripts/review-preview-slices.py'
+      - 'tests/preview_slice_review.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -31,3 +33,5 @@ jobs:
         run: python -W error::ResourceWarning tests/native_reaper_kit.py
       - name: Verify bounded numerical reproduction with synthetic process/log controls
         run: python -W error::ResourceWarning tests/preview_slice_qualification.py
+      - name: Verify read-only numerical evidence review and negative integrity controls
+        run: python -W error::ResourceWarning tests/preview_slice_review.py
