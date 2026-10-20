@@ -106,6 +106,10 @@ def run_campaign(source, build, controls, revision, output):
                 except ValueError as error:
                     entry["validation_error"]=str(error)
             manifest["results"].append(entry);save()
+            print("runtime-control",kind,"exit",entry["returncode"],
+                entry.get("validation_error","expected sanitizer report verified"),flush=True)
+            if entry.get("validation_error"):
+                print(log.read_text(encoding="utf-8",errors="replace")[:16000],flush=True)
         # Do not qualify real engine runs when the diagnostic controls failed.
         if any(r.get("validation_error") for r in manifest["results"]):
             raise ValueError("Sanitizer runtime controls failed")
