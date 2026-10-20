@@ -1039,6 +1039,8 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     add_executable(sawstar_dispatch_engine_tests tests/oscillator_dispatch_engine.cpp)
     add_test(NAME oscillator_dispatch_diagnostic_self_test
       COMMAND sawstar_dispatch_engine_tests --diagnostic-self-test)
+    add_test(NAME oscillator_dispatch_fp_self_test
+      COMMAND sawstar_dispatch_engine_tests --fp-self-test)
     target_link_libraries(sawstar_dispatch_engine_tests PRIVATE sawstar_premium_dispatch_probe)
     # Preserve all 480 cases, splitting the instrumented workload across four
     # CTests with the existing 600-second CI limit. The binary without arguments still runs

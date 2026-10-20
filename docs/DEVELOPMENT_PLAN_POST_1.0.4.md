@@ -9,6 +9,14 @@ Az alábbi dátumozott bejegyzések fejlesztési előzmények. A bennük szerepl
 „következő”, „nyitott” és korábbi main-azonosítók a bejegyzés idejére
 vonatkoznak; nem kérik a már lezárt M1/Windows mérési kampány újraindítását.
 
+## K1 passzív FP-mérés — 2026-10-20
+
+A #122 értékelés beolvadt, négy PR-workflow sikeres. Az új `848e4fcc` alapra
+[passzív FP-pillanatképek és renderelési sorrendpróba](K1_FP_OBSERVATION.md)
+készült. A helyi x86 státuszváltozás az első motort követi, de kontrollbit-/
+audioeltérés nincs; a K1 oka továbbra nyitott. FTZ/DAZ-t nem állítottunk át.
+A pontos-head platform-CI külön bizonyíték.
+
 ## K1 belső jelút-diagnosztika — 2026-10-20
 
 #120 beolvadt, hét PR-workflow sikeres; az új `c6507db0` main CI-je induláskor

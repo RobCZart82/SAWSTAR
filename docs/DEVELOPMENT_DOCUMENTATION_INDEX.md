@@ -35,6 +35,18 @@ alapja `c6507db0886096ec999d2dd2517c2776f3702f86`; új main CI-je induláskor
 még futott, lintje sikeres. #116 beolvasztás nélkül lezárult; K1 továbbra nyitott.
 [Belső K1 trace és következő döntés](K1_INTERNAL_TRACE.md).
 
+## Passzív FP-folytatás a #122 után
+
+#121 beolvadt, 18 PR-workflow sikeres. A külső jelentések értékelése #122-ben
+beolvadt, négy PR-workflow sikeres. Az új alap
+`848e4fccc495a46d4e1c2f8b83970cb2cf70cb3e`; friss main CI-je külön kapu.
+A [passzív FP-/sorrendmérés](K1_FP_OBSERVATION.md) implementált és helyileg
+ellenőrzött. A `8f617709` FP-workflow 720 nulla eltérésű esetet adott;
+az ugyanazon CI-binárissal végzett helyi 120 esetes visszajátszás teljes
+FP-naplója egyezik a CI-ével. Az IE már setup alatt megjelenik, audiohiba nélkül.
+[CI-bizonyíték](measurements/k1-passive-fp-ci-2026-10-20.json).
+Új PR-head teljes CI-je külön kapu. K1 továbbra nyitott.
+
 ## Ellenőrzött készültség
 
 | Terület | 2026-10-20-i tartalmi állapot |

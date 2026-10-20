@@ -30,7 +30,7 @@ a lezárt célgépes kampányokat és a negatív eredményeket nem írjuk át.
 | ID | Prioritás és állapot | Feladat | Mérföldkő |
 | --- | --- | --- | --- |
 | B1 | P2, #118 beolvadt; 17 PR- és 4 main-workflow sikeres; natív/CPU nyitott | A mixer/MIDI-simítók szubnormális lecsengésének lezárása, átmeneti regressziókkal | M0, majd érintett M1/M2/M5 |
-| K1 | Numerikus blokkoló nyitott; belső trace és diagnosztikai CI implementált, nem ok/javítás | #116 eredeti Triangle x86_64/Rosetta biteltérésének okfeltárása | M1, production-promóció előtt |
+| K1 | Numerikus blokkoló nyitott; belső trace és passzív FP-/sorrendmérés implementált, nem ok/javítás | #116 eredeti Triangle x86_64/Rosetta biteltérésének okfeltárása | M1, production-promóció előtt |
 | R1 | #120 beolvadt, 7 PR-workflow sikeres; új main/natív/I/O-próba külön | Példányok közötti preset-mutex és GUI-várakozás mérése, szükség esetén javítása | M5; súlyos reprodukciónál M0 |
 | B2 | P3, #119 beolvadt; 12 PR-workflow sikeres; új main/natív kapuk külön | SUB 20 kHz-es abszolút plafon és mintavételarányos korlát egységesítése | M3, M5/M6 regresszió |
 | D1 | P3, a státuszmondat ebben a dokumentációs változásban pontosítva | ARP történeti pending és későbbi felhasználói próba megkülönböztetése | M8 |
@@ -93,6 +93,11 @@ forrás/CI. CPU-nyereséget csak külön mérés igazolhat. Nem nyitjuk újra a 
 kampányt kedvezőbb számokért; szükséges új DSP-kontroll új forrásazonosságot kap.
 
 ## 4. K1 — A #116 Rosetta-biteltérése
+
+**Új mért adat:** [passzív FP-pillanatképek és sorrendpróba](K1_FP_OBSERVATION.md).
+A helyi x86 futásban a státuszváltozás az elsőként renderelt motort követte,
+miközben a vezérlőbitek és a bitazonos kimenet megmaradtak. Ez nem a K1
+reprodukciója vagy feloldása; a friss CI-mérés és az eredeti negatív eset külön kapu.
 
 **Friss diagnosztika:** [belső trace, kontrollok és korlátok](K1_INTERNAL_TRACE.md).
 Külön, alapból OFF offline kapcsoló; mindkét output/pre-FX érték még a kivétel

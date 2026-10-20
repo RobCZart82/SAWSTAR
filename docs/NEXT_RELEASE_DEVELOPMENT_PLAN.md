@@ -56,6 +56,14 @@ Az alábbi korábbi implementációs eredmények ettől nem válnak natív elfog
 
 ## K1 aktuális diagnosztikai lépése
 
+A #121/#122 után a [passzív FP-pillanatképek és renderelési sorrendpróba](K1_FP_OBSERVATION.md)
+implementált (`848e4fcc` alap). A `8f617709` FP-workflow 720 esetében és
+ugyanazon CI-bináris helyi, 120 esetes visszajátszásában nincs audioeltérés.
+Az IE már setup alatt megjelenik; a `0x1fb3` önmagában nem K1-hibajelző.
+Következő az eredeti bináris kontrollja és külön a setup-művelet lokalizálása.
+K1 továbbra nyitott; a friss teljes PR/main CI külön kapu.
+Az alábbi belső trace ettől függetlenül megmarad.
+
 A #120 beolvadt, hét PR-workflow sikeres; a `c6507db0` main friss CI-je külön
 kapu. A [belső jelút-trace](K1_INTERNAL_TRACE.md) előkészíti a következő
 Rosetta-eltérés lokalizálását. Ez nem igazolt ok vagy javítás, M1 numerikus

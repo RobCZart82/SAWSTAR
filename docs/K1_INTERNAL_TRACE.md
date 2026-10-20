@@ -111,3 +111,10 @@ Az [első AI-jelentés értékelése](K1_EXTERNAL_REPORT_REVIEW_2026_10_20.md)
 pontosítja az MXCSR-dekódolást, a 13 korábbi teszteset miatt felhalmozódó
 státuszjelzők korlátját, a közös SSE2 FIR-utat és a célzott további próbákat.
 Ez hipotézisértékelés, nem új K1-reprodukció vagy DSP-javítás.
+
+## Követő passzív FP-mérés — 2026-10-20
+
+Az itt korábban tervezett [FP-pillanatképek és sorrendpróba](K1_FP_OBSERVATION.md)
+időközben implementált és helyileg mért. A régi, még nem végzett mérést jelölő
+mondatok e korábbi munkalépés állapotát őrzik. Az új adat és annak korlátai
+a külön lapon szerepelnek; K1 ettől nem lett feloldva.

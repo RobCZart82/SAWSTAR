@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "workflow_run_id": 39434092656,
+  "artifact_id": 12272015564,
+  "artifact_zip_sha256": "0f572726164d15bb713efca127c6dfc34aab229c1f99632dd0d2987739843eec",
+  "verification": "ZIP digest, executable, cache and all 20 log hashes independently verified; six 120-row grids have zero output/preFX error.",
+  "ci_manifest": {
+    "schema": 1,
+    "state": "complete",
+    "passive": true,
+    "ftz_daz_override": false,
+    "internal_synth_trace": false,
+    "purpose": "K1 FP-state observation; not root-cause proof or CPU acceptance",
+    "source_commit": "8f6177091fcf2590e7b0509a85bcd96a9d3f6e08",
+    "host_architecture": "arm64",
+    "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t14.8.9\nBuildVersion:\t\t23J631\n",
+    "compiler": "Apple clang version 15.0.0 (clang-1500.3.9.4)\nTarget: arm64-apple-darwin23.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+    "executable_sha256": "0784efd241afaea03a938b8a631b697906619a362c77571d40ff8371e2b6075c",
+    "cache_sha256": "74610a5e3019332b537f4d1286c6e1c0f40b4475447d46322b66faf770df3899",
+    "results": [
+      {
+        "architecture": "arm64",
+        "name": "fp-self-test",
+        "returncode": 0,
+        "stdout_sha256": "05e5a25ee8c3ea5bb08a4cc442d6b2368f097e2fe8f2f6d1eac77bdb07638851",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "arm64",
+        "name": "diagnostic-self-test",
+        "returncode": 0,
+        "stdout_sha256": "e947271961abcc700dd9279511354ab7b2f33cb5fa77da6bf2442fc39853cda0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "arm64",
+        "name": "baseline",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "arm64",
+        "name": "observed",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "32888be03609f463f1605dc134061d74c922e871ecb58ca810cecd6bfccaf357",
+        "mxcsr_available": false,
+        "observed_controls_hex": [],
+        "transition_totals": {
+          "reference_status": 0,
+          "candidate_status": 0,
+          "entry_status": 0,
+          "reference_controls": 0,
+          "candidate_controls": 0,
+          "entry_controls": 0,
+          "between_calls_controls": 0,
+          "between_frames_status": 0,
+          "between_frames_controls": 0
+        }
+      },
+      {
+        "architecture": "arm64",
+        "name": "candidate-first",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "234a3aba48b0990dd598670780f2aa88c22d0c8f7b206cc9d116dc9575350230",
+        "mxcsr_available": false,
+        "observed_controls_hex": [],
+        "transition_totals": {
+          "reference_status": 0,
+          "candidate_status": 0,
+          "entry_status": 0,
+          "reference_controls": 0,
+          "candidate_controls": 0,
+          "entry_controls": 0,
+          "between_calls_controls": 0,
+          "between_frames_status": 0,
+          "between_frames_controls": 0
+        }
+      },
+      {
+        "architecture": "x86_64",
+        "name": "fp-self-test",
+        "returncode": 0,
+        "stdout_sha256": "05e5a25ee8c3ea5bb08a4cc442d6b2368f097e2fe8f2f6d1eac77bdb07638851",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "diagnostic-self-test",
+        "returncode": 0,
+        "stdout_sha256": "e947271961abcc700dd9279511354ab7b2f33cb5fa77da6bf2442fc39853cda0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "baseline",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "observed",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "282a7649bef0bc0df6a54b870dde0187f8329c94a15b5bd5be9c59640b468e91",
+        "mxcsr_available": true,
+        "observed_controls_hex": [
+          "1f80"
+        ],
+        "transition_totals": {
+          "reference_status": 1,
+          "candidate_status": 0,
+          "entry_status": 1,
+          "reference_controls": 0,
+          "candidate_controls": 0,
+          "entry_controls": 0,
+          "between_calls_controls": 0,
+          "between_frames_status": 0,
+          "between_frames_controls": 0
+        }
+      },
+      {
+        "architecture": "x86_64",
+        "name": "candidate-first",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "335bab055291c3cf79d6ba1f6a58b23833f82d2c2cf2bd50545d13f14b54cca7",
+        "mxcsr_available": true,
+        "observed_controls_hex": [
+          "1f80"
+        ],
+        "transition_totals": {
+          "reference_status": 0,
+          "candidate_status": 1,
+          "entry_status": 1,
+          "reference_controls": 0,
+          "candidate_controls": 0,
+          "entry_controls": 0,
+          "between_calls_controls": 0,
+          "between_frames_status": 0,
+          "between_frames_controls": 0
+        }
+      }
+    ]
+  },
+  "local_same_binary_replay": {
+    "os_version": "macOS 26.7.1 (25G241)",
+    "host_architecture": "arm64",
+    "execution_architecture": "x86_64 via Rosetta",
+    "rebuilt": false,
+    "executable_sha256": "0784efd241afaea03a938b8a631b697906619a362c77571d40ff8371e2b6075c",
+    "arguments": [
+      "--waveform",
+      "2",
+      "--fp-observe"
+    ],
+    "returncode": 0,
+    "cases": 120,
+    "all_error_metrics_zero": true,
+    "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+    "stderr_sha256": "282a7649bef0bc0df6a54b870dde0187f8329c94a15b5bd5be9c59640b468e91",
+    "entire_fp_log_byte_identical_to_ci": true
+  },
+  "interpretation": "IE appears between objects_created and reference_setup_done; 0x1fb3 occurs without numerical divergence. This is a new executable, not the original K1 binary; no root cause or fix established."
+}
