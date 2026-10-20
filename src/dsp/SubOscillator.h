@@ -30,7 +30,9 @@ public:
     sr_=SafeSampleRate(sr);phase_=0;step_=0;wave_=0;remaining_=0;
     started_=false;weights_={1,0,0};
   }
-  void SetFreq(float hz){step_=std::clamp(double(FiniteClamp(hz,0.f,20000.f,0.f))/sr_,0.,.45);}
+  // Match the engine's sample-rate-relative ceiling, including above 20 kHz.
+  // Divide in double so every finite float input can be clamped safely.
+  void SetFreq(float hz){step_=FiniteClamp(double(hz)/sr_,0.,.45,0.);}
   void SetWaveform(int wave) {
     wave=std::clamp(wave,0,2);
     if(wave==wave_)return; // Repeated block updates must not restart the fade.

@@ -32,4 +32,24 @@ int main(){for(float sr:{44100.f,48000.f,96000.f}){
  sawstar::Synth a,b;a.Reset(sr);b.Reset(sr);a.SetParameters(0,1,1,1,20);b.SetParameters(0,1,1,1,20);
  b.SetMixer(100,0,0,0,0,-1,0,0);a.Midi(0x90,60,127);b.Midi(0x90,60,127);
  for(int i=0;i<4096;++i)check(a.Process()==b.Process(),"default mixer equivalence");
-}}
+}
+ // Integration: isolated SUB, no wet filter, maximum +12-semitone bend.
+ // At 48 kHz the sample-rate ceiling applies; at higher rates the bent
+ // MIDI 127 fundamental must survive above 20 kHz for every waveform.
+ for(float sr:{48000.f,96000.f,192000.f})for(int wave=0;wave<3;++wave){
+  sawstar::Synth s;s.Reset(sr);s.SetParameters(0,1,1,1,20);
+  s.SetFilter(20000,0,0);s.SetMixer(0,0,100,0,0,0,0,0);s.SetSubWave(wave);
+  s.SetPerformance(12,0);s.Midi(0x90,127,127);
+  for(int bend:{8192,16383,8192}){
+   s.Midi(0xe0,bend&127,bend>>7);
+   for(int i=0;i<int(sr/2);++i)s.ProcessStereo();
+   int crossings=0;float last=s.PreFX().left;
+   for(int i=0;i<int(sr/2);++i){s.ProcessStereo();const float x=s.PreFX().left;
+    check(std::isfinite(x),"high SUB bend must stay finite");
+    if(last<=0&&x>0)++crossings;last=x;
+   }
+   const double hz=440*std::exp2((127-69)/12.)*(bend==16383?2:1);
+   check(std::abs(crossings-std::min(hz,double(sr)*.45)*.5)<=3,"SUB high-register bend frequency");
+  }
+ }
+}

@@ -9,6 +9,14 @@ Az alábbi dátumozott bejegyzések fejlesztési előzmények. A bennük szerepl
 „következő”, „nyitott” és korábbi main-azonosítók a bejegyzés idejére
 vonatkoznak; nem kérik a már lezárt M1/Windows mérési kampány újraindítását.
 
+## B2 SUB-frekvencia és B1 CI — 2026-10-20
+
+A #118 B1-javítás beolvadt: 17 PR-workflow és az új `feda3ea9` main négy
+fő workflow-ja sikeres. A B2 mintavételarányos SUB-frekvenciapolicy és
+regresszió erre az alapra készült; az eredeti header mindkét bővített teszten
+hibázott. [Részletek és kapuk](B2_SUB_FREQUENCY_FIX.md). Natív elfogadás és
+K1-okfeltárás külön nyitott feladat.
+
 ## B1 célzott DSP-javítás — 2026-10-20
 
 A #117 dokumentáció mainbe olvadt (`ea4961c5`), #116 beolvasztás nélkül lezárt.
