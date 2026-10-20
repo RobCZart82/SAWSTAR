@@ -27,7 +27,9 @@ A #117 beolvadt, új main `ea4961c544ae4f01eec1b610ab229511074e9cd7`.
 A B1 erre az alapra készült és #118-ként beolvadt. A folytatáskor ellenőrzött
 main `feda3ea9d3f62f01905b16f187e8490fe7088a4c`: mind a négy fő workflow
 sikeres, a #118 mind a 17 PR-workflow-ja szintén sikeres.
-A B2 javítása erre az új mainre készül; saját CI-je külön kapu.
+A B2 #119-ként beolvadt, mind a 12 PR-workflow sikeres. Új main:
+`661fe6147fe3539ee160e7236ecb555c98053f1b`; ellenőrzése a munka kezdetén
+még futott (lint sikeres). Az R1 részjavítás erre készül, saját CI-je külön kapu.
 #116 beolvasztás nélkül lezárult; a K1 megoldása továbbra nyitott.
 
 ## Ellenőrzött készültség
@@ -41,8 +43,8 @@ A B2 javítása erre az új mainre készül; saját CI-je külön kapu.
 | M1 és Windows offline gyűjtés | Mindkét 32 grides kampány, nyers ellenőrzés és forrásazonos összevetés kész. Nem indul újra kedvezőbb számokért. |
 | CPU-/natív elfogadás | Nyitott. A jobb p50 nem tünteti el a p99-romlásokat/túllépéseket. A valós REAPER-jegyzőkönyv és a támogatási döntés hiányzik. |
 | GUI-scale | Implementált #109; a 75/100/125% natív mentés/újranyitás és példányfüggetlenség elfogadása nyitott. |
-| Új audit / B1 és B2 | [B1](B1_CONTROL_SMOOTHING_FIX.md) #118-ként beolvadt, CI sikeres; [B2](B2_SUB_FREQUENCY_FIX.md) mintavételarányos policy/javítás és regresszió implementált, friss CI külön. Natív elfogadás és REAPER CPU-hatás nincs kimérve. |
-| R1 többpéldányos preset-lock | Kódból levezetett GUI-várakozási kockázat; natív kétpéldányos mérés és döntés nyitott. |
+| Új audit / B1 és B2 | [B1](B1_CONTROL_SMOOTHING_FIX.md) #118-ként beolvadt, CI sikeres; [B2](B2_SUB_FREQUENCY_FIX.md) #119-ként beolvadt, 12 PR-workflow sikeres, új main CI külön. Natív elfogadás és REAPER CPU-hatás nincs kimérve. |
+| R1 többpéldányos preset-lock | [Process-local blokkolás célzott részjavítása](R1_PRESET_MUTATION_CONTENTION.md) és vezérelt regresszió implementált; friss CI és natív kétpéldányos/I/O-elfogadás nyitott. |
 | K1 / #116 | PR beolvasztás nélkül lezárt, megőrzött head `fb3114eb829442223083e103929a15ad25d3efeb`; az eredeti Rosetta-biteltérés oka ismeretlen. Későbbi zöld diagnosztika nem oldja fel a numerikus kaput. |
 | CI-folyamat | #111 beolvadt 15 sikeres workflow / 50 job után, egyszeri tulajdonosi kivétellel a régi piros mainre. A kivétel nem általánosítható. |
 | Dokumentációs mérföldkő | #112 beolvadt, 15 workflow / 50 job és az előző main 4 workflow / 11 job sikeres volt. Az új main CI-je külön kapu. |

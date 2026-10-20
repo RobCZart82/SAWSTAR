@@ -31,8 +31,8 @@ a lezárt célgépes kampányokat és a negatív eredményeket nem írjuk át.
 | --- | --- | --- | --- |
 | B1 | P2, #118 beolvadt; 17 PR- és 4 main-workflow sikeres; natív/CPU nyitott | A mixer/MIDI-simítók szubnormális lecsengésének lezárása, átmeneti regressziókkal | M0, majd érintett M1/M2/M5 |
 | K1 | Candidate numerikus elfogadási blokkoló; ismert, nyitott | #116 eredeti Triangle x86_64/Rosetta biteltérésének okfeltárása | M1, production-promóció előtt |
-| R1 | Vizsgálandó P2-kockázat; natív próba nyitott | Példányok közötti preset-mutex és GUI-várakozás mérése, szükség esetén javítása | M5; súlyos reprodukciónál M0 |
-| B2 | P3, mintavételarányos policy/javítás és regresszió implementált; friss CI/natív kapuk külön | SUB 20 kHz-es abszolút plafon és mintavételarányos korlát egységesítése | M3, M5/M6 regresszió |
+| R1 | Process-local blokkolás igazolt és célzottan javított; natív/I/O-próba nyitott | Példányok közötti preset-mutex és GUI-várakozás mérése, szükség esetén javítása | M5; súlyos reprodukciónál M0 |
+| B2 | P3, #119 beolvadt; 12 PR-workflow sikeres; új main/natív kapuk külön | SUB 20 kHz-es abszolút plafon és mintavételarányos korlát egységesítése | M3, M5/M6 regresszió |
 | D1 | P3, a státuszmondat ebben a dokumentációs változásban pontosítva | ARP történeti pending és későbbi felhasználói próba megkülönböztetése | M8 |
 | D2 | Karbantartási adósság, nyitott | A `release_date` jelentésének és a jövőbeli build/publikálási dátummezőknek rendezése | M7–M8 |
 | Q1 | Dokumentált lefedettségi hiány; következő RC-re kötelező | Pontos végleges RC-hez esetenkénti natív jegyzőkönyv és architektúránkénti státusz | M5, M7–M9 |
@@ -127,6 +127,12 @@ helyi kontrollok és a B1/B2/R1 kapcsolatok értékelése:
 Igazolt ok/javítás még nincs; a következő lépés az első belső jelút-eltérés trace-e.
 
 ## 5. R1 — Több példány presetműveleteinek GUI-várakozása
+
+**Friss részjavítás:** [R1 guard, negatív kontroll és korlátok](R1_PRESET_MUTATION_CONTENTION.md).
+A process-local várakozás vezérelt próbával kimutatott; az UI-hívások foglalt
+választ kapnak, az import-worker külön várakozó módban marad. Az alábbi
+eredeti kockázatelemzés történeti alap; a natív és a többi I/O-várakozás
+elfogadása ettől még nyitott.
 
 **Hely:** [UserPresets.cpp](../src/presets/UserPresets.cpp),
 `PresetMutationLock` statikus mutex/`unique_lock`, az egész import-batch-et
@@ -288,6 +294,7 @@ szükséges sikeres ellenőrzésekkel; force/bypass/vak auto-merge nélkül.
   az eredeti dokumentációs audit nem jelentett új tesztet vagy javítást.
   A B1 későbbi implementációjának új ellenőrzéseit a hivatkozott javítási lap rögzíti.
 
-**Következő konkrét munka:** az implementált B2 javítás pontos-head CI-je
-és a B1/B2 érintett natív elfogadása; külön K1 bizonyítékalapú okfeltárás. Az R1 natív próba tervezhető,
+**Következő konkrét munka:** az R1 részjavítás pontos-head CI-je, a #119
+utáni main és a B1/B2/R1 érintett natív elfogadása; külön K1 bizonyítékalapú
+okfeltárás. Az R1 natív próba tervezhető,
 de eredménye és elfogadása jelenleg nyitott.

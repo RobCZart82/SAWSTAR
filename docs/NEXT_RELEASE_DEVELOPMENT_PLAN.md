@@ -21,8 +21,9 @@ A B1 szubnormális mixer/MIDI-simítóállapot P2 [javítása/regressziója](B1_
 #118-ként beolvadt: 17 PR-workflow és az új `feda3ea9` main négy fő workflow-ja
 sikeres, natív elfogadás külön. A B2 SUB-frekvenciaplafon P3
 [policyja/javítása és regressziója](B2_SUB_FREQUENCY_FIX.md) implementált
-M3-feladat, friss CI/natív kapu külön. Az R1 többpéldányos
-preset-lock kódból levezetett kockázat: mérés/döntés M5, súlyos reprodukciónál M0.
+M3-feladatként #119-ben beolvadt, 12 PR-workflow sikeres; új main/natív kapu külön.
+Az R1 többpéldányos preset-lock [process-local részjavítása](R1_PRESET_MUTATION_CONTENTION.md)
+implementált; friss CI és teljes natív/I/O-elfogadás M5-ben nyitott.
 D1/D2/D3 a dokumentáció/metadata munkája, Q1 a pontos RC natív jegyzőkönyve;
 T1 opcionális CMake-minimum kontroll. A javító PR-k az érintett M1/M2/M5
 ellenőrzéseket új forrásazonossággal végzik el; a lezárt régi kampányok megmaradnak.

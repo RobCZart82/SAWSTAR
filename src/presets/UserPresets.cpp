@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #include "presets/UserPresets.h"
 #include "presets/RenameNoReplace.h"
+#include "presets/PresetMutationGuard.h"
 #include "presets/ArchiveNoReplace.h"
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
@@ -237,20 +238,26 @@ void ReplaceFavorites(const fs::path& root,const std::set<std::string>& values){
   }catch(...){if(fd>=0)closeFile(fd);std::error_code ignored;fs::remove(temp,ignored);throw;}
 }
 }
+// Keep mutex storage in this implementation, shared by every guard caller.
+detail::PresetMutationGuard::PresetMutationGuard(bool wait) {
+  static std::mutex mutex;
+  lock_=std::unique_lock<std::mutex>(mutex,std::defer_lock);
+  if(wait)lock_.lock();
+  else if(!lock_.try_lock())throw std::runtime_error("Preset library is busy. Please try again.");
+}
 namespace {
 class PresetMutationLock {
-  inline static std::mutex mutex_;
-  std::unique_lock<std::mutex> local_{mutex_};
+  detail::PresetMutationGuard local_;
   FavoritesLock file_;
 public:
-  explicit PresetMutationLock(const fs::path& path)
-    :file_((path.parent_path().empty()?fs::path("."):path.parent_path())/".sawstar-save.lock"){}
+  explicit PresetMutationLock(const fs::path& path,bool wait=false)
+    :local_(wait),file_((path.parent_path().empty()?fs::path("."):path.parent_path())/".sawstar-save.lock"){}
 };
 }
-ImportReport ImportPresets(const std::vector<fs::path>& files,const fs::path& root,bool allowIdentical){
+ImportReport ImportPresets(const std::vector<fs::path>& files,const fs::path& root,bool allowIdentical,bool waitForOtherMutation){
  if(root.empty())throw std::runtime_error("User preset folder is unavailable.");
  fs::create_directories(root);
- PresetMutationLock lock(root/".import");
+ PresetMutationLock lock(root/".import",waitForOtherMutation);
  ImportReport report;
  std::vector<fs::path> existing;
  std::set<std::string> names;

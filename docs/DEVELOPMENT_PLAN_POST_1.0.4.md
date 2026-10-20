@@ -9,6 +9,15 @@ Az alábbi dátumozott bejegyzések fejlesztési előzmények. A bennük szerepl
 „következő”, „nyitott” és korábbi main-azonosítók a bejegyzés idejére
 vonatkoznak; nem kérik a már lezárt M1/Windows mérési kampány újraindítását.
 
+## R1 process-local részjavítás és B2 CI — 2026-10-20
+
+A B2 #119-ként beolvadt, 12 PR-workflow sikeres. Az új `661fe614` main
+ellenőrzése e folytatás elején még futott. Az R1 korlátlan process-local
+várakozása vezérelt teszttel kimutatott; az UI gyors foglalt választ kap,
+a háttérimportok továbbra várakozhatnak és deduplikálnak.
+[Részjavítás, bizonyíték és megmaradó kapuk](R1_PRESET_MUTATION_CONTENTION.md).
+A natív GUI-/audio- és további fájlrendszeri várakozások elfogadása nyitott.
+
 ## B2 SUB-frekvencia és B1 CI — 2026-10-20
 
 A #118 B1-javítás beolvadt: 17 PR-workflow és az új `feda3ea9` main négy

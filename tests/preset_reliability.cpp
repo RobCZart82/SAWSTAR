@@ -2,6 +2,8 @@
 #include "presets/Library.h"
 #include "presets/RenameNoReplace.h"
 #include "presets/ArchiveNoReplace.h"
+#include "presets/PresetMutationGuard.h"
+#include <future>
 #include <thread>
 #include <atomic>
 #include <chrono>
@@ -53,6 +55,43 @@ auto root=parent/("sawstar-reliable-"+std::to_string(std::chrono::steady_clock::
  for(auto name:{"CON","con.txt","PRN","AUX","NUL","COM1","LPT9","CONIN$"})check(!ValidPresetName(name),"reserved filename accepted");
  std::string accents;for(int i=0;i<80;++i)accents+=u8"\u0151";check(ValidPresetName(accents),"80 Unicode letters");check(!ValidPresetName(accents+"a"),"81 letters accepted");check(!ValidPresetName(std::string("bad\xc0\xaf")),"invalid UTF-8 accepted");
  auto values=DefaultSnapshot();
+ // Hold the real process-local mutation guard on a worker. Every public
+ // mutation must reject contention before the holder is released. Repeat for
+ // two target directories: exclusion remains global. No import-size race/sleep.
+ for(const char* name:{"busy-library","other-library"}){
+  auto folder=root/name;
+  fs::create_directories(folder);
+  auto file=folder/"Original.sawstar";SaveUserPreset(file,values);
+  const auto bytes=readBytesAt(file);
+  for(int operation=0;operation<5;++operation){
+   std::promise<void> held,release;auto releaseSignal=release.get_future();
+   auto holder=std::async(std::launch::async,[&]{detail::PresetMutationGuard guard;held.set_value();releaseSignal.wait();});
+   held.get_future().wait();
+   auto contender=std::async(std::launch::async,[&]{
+    try{
+     if(operation==0)SaveUserPreset(folder/"New.sawstar",values);
+     if(operation==1)OverwriteUserPreset(file,values,values);
+     if(operation==2)RenameUserPreset(file,"Renamed");
+     if(operation==3)ArchiveUserPreset(file);
+     if(operation==4)ImportPresets({file},folder,true);
+    }catch(const std::runtime_error& e){return std::string(e.what());}
+    return std::string{};
+   });
+   // A watchdog for the blocking regression, not a measured UI latency claim.
+   const bool finished=contender.wait_for(std::chrono::seconds(2))==std::future_status::ready;
+   release.set_value();holder.get();const auto error=contender.get();
+   check(finished,"preset mutation waited for another instance's process-local lock");
+   check(error=="Preset library is busy. Please try again.","contention must return a clear retryable busy error");
+   check(readBytesAt(file)==bytes&&!fs::exists(folder/"New.sawstar")&&!fs::exists(folder/"Renamed.sawstar")&&!fs::exists(folder/"Original.sawstar.deleted")&&!fs::exists(folder/".sawstar-backups"),"busy mutation changed preset data or backups");
+  }
+  // Retrying after release must still work through the real file operations.
+  SaveUserPreset(folder/"New.sawstar",values);
+  auto recovery=OverwriteUserPreset(file,values,values);check(ReadUserPreset(recovery)==values,"retry lost overwrite recovery copy");
+  auto moved=RenameUserPreset(file,"Renamed");auto archivedRetry=ArchiveUserPreset(moved);
+  check(ReadUserPreset(archivedRetry)==values,"retry lost archived preset");
+  auto report=ImportPresets({folder/"New.sawstar"},folder/"imported",true);
+  check(report.imported==1&&ReadUserPreset(folder/"imported"/"New.sawstar")==values,"retry import failed");
+ }
  auto archiveSource=root/"Archive.sawstar";SaveUserPreset(archiveSource,values);
  auto backup0=archiveSource;backup0+=".deleted";auto backup1=archiveSource;backup1+=".deleted-1";
  writeBytesAt(backup0,"first backup");writeBytesAt(backup1,"second backup");

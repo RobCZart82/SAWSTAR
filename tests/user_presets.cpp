@@ -68,7 +68,11 @@ int main(){using namespace sawstar;auto root=fs::temp_directory_path()/("sawstar
   std::atomic<bool> go{false};bool saved=false,moved=false;fs::path destination;
   std::thread save([&]{while(!go.load())std::this_thread::yield();try{OverwriteUserPreset(source,values,changed);saved=true;}catch(const std::exception&){} });
   std::thread move([&]{while(!go.load())std::this_thread::yield();try{destination=archive?ArchiveUserPreset(source):RenameUserPreset(source,"New");moved=true;}catch(const std::exception&){} });
-  go=true;save.join();move.join();check(moved&&!fs::exists(source));
+  go=true;save.join();move.join();check(saved||moved);
+  // If Save acquired the guard first, Rename/Delete may now report busy.
+  // Retry only after both calls finish; retain the no-resurrection/data checks.
+  if(!moved){destination=archive?ArchiveUserPreset(source):RenameUserPreset(source,"New");moved=true;}
+  check(moved&&!fs::exists(source));
   check(ReadUserPreset(destination)==(saved?changed:values));
  }
  auto bad=root/"broken.sawstar";{std::ofstream out(bad);out<<"not a preset";}rejected=false;try{ReadUserPreset(bad);}catch(...){rejected=true;}check(rejected);fs::remove_all(root);std::cout<<"User preset lifecycle passed\n";

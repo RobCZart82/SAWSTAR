@@ -28,8 +28,11 @@ int main(){using namespace sawstar;auto root=fs::temp_directory_path()/("sawstar
  // Concurrent imports with different names but identical settings must deduplicate.
  auto concurrent=root/"concurrent";std::atomic<int> imported{0},failed{0};
  std::vector<std::thread> workers;
- for(int i=0;i<12;++i){auto file=source/("Concurrent "+std::to_string(i)+".sawstar");SaveUserPreset(file,values);
- workers.emplace_back([&,file]{try{auto report=ImportPresets({file},concurrent);imported+=report.imported;failed+=report.failed;}catch(...){++failed;}});}
+ // Prepare sources before starting workers; these UI-style saves now reject
+ // contention. Background imports explicitly retain serialized waiting.
+ for(int i=0;i<12;++i)SaveUserPreset(source/("Concurrent "+std::to_string(i)+".sawstar"),values);
+ for(int i=0;i<12;++i){auto file=source/("Concurrent "+std::to_string(i)+".sawstar");
+ workers.emplace_back([&,file]{try{auto report=ImportPresets({file},concurrent,false,true);imported+=report.imported;failed+=report.failed;}catch(...){++failed;}});}
  for(auto& worker:workers)worker.join();
  check(imported==1&&failed==0&&ListUserPresets(concurrent).size()==1);
  check(ReadUserPreset(ListUserPresets(concurrent).front())==values);
