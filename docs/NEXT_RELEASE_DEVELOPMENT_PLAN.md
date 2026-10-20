@@ -8,6 +8,16 @@ A végrehajtási terv nem jelent release-, tag- vagy publikálási engedélyt.
 A kiinduló PR/main-azonosítók dátumozott ellenőrzési alapok; a mindenkori
 CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
 
+## K1 — natív kontrollok és sanitizer-lefedettség
+
+#125 beolvadt (`bef9b8db`), 11 PR-workflow / 26 job sikeres.
+Az IE az elsőként futó motor Reset() hívásánál megfigyelt, audioeltérés nélkül;
+ez nem bizonyított K1-ok. A [következő elkülönített kampányok](K1_NATIVE_AND_SANITIZER_CONTROLS.md)
+az eredeti binárist natív Intel macOS-en, az eredeti és aktuális kalibrált
+Preview-párt pedig natív ARM64/Intel ASan/UBSan buildben vizsgálják.
+A futó main-ellenőrzések megmaradnak; új PR-head CI-je külön kapu.
+K1 továbbra megőrzött, nem újra előidézett Rosetta alatti numerikus anomália.
+
 ## K1 — eredeti replay eredménye és setup-lokalizálás
 
 #124 beolvadt (`16f024e3`), öt PR-workflow / 14 job sikeres.

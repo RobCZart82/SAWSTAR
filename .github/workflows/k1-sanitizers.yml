@@ -1,0 +1,99 @@
+name: K1 calibrated Preview ASan and UBSan
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/k1-sanitizers.yml'
+      - 'scripts/run-k1-sanitized.py'
+      - 'scripts/replay-k1-original.py'
+      - 'tests/k1_sanitizer_controls.cpp'
+      - 'tests/k1_sanitized.py'
+      - 'tests/k1_original_replay.py'
+      - 'tests/oscillator_dispatch_engine.cpp'
+      - 'tests/DispatchEngineSetup.h'
+      - 'tests/NumericalComparison.h'
+      - 'tests/FpObservation.h'
+      - 'cmake/PremiumPreview.cmake'
+      - 'CMakeLists.txt'
+      - 'src/**'
+      - 'experiments/**'
+      - 'third_party/DaisySP'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: k1-calibrated-sanitizers-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validators:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - run: python3 tests/k1_original_replay.py
+      - run: python3 tests/k1_sanitized.py
+  sanitize:
+    name: ${{ matrix.revision }} / ${{ matrix.os }} / calibrated pair
+    needs: validators
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [macos-14, macos-15-intel]
+        revision: [original, current]
+    env:
+      ASAN_OPTIONS: detect_leaks=0:halt_on_error=1:abort_on_error=1
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1:abort_on_error=1
+    steps:
+      - name: Checkout campaign runner
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Checkout exactly the declared engine revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          path: tested-source
+          ref: ${{ matrix.revision == 'original' && 'fb3114eb829442223083e103929a15ad25d3efeb' || github.event.pull_request.head.sha || github.sha }}
+      - name: Initialize only pinned DSP source
+        run: git -C tested-source submodule update --init third_party/DaisySP
+      - name: Configure native instrumented offline engines
+        run: >-
+          cmake -S tested-source -B build-k1-sanitized -G 'Unix Makefiles'
+          -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug
+          -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=OFF -DSAWSTAR_PREMIUM_PREVIEW=ON
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          '-DCMAKE_CXX_FLAGS_DEBUG=-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer'
+          '-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined'
+      - name: Build calibrated engine comparison and independent runtime controls
+        run: |
+          cmake --build build-k1-sanitized --target sawstar_premium_native_pair --parallel 2
+          clang++ -std=c++17 -O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer tests/k1_sanitizer_controls.cpp -o build-k1-sanitized/sanitizer-controls
+          dsymutil build-k1-sanitized/sawstar_premium_native_pair
+          dsymutil build-k1-sanitized/sanitizer-controls
+      - name: Run fixed runtime controls and complete waveform grids natively
+        env:
+          TESTED_REVISION: ${{ matrix.revision }}
+        run: |
+          ulimit -c 0
+          python3 scripts/run-k1-sanitized.py --source tested-source --build build-k1-sanitized --controls build-k1-sanitized/sanitizer-controls --revision "$TESTED_REVISION" --output k1-sanitized-results
+      - name: Retain instrumented executable, symbols, flags and every result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: k1-sanitized-${{ matrix.revision }}-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            k1-sanitized-results/
+            build-k1-sanitized/CMakeCache.txt
+            build-k1-sanitized/compile_commands.json
+            build-k1-sanitized/CMakeFiles/sawstar_premium_native_pair.dir/link.txt
+            build-k1-sanitized/sawstar_premium_native_pair
+            build-k1-sanitized/sanitizer-controls
+            build-k1-sanitized/*.dSYM/
+          if-no-files-found: warn
+          retention-days: 90

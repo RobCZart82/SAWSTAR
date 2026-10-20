@@ -53,9 +53,29 @@ class ReplayEvidenceTests(unittest.TestCase):
         self.assertEqual(planned[-2:], [(2, "arm64", 3), (2, "x86_64", 3)])
         self.assertEqual(sum(wave == 2 for wave, _, _ in planned), 8)
 
+    def test_native_intel_plan_preserves_historical_x86_order(self):
+        self.assertEqual(replay.execution_plan("native-intel"), [
+            (0, "x86_64", 0), (1, "x86_64", 0), (2, "x86_64", 0),
+            (3, "x86_64", 0), (2, "x86_64", 1), (2, "x86_64", 2),
+            (2, "x86_64", 3)])
+
+    def test_default_plan_unchanged(self):
+        self.assertEqual(replay.execution_plan("apple-silicon"), replay.plan())
+
+    def test_unknown_execution_mode_rejected(self):
+        with self.assertRaises(ValueError):
+            replay.execution_plan("silent-fallback")
+
     def test_normal_nine_column_control(self):
         fields, rows = fixture(0)
         self.assertIsNone(replay.validate_table(encode(fields, rows), 0))
+
+    def test_nondiagnostic_triangle_supported_explicitly(self):
+        fields, rows = fixture()
+        text = encode(fields[:9], [row[:9] for row in rows])
+        self.assertIsNone(replay.validate_table(text, 2, diagnostic=False))
+        with self.assertRaisesRegex(ValueError, "header"):
+            replay.validate_table(text, 2)
 
     def test_missing_case_rejected(self):
         fields, rows = fixture()

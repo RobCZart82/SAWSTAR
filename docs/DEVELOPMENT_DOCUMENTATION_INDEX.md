@@ -4,6 +4,16 @@ Utolsó állapotfrissítés: **2026-10-20**; a történeti dokumentációaudit 2
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 
+## K1 — natív kontrollok és sanitizer-lefedettség
+
+#125 beolvadt (`bef9b8db`), 11 PR-workflow / 26 job sikeres.
+Az IE az elsőként futó motor Reset() hívásánál megfigyelt, audioeltérés nélkül;
+ez nem bizonyított K1-ok. A [következő elkülönített kampányok](K1_NATIVE_AND_SANITIZER_CONTROLS.md)
+az eredeti binárist natív Intel macOS-en, az eredeti és aktuális kalibrált
+Preview-párt pedig natív ARM64/Intel ASan/UBSan buildben vizsgálják.
+A futó main-ellenőrzések megmaradnak; új PR-head CI-je külön kapu.
+K1 továbbra megőrzött, nem újra előidézett Rosetta alatti numerikus anomália.
+
 ## K1 — eredeti replay eredménye és setup-lokalizálás
 
 #124 beolvadt (`16f024e3`), öt PR-workflow / 14 job sikeres.

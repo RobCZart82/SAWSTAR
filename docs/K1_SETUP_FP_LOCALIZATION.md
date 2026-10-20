@@ -1,7 +1,37 @@
 # K1 — Setup-műveletek passzív FP-lokalizálása
 
-Állapot: új, külön offline diagnosztika implementálva; saját CI-je ellenőrzi.
+Állapot: a #125 pontos-head CI-je sikeres; az IE API-intervalluma Reset()-re szűkült.
 Nem igazolt K1-gyökérok vagy DSP-javítás. Alap: `16f024e3bad4a84cd21f22362694f711e18fdf07` (#124 után).
+
+## Ellenőrzött CI-eredmény a #125-ben
+
+A [39472339484-es workflow](https://github.com/RobCZart82/SAWSTAR/actions/runs/39472339484)
+`4efe28cd7fd8b3b195ce36974ea847914680781c` headen sikeres.
+Mind a 12 kijelölt folyamat exit 0; a két teljes grid 240 esetet ellenőrzött,
+a hat rövid setup-próba audio/pre-FX bitazonossági smoke-ja is sikeres.
+
+A részletes x86_64/Rosetta trace-ben az elsőként futó motor `Reset()`
+hívása az IE megjelenésének legszűkebb megfigyelt API-intervalluma:
+
+| Setup-sorrend | Motor / művelet | Előtte → utána |
+| --- | --- | --- |
+| Reference, Candidate | Reference / index 0 / Reset | `0x1f80 → 0x1fa1` |
+| Candidate, Reference | Candidate / index 0 / Reset | `0x1f80 → 0x1fa1` |
+
+A második motor már beállított sticky biteket örököl, így az új átmenet
+hiánya nem bizonyítja, hogy ott nincs azonos aritmetikai esemény.
+Ez az observed mód eredménye; önmagában nem azonosít gépi utasítást,
+és nem kapcsolja az IE-t az eredeti K1 audioeltéréshez.
+
+Artifact: 12286649829, ZIP SHA256
+`188f4ec9b5ed33b3ece48ef601078e108a7a00f19410231212ecd0c8c68fc895`.
+A fenti összesítés a befejezett job naplójára és a runner validációjára épül;
+itt nem állítunk új, független helyi ZIP-auditot.
+
+#125 beolvadt, main `bef9b8db7c36092485b544b7d1ed3ca9a71b20ce`;
+11 PR-workflow / 26 job sikeres. A következő vizsgálat prioritása
+[a natív Intel-kontroll és a kalibrált sanitizer-kampány](K1_NATIVE_AND_SANITIZER_CONTROLS.md),
+nem a Reset() újabb mélyebb instrumentálása.
 
 ## Mi indokolja?
 
