@@ -8,7 +8,7 @@ int main(int argc,char** argv){
   if(argc!=2)return 2;
   if(std::strcmp(argv[1],"--asan")==0){
     int* values=new int[4]{};
-    volatile int index=argc+6;
+    volatile int index=argc+2; // argc==2: first element immediately past int[4]
     volatile int observed=values[index]; // intentional heap buffer overflow
     std::cout<<observed<<'\n';
     delete[] values;

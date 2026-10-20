@@ -88,6 +88,11 @@ heap-túlindexelést, illetve előjeles egész túlcsordulást végez, külön
 folyamatokban. Mindkettőnek hibával és az elvárt konkrét sanitizer-jelentéssel
 kell kilépnie. Egyszerű crash vagy sikeres kilépés nem elfogadott kontroll.
 Ez a program soha nem linkelődik a motorhoz vagy pluginhoz.
+A heap-kontroll az első tömbön túli elemet olvassa: a korábbi, távolabbi
+próbacím az első ARM-futásban nem adott ASan-jelentést (exit 0), ezért a
+kampány helyesen még a motor előtt megállt. Ez kontrollhiba, nem K1-találat.
+A kontrollhoz a fordítási object is megmarad, hogy a dSYM ne ideiglenes,
+már törölt object-fájlra hivatkozzon.
 
 Csak a működő runtime-kontrollok után indul a négy teljes waveform-grid,
 egy-egy előre kijelölt folyamatban. Az eredeti Triangle a régi

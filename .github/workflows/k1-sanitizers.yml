@@ -73,7 +73,8 @@ jobs:
       - name: Build calibrated engine comparison and independent runtime controls
         run: |
           cmake --build build-k1-sanitized --target sawstar_premium_native_pair --parallel 2
-          clang++ -std=c++17 -O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer tests/k1_sanitizer_controls.cpp -o build-k1-sanitized/sanitizer-controls
+          clang++ -std=c++17 -O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -c tests/k1_sanitizer_controls.cpp -o build-k1-sanitized/sanitizer-controls.o
+          clang++ -fsanitize=address,undefined build-k1-sanitized/sanitizer-controls.o -o build-k1-sanitized/sanitizer-controls
           dsymutil build-k1-sanitized/sawstar_premium_native_pair
           dsymutil build-k1-sanitized/sanitizer-controls
       - name: Run fixed runtime controls and complete waveform grids natively
