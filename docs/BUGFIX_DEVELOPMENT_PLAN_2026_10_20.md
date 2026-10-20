@@ -108,6 +108,17 @@ Ne engedjük el a bitpontos feltételt, ne nevezzük tesztzajnak bizonyíték n�
 és ne ismételjünk azonos próbát pusztán újabb zöld eredményért. A jelen
 dokumentációs PR nem zárja le, nem merge-eli és nem kerüli meg #116 kapuját.
 
+### Friss negatív bizonyíték — 2026-10-20
+
+A `fb3114e` head Candidate-jobja ismét Triangle x86_64/Rosetta biteltéréssel
+hibázott: 48 kHz / HP12 / Poly / FX ON, main frame 197, output bal csatorna,
+delta `-1.9790604710578918e-09`. Ez nem az eredeti hiba méretének utólagos
+kiszámítása, hanem új, pontos diagnosztikájú negatív eredmény. A megőrzött
+hibás és sikeres job ugyanazt a tesztbinárist használja. A teljes bizonyíték,
+helyi kontrollok és a B1/B2/R1 kapcsolatok értékelése:
+[Rosetta-vizsgálat 2026-10-20](ROSETTA_NUMERICAL_INVESTIGATION_2026_10_20.md).
+Igazolt ok/javítás még nincs; a következő lépés az első belső jelút-eltérés trace-e.
+
 ## 5. R1 — Több példány presetműveleteinek GUI-várakozása
 
 **Hely:** [UserPresets.cpp](../src/presets/UserPresets.cpp),
