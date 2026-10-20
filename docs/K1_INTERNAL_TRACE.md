@@ -104,3 +104,10 @@ a helyi munkafa nem azonos az eredeti megőrzött `fb3114e` committal/binárissa
 **Következő döntés:** a friss CI-trace első negatív eredményénél a két motor
 első eltérő megfigyelési pontját vizsgálni. Ha nem reprodukálódik, K1 nyitott marad;
 nem írunk találgatásra DSP-javítást, nem nevezünk meg igazolatlan Rosetta-/compilerhibát.
+
+## Külső jelentés ellenőrzése
+
+Az [első AI-jelentés értékelése](K1_EXTERNAL_REPORT_REVIEW_2026_10_20.md)
+pontosítja az MXCSR-dekódolást, a 13 korábbi teszteset miatt felhalmozódó
+státuszjelzők korlátját, a közös SSE2 FIR-utat és a célzott további próbákat.
+Ez hipotézisértékelés, nem új K1-reprodukció vagy DSP-javítás.
