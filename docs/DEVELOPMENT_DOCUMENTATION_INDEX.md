@@ -4,6 +4,14 @@ Utolsó állapotfrissítés: **2026-10-20**; a történeti dokumentációaudit 2
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 
+## K1 — eredeti executable kontrollja a #123 után
+
+#123 beolvadt (`9383d46d`), mind a 19 PR-workflow / 59 job sikeres.
+Az [eredeti bináris CI-visszajátszása](K1_ORIGINAL_BINARY_REPLAY.md) külön
+kampányként implementált: két eredeti archívum, hashazonos executable,
+14–14 rögzített folyamat, az eredeti `--diagnostic-waveform 2` Triangle-úttal.
+A kampány eredménye és az új main teljes CI-je külön kapu; K1 továbbra nyitott.
+
 ## Aktuális dokumentumok
 
 | Dokumentum | Szerepe |

@@ -135,12 +135,16 @@ kódját, időzítését és hívásmintáját. A határpontok nem zárnak ki a 
 eseménykezelés közötti változás nem tulajdonítható automatikusan a motoroknak.
 Nem mértünk közvetlen ARM FPCR/FPSR-t, és nem futott FTZ/DAZ ON kampány.
 
+A #123 beolvadt, 19 workflow / 59 job sikeres. A következő kontroll implementációja:
+[az eredeti bináris CI-visszajátszása](K1_ORIGINAL_BINARY_REPLAY.md).
+
 Következő nyomozati sorrend:
 
 1. Az eredeti, megőrzött `3228d4d2…` hashű bináris véges, előre kijelölt
    kampánya ugyanazon macOS 14/Rosetta környezetben, hash- és környezetnaplóval.
-   Az eredeti teljes gridsorrendet meg kell őrizni; a csak Triangle-t futtató
-   próba más előzményt hoz létre. A sikeres kontroll is megőrzendő, nem lezárás.
+   Az eredeti parancs valójában `--diagnostic-waveform 2`, teljes 120 esetes
+   Triangle-griddel; a sima `--waveform 2` más útvonal. Az eredeti 14 folyamat
+   sorrendjét is megőrizzük. A sikeres kontroll is megőrzendő, nem lezárás.
 2. Az új bináris IE-jelenségének külön lokalizálása: setup-határok finomítása
    Reset/setter/MIDI között, majd az első érintett művelet és disassembly
    ellenőrzése. Ez önálló diagnosztikai adat, nem automatikusan K1-gyökérok.
