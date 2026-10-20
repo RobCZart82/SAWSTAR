@@ -8,10 +8,17 @@ Ez írja le a mérföldköveket, a 28 esetes natív mátrixot, a döntési felt�
 
 **Új audit javítási munkacsomagja:**
 [BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md).
-B1/B2 helyileg reprodukált, javítás nyitott; R1 alapos zárolási gyanú, natív próba
+B1 javítása és negatív kontrollja [implementált](B1_CONTROL_SMOOTHING_FIX.md), friss CI/elfogadás külön; B2 policy/javítás nyitott. R1 alapos zárolási gyanú, natív próba
 nincs; K1 a #116 ismert numerikus blokkolója. A D/Q/T feladatok külön követik a
 dokumentációt, metadata-policyt és a tényleges natív lefedettséget. A részletes
-M0–M9 kiadási tervbe bekötve; nincs ettől DSP-javítás vagy elfogadás.
+M0–M9 kiadási tervbe bekötve; az implementáció és az elfogadás külön követendő.
+
+## B1 implementáció a #117 után
+
+A folytatás alapja main `ea4961c544ae4f01eec1b610ab229511074e9cd7` (#117).
+A [B1 javítás](B1_CONTROL_SMOOTHING_FIX.md) implementált, eredeti-forrásos
+negatív kontrollal; pontos-head CI, merge és natív/CPU-elfogadás külön.
+A lenti korábbi sikeres CI-pillanatkép a `547f84d4` commithoz tartozik.
 
 ## Aktuális állapot és publikálási cél
 
@@ -19,9 +26,9 @@ Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Legutóbb ellenőrzött main (2026-10-20): `547f84d4f72a792aaf0b229c9d73b7a8a00fae40` (#115).
+Korábbi auditmain (2026-10-20): `547f84d4f72a792aaf0b229c9d73b7a8a00fae40` (#115).
 Négy fő workflow completed/success; [ellenőrzési hivatkozások](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md#10-az-audit-ellenőrzési-alapja-és-korlátai).
-#116 nyitott, head `fb3114eb829442223083e103929a15ad25d3efeb`; az eredeti Rosetta-
+#116 beolvasztás nélkül lezárt; megőrzött head `fb3114eb829442223083e103929a15ad25d3efeb`. Az eredeti Rosetta-
 biteltérés oka ismeretlen. M1 numerikus elfogadása ezért továbbra blokkolt.
 A #115 Windows x64 csomagolási út beolvadt. A jövőbeli tesztbuild pontos-head
 CI-je és a mindkét célgépes telepítési/natív próba külön kapu.
@@ -53,7 +60,7 @@ A #112-vel elkészült a [ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCE
 és a [teljes, körönként külön célgépes összesítő](measurements/target-rate-readiness-2026-10-17.md).
 A lezárt 576 cellából generált 36 sor nem indít új mérést és nem jelöl
 működési tartományt elfogadottnak; következő a natív REAPER-bizonyíték.
-**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112, #113, #114 és #115 beolvadt; #116 nyitott.**
+**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112, #113, #114, #115 és #117 beolvadt; #116 beolvasztás nélkül lezárt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
 A #109 utáni main Code quality első futása 600 másodperces tesztidőtúllépéssel hibás volt;
 a második kísérlet sikeres, az eredeti negatív napló megmarad.

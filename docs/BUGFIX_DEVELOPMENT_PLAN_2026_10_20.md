@@ -29,7 +29,7 @@ a lezárt célgépes kampányokat és a negatív eredményeket nem írjuk át.
 
 | ID | Prioritás és állapot | Feladat | Mérföldkő |
 | --- | --- | --- | --- |
-| B1 | P2, numerikusan reprodukált; javítás nyitott | A mixer/MIDI-simítók szubnormális lecsengésének lezárása, átmeneti regressziókkal | M0, majd érintett M1/M2/M5 |
+| B1 | P2, javítás és negatív kontroll implementálva; CI/natív kapuk külön | A mixer/MIDI-simítók szubnormális lecsengésének lezárása, átmeneti regressziókkal | M0, majd érintett M1/M2/M5 |
 | K1 | Candidate numerikus elfogadási blokkoló; ismert, nyitott | #116 eredeti Triangle x86_64/Rosetta biteltérésének okfeltárása | M1, production-promóció előtt |
 | R1 | Vizsgálandó P2-kockázat; natív próba nyitott | Példányok közötti preset-mutex és GUI-várakozás mérése, szükség esetén javítása | M5; súlyos reprodukciónál M0 |
 | B2 | P3, frekvenciaeltérés reprodukált; policy/javítás nyitott | SUB 20 kHz-es abszolút plafon és mintavételarányos korlát egységesítése | M3, M5/M6 regresszió |
@@ -44,6 +44,12 @@ P3: kis hatású/szélső eset. A K1 blokkoló minősítése a Candidate numerik
 elfogadására vonatkozik, nem bizonyított felhasználói crashre.
 
 ## 3. B1 — Szubnormális DSP-simítóállapotok
+
+**Friss implementáció:** [B1 javítás és regresszió](B1_CONTROL_SMOOTHING_FIX.md).
+A nulla célértékhez tartó mixer/CC1/pressure állapot `1e-24` alatt nullára zár;
+a nem nulla cél simítása változatlan. Az új 15 részpróbás regresszió az eredeti
+forrással hibázott. A pontos-head CI és a natív/CPU-elfogadás külön státusz.
+Az alábbi eredeti leírás és lezárási feltételek megmaradnak.
 
 **Hely:** [Synth.cpp](../src/engine/Synth.cpp), `ProcessStereo()`, a
 `smoothWheel_`/`smoothPressure_` és `levels_` exponenciális simítása
@@ -88,7 +94,7 @@ kampányt kedvezőbb számokért; szükséges új DSP-kontroll új forrásazonos
 
 ## 4. K1 — A #116 Rosetta-biteltérése
 
-2026-10-20-án #116 nyitott, head
+A 2026-10-20-i auditkor #116 nyitott volt, head
 `fb3114eb829442223083e103929a15ad25d3efeb`, base a fenti main.
 Az eredeti `05b730d` head macOS Universal Reference-jobja Triangle x86_64/Rosetta
 bitazonossági hibával állt meg: [workflow/job](https://github.com/RobCZart82/SAWSTAR/actions/runs/39126567559/job/117672833349).
@@ -96,9 +102,10 @@ Az ok és a mintánkénti hibanagyság ismeretlen. A későbbi véges diagnoszti
 nem reprodukálta a hibát; ez nem DSP-javítás vagy feloldott elfogadási kapu.
 
 A részletes eredeti napló, hashok, 28 stream / 3360 esetmegfigyelés és diagnózis
-**a nyitott PR ágán** található:
+**a #116 rögzített headjén** található:
 [#116 hibafeljegyzés, rögzített head](https://github.com/RobCZart82/SAWSTAR/blob/fb3114eb829442223083e103929a15ad25d3efeb/docs/PREVIEW_BIT_IDENTITY_FAILURE_2026_10_18.md).
-Ez még nem mainben levő dokumentum. A négy hidegfolyamat/architektúra véges
+Ez még nem mainben levő dokumentum. A folytatás ellenőrzésekor #116 már beolvasztás
+nélkül lezárt; a K1-hiba ettől nem oldódott meg. A négy hidegfolyamat/architektúra véges
 ellenőrzése és a megőrzött bizonyíték-visszaellenőrző sem okbizonyítás.
 
 **Terv és lezárás:** az eredeti negatív bizonyíték megőrzése; bizonyított ok,
@@ -272,8 +279,9 @@ szükséges sikeres ellenőrzésekkel; force/bypass/vak auto-merge nélkül.
   saját natív REAPER-/Windows-/kiadott-bináris-próba vagy teljes helyi
   VST3/installer-validáció. A 138 teszt nem bizonyítja ezek megtörténtét.
 - A javító PR-knek a reprodukciót tartós regresszióként kell hozzáadniuk;
-  e dokumentációs változás nem hoz létre új tesztfuttatást vagy audit-PASS-t.
+  az eredeti dokumentációs audit nem jelentett új tesztet vagy javítást.
+  A B1 későbbi implementációjának új ellenőrzéseit a hivatkozott javítási lap rögzíti.
 
-**Következő konkrét munka:** B1 eredeti-forrásos regresszió és célzott javítás;
-párhuzamosan K1 bizonyítékalapú okfeltárás. Az R1 natív próba tervezhető,
+**Következő konkrét munka:** az implementált B1 javítás pontos-head CI-je
+és érintett elfogadása; külön K1 bizonyítékalapú okfeltárás. Az R1 natív próba tervezhető,
 de eredménye és elfogadása jelenleg nyitott.

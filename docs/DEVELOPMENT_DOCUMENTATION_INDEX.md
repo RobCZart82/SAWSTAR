@@ -21,6 +21,14 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 | [Windows célgépes útmutató és állapot](WINDOWS_TARGET_CONTROL.md) | A lezárt Windows-gyűjtés bizonyítéka, azonos forrású kontroll és további natív feladat. |
 | [Production benchmark validálása](AUDIO_BENCHMARK_VALIDATION.md) | Eltérő mérési szerepek, régi hibák, változatlan küszöbök, nyers archívum-audit és új időadatok. |
 
+## Folytatás ellenőrzési alapja
+
+A #117 beolvadt, új main `ea4961c544ae4f01eec1b610ab229511074e9cd7`.
+A B1 javítás erre az alapra készül; az új main Code quality/macOS/Windows
+ellenőrzése a munka kezdetén még futott, lintje sikeres volt. A régi main
+sikeres eredménye nem másolható át erre vagy a javító PR-headre.
+#116 beolvasztás nélkül lezárult; a K1 megoldása továbbra nyitott.
+
 ## Ellenőrzött készültség
 
 | Terület | 2026-10-20-i tartalmi állapot |
@@ -32,9 +40,9 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 | M1 és Windows offline gyűjtés | Mindkét 32 grides kampány, nyers ellenőrzés és forrásazonos összevetés kész. Nem indul újra kedvezőbb számokért. |
 | CPU-/natív elfogadás | Nyitott. A jobb p50 nem tünteti el a p99-romlásokat/túllépéseket. A valós REAPER-jegyzőkönyv és a támogatási döntés hiányzik. |
 | GUI-scale | Implementált #109; a 75/100/125% natív mentés/újranyitás és példányfüggetlenség elfogadása nyitott. |
-| Új audit / B1 és B2 | Mixer/CC1 szubnormális állapot és SUB 20 kHz-plafon helyileg reprodukált; javítás még nincs. REAPER CPU-hatás nincs kimérve; normál basszusregiszterbeli B2-hibát nem állítunk. |
+| Új audit / B1 és B2 | [B1 javítás és regresszió](B1_CONTROL_SMOOTHING_FIX.md) implementált, eredeti-forrásos negatív kontrollal; friss CI/natív kapuk külön. B2 SUB-plafon javítása/policyja nyitott. REAPER CPU-hatás nincs kimérve. |
 | R1 többpéldányos preset-lock | Kódból levezetett GUI-várakozási kockázat; natív kétpéldányos mérés és döntés nyitott. |
-| K1 / #116 | PR nyitott, head `fb3114eb829442223083e103929a15ad25d3efeb`; az eredeti Rosetta-biteltérés oka ismeretlen. Későbbi zöld diagnosztika nem oldja fel a numerikus kaput. |
+| K1 / #116 | PR beolvasztás nélkül lezárt, megőrzött head `fb3114eb829442223083e103929a15ad25d3efeb`; az eredeti Rosetta-biteltérés oka ismeretlen. Későbbi zöld diagnosztika nem oldja fel a numerikus kaput. |
 | CI-folyamat | #111 beolvadt 15 sikeres workflow / 50 job után, egyszeri tulajdonosi kivétellel a régi piros mainre. A kivétel nem általánosítható. |
 | Dokumentációs mérföldkő | #112 beolvadt, 15 workflow / 50 job és az előző main 4 workflow / 11 job sikeres volt. Az új main CI-je külön kapu. |
 | Következő M1 részfeladat | #114 és #115 beolvadt, a külön macOS/Windows x64 csomagolási út implementált. #116 numerikus ügye nyitott; a mindenkori tesztbuildhez friss CI és mindkét célgép telepítési/REAPER-próbája szükséges. |

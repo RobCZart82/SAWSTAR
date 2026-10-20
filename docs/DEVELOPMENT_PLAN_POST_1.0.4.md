@@ -9,6 +9,15 @@ Az alábbi dátumozott bejegyzések fejlesztési előzmények. A bennük szerepl
 „következő”, „nyitott” és korábbi main-azonosítók a bejegyzés idejére
 vonatkoznak; nem kérik a már lezárt M1/Windows mérési kampány újraindítását.
 
+## B1 célzott DSP-javítás — 2026-10-20
+
+A #117 dokumentáció mainbe olvadt (`ea4961c5`), #116 beolvasztás nélkül lezárt.
+A B1 nulla célértékű mixer/CC1/pressure simításához célzott lezárás készült;
+a 15 részpróbás új regresszió az eredeti forrást elutasítja.
+[Részletek és ellenőrzési státusz](B1_CONTROL_SMOOTHING_FIX.md).
+Pontos-head CI, merge és natív/CPU-elfogadás külön kapu; a K1 Rosetta-hiba
+megoldása ebből nem következik. Az alábbi történeti bizonyítékok változatlanok.
+
 ## Kampány-ellenőrzési hiba és javítás — 2026-10-15
 
 A #102 mindkét teljes platformgyűjtése sikeres, de az összevetés a Windows
