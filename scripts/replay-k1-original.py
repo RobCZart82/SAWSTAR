@@ -48,6 +48,15 @@ def execution_plan(mode):
     raise ValueError("Unknown execution mode")
 
 
+def translation_reported(returncode, stdout):
+    # sysctl -i may succeed with empty stdout when the OID is absent on Intel.
+    # Absence is not evidence of translation; retain raw probe metadata.
+    value = stdout.strip()
+    if value not in ("", "0", "1"):
+        raise ValueError("Unexpected translation probe value: " + repr(value))
+    return returncode == 0 and value == "1"
+
+
 def arguments(wave):
     # The original failure used signal digests, not plain --waveform 2.
     return ["--diagnostic-waveform" if wave == 2 else "--waveform", str(wave)]
@@ -182,7 +191,7 @@ def replay(archive, origin, output, execution_mode="apple-silicon"):
         manifest["translation_probe"] = dict(returncode=translated.returncode,
             stdout=translated.stdout.strip(), stderr=translated.stderr.strip())
         if execution_mode == "native-intel":
-            if translated.returncode == 0 and translated.stdout.strip() != "0":
+            if translation_reported(translated.returncode, translated.stdout):
                 raise ValueError("Native Intel campaign must not run through Rosetta")
             vendor = subprocess.check_output(["sysctl", "-n", "machdep.cpu.vendor"], text=True).strip()
             if vendor != "GenuineIntel":

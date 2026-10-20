@@ -66,6 +66,20 @@ class ReplayEvidenceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             replay.execution_plan("silent-fallback")
 
+    def test_absent_translation_oid_is_not_rosetta(self):
+        self.assertFalse(replay.translation_reported(0, ""))
+        self.assertFalse(replay.translation_reported(1, ""))
+
+    def test_positive_translation_probe_is_detected(self):
+        self.assertTrue(replay.translation_reported(0, "1\n"))
+
+    def test_explicit_native_translation_probe(self):
+        self.assertFalse(replay.translation_reported(0, "0\n"))
+
+    def test_unknown_translation_probe_value_rejected(self):
+        with self.assertRaises(ValueError):
+            replay.translation_reported(0, "unexpected")
+
     def test_normal_nine_column_control(self):
         fields, rows = fixture(0)
         self.assertIsNone(replay.validate_table(encode(fields, rows), 0))

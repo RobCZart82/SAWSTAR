@@ -65,7 +65,7 @@ def run_campaign(source, build, controls, revision, output):
             raise ValueError("Tested source differs from the declared revision")
         translated=subprocess.run(["sysctl","-in","sysctl.proc_translated"],capture_output=True,text=True)
         manifest["translation_probe"]=dict(returncode=translated.returncode,stdout=translated.stdout.strip())
-        if translated.returncode==0 and translated.stdout.strip() not in ("","0"):
+        if _evidence.translation_reported(translated.returncode,translated.stdout):
             raise ValueError("Sanitizer jobs must run natively, without Rosetta")
         commands=json.loads((build/"compile_commands.json").read_text())
         if not commands:

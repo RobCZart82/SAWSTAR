@@ -32,7 +32,10 @@ Apple Silicon / Rosetta kampány és a 14 folyamat eredeti terve változatlan.
 Intel módban:
 
 - A rendszer Darwin/x86_64, a runner X64 és a CPU vendor GenuineIntel kell legyen.
-  A `sysctl.proc_translated` eredménye megmarad; fordított végrehajtás elutasított.
+  A `sysctl.proc_translated` eredménye megmarad; a jelzett fordított végrehajtás elutasított.
+  Intel gépen a hiányzó OID üres kimenetet adhat sikeres sysctl-kilépéssel is:
+  ez nem Rosetta-bizonyíték. Az eredeti ellenőrzés ezt hibásan elutasította,
+  még a SAWSTAR elindítása előtt; a kezelése javított és négy regressziós kontroll védi.
 - Az eredeti két archívum ZIP-, forrás-, executable-, cache- és loghashainak
   ellenőrzése továbbra megelőzi a futtatást. Ugyanaz a `3228d4d2…` hashű
   Universal executable fut; nincs újrafordítás vagy újraszignózás.
@@ -49,7 +52,7 @@ A macOS 15, rendszerkönyvtárak, runner és fizikai/virtuális környezet elté
 az eredeti macOS 14/Apple Silicon/Rosetta környezettől. A különbséget nem lehet
 egyetlen változóra, kizárólag Rosettára visszavezetni.
 
-A 15 parser-kontroll ellenőrzi az új x86-részsorozatot, a régi alapértelmezett
+A 19 parser-kontroll ellenőrzi az új x86-részsorozatot, a régi alapértelmezett
 terv változatlanságát, az ismeretlen mód elutasítását és a CSV/fingerprint guardokat.
 A sima Triangle-grid csak explicit `diagnostic=False` módban fogadható el
 9 oszloppal; az eredeti replay továbbra 13 oszlopot követel.
