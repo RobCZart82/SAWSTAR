@@ -10,6 +10,7 @@ on:
       - 'src/dsp/**'
       - 'third_party/DaisySP'
       - 'tests/oscillator_dispatch_engine.cpp'
+      - 'tests/DispatchEngineSetup.h'
       - 'tests/oscillator_frequency_cache.cpp'
       - 'tests/premium_drive_complex.cpp'
       - 'tests/premium_deadline_report.py'

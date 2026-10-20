@@ -84,6 +84,9 @@ set_target_properties(sawstar_premium_native_candidate_engine PROPERTIES POSITIO
 target_include_directories(sawstar_premium_native_candidate_engine PUBLIC
   "${PROJECT_SOURCE_DIR}/experiments/oscillator")
 target_link_libraries(sawstar_premium_native_candidate_engine PUBLIC sawstar_premium_preview_engine)
+# Separate offline setup probe; never linked to a plugin or built by default.
+add_executable(sawstar_k1_setup_fp_probe EXCLUDE_FROM_ALL tests/k1_setup_fp.cpp)
+target_link_libraries(sawstar_k1_setup_fp_probe PRIVATE sawstar_premium_native_candidate_engine)
 add_executable(sawstar_premium_native_pair tests/oscillator_dispatch_engine.cpp)
 if(NOT BUILD_TESTING)
   set_target_properties(sawstar_premium_native_pair PROPERTIES EXCLUDE_FROM_ALL TRUE)

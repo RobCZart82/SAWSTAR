@@ -9,6 +9,7 @@ on:
       - 'experiments/premium_filter/**'
       - 'experiments/oscillator/**'
       - 'tests/oscillator_dispatch_engine.cpp'
+      - 'tests/DispatchEngineSetup.h'
       - 'tests/premium_preview.cpp'
       - 'third_party/DaisySP'
       - '.gitmodules'

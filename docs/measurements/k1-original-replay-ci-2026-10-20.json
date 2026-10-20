@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "source_commit": "5f859452cfdf48d27757b40d18692c8f804a001d",
+  "workflow_run_id": 39463485911,
+  "original_executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+  "evidence_basis": "Completed GitHub job logs and artifact metadata; archive provenance and CSV/fingerprint validation executed by the checked-in CI runner. No independent local ZIP revalidation in this turn.",
+  "original_artifacts_revalidated_by_runner": true,
+  "independent_local_artifact_revalidation": false,
+  "state": "complete",
+  "processes": 28,
+  "validated_case_observations": 3360,
+  "numerical_divergence_reproduced": false,
+  "production_promotion_allowed": false,
+  "results": [
+    {
+      "origin": "candidate",
+      "job_id": 118768684770,
+      "os_version": "macOS 14.8.9 (23J631)",
+      "runner_image": "macos-14-arm64 / 20260831.0302.1",
+      "artifact_id": 12284685877,
+      "artifact_digest": "sha256:17b8690facbfbd6b8f9c6ec358d77486a62d3d7436d26b89a6f7c4633f28e90a",
+      "processes": [
+        {
+          "architecture": "arm64",
+          "waveform": 0,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 0,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 1,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 1,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 2,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 2,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 3,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 3,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 2,
+          "cold_run": 1,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 2,
+          "cold_run": 1,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 2,
+          "cold_run": 2,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 2,
+          "cold_run": 2,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 2,
+          "cold_run": 3,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 2,
+          "cold_run": 3,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "origin": "reference",
+      "job_id": 118768685064,
+      "os_version": "macOS 14.8.9 (23J631)",
+      "runner_image": "macos-14-arm64 / 20260831.0302.1",
+      "artifact_id": 12283578783,
+      "artifact_digest": "sha256:ca3bff35d4c193ef39714f14dad9db1698261aa9761af6bb265bfdbcd8a1d952",
+      "processes": [
+        {
+          "architecture": "arm64",
+          "waveform": 0,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 0,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 1,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 1,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 2,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 2,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 3,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 3,
+          "cold_run": 0,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 2,
+          "cold_run": 1,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 2,
+          "cold_run": 1,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 2,
+          "cold_run": 2,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 2,
+          "cold_run": 2,
+          "returncode": 0
+        },
+        {
+          "architecture": "arm64",
+          "waveform": 2,
+          "cold_run": 3,
+          "returncode": 0
+        },
+        {
+          "architecture": "x86_64",
+          "waveform": 2,
+          "cold_run": 3,
+          "returncode": 0
+        }
+      ]
+    }
+  ]
+}

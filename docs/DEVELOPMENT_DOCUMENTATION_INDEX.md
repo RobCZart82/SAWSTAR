@@ -4,6 +4,15 @@ Utolsó állapotfrissítés: **2026-10-20**; a történeti dokumentációaudit 2
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 
+## K1 — eredeti replay eredménye és setup-lokalizálás
+
+#124 beolvadt (`16f024e3`), öt PR-workflow / 14 job sikeres.
+Az [eredeti bináris kampánya](K1_ORIGINAL_BINARY_REPLAY.md) mindkét archívumból,
+28 folyamat / 3360 esetmegfigyelés alatt hibamentes: K1 most nem reprodukált.
+Következő a külön [setup-műveletek FP-lokalizálása](K1_SETUP_FP_LOCALIZATION.md):
+33 hívás motoronként, coarse/observed/fordított setup-sorrend, közös grid-helperrel.
+Ez új diagnosztika, nem bizonyított K1-ok vagy javítás; friss CI-je külön kapu.
+
 ## K1 — eredeti executable kontrollja a #123 után
 
 #123 beolvadt (`9383d46d`), mind a 19 PR-workflow / 59 job sikeres.

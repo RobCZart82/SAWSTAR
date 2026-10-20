@@ -9,6 +9,7 @@ on:
       - 'src/dsp/**'
       - 'experiments/**'
       - 'tests/oscillator_dispatch_engine.cpp'
+      - 'tests/DispatchEngineSetup.h'
       - 'tests/NumericalComparison.h'
       - 'third_party/DaisySP'
   workflow_dispatch:
