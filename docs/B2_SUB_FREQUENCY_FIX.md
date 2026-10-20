@@ -58,7 +58,10 @@ ctest --test-dir build -R '^(sub_waveform_transitions|source_mixer)$' --output-o
   Összesen 960 esetmegfigyelés, minden output és pre-FX peak/relative-RMS
   hiba nulla; mindkét folyamat exit 0. Ez véges helyi numerikus kontroll,
   nem K1-okbizonyítás vagy teljes magasregiszter-lefedettség.
-- A javító PR pontos-head platform-CI-je és merge utáni main CI külön kapu.
+- #119 beolvadt, head `e0342da9636adcec197730852ffb2447874c06a8`: mind a 12
+  PR-workflow completed/success. Új main `661fe6147fe3539ee160e7236ecb555c98053f1b`;
+  main CI-je a következő munka kezdetén még futott, lintje sikeres volt.
+  Ez a korábbi függő PR-kaput frissíti; natív elfogadást nem jelent.
 - Natív REAPER, érintett magas hang/bend automatizálás és célgépes elfogadás
   még nincs elvégezve. CPU-előnyt nem állítunk.
 

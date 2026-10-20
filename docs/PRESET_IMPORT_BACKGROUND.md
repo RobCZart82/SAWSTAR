@@ -27,9 +27,13 @@ batch worker; selected-preview reads, dialogs and drawing remain GUI operations.
   can be unloaded. A queued, not-yet-started batch may be cancelled; an active
   batch finishes before unload. Slow filesystem I/O may therefore delay plugin
   destruction, but closing only the editor does not join the worker.
-- Existing import duplicate/collision checks, exclusive writes and mutation
-  locks are unchanged. Other plugin instances still share those locks; their
-  synchronous Save/Rename/Delete operations can wait for an active import.
+- Import duplicate/collision checks, exclusive writes and interprocess file
+  locks remain. Background imports explicitly wait for process-local mutation
+  exclusion. Synchronous Save/Overwrite/Rename/Delete and direct import calls
+  instead report a retryable busy error while another instance holds it; the
+  caller can retry after that operation finishes. Filesystem I/O and the
+  separate file/favorites locks may still block. See the
+  [R1 partial fix and acceptance limits](R1_PRESET_MUTATION_CONTENTION.md).
 - Completion applies a point-in-time library snapshot. Subsequent external edits
   use the existing library-refresh behavior.
 

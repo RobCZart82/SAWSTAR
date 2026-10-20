@@ -135,6 +135,14 @@ resolves this conflict. Arbitrary external file edits are not coordinated by the
 lock. Save As remains an exclusive new-file operation. No state format, audio
 processing or factory preset values change.
 
+Process-local contention (2026-10-20): if another instance is importing or
+mutating presets, Save/Save As/Rename/Delete reports
+`Preset library is busy. Please try again.` Retry after the other operation
+finishes; the rejected mutation does not change the preset. Background imports
+can wait and retain their duplicate checks. Separate processes' file locks and
+filesystem I/O can still delay these actions; this is not a guarantee of a
+fully asynchronous UI. [R1 implementation and limits](R1_PRESET_MUTATION_CONTENTION.md).
+
 The confirmation saves the snapshot captured when Save was pressed. If host
 automation changes the sound meanwhile, the changed indicator remains.
 

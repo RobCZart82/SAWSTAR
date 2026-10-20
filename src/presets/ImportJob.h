@@ -23,7 +23,7 @@ inline PresetImportResult ExecutePresetImport(const PresetImportRequest& request
   PresetImportResult result;
   result.allowIdentical = request.allowIdentical;
   try {
-    result.report = ImportPresets(request.files, request.root, request.allowIdentical);
+    result.report = ImportPresets(request.files, request.root, request.allowIdentical, true);
     // Directory enumeration and favorites reads also belong to the worker.
     result.library = std::make_unique<PresetLibrary>(request.root);
   } catch (const std::exception& error) { result.error = error.what(); }
