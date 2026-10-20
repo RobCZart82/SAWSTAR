@@ -1472,7 +1472,7 @@ if(BUILD_TESTING AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN))
   add_test(NAME tail_contract COMMAND sawstar_tail_contract_tests)
   set_tests_properties(tail_contract PROPERTIES LABELS "tail;render")
 
-  foreach(case glide_history release_order idle_voice_reuse output_gain detune_continuity delay_initial_time block_midi_queue engine_controls controller_lifecycle performance_policy)
+  foreach(case glide_history release_order idle_voice_reuse output_gain detune_continuity delay_initial_time block_midi_queue engine_controls controller_lifecycle performance_policy control_smoothing)
     add_executable(sawstar_${case}_tests tests/${case}.cpp)
     target_link_libraries(sawstar_${case}_tests PRIVATE sawstar_engine)
     add_test(NAME ${case} COMMAND sawstar_${case}_tests)

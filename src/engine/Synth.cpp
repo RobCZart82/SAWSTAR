@@ -241,9 +241,15 @@ StereoSample Synth::ProcessStereo() {
   auto lfo=lfo_.Process();const auto second=lfo2_.Process();
   lfo.cutoff+=second.cutoff;lfo.pitch+=second.pitch;lfo.amp*=second.amp;lfo.pan=std::clamp(lfo.pan+second.pan,-1.f,1.f);
   matrix_.Process();
-  for(int ch=0;ch<16;++ch){smoothWheel_[ch]+=smoothing_*(mod_[ch]/127.f-smoothWheel_[ch]);smoothPressure_[ch]+=smoothing_*(pressure_[ch]-smoothPressure_[ch]);}
+  // End only inaudible zero-target tails, before float arithmetic becomes
+  // subnormal. Keep the original recurrence for every nonzero target.
+  const auto smoothControl=[this](float& state,float target){
+    state+=smoothing_*(target-state);
+    if(target==0.f&&std::abs(state)<1.e-24f)state=0.f;
+  };
+  for(int ch=0;ch<16;++ch){smoothControl(smoothWheel_[ch],mod_[ch]/127.f);smoothControl(smoothPressure_[ch],pressure_[ch]);}
   const float vibrato=lfo.pitch==0?1.f:std::exp2(lfo.pitch/12.f);
-  for(size_t i=0;i<4;++i)levels_[i]+=smoothing_*(targetLevels_[i]-levels_[i]);
+  for(size_t i=0;i<4;++i)smoothControl(levels_[i],targetLevels_[i]);
   for(int ch=0;ch<16;++ch)bendRatio_[ch]+=smoothing_*(bendTarget_[ch]-bendRatio_[ch]);
   if(voiceMode_!=0&&glideRemaining_){monoPitch_+=monoStep_;if(--glideRemaining_==0)monoPitch_=monoTarget_;}
   const float monoRatio=voiceMode_!=0?static_cast<float>(std::exp2((monoPitch_-69)/12.)):1;

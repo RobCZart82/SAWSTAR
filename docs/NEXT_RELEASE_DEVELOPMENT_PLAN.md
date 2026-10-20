@@ -13,11 +13,11 @@ CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
 **Friss audit és javítási munkacsomag:**
 [BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md).
 A 2026-10-20-án ellenőrzött main `547f84d4` (#115) négy fő workflow-ja sikeres.
-#116 nyitott, head `fb3114eb`; az eredeti Triangle x86_64/Rosetta biteltérés
+#116 beolvasztás nélkül lezárt, megőrzött head `fb3114eb`; az eredeti Triangle x86_64/Rosetta biteltérés
 oka nem ismert. Ez külön M1 numerikus blokkoló; a későbbi zöld diagnosztika
-nem okbizonyítás. A részletes bizonyíték a nyitott PR ágán van, nem mainben.
+nem okbizonyítás. A részletes bizonyíték a #116 rögzített headjén van, nem mainben.
 
-A B1 szubnormális mixer/MIDI-simítóállapot helyileg reprodukált P2, javítása M0;
+A B1 szubnormális mixer/MIDI-simítóállapot P2 [javítása/regressziója](B1_CONTROL_SMOOTHING_FIX.md) implementált M0-feladat; friss CI/natív ellenőrzés külön;
 a B2 SUB-frekvenciaplafon reprodukált P3/policydöntés M3. Az R1 többpéldányos
 preset-lock kódból levezetett kockázat: mérés/döntés M5, súlyos reprodukciónál M0.
 D1/D2/D3 a dokumentáció/metadata munkája, Q1 a pontos RC natív jegyzőkönyve;
