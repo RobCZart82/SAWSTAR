@@ -1,4 +1,4 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-18
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-20
 
 **A release-ig vezető részletes végrehajtási terv és a valós REAPER CPU-elfogadás:**
 [NEXT_RELEASE_DEVELOPMENT_PLAN.md](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
@@ -6,17 +6,31 @@
 Ez írja le a mérföldköveket, a 28 esetes natív mátrixot, a döntési feltételeket
 és a külön végső RC-kaput. A lenti roadmap tömör állapotkövetés.
 
+**Új audit javítási munkacsomagja:**
+[BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md).
+B1/B2 helyileg reprodukált, javítás nyitott; R1 alapos zárolási gyanú, natív próba
+nincs; K1 a #116 ismert numerikus blokkolója. A D/Q/T feladatok külön követik a
+dokumentációt, metadata-policyt és a tényleges natív lefedettséget. A részletes
+M0–M9 kiadási tervbe bekötve; nincs ettől DSP-javítás vagy elfogadás.
+
 ## Aktuális állapot és publikálási cél
 
 Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
-Legutóbb ellenőrzött main (2026-10-18): `f72c8709fc98c5982ec9f716e0a991fd2c0df7ce` (#114).
+Legutóbb ellenőrzött main (2026-10-20): `547f84d4f72a792aaf0b229c9d73b7a8a00fae40` (#115).
+Négy fő workflow completed/success; [ellenőrzési hivatkozások](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md#10-az-audit-ellenőrzési-alapja-és-korlátai).
+#116 nyitott, head `fb3114eb829442223083e103929a15ad25d3efeb`; az eredeti Rosetta-
+biteltérés oka ismeretlen. M1 numerikus elfogadása ezért továbbra blokkolt.
+A #115 Windows x64 csomagolási út beolvadt. A jövőbeli tesztbuild pontos-head
+CI-je és a mindkét célgépes telepítési/natív próba külön kapu.
+
+**Korábbi, 2026-10-18-i implementációs bizonyíték (#114):**
 A #114 16 sikeres releváns workflow és 55 job után beolvadt; előtte a #113
 utáni main négy fő workflow-ja és 11 jobja is sikeres volt. Az új main CI-je
 külön kapu; a PR eredményét nem másoljuk át automatikusan rá.
-Az M1 numerikus előfeltétele és külön Candidate-identitása implementált;
+Az M1 numerikus ellenőrzője és külön Candidate-identitása implementált;
 a macOS Universal Reference/Candidate tesztcsomagok CI-je és mindkét szelet
 validátora sikeres. A [Windows x64 build-/csomagolási út](PREMIUM_PREVIEW_WINDOWS.md)
 implementált, friss pontos-head CI/validator-ellenőrzése szükséges.
@@ -39,7 +53,7 @@ A #112-vel elkészült a [ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCE
 és a [teljes, körönként külön célgépes összesítő](measurements/target-rate-readiness-2026-10-17.md).
 A lezárt 576 cellából generált 36 sor nem indít új mérést és nem jelöl
 működési tartományt elfogadottnak; következő a natív REAPER-bizonyíték.
-**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112, #113 és #114 beolvadt.**
+**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112, #113, #114 és #115 beolvadt; #116 nyitott.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
 A #109 utáni main Code quality első futása 600 másodperces tesztidőtúllépéssel hibás volt;
 a második kísérlet sikeres, az eredeti negatív napló megmarad.
@@ -81,6 +95,7 @@ a main négy fő workflow-ja legyen sikeres a következő merge előtt.
 
 | Sorrend | Feladat | Befejezési feltétel |
 | --- | --- | --- |
+| M0 audit | B1 javítás és K1 külön okfeltárás; R1 vizsgálat | A [hibajavítási terv](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md) bizonyíték/teszt/CI és érintett natív feltételei teljesülnek. A K1 numerikus blokkoló nem zárható le pusztán új zöld futással. |
 | 1 | Korábbi #102–#105 PR-sorozat — kész | #102/#103/#104/#106/#105 beolvadt, a végső main négy fő workflow-ja sikeres. #104 dokumentáció, nem GUI-fix. |
 | 2 | Célgépes CPU-elfogadás — nyitott | M1 és Windows azonos forrású gyűjtése, nyers ellenőrzése és összevetése kész, p99/túllépés-elfogadás nincs. Következő a ráta-/pufferpolicy és natív REAPER-kontroll; 16 hang, statikus/modulált terhelés, ráták és kis pufferek; p99, időkeret-túllépés és dropout értékelve. Dokumentált elfogadási döntés, nem végtelen optimalizálás. |
 | 3 | Filterminőség és magasráta-policy | LP12/LP24/HP12/BP12, rezonancia, Drive, moduláció és módváltás; a minőség/költség és támogatott működési tartomány dokumentált elfogadása. |

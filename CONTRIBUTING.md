@@ -17,8 +17,12 @@ versions silently. Use original or explicitly licensed artwork and fonts.
 ## Keep development status current
 
 When a milestone, acceptance decision, release gate or publication changes,
-update the current overview in docs/DEVELOPMENT_PLAN_POST_1.0.4.md and
-its matching status/order in docs/DEVELOPMENT_ROADMAP.md in the same PR.
+update docs/DEVELOPMENT_DOCUMENTATION_INDEX.md, the applicable milestone in
+docs/NEXT_RELEASE_DEVELOPMENT_PLAN.md and its matching status/order in
+docs/DEVELOPMENT_ROADMAP.md in the same PR. Track the 2026-10-20 audit findings
+and their evidence/closure conditions in docs/BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md.
+Keep docs/DEVELOPMENT_PLAN_POST_1.0.4.md as a dated historical log; do not use
+an old pending statement there as the current release gate.
 Record the review date, source commit and available CI/measurement evidence.
 After merge, reconcile merged/pending wording at the next status update;
 never label pending checks or native acceptance as completed.

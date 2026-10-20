@@ -48,7 +48,9 @@ Compare all five modes, octaves, straight/triplet/dotted rates and swing. Adjust
 Gate, then test Hold with replacement chords. Confirm silence after release
 and envelope tails, switching ARP off, stopping playback and loading presets.
 Save/reopen the project and a named preset, checking all seven arp settings.
-This host check is pending for the new arp build.
+At the initial ARP implementation milestone this host check was pending.
+The subsequent user-reported REAPER result is recorded below; it does not
+establish a complete, case-by-case native checklist for every later build.
 
 ## Automated validation
 

@@ -1,6 +1,6 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
-Utolsó állapotfrissítés: **2026-10-18**; a teljes történeti audit 2026-10-17-én készült. Ez az index választja el az aktuális
+Utolsó állapotfrissítés: **2026-10-20**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 
@@ -9,6 +9,7 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 | Dokumentum | Szerepe |
 | --- | --- |
 | [Következő release fejlesztési terve](NEXT_RELEASE_DEVELOPMENT_PLAN.md) | Az M0–M9 sorrend, a valós REAPER CPU-terv, a döntési feltételek és a külön végső RC/publikálási kapu. Ez a részletes végrehajtási terv. |
+| [Átfogó hibajavítási munkacsomag — 2026-10-20](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md) | B1/B2 reprodukált numerikus jelenségek, K1 ismert Rosetta-blokkoló, R1 zárolási gyanú, D/Q/T dokumentációs és validációs feladatok; bizonyíték, sorrend és lezárási feltétel. |
 | [Fejlesztési roadmap](DEVELOPMENT_ROADMAP.md) | Kész/implementált/nyitott állapotok rövid követése. A régi dátumozott részek előzmények. |
 | [Natív REAPER-adatlap](NATIVE_REAPER_CPU_ACCEPTANCE.md) | Környezet/buildazonosság, teszteset és ablakonkénti bizonyíték, PASS / nyitott / blokkolt döntés. |
 | [Ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCEPTANCE_POLICY.md) | A negatív offline adatokból következő korlátok és a natív döntéshez szükséges következő lépés; nem automatikus működési korlátozás. |
@@ -22,7 +23,7 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 
 ## Ellenőrzött készültség
 
-| Terület | 2026-10-18-i tartalmi állapot |
+| Terület | 2026-10-20-i tartalmi állapot |
 | --- | --- |
 | Nyilvános kiadás | **1.0.4**, 2026-10-02-i publikálás. A következő verzió/dátum nincs kijelölve. |
 | Production hangút | Classic. A későbbi teljes Premium-csere cél, nem elkészült integráció. |
@@ -31,12 +32,23 @@ Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 | M1 és Windows offline gyűjtés | Mindkét 32 grides kampány, nyers ellenőrzés és forrásazonos összevetés kész. Nem indul újra kedvezőbb számokért. |
 | CPU-/natív elfogadás | Nyitott. A jobb p50 nem tünteti el a p99-romlásokat/túllépéseket. A valós REAPER-jegyzőkönyv és a támogatási döntés hiányzik. |
 | GUI-scale | Implementált #109; a 75/100/125% natív mentés/újranyitás és példányfüggetlenség elfogadása nyitott. |
+| Új audit / B1 és B2 | Mixer/CC1 szubnormális állapot és SUB 20 kHz-plafon helyileg reprodukált; javítás még nincs. REAPER CPU-hatás nincs kimérve; normál basszusregiszterbeli B2-hibát nem állítunk. |
+| R1 többpéldányos preset-lock | Kódból levezetett GUI-várakozási kockázat; natív kétpéldányos mérés és döntés nyitott. |
+| K1 / #116 | PR nyitott, head `fb3114eb829442223083e103929a15ad25d3efeb`; az eredeti Rosetta-biteltérés oka ismeretlen. Későbbi zöld diagnosztika nem oldja fel a numerikus kaput. |
 | CI-folyamat | #111 beolvadt 15 sikeres workflow / 50 job után, egyszeri tulajdonosi kivétellel a régi piros mainre. A kivétel nem általánosítható. |
 | Dokumentációs mérföldkő | #112 beolvadt, 15 workflow / 50 job és az előző main 4 workflow / 11 job sikeres volt. Az új main CI-je külön kapu. |
-| Következő M1 részfeladat | #114 külön Candidate-identitása és macOS csomagjai beolvadtak, 16 workflow / 55 job sikeres. [Windows x64 csomagolás](PREMIUM_PREVIEW_WINDOWS.md) implementált; friss CI és mindkét célgép telepítési/REAPER-próbája szükséges. |
+| Következő M1 részfeladat | #114 és #115 beolvadt, a külön macOS/Windows x64 csomagolási út implementált. #116 numerikus ügye nyitott; a mindenkori tesztbuildhez friss CI és mindkét célgép telepítési/REAPER-próbája szükséges. |
 | Release | Native/CPU, minőség/policy, production-integráció, preset/lifecycle, végső RC és külön publikálási engedély még szükséges. |
 
-A CI pillanatképe auditkor a #111 utáni
+**Friss ellenőrzési alap, 2026-10-20:** main
+`547f84d4f72a792aaf0b229c9d73b7a8a00fae40` (#115). A négy fő workflow
+completed/success: [Code quality](https://github.com/RobCZart82/SAWSTAR/actions/runs/39081228932),
+[lint](https://github.com/RobCZart82/SAWSTAR/actions/runs/39081229021),
+[macOS](https://github.com/RobCZart82/SAWSTAR/actions/runs/39081229022),
+[Windows](https://github.com/RobCZart82/SAWSTAR/actions/runs/39081228948).
+Ez a kiinduló main ellenőrzése, nem az új dokumentációs PR/merge CI-je és nem natív elfogadás.
+
+**Történeti CI-pillanatkép:** a 2026-10-17-i dokumentációaudit a #111 utáni
 `f1b559fa6a74f0931bfe748e432c93644cfcce06` main volt:
 [Windows](https://github.com/RobCZart82/SAWSTAR/actions/runs/39037844252),
 [macOS](https://github.com/RobCZart82/SAWSTAR/actions/runs/39037844306) és

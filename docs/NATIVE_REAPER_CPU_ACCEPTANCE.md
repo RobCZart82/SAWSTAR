@@ -10,6 +10,22 @@ a teljes C/V/G/F tesztmátrixot és a döntési feltételeket a
 A terv natív tartalékcélja futás előtt rögzítendő javaslat, nem meglévő
 mérési eredmény vagy az offline CPU-küszöb átírása.
 
+## Kiegészítő hibajavítási próbák — 2026-10-20
+
+Az [audit javítási terve](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md) B1/R1/B2/Q1
+feladatai az érintett buildhez külön kapcsolódó próbák. Nem módosítják a
+meglévő 28 CPU-eset / 112 mérési ablak számát, és jelenleg nincs natív PASS.
+
+| ID | Kiegészítő vizsgálat | Rögzítendő eredmény |
+| --- | --- | --- |
+| B1 | Mixer/CC1/pressure nullára simítása, hosszú kitartás, javítás utáni átmenetek | Numerikus regresszió külön; natív CPU/dropout/FP-policy csak tényleges mérésből. |
+| R1 | A példány importál, B ment/átnevez/töröl; azonos modul/hostfolyamat, azonos és eltérő mappa | Batchméret, háttértár, bridging mód, GUI-várakozás és audio/dropout külön; nincs előre feltételezett akadás. |
+| B2 | SUB magas frekvencia/bend a kiválasztott policy szerint | SR, waveform, cél és mért frekvencia, korlátozás; normál basszusregresszió. |
+| Q1 | Végleges production RC MIDI/editor/state/preset/lifecycle/render/installer próbái | Pontos bináris/csomaghash és esetenkénti PASS/FAIL/nem tesztelt; a régi RC eredménye nem másolható át. |
+
+A K1 Rosetta-biteltérés külön numerikus elfogadási blokkoló az audit tervében;
+CI-siker vagy natív halláspróba nem helyettesíti annak okfeltárását.
+
 ## Mit mérünk?
 
 A cél a tényleges plugin/host működés és hallható kimaradások ellenőrzése.
