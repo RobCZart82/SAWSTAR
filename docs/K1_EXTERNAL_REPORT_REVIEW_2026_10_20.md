@@ -59,3 +59,36 @@ A jelentés kategorikus „legvalószínűbb ok” állítását nem fogadjuk el
 A hasznos rész a mérhető hipotézis: mikor változik az FP-környezet és melyik
 állapot/művelet tér el először. Nincs e jelentés alapján elvégzett DSP-, FTZ/DAZ-
 vagy fordítási policy-módosítás. K1 továbbra nyitott.
+
+## A második, követő jelentés pontosításai
+
+- A saját executable-ben nem talált FMA/x87-mnemonic nem bizonyítja, hogy minden
+  utasítás kizárólag SSE2. A közös FIR kézzel írt backendje SSE2; a teljes
+  folyamat, könyvtárak és Rosetta belső kódgenerálása ettől külön kérdés.
+- A maszkolt DE/IE státuszjelző nem kerekítési vagy FTZ/DAZ kapcsoló. Eltérő
+  státuszbitek feljegyzése nyom, nem a külső ok megtalálása. A következő profil
+  külön kezelje a `status = mxcsr & 0x3f` és `controls = mxcsr & 0xffc0` mezőt,
+  mintavétellel a két motor előtt/után, még a szövegformázás előtt.
+- 1000 vagy több sikeres FTZ/DAZ ON folyamat önmagában sem okbizonyítás,
+  különösen mert az OFF alappróba sem reprodukálja most a hibát. Azonos,
+  előre rögzített feltételekkel szükséges OFF negatív kontroll. Egy reprodukálható
+  OFF/ON különbség is először módérzékenységet mutatna, nem automatikusan Rosetta-
+  hibát; az FTZ elfedhet más eredetű hibát is. Nem növeljük emiatt korlátlanul a futásszámot.
+- A kód `_mm_loadu_pd`-t használ: két double érték unaligned betöltése, nem
+  `_mm_load_ps`/négy float vagy implicit 16 bájtos igazítási követelmény.
+  Az `alignas(16)` hiánya ezen a betöltési úton önmagában nem hiba.
+  A két SSE2 akkumulátor explicit `_mm_setzero_pd()` kezdetű; a történeti tömbök
+  inicializáltak. A betöltés önmagában nem denormális aritmetikai művelet.
+  Elsődleges leírás: [Intel load/store referencia](https://www.intel.com/content/www/us/en/docs/dpcpp-cpp-compiler/developer-guide-reference/2025-0/load-and-store-operators.html).
+- Forrásképlet-alapú indexmodellben a 2×/4× faktor, minden interpolációs fázis és
+  ring-kurzor 82 944 hivatkozott double-indexe a deklarált tömbhatáron belül volt.
+  Ez a modell a `PremiumDrive.h`/`FirLanes4.h` képleteit ellenőrizte; nem a
+  lefordított kód sanitizeres futása és nem általános UB-/memóriahelyességi bizonyítás.
+- A korábban látható inicializálások nem minősítik a HP12/Triangle összes
+  működését hibamentesnek. A context-switch/Rosetta-regisztermentési elképzelés
+  pedig továbbra hipotézis: önmagában a futásidő változása nem ad oksági láncot
+  az adott számeredmény eltéréséhez.
+
+A hasznos következő irány továbbra a passzív FP-pillanatképek és egy valódi
+negatív eset lokalizálása. MXCSR-átmenetmérés és FTZ/DAZ ON/OFF kampány e
+dokumentációs értékelés során még nem történt; ilyen PASS-t vagy új okot nem állítunk.
