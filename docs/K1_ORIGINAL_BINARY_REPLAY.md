@@ -1,10 +1,37 @@
 # K1 — Az eredeti bináris kontrollált CI-visszajátszása
 
-Állapot: új diagnosztikai kampány implementálva; eredménye a saját pontos-head
-CI-jétől függ. **Nem K1-javítás és nem production-elfogadás.**
+Állapot: a `5f859452` CI-kampánya sikeres, K1 nem reprodukált; **Nem K1-javítás és nem production-elfogadás.**
 Alap: `9383d46d45bd1569616f0f5452137e2ef2e55646`, a #123 beolvasztása után.
 A #123 összesen 19 workflow-ja / 59 jobja sikeres volt; a megelőző main négy
 workflow-ja is sikeres. Az új main saját ellenőrzése külön kapu.
+
+## Elvégzett kampány — 2026-10-20
+
+A [39463485911-es workflow](https://github.com/RobCZart82/SAWSTAR/actions/runs/39463485911)
+a `5f859452cfdf48d27757b40d18692c8f804a001d` headen sikeres.
+Mindkét eredeti archívum ellenőrzése és 14–14 kijelölt folyamata lefutott,
+minden exit 0, a teljes CSV- és Triangle-ujjlenyomat-ellenőrzésekkel együtt.
+Ez **28 folyamat / 3360 esetmegfigyelés**, K1 most nem reprodukált.
+
+Mindkét runner macOS 14.8.9 / macos-14-arm64, image 20260831.0302.1.
+Az új artifactok:
+
+| Eredet | Artifact ID | Új ZIP SHA256 |
+| --- | --- | --- |
+| Candidate | 12284685877 | `17b8690facbfbd6b8f9c6ec358d77486a62d3d7436d26b89a6f7c4633f28e90a` |
+| Reference | 12283578783 | `ca3bff35d4c193ef39714f14dad9db1698261aa9761af6bb265bfdbcd8a1d952` |
+
+[Összesítő és mind a 28 megőrzött folyamat eredménye](measurements/k1-original-replay-ci-2026-10-20.json).
+A fenti összesítés a befejezett GitHub-jobnaplókra és artifact-metaadatokra
+támaszkodik. Az archívumok/bináris/cache/logok ellenőrzését a verziózott
+CI-runner végezte; ebben a munkalépésben nem történt külön helyi ZIP-újraaudit.
+
+A #124 mind az öt PR-workflow-ja / 14 jobja sikeres; a megelőző main négy
+workflow-ja / 11 jobja is sikeres. #124 beolvadt:
+`16f024e3bad4a84cd21f22362694f711e18fdf07`.
+Az új main és a következő PR saját CI-je külön kapu.
+Következő a [setup alatti IE műveletszintű lokalizálása](K1_SETUP_FP_LOCALIZATION.md).
+Ez a sikeres replay nem írja felül az eredeti negatív bizonyítékot.
 
 ## Miért ez a következő lépés?
 

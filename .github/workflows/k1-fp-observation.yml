@@ -11,6 +11,7 @@ on:
       - 'tests/FpObservation.h'
       - 'tests/NumericalComparison.h'
       - 'tests/oscillator_dispatch_engine.cpp'
+      - 'tests/DispatchEngineSetup.h'
       - 'third_party/DaisySP'
   workflow_dispatch:
 permissions:
