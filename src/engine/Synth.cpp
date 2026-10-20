@@ -222,6 +222,9 @@ void Synth::Midi(int status, int note, int value) {
   }
 }
 StereoSample Synth::ProcessStereo() {
+#ifdef SAWSTAR_NUMERICAL_TRACE
+  trace_={};
+#endif
   // Resolve releases sharing a sample once; do not retrigger unrendered keys.
   if(monoSelectionPending_)SelectMono(false,true);
   // Host parameters arrive after Reset. Set the initial level targets once,
@@ -302,18 +305,41 @@ StereoSample Synth::ProcessStereo() {
     if(v.splicePending){v.correction={v.lastSample.left-rendered.left,v.lastSample.right-rendered.right};v.spliceRemaining=spliceLength;v.splicePending=false;}
     if(v.spliceRemaining){const float weight=static_cast<float>(v.spliceRemaining--)/spliceLength;
       rendered.left+=v.correction.left*weight;rendered.right+=v.correction.right*weight;}
+#ifdef SAWSTAR_NUMERICAL_TRACE
+    const auto traceVoice=static_cast<size_t>(&v-voices_.data());
+    trace_.notes[traceVoice]=v.note;trace_.noiseState[traceVoice]=v.noiseState;
+    trace_.voices[traceVoice]={env,bendRatio_[v.channel],routedPitch,one.left,one.right,
+      two.left,two.right,sub,noise,mixed.left,mixed.right,value.left,value.right,
+      rendered.left,rendered.right,velocity};
+#endif
     v.lastSample=rendered;sum.left+=rendered.left;sum.right+=rendered.right;
     if (!v.gate && !v.env.IsRunning() && v.spliceRemaining==0) v.note = -1;
   }
   // Smooth the combined output gain: opposing Volume/Boost changes must
   // not create a swell by multiplying two independently interpolated gains.
   outputGain_ += smoothing_ * (targetGain_ * targetBoost_ - outputGain_);
+#ifdef SAWSTAR_NUMERICAL_TRACE
+  trace_.stages[0]={sum.left,sum.right};
+#endif
   sum.left*=lfo.amp*std::sqrt(1-lfo.pan);sum.right*=lfo.amp*std::sqrt(1+lfo.pan);
   preFX_=sum;
+#ifdef SAWSTAR_NUMERICAL_TRACE
+  trace_.stages[1]={sum.left,sum.right};
+  sum=chorus_.Process(sum);trace_.stages[2]={sum.left,sum.right};
+  sum=delay_.Process(sum);trace_.stages[3]={sum.left,sum.right};
+  sum=reverb_.Process(sum);trace_.stages[4]={sum.left,sum.right};
+#else
   sum=reverb_.Process(delay_.Process(chorus_.Process(sum)));
+#endif
   width_.Process(sum.left,sum.right);
+#ifdef SAWSTAR_NUMERICAL_TRACE
+  trace_.stages[5]={sum.left,sum.right};
+#endif
   const float scale=outputGain_/16.f;
   sum.left*=scale; sum.right*=scale;
+#ifdef SAWSTAR_NUMERICAL_TRACE
+  trace_.stages[6]={sum.left,sum.right};
+#endif
   // Stereo-linked peak guard: instant attack, 80 ms recovery, zero latency.
   // Apply to every routing combination, including matrix-only pan/amp boosts.
   // Never fall back to hard clipping just because the dry/default path is active.
@@ -321,6 +347,10 @@ StereoSample Synth::ProcessStereo() {
   const float required=peak>0.98f ? 0.98f/peak : 1.f;
   protection_+=protectionRelease_*(1.f-protection_);
   protection_=std::min(protection_,required);
+#ifdef SAWSTAR_NUMERICAL_TRACE
+  trace_.stages[7]={std::clamp(sum.left*protection_, -1.f, 1.f),std::clamp(sum.right*protection_, -1.f, 1.f)};
+  trace_.controls={sampleRate_,resonance_,filterMix_,outputGain_,protection_,lfo.amp};
+#endif
   return {std::clamp(sum.left*protection_, -1.f, 1.f),
           std::clamp(sum.right*protection_, -1.f, 1.f)};
 }

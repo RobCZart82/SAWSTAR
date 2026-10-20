@@ -9,6 +9,14 @@ Az alábbi dátumozott bejegyzések fejlesztési előzmények. A bennük szerepl
 „következő”, „nyitott” és korábbi main-azonosítók a bejegyzés idejére
 vonatkoznak; nem kérik a már lezárt M1/Windows mérési kampány újraindítását.
 
+## K1 belső jelút-diagnosztika — 2026-10-20
+
+#120 beolvadt, hét PR-workflow sikeres; az új `c6507db0` main CI-je induláskor
+még futott. Az új [K1 diagnosztikai build](K1_INTERNAL_TRACE.md) a voice/FX
+részpontokat és mindkét output/pre-FX értéket rögzíti eltéréskor; normál
+buildben a trace alapból OFF. A bitazonossági követelmény változatlan, a K1
+oka és javítása továbbra nyitott; nincs új production-promóció.
+
 ## R1 process-local részjavítás és B2 CI — 2026-10-20
 
 A B2 #119-ként beolvadt, 12 PR-workflow sikeres. Az új `661fe614` main

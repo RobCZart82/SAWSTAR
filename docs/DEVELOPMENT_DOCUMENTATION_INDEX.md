@@ -30,7 +30,10 @@ sikeres, a #118 mind a 17 PR-workflow-ja szintén sikeres.
 A B2 #119-ként beolvadt, mind a 12 PR-workflow sikeres. Új main:
 `661fe6147fe3539ee160e7236ecb555c98053f1b`; ellenőrzése a munka kezdetén
 még futott (lint sikeres). Az R1 részjavítás erre készül, saját CI-je külön kapu.
-#116 beolvasztás nélkül lezárult; a K1 megoldása továbbra nyitott.
+#120 időközben beolvadt, mind a hét PR-workflow sikeres. A K1-folytatás
+alapja `c6507db0886096ec999d2dd2517c2776f3702f86`; új main CI-je induláskor
+még futott, lintje sikeres. #116 beolvasztás nélkül lezárult; K1 továbbra nyitott.
+[Belső K1 trace és következő döntés](K1_INTERNAL_TRACE.md).
 
 ## Ellenőrzött készültség
 
@@ -44,8 +47,8 @@ még futott (lint sikeres). Az R1 részjavítás erre készül, saját CI-je kü
 | CPU-/natív elfogadás | Nyitott. A jobb p50 nem tünteti el a p99-romlásokat/túllépéseket. A valós REAPER-jegyzőkönyv és a támogatási döntés hiányzik. |
 | GUI-scale | Implementált #109; a 75/100/125% natív mentés/újranyitás és példányfüggetlenség elfogadása nyitott. |
 | Új audit / B1 és B2 | [B1](B1_CONTROL_SMOOTHING_FIX.md) #118-ként beolvadt, CI sikeres; [B2](B2_SUB_FREQUENCY_FIX.md) #119-ként beolvadt, 12 PR-workflow sikeres, új main CI külön. Natív elfogadás és REAPER CPU-hatás nincs kimérve. |
-| R1 többpéldányos preset-lock | [Process-local blokkolás célzott részjavítása](R1_PRESET_MUTATION_CONTENTION.md) és vezérelt regresszió implementált; friss CI és natív kétpéldányos/I/O-elfogadás nyitott. |
-| K1 / #116 | PR beolvasztás nélkül lezárt, megőrzött head `fb3114eb829442223083e103929a15ad25d3efeb`; az eredeti Rosetta-biteltérés oka ismeretlen. Későbbi zöld diagnosztika nem oldja fel a numerikus kaput. |
+| R1 többpéldányos preset-lock | [Process-local részjavítás](R1_PRESET_MUTATION_CONTENTION.md) #120-ként beolvadt, hét PR-workflow sikeres; új main és natív kétpéldányos/I/O-elfogadás külön. |
+| K1 / #116 | PR beolvasztás nélkül lezárt, megőrzött head `fb3114eb829442223083e103929a15ad25d3efeb`; az eredeti Rosetta-biteltérés oka ismeretlen. [Új belső trace](K1_INTERNAL_TRACE.md) implementált; saját CI és K1-okfeltárás külön, későbbi PASS nem feloldás. |
 | CI-folyamat | #111 beolvadt 15 sikeres workflow / 50 job után, egyszeri tulajdonosi kivétellel a régi piros mainre. A kivétel nem általánosítható. |
 | Dokumentációs mérföldkő | #112 beolvadt, 15 workflow / 50 job és az előző main 4 workflow / 11 job sikeres volt. Az új main CI-je külön kapu. |
 | Következő M1 részfeladat | #114 és #115 beolvadt, a külön macOS/Windows x64 csomagolási út implementált. #116 numerikus ügye nyitott; a mindenkori tesztbuildhez friss CI és mindkét célgép telepítési/REAPER-próbája szükséges. |

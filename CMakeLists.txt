@@ -53,6 +53,13 @@ option(
 )
 
 option(SAWSTAR_PREMIUM_PREVIEW "Build the separate experimental premium preview identity" OFF)
+option(SAWSTAR_NUMERICAL_TRACE "Instrument offline engines for K1 investigation (never a plugin)" OFF)
+if(SAWSTAR_NUMERICAL_TRACE)
+  if(SAWSTAR_BUILD_PLUGIN)
+    message(FATAL_ERROR "Numerical tracing is offline-only; disable SAWSTAR_BUILD_PLUGIN")
+  endif()
+  add_compile_definitions(SAWSTAR_NUMERICAL_TRACE=1)
+endif()
 option(SAWSTAR_PREMIUM_NATIVE_CANDIDATE "Build the separate Saw-dispatch Premium Candidate identity" OFF)
 if(SAWSTAR_PREMIUM_NATIVE_CANDIDATE AND NOT SAWSTAR_PREMIUM_PREVIEW)
   message(FATAL_ERROR "Premium Candidate requires SAWSTAR_PREMIUM_PREVIEW=ON; production cannot select it")
@@ -1030,6 +1037,8 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
     target_include_directories(sawstar_premium_dispatch_probe PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/experiments/oscillator")
     target_link_libraries(sawstar_premium_dispatch_probe PUBLIC sawstar_premium_lookup_probe sawstar_oscillator_dispatch_probe)
     add_executable(sawstar_dispatch_engine_tests tests/oscillator_dispatch_engine.cpp)
+    add_test(NAME oscillator_dispatch_diagnostic_self_test
+      COMMAND sawstar_dispatch_engine_tests --diagnostic-self-test)
     target_link_libraries(sawstar_dispatch_engine_tests PRIVATE sawstar_premium_dispatch_probe)
     # Preserve all 480 cases, splitting the instrumented workload across four
     # CTests with the existing 600-second CI limit. The binary without arguments still runs

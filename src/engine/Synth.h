@@ -13,6 +13,9 @@
 #include "dsp/LowPass.h"
 #include "dsp/FilterModulation.h"
 #include "dsp/Adsr.h"
+#ifdef SAWSTAR_NUMERICAL_TRACE
+#include "engine/NumericalTrace.h"
+#endif
 #include <array>
 #include <algorithm>
 #include <cstdint>
@@ -48,10 +51,16 @@ public:
   void SetSaw(float detuneCents, float mixPercent, float widthPercent);
   StereoSample ProcessStereo();
   StereoSample PreFX() const { return preFX_; } // Audio-thread observation only.
+#ifdef SAWSTAR_NUMERICAL_TRACE
+  const ::sawstar::NumericalTrace& Trace() const { return trace_; }
+#endif
   float Process() { const auto s=ProcessStereo(); return (s.left+s.right)*0.5f; }
   bool Held(int note) const;
   int ActiveVoices() const;
 private:
+#ifdef SAWSTAR_NUMERICAL_TRACE
+  ::sawstar::NumericalTrace trace_{};
+#endif
   StereoSample preFX_{};
   uint16_t panicChannels_=0;
   struct Voice {

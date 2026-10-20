@@ -91,6 +91,8 @@ endif()
 target_compile_definitions(sawstar_premium_native_pair PRIVATE SAWSTAR_CALIBRATED_PREVIEW_PAIR=1)
 target_link_libraries(sawstar_premium_native_pair PRIVATE sawstar_premium_native_candidate_engine)
 if(BUILD_TESTING)
+  add_test(NAME premium_pair_diagnostic_self_test
+    COMMAND sawstar_premium_native_pair --diagnostic-self-test)
   foreach(_wave RANGE 0 3)
     add_test(NAME premium_native_pair_waveform_${_wave}
       COMMAND sawstar_premium_native_pair --waveform ${_wave})

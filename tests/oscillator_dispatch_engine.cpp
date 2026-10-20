@@ -13,6 +13,8 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <sstream>
+#include "NumericalComparison.h"
 #ifdef SAWSTAR_CALIBRATED_PREVIEW_PAIR
 using Reference = sawstar::premium_preview_engine::Synth;
 using Study = sawstar::premium_native_candidate_engine::Synth;
@@ -84,6 +86,48 @@ template<class S> void Event(S& s, int n, int filter, int voice) {
 }
 int main(int argc, char** argv) {
   try {
+    if(argc==2&&std::strcmp(argv[1],"--diagnostic-self-test")==0){
+      std::ostringstream log;bool rejected=false;
+#ifdef SAWSTAR_NUMERICAL_TRACE
+      sawstar::NumericalTrace reference{},candidate{};
+      for(auto& voice:candidate.voices)voice.fill(1.f); // more than 16 differing fields
+#endif
+      try{numerical_comparison::Check({.1f,.1f},{.09f,.1f},{.2f,.2f},{.3f,.2f},
+        {2,2,0,48000,true,"injected",197},log
+#ifdef SAWSTAR_NUMERICAL_TRACE
+        ,candidate,reference
+#endif
+        );}catch(const std::runtime_error&){rejected=true;}
+      const auto text=log.str();
+      Require(rejected&&text.find("phase=injected frame=197")!=std::string::npos&&
+        text.find("output.right candidate_bits=")!=std::string::npos&&
+        text.find("pre_fx.left candidate_bits=")!=std::string::npos,"Incomplete failure diagnostics");
+#ifdef SAWSTAR_NUMERICAL_TRACE
+      Require(text.find("trace voice[0].envelope")!=std::string::npos&&
+        text.find("trace_differences=256 trace_lines_limit=16")!=std::string::npos&&
+        text.find("trace voice[1].")==std::string::npos,"Unbounded or missing trace diagnostics");
+      // Signed zero is a bit difference; a sub-output internal divergence must
+      // still be found even if both externally observed points remain equal.
+      reference={};candidate={};candidate.voices[0][3]=-0.f;rejected=false;log.str("");
+      try{numerical_comparison::Check({},{},{},{},{2,2,0,48000,true,"internal",0},log,candidate,reference);}
+      catch(const std::runtime_error&){rejected=true;}
+      Require(rejected&&log.str().find("trace voice[0].osc1.left")!=std::string::npos,"Missed internal-only bit divergence");
+#endif
+      log.str("");
+      numerical_comparison::Check({},{},{},{},{2,2,0,48000,true,"equal",0},log
+#ifdef SAWSTAR_NUMERICAL_TRACE
+        ,reference,reference
+#endif
+        );
+      Require(log.str().empty(),"Equal frames emitted failure diagnostics");
+      std::cout<<"Numerical failure diagnostics self-test passed trace="
+#ifdef SAWSTAR_NUMERICAL_TRACE
+        <<"on\n";
+#else
+        <<"off\n";
+#endif
+      return 0;
+    }
     int firstWave = 0, endWave = 4;
     if (argc != 1) {
       Require(argc == 3 && std::strcmp(argv[1], "--waveform") == 0,
@@ -111,6 +155,19 @@ int main(int argc, char** argv) {
           for (int n = 0; n < 4096; ++n) {
             Event(*a, n, filter, voice); Event(*b, n, filter, voice);
             const auto x = a->ProcessStereo(), y = b->ProcessStereo();
+#ifdef SAWSTAR_NUMERICAL_TRACE
+            const auto& trace=b->Trace();
+            Require(numerical_comparison::Same({trace.stages[1][0],trace.stages[1][1]},b->PreFX())&&
+              numerical_comparison::Same({trace.stages[7][0],trace.stages[7][1]},y),"Trace observation differs from actual audio");
+            if(b->ActiveVoices())Require(std::any_of(trace.noiseState.begin(),trace.noiseState.end(),
+              [](uint32_t state){return state!=0;}),"Trace did not capture active voices");
+#endif
+            numerical_comparison::Check(y,x,b->PreFX(),a->PreFX(),
+              {Waveform,filter,voice,rate,fx,"main",n},std::cerr
+#ifdef SAWSTAR_NUMERICAL_TRACE
+              ,b->Trace(),a->Trace()
+#endif
+              );
             Require(std::max({std::abs(x.left), std::abs(x.right), std::abs(y.left), std::abs(y.right)}) <= .98001f,
                     "Unprotected engine output");
             out.Add(y, x); pre.Add(b->PreFX(), a->PreFX());
@@ -118,7 +175,14 @@ int main(int argc, char** argv) {
             for (int note : {36, 48, 50, 60}) Require(a->Held(note) == b->Held(note), "MIDI ownership mismatch");
           }
           for (int n = 0; n < int(rate / 10); ++n) {
-            out.Add(b->ProcessStereo(), a->ProcessStereo()); pre.Add(b->PreFX(), a->PreFX());
+            const auto x=a->ProcessStereo(),y=b->ProcessStereo();
+            numerical_comparison::Check(y,x,b->PreFX(),a->PreFX(),
+              {Waveform,filter,voice,rate,fx,"tail",n},std::cerr
+#ifdef SAWSTAR_NUMERICAL_TRACE
+              ,b->Trace(),a->Trace()
+#endif
+              );
+            out.Add(y,x);pre.Add(b->PreFX(),a->PreFX());
           }
           Require(a->ActiveVoices() == 0 && b->ActiveVoices() == 0, "Release did not complete");
           out.Check(); pre.Check();

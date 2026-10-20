@@ -8,10 +8,18 @@ Ez írja le a mérföldköveket, a 28 esetes natív mátrixot, a döntési felt�
 
 **Új audit javítási munkacsomagja:**
 [BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md).
-B1 [#118-ként beolvadt](B1_CONTROL_SMOOTHING_FIX.md), CI sikeres; B2 [#119-ként beolvadt](B2_SUB_FREQUENCY_FIX.md), 12 PR-workflow sikeres; új main CI külön. Natív elfogadás nyitott. R1 [process-local részjavítás és regresszió implementált](R1_PRESET_MUTATION_CONTENTION.md), friss CI/natív/I/O-próba
+B1 [#118-ként beolvadt](B1_CONTROL_SMOOTHING_FIX.md), CI sikeres; B2 [#119-ként beolvadt](B2_SUB_FREQUENCY_FIX.md), 12 PR-workflow sikeres; új main CI külön. Natív elfogadás nyitott. R1 [#120-ként beolvadt](R1_PRESET_MUTATION_CONTENTION.md), hét PR-workflow sikeres; új main/natív/I/O-próba
 külön; K1 a #116 ismert numerikus blokkolója. A D/Q/T feladatok külön követik a
 dokumentációt, metadata-policyt és a tényleges natív lefedettséget. A részletes
 M0–M9 kiadási tervbe bekötve; az implementáció és az elfogadás külön követendő.
+
+## K1 belső diagnosztika a #120 után
+
+A #120 R1-részjavítás beolvadt, mind a hét PR-workflow sikeres. Új main:
+`c6507db0886096ec999d2dd2517c2776f3702f86`; induláskor három fő ellenőrzése
+még futott, lintje sikeres. A [K1 belső trace](K1_INTERNAL_TRACE.md) külön
+offline diagnosztikai munka, nem DSP-javítás vagy production-promóció.
+A K1 oka és a numerikus kapu továbbra nyitott.
 
 ## B1 implementáció a #117 után
 
@@ -64,7 +72,7 @@ A #112-vel elkészült a [ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCE
 és a [teljes, körönként külön célgépes összesítő](measurements/target-rate-readiness-2026-10-17.md).
 A lezárt 576 cellából generált 36 sor nem indít új mérést és nem jelöl
 működési tartományt elfogadottnak; következő a natív REAPER-bizonyíték.
-**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112, #113, #114, #115, #117, #118 és #119 beolvadt; #116 beolvasztás nélkül lezárt.**
+**#102, #103, #104, a javító #106, #105, #107, #108, #109, #110, #111, #112, #113, #114, #115, #117, #118, #119 és #120 beolvadt; #116 beolvasztás nélkül lezárt.**
 A #109 GUI-state implementációja mainben van; natív REAPER-elfogadása nyitott.
 A #109 utáni main Code quality első futása 600 másodperces tesztidőtúllépéssel hibás volt;
 a második kísérlet sikeres, az eredeti negatív napló megmarad.
