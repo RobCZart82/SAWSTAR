@@ -8,6 +8,14 @@ A végrehajtási terv nem jelent release-, tag- vagy publikálási engedélyt.
 A kiinduló PR/main-azonosítók dátumozott ellenőrzési alapok; a mindenkori
 CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
 
+## K1 — eredeti executable kontrollja a #123 után
+
+#123 beolvadt (`9383d46d`), mind a 19 PR-workflow / 59 job sikeres.
+Az [eredeti bináris CI-visszajátszása](K1_ORIGINAL_BINARY_REPLAY.md) külön
+kampányként implementált: két eredeti archívum, hashazonos executable,
+14–14 rögzített folyamat, az eredeti `--diagnostic-waveform 2` Triangle-úttal.
+A kampány eredménye és az új main teljes CI-je külön kapu; K1 továbbra nyitott.
+
 ## 1. Kiinduló állapot
 
 **Friss audit és javítási munkacsomag:**
