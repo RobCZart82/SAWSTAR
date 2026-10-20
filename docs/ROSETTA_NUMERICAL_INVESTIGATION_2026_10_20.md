@@ -89,3 +89,11 @@ ebből még nem nevezhető Rosetta-, compiler- vagy könyvtárhibának.
 
 **Eredmény:** lényegesen pontosabb kiváltó eset és megőrzött hibás bináris áll
 rendelkezésre, de igazolt kódjavítás még nincs. #116 numerikus kapuja nyitott.
+
+## Belső trace implementálva — későbbi munkalépés
+
+A #120 utáni `c6507db0` alapra külön, alapból OFF offline
+[belső jelút-diagnosztika](K1_INTERNAL_TRACE.md) készült. Az eredeti
+bináris/log hashai újra ellenőrzöttek és egyeznek. A szándékos negatív
+kontroll a jelentést teszteli, nem reprodukálja az eredeti K1-et. A helyi/CI
+trace eredménye külön bizonyíték; az ok és a javítás ettől még nyitott.

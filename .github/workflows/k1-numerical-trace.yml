@@ -1,0 +1,86 @@
+name: K1 offline numerical trace
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/k1-numerical-trace.yml'
+      - 'CMakeLists.txt'
+      - 'cmake/PremiumPreview.cmake'
+      - 'src/engine/**'
+      - 'src/dsp/**'
+      - 'experiments/**'
+      - 'tests/oscillator_dispatch_engine.cpp'
+      - 'tests/NumericalComparison.h'
+      - 'third_party/DaisySP'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: k1-numerical-trace-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  trace:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Initialize pinned DSP source only
+        run: git submodule update --init third_party/DaisySP
+      - name: Configure instrumented offline engines
+        run: cmake -S . -B build-trace -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=OFF -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_NUMERICAL_TRACE=ON '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
+      - name: Build diagnostic binary
+        run: cmake --build build-trace --target sawstar_premium_native_pair --parallel 3
+      - name: Fixed four cold Triangle processes per architecture
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json, platform, subprocess
+          out = Path('k1-trace'); out.mkdir()
+          exe = Path('build-trace/sawstar_premium_native_pair').resolve()
+          cache = Path('build-trace/CMakeCache.txt')
+          digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+          manifest = dict(schema=1, state='incomplete', instrumented=True,
+              purpose='K1 internal divergence investigation; not a production qualification or CPU measurement',
+              source_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              host_architecture=platform.machine(),
+              os_version=subprocess.check_output(['sw_vers'], text=True),
+              compiler=subprocess.check_output(['c++', '--version'], text=True),
+              executable_sha256=digest(exe), cache_sha256=digest(cache), results=[])
+          def save():
+              (out/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
+          save()
+          for arch in ('arm64', 'x86_64'):
+              cases = [('self-test', ['--diagnostic-self-test'])] + [
+                  ('triangle-cold-'+str(i), ['--waveform', '2']) for i in range(4)]
+              for name, args in cases:
+                  path = out/(arch+'-'+name+'.txt')
+                  with path.open('w', encoding='utf-8') as stream:
+                      try:
+                          result = subprocess.run(['arch', '-'+arch, str(exe)]+args,
+                              stdout=stream, stderr=subprocess.STDOUT, timeout=120)
+                          code = result.returncode
+                      except subprocess.TimeoutExpired:
+                          stream.write('\nK1 process timeout\n'); code = 124
+                  if name == 'self-test' and 'trace=on' not in path.read_text():
+                      code = code or 1
+                  manifest['results'].append(dict(architecture=arch, name=name,
+                      returncode=code, log_sha256=digest(path)))
+                  save()
+          failed = any(r['returncode'] for r in manifest['results'])
+          manifest['state'] = 'failed' if failed else 'complete'
+          save()
+          raise SystemExit(1 if failed else 0)
+          PY
+      - name: Preserve diagnostic executable, cache and every result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: k1-numerical-trace-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            k1-trace/
+            build-trace/sawstar_premium_native_pair
+            build-trace/CMakeCache.txt
+          if-no-files-found: warn
+          retention-days: 90

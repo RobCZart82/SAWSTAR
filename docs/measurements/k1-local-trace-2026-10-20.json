@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "source_base": "c6507db0886096ec999d2dd2517c2776f3702f86",
+  "source_state": "modified local working tree, not a committed CI run",
+  "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t26.7.1\nBuildVersion:\t\t25G241\n",
+  "host_architecture": "arm64",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "source_files_sha256": {
+    "CMakeLists.txt": "3db3856a01078ed3e840567c72bbb33924df752280d972e87895d50979451706",
+    "cmake/PremiumPreview.cmake": "0fcf07f6f64ebd3c89c2c6cbe84bfb28ce6a3ba07e459095ccec9f14e79095d5",
+    "src/engine/Synth.h": "4cd4925bbcd355bcec1bdd1a91a92adeb76c1075b7eb60a61efab1397e966ac0",
+    "src/engine/Synth.cpp": "a9b2bc2c6b3bf202dc8f6f40705d13b7f0c76bdf583e5b3e406f856db7ed0f22",
+    "src/engine/NumericalTrace.h": "701ff7161808724f2b2e9223b8217c35d87d67c28d9437f2ecc96e6eda8b3902",
+    "tests/oscillator_dispatch_engine.cpp": "9bdee74c62b16584ec310cfa30339c997d74d9c51a1dda48ae82aa2043126516",
+    "tests/NumericalComparison.h": "00ced7502c503db3f99836175f579fd4e3e1b9f92825ae5ffee99c9ad98cac4d",
+    ".github/workflows/k1-numerical-trace.yml": "5f982cf2591b932cdab7c40c575b4245bb87db02226345638fa3a126a6c3139a"
+  },
+  "original_preserved_executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+  "original_preserved_failure_log_sha256": "d893ac670bfe10981e3ae55c34593c433363ec7f38ecfd34cd875908c24f2c09",
+  "trace": {
+    "source_base": "c6507db0886096ec999d2dd2517c2776f3702f86",
+    "source_state": "modified working tree; not committed",
+    "instrumented": true,
+    "executable_sha256": "bc13e486da5fcdc1bbd1956e4da77233f3f44a099d783b4a1cc5bc27b11cac66",
+    "runs": [
+      {
+        "arch": "arm64",
+        "name": "self-test",
+        "exit": 0,
+        "sha256": "8cb22e0b061e92bde4a7e2cfffe61067aaafacefa7031a7582ce88736f329276"
+      },
+      {
+        "arch": "arm64",
+        "name": "triangle-cold-0",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "arm64",
+        "name": "triangle-cold-1",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "arm64",
+        "name": "triangle-cold-2",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "arm64",
+        "name": "triangle-cold-3",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "x86_64",
+        "name": "self-test",
+        "exit": 0,
+        "sha256": "8cb22e0b061e92bde4a7e2cfffe61067aaafacefa7031a7582ce88736f329276"
+      },
+      {
+        "arch": "x86_64",
+        "name": "triangle-cold-0",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "x86_64",
+        "name": "triangle-cold-1",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "x86_64",
+        "name": "triangle-cold-2",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "x86_64",
+        "name": "triangle-cold-3",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      }
+    ]
+  },
+  "pre_observation_validation_trace": {
+    "source_base": "c6507db0886096ec999d2dd2517c2776f3702f86",
+    "source_state": "modified working tree; not committed",
+    "instrumented": true,
+    "executable_sha256": "bf48c97d07ff36ec686a2b56025421fb0407b367a531075102341df623ed282c",
+    "runs": [
+      {
+        "arch": "arm64",
+        "name": "self-test",
+        "exit": 0,
+        "sha256": "8cb22e0b061e92bde4a7e2cfffe61067aaafacefa7031a7582ce88736f329276"
+      },
+      {
+        "arch": "arm64",
+        "name": "triangle-cold-0",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "arm64",
+        "name": "triangle-cold-1",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "arm64",
+        "name": "triangle-cold-2",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "arm64",
+        "name": "triangle-cold-3",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "x86_64",
+        "name": "self-test",
+        "exit": 0,
+        "sha256": "8cb22e0b061e92bde4a7e2cfffe61067aaafacefa7031a7582ce88736f329276"
+      },
+      {
+        "arch": "x86_64",
+        "name": "triangle-cold-0",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "x86_64",
+        "name": "triangle-cold-1",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "x86_64",
+        "name": "triangle-cold-2",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      },
+      {
+        "arch": "x86_64",
+        "name": "triangle-cold-3",
+        "exit": 0,
+        "sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d"
+      }
+    ]
+  },
+  "normal_executable_sha256": "1a05869f99a090505a2f5b3ce8e9e97da907f021f88f3dfa1c6a26a110b158b2",
+  "normal": [
+    {
+      "architecture": "arm64",
+      "cases": 480,
+      "all_reported_errors_zero": true,
+      "log_sha256": "3df0baa50b330037a1e52e2732082ca3b07f899736e909724c84011ee1098b70",
+      "self_test_sha256": "e947271961abcc700dd9279511354ab7b2f33cb5fa77da6bf2442fc39853cda0"
+    },
+    {
+      "architecture": "x86_64",
+      "cases": 480,
+      "all_reported_errors_zero": true,
+      "log_sha256": "3df0baa50b330037a1e52e2732082ca3b07f899736e909724c84011ee1098b70",
+      "self_test_sha256": "e947271961abcc700dd9279511354ab7b2f33cb5fa77da6bf2442fc39853cda0"
+    }
+  ],
+  "release_ctest": {
+    "passed": 140,
+    "total": 140,
+    "log_sha256": "50759c55e7c7c9029a6cf9136528f8ee10fcef5ee348dcab993501c60819e9d0"
+  },
+  "plugin_trace_configuration_rejected": true,
+  "native_host_acceptance": false,
+  "k1_root_cause_found": false
+}

@@ -23,7 +23,7 @@ sikeres, natív elfogadás külön. A B2 SUB-frekvenciaplafon P3
 [policyja/javítása és regressziója](B2_SUB_FREQUENCY_FIX.md) implementált
 M3-feladatként #119-ben beolvadt, 12 PR-workflow sikeres; új main/natív kapu külön.
 Az R1 többpéldányos preset-lock [process-local részjavítása](R1_PRESET_MUTATION_CONTENTION.md)
-implementált; friss CI és teljes natív/I/O-elfogadás M5-ben nyitott.
+#120-ként beolvadt, hét PR-workflow sikeres; új main és teljes natív/I/O-elfogadás M5-ben külön kapu.
 D1/D2/D3 a dokumentáció/metadata munkája, Q1 a pontos RC natív jegyzőkönyve;
 T1 opcionális CMake-minimum kontroll. A javító PR-k az érintett M1/M2/M5
 ellenőrzéseket új forrásazonossággal végzik el; a lezárt régi kampányok megmaradnak.
@@ -53,6 +53,13 @@ Az alábbi korábbi implementációs eredmények ettől nem válnak natív elfog
   elfogadása még nyitott. Nem csupán dokumentált, de még nem igazolt natív siker.
 - A korábbi negatív main/CPU bizonyítékok megmaradnak. Egy későbbi zöld CI nem
   magyarázza meg automatikusan a korábbi mérés okát.
+
+## K1 aktuális diagnosztikai lépése
+
+A #120 beolvadt, hét PR-workflow sikeres; a `c6507db0` main friss CI-je külön
+kapu. A [belső jelút-trace](K1_INTERNAL_TRACE.md) előkészíti a következő
+Rosetta-eltérés lokalizálását. Ez nem igazolt ok vagy javítás, M1 numerikus
+elfogadását nem zárja le; a megőrzött eredeti hiba megmarad.
 
 ## 2. Fejlesztési sorrend és mérföldkövek
 

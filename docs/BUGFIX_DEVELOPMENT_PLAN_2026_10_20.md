@@ -30,8 +30,8 @@ a lezárt célgépes kampányokat és a negatív eredményeket nem írjuk át.
 | ID | Prioritás és állapot | Feladat | Mérföldkő |
 | --- | --- | --- | --- |
 | B1 | P2, #118 beolvadt; 17 PR- és 4 main-workflow sikeres; natív/CPU nyitott | A mixer/MIDI-simítók szubnormális lecsengésének lezárása, átmeneti regressziókkal | M0, majd érintett M1/M2/M5 |
-| K1 | Candidate numerikus elfogadási blokkoló; ismert, nyitott | #116 eredeti Triangle x86_64/Rosetta biteltérésének okfeltárása | M1, production-promóció előtt |
-| R1 | Process-local blokkolás igazolt és célzottan javított; natív/I/O-próba nyitott | Példányok közötti preset-mutex és GUI-várakozás mérése, szükség esetén javítása | M5; súlyos reprodukciónál M0 |
+| K1 | Numerikus blokkoló nyitott; belső trace és diagnosztikai CI implementált, nem ok/javítás | #116 eredeti Triangle x86_64/Rosetta biteltérésének okfeltárása | M1, production-promóció előtt |
+| R1 | #120 beolvadt, 7 PR-workflow sikeres; új main/natív/I/O-próba külön | Példányok közötti preset-mutex és GUI-várakozás mérése, szükség esetén javítása | M5; súlyos reprodukciónál M0 |
 | B2 | P3, #119 beolvadt; 12 PR-workflow sikeres; új main/natív kapuk külön | SUB 20 kHz-es abszolút plafon és mintavételarányos korlát egységesítése | M3, M5/M6 regresszió |
 | D1 | P3, a státuszmondat ebben a dokumentációs változásban pontosítva | ARP történeti pending és későbbi felhasználói próba megkülönböztetése | M8 |
 | D2 | Karbantartási adósság, nyitott | A `release_date` jelentésének és a jövőbeli build/publikálási dátummezőknek rendezése | M7–M8 |
@@ -93,6 +93,12 @@ forrás/CI. CPU-nyereséget csak külön mérés igazolhat. Nem nyitjuk újra a 
 kampányt kedvezőbb számokért; szükséges új DSP-kontroll új forrásazonosságot kap.
 
 ## 4. K1 — A #116 Rosetta-biteltérése
+
+**Friss diagnosztika:** [belső trace, kontrollok és korlátok](K1_INTERNAL_TRACE.md).
+Külön, alapból OFF offline kapcsoló; mindkét output/pre-FX érték még a kivétel
+előtt, továbbá opcionális voice/FX részpontok. A forrásalap #120 utáni
+`c6507db0`; K1 oka és javítása továbbra nyitott. A régi negatív bizonyíték
+változatlan, a sikeres új bináris nem helyettesíti.
 
 A 2026-10-20-i auditkor #116 nyitott volt, head
 `fb3114eb829442223083e103929a15ad25d3efeb`, base a fenti main.
@@ -294,7 +300,7 @@ szükséges sikeres ellenőrzésekkel; force/bypass/vak auto-merge nélkül.
   az eredeti dokumentációs audit nem jelentett új tesztet vagy javítást.
   A B1 későbbi implementációjának új ellenőrzéseit a hivatkozott javítási lap rögzíti.
 
-**Következő konkrét munka:** az R1 részjavítás pontos-head CI-je, a #119
-utáni main és a B1/B2/R1 érintett natív elfogadása; külön K1 bizonyítékalapú
-okfeltárás. Az R1 natív próba tervezhető,
+**Következő konkrét munka:** a K1 belső diagnosztika pontos-head CI-je és
+az első tényleges eltérés lokalizálása; a #120 utáni main és a B1/B2/R1
+érintett natív elfogadása külön kapu. Az R1 natív próba tervezhető,
 de eredménye és elfogadása jelenleg nyitott.
