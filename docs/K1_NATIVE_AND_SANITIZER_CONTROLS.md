@@ -1,6 +1,7 @@
 # K1 — Natív Intel-kontroll és kalibrált ASan/UBSan kampány
 
-Állapot: implementált, pontos-head CI-re váró diagnosztika.
+Állapot: #126 pontos-head CI-je és helyi nyersadat-újraellenőrzése sikeres;
+K1 nem reprodukált. [Mért eredmények és következő döntés](K1_NATIVE_SANITIZER_RESULTS_2026_10_20.md).
 Alap: `bef9b8db7c36092485b544b7d1ed3ca9a71b20ce`, #125 után.
 A párhuzamosan futó main workflow-k nem módosulnak és nem kerülnek leállításra.
 A két új workflow saját concurrency-csoportot és külön PR-ágat használ.

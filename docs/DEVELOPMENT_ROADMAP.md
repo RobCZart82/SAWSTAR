@@ -13,34 +13,21 @@ külön; K1 a #116 ismert numerikus blokkolója. A D/Q/T feladatok külön köve
 dokumentációt, metadata-policyt és a tényleges natív lefedettséget. A részletes
 M0–M9 kiadási tervbe bekötve; az implementáció és az elfogadás külön követendő.
 
-## K1 — natív kontrollok és sanitizer-lefedettség
+## K1 — aktuális állapot a #126 után
 
-#125 beolvadt (`bef9b8db`), 11 PR-workflow / 26 job sikeres.
-Az IE az elsőként futó motor Reset() hívásánál megfigyelt, audioeltérés nélkül;
-ez nem bizonyított K1-ok. A [következő elkülönített kampányok](K1_NATIVE_AND_SANITIZER_CONTROLS.md)
-az eredeti binárist natív Intel macOS-en, az eredeti és aktuális kalibrált
-Preview-párt pedig natív ARM64/Intel ASan/UBSan buildben vizsgálják.
-A futó main-ellenőrzések megmaradnak; új PR-head CI-je külön kapu.
-K1 továbbra megőrzött, nem újra előidézett Rosetta alatti numerikus anomália.
+#126 beolvadt (`e2b27054`), hét PR-workflow / 22 job sikeres.
+Az eredeti bináris natív Intel-kontrollja 1680, újabb Apple Silicon/Rosetta
+replay-e 3360, a négy kalibrált ASan/UBSan konfiguráció 1920 esetmegfigyeléssel
+hibamentes. A nyers csomagok helyileg újraellenőrzöttek.
+[Eredmények, bizonyíték és következő döntés](K1_NATIVE_SANITIZER_RESULTS_2026_10_20.md).
 
-## K1 — eredeti replay eredménye és setup-lokalizálás
+K1 megőrzött, nyitott, most nem újra előidézett numerikus anomália.
+A kijelölt diagnosztikai kör befejezett; további Rosetta/IE-próba új negatív
+esethez vagy konkrét hipotézishez kötött. A következő prioritás a natív
+Reference/Candidate host-/REAPER-elfogadás. Production/RC/publikálási kapu
+ettől nem teljesült; az új main és e dokumentáció friss CI-je külön kapu.
 
-#124 beolvadt (`16f024e3`), öt PR-workflow / 14 job sikeres.
-Az [eredeti bináris kampánya](K1_ORIGINAL_BINARY_REPLAY.md) mindkét archívumból,
-28 folyamat / 3360 esetmegfigyelés alatt hibamentes: K1 most nem reprodukált.
-Következő a külön [setup-műveletek FP-lokalizálása](K1_SETUP_FP_LOCALIZATION.md):
-33 hívás motoronként, coarse/observed/fordított setup-sorrend, közös grid-helperrel.
-Ez új diagnosztika, nem bizonyított K1-ok vagy javítás; friss CI-je külön kapu.
-
-## K1 — eredeti executable kontrollja a #123 után
-
-#123 beolvadt (`9383d46d`), mind a 19 PR-workflow / 59 job sikeres.
-Az [eredeti bináris CI-visszajátszása](K1_ORIGINAL_BINARY_REPLAY.md) külön
-kampányként implementált: két eredeti archívum, hashazonos executable,
-14–14 rögzített folyamat, az eredeti `--diagnostic-waveform 2` Triangle-úttal.
-A kampány eredménye és az új main teljes CI-je külön kapu; K1 továbbra nyitott.
-
-## K1 passzív FP-/sorrendmérés a #122 után
+## Történeti K1 passzív FP-/sorrendmérés a #122 után
 
 #121 és #122 beolvadt; a következő diagnosztika alapja `848e4fcc`.
 A [passzív FP-mérés](K1_FP_OBSERVATION.md) helyileg elkészült: a státuszjelzők
@@ -51,7 +38,7 @@ az IE már setup alatt beáll; `0x1fb3` önmagában nem K1-hibajelző.
 Ez új adat, nem K1-gyökérok vagy javítás. Következő az eredeti bináris
 kontrollja és külön a setup-művelet lokalizálása; friss teljes CI külön kapu.
 
-## K1 belső diagnosztika a #120 után
+## Történeti K1 belső diagnosztika a #120 után
 
 A #120 R1-részjavítás beolvadt, mind a hét PR-workflow sikeres. Új main:
 `c6507db0886096ec999d2dd2517c2776f3702f86`; induláskor három fő ellenőrzése

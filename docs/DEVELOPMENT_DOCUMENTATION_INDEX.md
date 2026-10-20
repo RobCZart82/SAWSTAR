@@ -4,37 +4,26 @@ Utolsó állapotfrissítés: **2026-10-20**; a történeti dokumentációaudit 2
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 
-## K1 — natív kontrollok és sanitizer-lefedettség
+## K1 — aktuális állapot a #126 után
 
-#125 beolvadt (`bef9b8db`), 11 PR-workflow / 26 job sikeres.
-Az IE az elsőként futó motor Reset() hívásánál megfigyelt, audioeltérés nélkül;
-ez nem bizonyított K1-ok. A [következő elkülönített kampányok](K1_NATIVE_AND_SANITIZER_CONTROLS.md)
-az eredeti binárist natív Intel macOS-en, az eredeti és aktuális kalibrált
-Preview-párt pedig natív ARM64/Intel ASan/UBSan buildben vizsgálják.
-A futó main-ellenőrzések megmaradnak; új PR-head CI-je külön kapu.
-K1 továbbra megőrzött, nem újra előidézett Rosetta alatti numerikus anomália.
+#126 beolvadt (`e2b27054`), hét PR-workflow / 22 job sikeres.
+Az eredeti bináris natív Intel-kontrollja 1680, újabb Apple Silicon/Rosetta
+replay-e 3360, a négy kalibrált ASan/UBSan konfiguráció 1920 esetmegfigyeléssel
+hibamentes. A nyers csomagok helyileg újraellenőrzöttek.
+[Eredmények, bizonyíték és következő döntés](K1_NATIVE_SANITIZER_RESULTS_2026_10_20.md).
 
-## K1 — eredeti replay eredménye és setup-lokalizálás
-
-#124 beolvadt (`16f024e3`), öt PR-workflow / 14 job sikeres.
-Az [eredeti bináris kampánya](K1_ORIGINAL_BINARY_REPLAY.md) mindkét archívumból,
-28 folyamat / 3360 esetmegfigyelés alatt hibamentes: K1 most nem reprodukált.
-Következő a külön [setup-műveletek FP-lokalizálása](K1_SETUP_FP_LOCALIZATION.md):
-33 hívás motoronként, coarse/observed/fordított setup-sorrend, közös grid-helperrel.
-Ez új diagnosztika, nem bizonyított K1-ok vagy javítás; friss CI-je külön kapu.
-
-## K1 — eredeti executable kontrollja a #123 után
-
-#123 beolvadt (`9383d46d`), mind a 19 PR-workflow / 59 job sikeres.
-Az [eredeti bináris CI-visszajátszása](K1_ORIGINAL_BINARY_REPLAY.md) külön
-kampányként implementált: két eredeti archívum, hashazonos executable,
-14–14 rögzített folyamat, az eredeti `--diagnostic-waveform 2` Triangle-úttal.
-A kampány eredménye és az új main teljes CI-je külön kapu; K1 továbbra nyitott.
+K1 megőrzött, nyitott, most nem újra előidézett numerikus anomália.
+A kijelölt diagnosztikai kör befejezett; további Rosetta/IE-próba új negatív
+esethez vagy konkrét hipotézishez kötött. A következő prioritás a natív
+Reference/Candidate host-/REAPER-elfogadás. Production/RC/publikálási kapu
+ettől nem teljesült; az új main és e dokumentáció friss CI-je külön kapu.
 
 ## Aktuális dokumentumok
 
 | Dokumentum | Szerepe |
 | --- | --- |
+| [K1 natív és sanitizer-eredmények](K1_NATIVE_SANITIZER_RESULTS_2026_10_20.md) | A #126 mért eredményei, helyi raw-data audit, nyitott K1 és a natív host-elfogadásra visszatérő prioritás. |
+| [K1 natív/sanitizer módszertan](K1_NATIVE_AND_SANITIZER_CONTROLS.md) | Az eredeti Intel-bináris és az új instrumentált kalibrált pár külön tesztterve és értelmezési korlátai. |
 | [Következő release fejlesztési terve](NEXT_RELEASE_DEVELOPMENT_PLAN.md) | Az M0–M9 sorrend, a valós REAPER CPU-terv, a döntési feltételek és a külön végső RC/publikálási kapu. Ez a részletes végrehajtási terv. |
 | [Átfogó hibajavítási munkacsomag — 2026-10-20](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md) | B1/B2 reprodukált numerikus jelenségek, K1 ismert Rosetta-blokkoló, R1 zárolási gyanú, D/Q/T dokumentációs és validációs feladatok; bizonyíték, sorrend és lezárási feltétel. |
 | [Fejlesztési roadmap](DEVELOPMENT_ROADMAP.md) | Kész/implementált/nyitott állapotok rövid követése. A régi dátumozott részek előzmények. |
@@ -48,7 +37,11 @@ A kampány eredménye és az új main teljes CI-je külön kapu; K1 továbbra ny
 | [Windows célgépes útmutató és állapot](WINDOWS_TARGET_CONTROL.md) | A lezárt Windows-gyűjtés bizonyítéka, azonos forrású kontroll és további natív feladat. |
 | [Production benchmark validálása](AUDIO_BENCHMARK_VALIDATION.md) | Eltérő mérési szerepek, régi hibák, változatlan küszöbök, nyers archívum-audit és új időadatok. |
 
-## Folytatás ellenőrzési alapja
+## Történeti folytatási alapok — #117–#125
+
+Az alábbi induláskori CI-pillanatképek történetiek; az akkori „még futott”
+mondatok nem a jelenlegi függő feladatokat jelölik. Az aktuális K1-eredmény
+és döntés a dokumentum elején található.
 
 A #117 beolvadt, új main `ea4961c544ae4f01eec1b610ab229511074e9cd7`.
 A B1 erre az alapra készült és #118-ként beolvadt. A folytatáskor ellenőrzött
@@ -62,7 +55,7 @@ alapja `c6507db0886096ec999d2dd2517c2776f3702f86`; új main CI-je induláskor
 még futott, lintje sikeres. #116 beolvasztás nélkül lezárult; K1 továbbra nyitott.
 [Belső K1 trace és következő döntés](K1_INTERNAL_TRACE.md).
 
-## Passzív FP-folytatás a #122 után
+## Történeti passzív FP-folytatás a #122 után
 
 #121 beolvadt, 18 PR-workflow sikeres. A külső jelentések értékelése #122-ben
 beolvadt, négy PR-workflow sikeres. Az új alap
