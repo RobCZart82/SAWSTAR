@@ -1,0 +1,65 @@
+name: K1 original binary native Intel control
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/k1-native-intel.yml'
+      - 'scripts/replay-k1-original.py'
+      - 'tests/k1_original_replay.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: k1-native-intel-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  parser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - run: python3 tests/k1_original_replay.py
+  replay:
+    name: Original ${{ matrix.origin }} / native Intel Mac
+    needs: parser
+    runs-on: macos-15-intel
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        origin: [candidate, reference]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Download the fixed original artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPLAY_ORIGIN: ${{ matrix.origin }}
+        run: |
+          mkdir original-download
+          case "$REPLAY_ORIGIN" in
+            candidate) artifact=12186151118 ;;
+            reference) artifact=12185332231 ;;
+            *) exit 1 ;;
+          esac
+          gh api --hostname github.com "repos/RobCZart82/SAWSTAR/actions/artifacts/$artifact/zip" > original-download/original.zip
+      - name: Verify native Intel host and replay the unchanged executable
+        env:
+          REPLAY_ORIGIN: ${{ matrix.origin }}
+        run: python3 scripts/replay-k1-original.py --archive original-download/original.zip --origin "$REPLAY_ORIGIN" --execution-mode native-intel --output k1-native-intel
+      - name: Preserve every result and original evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: k1-native-intel-${{ matrix.origin }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            k1-native-intel/
+            original-download/
+          if-no-files-found: warn
+          retention-days: 90

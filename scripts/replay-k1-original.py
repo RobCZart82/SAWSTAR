@@ -40,13 +40,32 @@ def plan():
             [(2, arch, cold) for cold in range(1, 4) for arch in ("arm64", "x86_64")])
 
 
+def execution_plan(mode):
+    if mode == "apple-silicon":
+        return plan()
+    if mode == "native-intel":
+        return [item for item in plan() if item[1] == "x86_64"]
+    raise ValueError("Unknown execution mode")
+
+
+def translation_reported(returncode, stdout):
+    # sysctl -i may succeed with empty stdout when the OID is absent on Intel.
+    # Absence is not evidence of translation; retain raw probe metadata.
+    value = stdout.strip()
+    if value not in ("", "0", "1"):
+        raise ValueError("Unexpected translation probe value: " + repr(value))
+    return returncode == 0 and value == "1"
+
+
 def arguments(wave):
     # The original failure used signal digests, not plain --waveform 2.
     return ["--diagnostic-waveform" if wave == 2 else "--waveform", str(wave)]
 
 
-def validate_table(text, wave):
-    fields = FIELDS + (DIGEST_FIELDS if wave == 2 else ())
+def validate_table(text, wave, diagnostic=None):
+    if diagnostic is None:
+        diagnostic = wave == 2
+    fields = FIELDS + (DIGEST_FIELDS if diagnostic else ())
     reader = csv.DictReader(io.StringIO(text))
     if tuple(reader.fieldnames or ()) != fields:
         raise ValueError("Unexpected CSV header")
@@ -65,7 +84,7 @@ def validate_table(text, wave):
         keys.append(key)
         if any(row[field] != "0" for field in FIELDS[5:]):
             raise ValueError("Nonzero or invalid error metric")
-        if wave == 2:
+        if diagnostic:
             values = tuple(row[field] for field in DIGEST_FIELDS)
             if any(not re.fullmatch("[0-9a-f]{16}", value) for value in values):
                 raise ValueError("Invalid signal fingerprint")
@@ -74,7 +93,7 @@ def validate_table(text, wave):
             table.append(key + values)
     if keys != expected:
         raise ValueError("Reordered, duplicate or missing grid case")
-    if wave == 2:
+    if diagnostic:
         # Same table algorithm as the archived qualifier; not raw audio SHA.
         return hashlib.sha256(json.dumps(sorted(table), separators=(",", ":")).encode()).hexdigest()
     return None
@@ -146,15 +165,16 @@ def unpack_verified(archive, origin, output):
     return executable, manifest
 
 
-def replay(archive, origin, output):
+def replay(archive, origin, output, execution_mode="apple-silicon"):
     archive, output = Path(archive).resolve(), Path(output).resolve()
     if output.exists():
         raise ValueError("Existing replay evidence is never overwritten")
     output.mkdir(parents=True, exist_ok=False)
-    manifest = dict(schema=1, state="incomplete", origin=origin,
+    planned = execution_plan(execution_mode)
+    manifest = dict(schema=1, state="incomplete", origin=origin, execution_mode=execution_mode,
         artifact_id=ORIGINS[origin][0], original_source_commit=SOURCE,
         expected_executable_sha256=EXECUTABLE_SHA, process_timeout_seconds=PROCESS_TIMEOUT,
-        process_count=14, rebuild=False, fp_override=False, results=[],
+        process_count=len(planned), rebuild=False, fp_override=False, results=[],
         purpose="Original K1 binary replay; not root cause, CPU or native host acceptance",
         production_promotion_allowed=False, native_host_acceptance=False)
 
@@ -163,8 +183,26 @@ def replay(archive, origin, output):
 
     save()
     try:
-        if platform.system() != "Darwin" or platform.machine() != "arm64":
-            raise ValueError("Expected Apple Silicon macOS runner")
+        expected_arch = "x86_64" if execution_mode == "native-intel" else "arm64"
+        if platform.system() != "Darwin" or platform.machine() != expected_arch:
+            raise ValueError("Unexpected host architecture for execution mode")
+        translated = subprocess.run(["sysctl", "-in", "sysctl.proc_translated"],
+            capture_output=True, text=True)
+        manifest["translation_probe"] = dict(returncode=translated.returncode,
+            stdout=translated.stdout.strip(), stderr=translated.stderr.strip())
+        if execution_mode == "native-intel":
+            if translation_reported(translated.returncode, translated.stdout):
+                raise ValueError("Native Intel campaign must not run through Rosetta")
+            vendor = subprocess.check_output(["sysctl", "-n", "machdep.cpu.vendor"], text=True).strip()
+            if vendor != "GenuineIntel":
+                raise ValueError("Native Intel campaign requires an Intel CPU")
+            manifest["cpu_vendor"] = vendor
+            manifest["cpu_brand"] = subprocess.check_output(
+                ["sysctl", "-n", "machdep.cpu.brand_string"], text=True).strip()
+            manifest["runner_arch_env"] = os.environ.get("RUNNER_ARCH")
+            if os.environ.get("RUNNER_ARCH") != "X64":
+                raise ValueError("Expected the native X64 runner label")
+        manifest["execution_plan"] = [dict(waveform=w, architecture=a, cold_run=c) for w,a,c in planned]
         manifest.update(runner_source_commit=subprocess.check_output(
             ["git", "rev-parse", "HEAD"], text=True).strip(),
             runtime_platform=platform.platform(),
@@ -186,7 +224,7 @@ def replay(archive, origin, output):
             child_env.pop(key, None)
         manifest["observed_malloc_environment"] = {
             k: child_env[k] for k in ("MallocScribble", "MallocPreScribble", "MallocNanoZone") if k in child_env}
-        for wave, arch, cold in plan():
+        for wave, arch, cold in planned:
             suffix = "" if cold == 0 else "-cold-" + str(cold)
             name = arch + "-waveform-" + str(wave) + suffix + ".txt"
             log = output / name
@@ -245,7 +283,9 @@ if __name__ == "__main__":
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument("--origin", choices=tuple(ORIGINS), required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--execution-mode", choices=("apple-silicon", "native-intel"),
+                        default="apple-silicon")
     args = parser.parse_args()
-    result = replay(args.archive, args.origin, args.output)
+    result = replay(args.archive, args.origin, args.output, args.execution_mode)
     if result["state"] != "complete":
         parser.exit(1, "K1 original replay failed; inspect retained evidence\n")
