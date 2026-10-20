@@ -92,3 +92,10 @@ vagy fordítási policy-módosítás. K1 továbbra nyitott.
 A hasznos következő irány továbbra a passzív FP-pillanatképek és egy valódi
 negatív eset lokalizálása. MXCSR-átmenetmérés és FTZ/DAZ ON/OFF kampány e
 dokumentációs értékelés során még nem történt; ilyen PASS-t vagy új okot nem állítunk.
+
+## Követő passzív FP-mérés — 2026-10-20
+
+Az itt korábban tervezett [FP-pillanatképek és sorrendpróba](K1_FP_OBSERVATION.md)
+időközben implementált és helyileg mért. A régi, még nem végzett mérést jelölő
+mondatok e korábbi munkalépés állapotát őrzik. Az új adat és annak korlátai
+a külön lapon szerepelnek; K1 ettől nem lett feloldva.

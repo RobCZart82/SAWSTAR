@@ -86,8 +86,13 @@ template<class S> void Event(S& s, int n, int filter, int voice) {
 }
 int main(int argc, char** argv) {
   try {
+    if(argc==2&&std::strcmp(argv[1],"--fp-self-test")==0){
+      fp_observation::SelfTest();std::cout<<"Passive FP observation self-test passed\n";return 0;
+    }
     if(argc==2&&std::strcmp(argv[1],"--diagnostic-self-test")==0){
       std::ostringstream log;bool rejected=false;
+      const fp_observation::Snapshot clean{true,0x1f80,FE_TONEAREST},sticky{true,0x1fb3,FE_TONEAREST};
+      const fp_observation::Frame testFp{clean,sticky,sticky,sticky,"injected",197};
 #ifdef SAWSTAR_NUMERICAL_TRACE
       sawstar::NumericalTrace reference{},candidate{};
       for(auto& voice:candidate.voices)voice.fill(1.f); // more than 16 differing fields
@@ -97,11 +102,14 @@ int main(int argc, char** argv) {
 #ifdef SAWSTAR_NUMERICAL_TRACE
         ,candidate,reference
 #endif
+        ,&testFp
         );}catch(const std::runtime_error&){rejected=true;}
       const auto text=log.str();
       Require(rejected&&text.find("phase=injected frame=197")!=std::string::npos&&
         text.find("output.right candidate_bits=")!=std::string::npos&&
-        text.find("pre_fx.left candidate_bits=")!=std::string::npos,"Incomplete failure diagnostics");
+        text.find("pre_fx.left candidate_bits=")!=std::string::npos&&
+        text.find("reference_before mxcsr_available=1 raw=0x1f80")!=std::string::npos&&
+        text.find("candidate_after mxcsr_available=1 raw=0x1fb3 status=0x33 controls=0x1f80")!=std::string::npos,"Incomplete failure diagnostics");
 #ifdef SAWSTAR_NUMERICAL_TRACE
       Require(text.find("trace voice[0].envelope")!=std::string::npos&&
         text.find("trace_differences=256 trace_lines_limit=16")!=std::string::npos&&
@@ -128,14 +136,18 @@ int main(int argc, char** argv) {
 #endif
       return 0;
     }
-    int firstWave = 0, endWave = 4;
-    if (argc != 1) {
-      Require(argc == 3 && std::strcmp(argv[1], "--waveform") == 0,
-              "Usage: oscillator_dispatch_engine [--waveform 0|1|2|3]");
-      Require(std::strlen(argv[2]) == 1 && argv[2][0] >= '0' && argv[2][0] <= '3',
-              "Waveform must be exactly 0, 1, 2 or 3");
-      firstWave = argv[2][0] - '0'; endWave = firstWave + 1;
+    int firstWave = 0, endWave = 4;bool observeFp=false,waveSpecified=false,candidateFirst=false;
+    for(int arg=1;arg<argc;++arg){
+      if(std::strcmp(argv[arg],"--fp-observe")==0&&!observeFp){observeFp=true;continue;}
+      if(std::strcmp(argv[arg],"--candidate-first")==0&&!candidateFirst){candidateFirst=true;continue;}
+      Require(std::strcmp(argv[arg],"--waveform")==0&&!waveSpecified&&arg+1<argc,
+              "Usage: oscillator_dispatch_engine [--waveform 0|1|2|3] [--fp-observe [--candidate-first]]");
+      const char* value=argv[++arg];
+      Require(std::strlen(value)==1&&value[0]>='0'&&value[0]<='3',"Waveform must be exactly 0, 1, 2 or 3");
+      firstWave=value[0]-'0';endWave=firstWave+1;waveSpecified=true;
     }
+    Require(!candidateFirst||observeFp,"--candidate-first requires --fp-observe");
+    fp_observation::Campaign fpCampaign(observeFp);
     // The bit identity guard must reject a deliberately altered signal.
     bool rejected = false;
     try {
@@ -147,14 +159,31 @@ int main(int argc, char** argv) {
     for (Waveform=firstWave; Waveform<endWave; ++Waveform) for (double rate : {48000., 96000., 176400., 192000., 384000.})
       for (int filter = 0; filter < 4; ++filter) for (int voice = 0; voice < 3; ++voice)
         for (bool fx : {false, true}) {
+          fp_observation::Case observation;observation.waveform=Waveform;observation.rate=rate;
+          observation.filter=filter;observation.voice=voice;observation.fx=fx;
+          observation.candidateFirst=candidateFirst;
+          if(observeFp)observation.boundaries[0]=fp_observation::Capture();
           auto a = std::make_unique<Reference>(); auto b = std::make_unique<Study>();
-          Setup(*a, rate, filter, voice, fx); Setup(*b, rate, filter, voice, fx);
+          if(observeFp)observation.boundaries[1]=fp_observation::Capture();
+          Setup(*a, rate, filter, voice, fx);
+          if(observeFp)observation.boundaries[2]=fp_observation::Capture();
+          Setup(*b, rate, filter, voice, fx);
+          if(observeFp)observation.boundaries[3]=fp_observation::Capture();
+          const auto renderPair=[&](const char* phase,int frame,unsigned phaseIndex){
+            fp_observation::Frame fp;fp.phase=phase;fp.index=frame;fp.candidateFirst=candidateFirst;
+            sawstar::StereoSample x,y;
+            const auto reference=[&]{if(observeFp)fp.referenceBefore=fp_observation::Capture();x=a->ProcessStereo();if(observeFp)fp.referenceAfter=fp_observation::Capture();};
+            const auto candidate=[&]{if(observeFp)fp.candidateBefore=fp_observation::Capture();y=b->ProcessStereo();if(observeFp)fp.candidateAfter=fp_observation::Capture();};
+            if(candidateFirst){candidate();reference();}else{reference();candidate();}
+            if(observeFp)observation.Observe(fp,phaseIndex);
+            return std::pair<sawstar::StereoSample,sawstar::StereoSample>{x,y};
+          };
           Require(a->ActiveVoices() == (voice == 0 ? 16 : 1) && a->ActiveVoices() == b->ActiveVoices(),
                   "Missing sounding voice fixture");
           Error out, pre;
           for (int n = 0; n < 4096; ++n) {
             Event(*a, n, filter, voice); Event(*b, n, filter, voice);
-            const auto x = a->ProcessStereo(), y = b->ProcessStereo();
+            const auto [x,y]=renderPair("main",n,0);
 #ifdef SAWSTAR_NUMERICAL_TRACE
             const auto& trace=b->Trace();
             Require(numerical_comparison::Same({trace.stages[1][0],trace.stages[1][1]},b->PreFX())&&
@@ -167,6 +196,7 @@ int main(int argc, char** argv) {
 #ifdef SAWSTAR_NUMERICAL_TRACE
               ,b->Trace(),a->Trace()
 #endif
+              ,observeFp?&observation.latest:nullptr
               );
             Require(std::max({std::abs(x.left), std::abs(x.right), std::abs(y.left), std::abs(y.right)}) <= .98001f,
                     "Unprotected engine output");
@@ -175,12 +205,13 @@ int main(int argc, char** argv) {
             for (int note : {36, 48, 50, 60}) Require(a->Held(note) == b->Held(note), "MIDI ownership mismatch");
           }
           for (int n = 0; n < int(rate / 10); ++n) {
-            const auto x=a->ProcessStereo(),y=b->ProcessStereo();
+            const auto [x,y]=renderPair("tail",n,1);
             numerical_comparison::Check(y,x,b->PreFX(),a->PreFX(),
               {Waveform,filter,voice,rate,fx,"tail",n},std::cerr
 #ifdef SAWSTAR_NUMERICAL_TRACE
               ,b->Trace(),a->Trace()
 #endif
+              ,observeFp?&observation.latest:nullptr
               );
             out.Add(y,x);pre.Add(b->PreFX(),a->PreFX());
           }
@@ -188,14 +219,20 @@ int main(int argc, char** argv) {
           out.Check(); pre.Check();
           std::cout << Waveform << ',' << rate << ',' << filter << ',' << voice << ',' << fx << ',' << out.peak << ',' << out.Relative()
                     << ',' << pre.peak << ',' << pre.Relative() << '\n';
-          a->Reset(rate); b->Reset(rate);
+          if(observeFp)observation.boundaries[4]=fp_observation::Capture();
+          a->Reset(rate);
+          if(observeFp)observation.boundaries[5]=fp_observation::Capture();
+          b->Reset(rate);
+          if(observeFp)observation.boundaries[6]=fp_observation::Capture();
           for (int n = 0; n < 64; ++n) {
-            const auto x = a->ProcessStereo(), y = b->ProcessStereo();
+            const auto [x,y]=renderPair("reset",n,2);
             Require(x.left == 0 && x.right == 0 && y.left == 0 && y.right == 0, "Reset silence mismatch");
           }
+          fpCampaign.Add(observation);
           ++cases;
         }
     Require(cases == 120 * (endWave - firstWave), "Incomplete engine grid");
+    fpCampaign.Print(std::cerr);
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
 

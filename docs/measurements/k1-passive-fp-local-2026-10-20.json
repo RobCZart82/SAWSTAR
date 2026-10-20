@@ -1,0 +1,243 @@
+{
+  "schema": 1,
+  "source_state": "modified local working tree, not a committed CI run",
+  "base_commit": "848e4fccc495a46d4e1c2f8b83970cb2cf70cb3e",
+  "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t26.7.1\nBuildVersion:\t\t25G241\n",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "source_files_sha256": {
+    "CMakeLists.txt": "2966a2c4f9f1c375365e22e7208e0fd915e84675e820abab48761e800c6e5f27",
+    "cmake/PremiumPreview.cmake": "712825b1a747dd1975dfd340c6d9f10499dabcf1d5958903e0f2f9d25bd3302b",
+    "tests/FpObservation.h": "e8dc01cf326261c8479e913f566bf8867e789af0b5e600a090eae158dbbc8b5b",
+    "tests/NumericalComparison.h": "74651ac2bb699a75299ef06e7f22bed87ee4c57856462fd87b733bc4bfd9e329",
+    "tests/oscillator_dispatch_engine.cpp": "c479830d1745b0ac9f30eba81adb1e7f02feeb61a5feff55d95e7423893504ee",
+    ".github/workflows/k1-fp-observation.yml": "a1069a632ec38bc5b5aa28d6a5f14e254d54bed4b14c19f55e402de5b86fb8f1"
+  },
+  "campaign": {
+    "source_base": "848e4fccc495a46d4e1c2f8b83970cb2cf70cb3e",
+    "source_state": "modified local working tree",
+    "executable_sha256": "d80d6b5b5c9fd1f12e27f9e0ff3e8f40218a9107041fe4f301e93849c2b72fa4",
+    "passive": true,
+    "ftz_daz_override": false,
+    "results": [
+      {
+        "architecture": "arm64",
+        "name": "fp-self-test",
+        "exit": 0,
+        "stdout_sha256": "05e5a25ee8c3ea5bb08a4cc442d6b2368f097e2fe8f2f6d1eac77bdb07638851",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "arm64",
+        "name": "diagnostic-self-test",
+        "exit": 0,
+        "stdout_sha256": "e947271961abcc700dd9279511354ab7b2f33cb5fa77da6bf2442fc39853cda0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "arm64",
+        "name": "baseline",
+        "exit": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "arm64",
+        "name": "observed",
+        "exit": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "32888be03609f463f1605dc134061d74c922e871ecb58ca810cecd6bfccaf357"
+      },
+      {
+        "architecture": "arm64",
+        "name": "candidate-first",
+        "exit": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "234a3aba48b0990dd598670780f2aa88c22d0c8f7b206cc9d116dc9575350230"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "fp-self-test",
+        "exit": 0,
+        "stdout_sha256": "05e5a25ee8c3ea5bb08a4cc442d6b2368f097e2fe8f2f6d1eac77bdb07638851",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "diagnostic-self-test",
+        "exit": 0,
+        "stdout_sha256": "e947271961abcc700dd9279511354ab7b2f33cb5fa77da6bf2442fc39853cda0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "baseline",
+        "exit": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "observed",
+        "exit": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "5ddaca1ea4c0b0e60c38853f79d88e6d83395662426da36298fb43f7b77996b7"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "candidate-first",
+        "exit": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "80195681ffc5a3188e0f248f6804d9dd9df8e688f08c8a0b2721ba35f815358d"
+      }
+    ]
+  },
+  "summaries": [
+    {
+      "architecture": "arm64",
+      "mode": "observed",
+      "cases": 120,
+      "mxcsr_available": false,
+      "controls_hex": [],
+      "status_hex": [],
+      "transition_totals": {
+        "reference_status": 0,
+        "candidate_status": 0,
+        "entry_status": 0,
+        "reference_controls": 0,
+        "candidate_controls": 0,
+        "entry_controls": 0,
+        "between_calls_controls": 0,
+        "between_frames_status": 0,
+        "between_frames_controls": 0
+      },
+      "first_recorded_frame": [],
+      "original_k1_case_boundary": [
+        "2 rate=48000 filter=2 voice=0 fx=1 order=reference-candidate main_frames=4096 tail_frames=4800 reset_frames=64",
+        "case_begin mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "objects_created mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "reference_setup_done mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "candidate_setup_done mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "before_reset mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "reference_reset_done mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "candidate_reset_done mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0"
+      ]
+    },
+    {
+      "architecture": "arm64",
+      "mode": "candidate-first",
+      "cases": 120,
+      "mxcsr_available": false,
+      "controls_hex": [],
+      "status_hex": [],
+      "transition_totals": {
+        "reference_status": 0,
+        "candidate_status": 0,
+        "entry_status": 0,
+        "reference_controls": 0,
+        "candidate_controls": 0,
+        "entry_controls": 0,
+        "between_calls_controls": 0,
+        "between_frames_status": 0,
+        "between_frames_controls": 0
+      },
+      "first_recorded_frame": [],
+      "original_k1_case_boundary": [
+        "2 rate=48000 filter=2 voice=0 fx=1 order=candidate-reference main_frames=4096 tail_frames=4800 reset_frames=64",
+        "case_begin mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "objects_created mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "reference_setup_done mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "candidate_setup_done mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "before_reset mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "reference_reset_done mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0",
+        "candidate_reset_done mxcsr_available=0 raw=NA status=NA controls=NA c_rounding=0"
+      ]
+    },
+    {
+      "architecture": "x86_64",
+      "mode": "observed",
+      "cases": 120,
+      "mxcsr_available": true,
+      "controls_hex": [
+        "1f80"
+      ],
+      "status_hex": [
+        "20",
+        "32"
+      ],
+      "transition_totals": {
+        "reference_status": 1,
+        "candidate_status": 0,
+        "entry_status": 1,
+        "reference_controls": 0,
+        "candidate_controls": 0,
+        "entry_controls": 0,
+        "between_calls_controls": 0,
+        "between_frames_status": 0,
+        "between_frames_controls": 0
+      },
+      "first_recorded_frame": [
+        "fp_frame phase=main frame=0 order=reference-candidate",
+        "reference_before mxcsr_available=1 raw=0x1fa0 status=0x20 controls=0x1f80 c_rounding=0",
+        "reference_after mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "candidate_before mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "candidate_after mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0"
+      ],
+      "original_k1_case_boundary": [
+        "2 rate=48000 filter=2 voice=0 fx=1 order=reference-candidate main_frames=4096 tail_frames=4800 reset_frames=64",
+        "case_begin mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "objects_created mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "reference_setup_done mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "candidate_setup_done mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "before_reset mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "reference_reset_done mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "candidate_reset_done mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0"
+      ]
+    },
+    {
+      "architecture": "x86_64",
+      "mode": "candidate-first",
+      "cases": 120,
+      "mxcsr_available": true,
+      "controls_hex": [
+        "1f80"
+      ],
+      "status_hex": [
+        "20",
+        "32"
+      ],
+      "transition_totals": {
+        "reference_status": 0,
+        "candidate_status": 1,
+        "entry_status": 1,
+        "reference_controls": 0,
+        "candidate_controls": 0,
+        "entry_controls": 0,
+        "between_calls_controls": 0,
+        "between_frames_status": 0,
+        "between_frames_controls": 0
+      },
+      "first_recorded_frame": [
+        "fp_frame phase=main frame=0 order=candidate-reference",
+        "candidate_before mxcsr_available=1 raw=0x1fa0 status=0x20 controls=0x1f80 c_rounding=0",
+        "candidate_after mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "reference_before mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "reference_after mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0"
+      ],
+      "original_k1_case_boundary": [
+        "2 rate=48000 filter=2 voice=0 fx=1 order=candidate-reference main_frames=4096 tail_frames=4800 reset_frames=64",
+        "case_begin mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "objects_created mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "reference_setup_done mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "candidate_setup_done mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "before_reset mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "reference_reset_done mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0",
+        "candidate_reset_done mxcsr_available=1 raw=0x1fb2 status=0x32 controls=0x1f80 c_rounding=0"
+      ]
+    }
+  ],
+  "k1_reproduced": false,
+  "ftz_daz_override": false,
+  "native_host_acceptance": false,
+  "cross_process_audio_digest_compared": false,
+  "comparison_scope": "bit identity of the two engines within each process; equal CSV error grids do not constitute a cross-process audio hash"
+}

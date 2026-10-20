@@ -56,6 +56,11 @@ Az alábbi korábbi implementációs eredmények ettől nem válnak natív elfog
 
 ## K1 aktuális diagnosztikai lépése
 
+A #121/#122 után a [passzív FP-pillanatképek és renderelési sorrendpróba](K1_FP_OBSERVATION.md)
+implementált és helyileg ellenőrzött (`848e4fcc` alap). Vezérlőeltérés vagy
+audio-divergencia nem jelentkezett; K1 továbbra nyitott, friss CI külön kapu.
+Az alábbi belső trace ettől függetlenül megmarad.
+
 A #120 beolvadt, hét PR-workflow sikeres; a `c6507db0` main friss CI-je külön
 kapu. A [belső jelút-trace](K1_INTERNAL_TRACE.md) előkészíti a következő
 Rosetta-eltérés lokalizálását. Ez nem igazolt ok vagy javítás, M1 numerikus

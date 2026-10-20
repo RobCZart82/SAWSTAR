@@ -13,6 +13,14 @@ külön; K1 a #116 ismert numerikus blokkolója. A D/Q/T feladatok külön köve
 dokumentációt, metadata-policyt és a tényleges natív lefedettséget. A részletes
 M0–M9 kiadási tervbe bekötve; az implementáció és az elfogadás külön követendő.
 
+## K1 passzív FP-/sorrendmérés a #122 után
+
+#121 és #122 beolvadt; a következő diagnosztika alapja `848e4fcc`.
+A [passzív FP-mérés](K1_FP_OBSERVATION.md) helyileg elkészült: a státuszjelzők
+beállása az elsőként futó motort követi, a vezérlők/kimenetek nem tértek el.
+Ez új adat, nem K1-gyökérok vagy javítás. Pontos-head CI és az eredeti
+negatív eset vizsgálata továbbra szükséges.
+
 ## K1 belső diagnosztika a #120 után
 
 A #120 R1-részjavítás beolvadt, mind a hét PR-workflow sikeres. Új main:

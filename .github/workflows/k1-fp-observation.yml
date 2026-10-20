@@ -1,0 +1,109 @@
+name: K1 passive FP observation
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/k1-fp-observation.yml'
+      - 'CMakeLists.txt'
+      - 'cmake/PremiumPreview.cmake'
+      - 'src/engine/**'
+      - 'src/dsp/**'
+      - 'experiments/**'
+      - 'tests/FpObservation.h'
+      - 'tests/NumericalComparison.h'
+      - 'tests/oscillator_dispatch_engine.cpp'
+      - 'third_party/DaisySP'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: k1-fp-observation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  observe:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Initialize pinned DSP source only
+        run: git submodule update --init third_party/DaisySP
+      - name: Configure shared baseline and observer executable
+        run: cmake -S . -B build-fp -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=OFF -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_NUMERICAL_TRACE=OFF '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
+      - name: Build offline comparison
+        run: cmake --build build-fp --target sawstar_premium_native_pair --parallel 3
+      - name: Fixed baseline and passive observation per architecture
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import csv, hashlib, json, platform, re, subprocess
+          out = Path('fp-observation'); out.mkdir()
+          exe = Path('build-fp/sawstar_premium_native_pair').resolve()
+          digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+          manifest = dict(schema=1, state='incomplete', passive=True, ftz_daz_override=False,
+              internal_synth_trace=False, purpose='K1 FP-state observation; not root-cause proof or CPU acceptance',
+              source_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              host_architecture=platform.machine(), os_version=subprocess.check_output(['sw_vers'], text=True),
+              compiler=subprocess.check_output(['c++', '--version'], text=True),
+              executable_sha256=digest(exe), cache_sha256=digest(Path('build-fp/CMakeCache.txt')), results=[])
+          def save():
+              (out/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
+          save()
+          for arch in ('arm64', 'x86_64'):
+              cases = [('fp-self-test', ['--fp-self-test']),
+                  ('diagnostic-self-test', ['--diagnostic-self-test']),
+                  ('baseline', ['--waveform', '2']),
+                  ('observed', ['--waveform', '2', '--fp-observe']),
+                  ('candidate-first', ['--waveform', '2', '--fp-observe', '--candidate-first'])]
+              baseline_hash = None
+              for name, args in cases:
+                  stdout, stderr = out/(arch+'-'+name+'.csv'), out/(arch+'-'+name+'.txt')
+                  with stdout.open('w') as a, stderr.open('w') as b:
+                      try:
+                          result = subprocess.run(['arch', '-'+arch, str(exe)]+args,
+                              stdout=a, stderr=b, timeout=120)
+                          code = result.returncode
+                      except subprocess.TimeoutExpired:
+                          b.write('\nFP process timeout\n'); code = 124
+                  entry = dict(architecture=arch, name=name, returncode=code,
+                      stdout_sha256=digest(stdout), stderr_sha256=digest(stderr))
+                  try:
+                      if name in ('baseline', 'observed', 'candidate-first') and code == 0:
+                          rows = list(csv.reader(stdout.open()))
+                          assert len(rows) == 121 and all(float(v) == 0 for r in rows[1:] for v in r[5:])
+                          if name == 'baseline':
+                              assert not stderr.read_text()
+                              baseline_hash = digest(stdout)
+                          else:
+                              text = stderr.read_text()
+                              assert 'passive=true ftz_daz_override=false state=complete cases=120' in text
+                              assert text.count('fp_case waveform=') == 120
+                              assert digest(stdout) == baseline_hash
+                              entry['mxcsr_available'] = 'mxcsr_available=1' in text
+                              if arch == 'x86_64': assert entry['mxcsr_available']
+                              entry['observed_controls_hex'] = sorted(set(re.findall(r'\bcontrols=0x([0-9a-f]+)', text)))
+                              totals = {}
+                              for line in text.splitlines():
+                                  if line.startswith('fp_counts '):
+                                      for key, value in re.findall(r'(\w+)=(\d+)', line):
+                                          totals[key] = totals.get(key, 0) + int(value)
+                              entry['transition_totals'] = totals
+                  except (AssertionError, ValueError) as error:
+                      entry['returncode'] = 1; entry['validation_error'] = str(error)
+                  manifest['results'].append(entry); save()
+          failed = any(r['returncode'] for r in manifest['results'])
+          manifest['state'] = 'failed' if failed else 'complete'; save()
+          raise SystemExit(1 if failed else 0)
+          PY
+      - name: Preserve FP observations and exact binary
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: k1-passive-fp-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            fp-observation/
+            build-fp/sawstar_premium_native_pair
+            build-fp/CMakeCache.txt
+          if-no-files-found: warn
+          retention-days: 90

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "dsp/SevenSaw.h"
+#include "FpObservation.h"
 #include <cfenv>
 #include <cmath>
 #include <cstring>
@@ -42,6 +43,7 @@ inline void Check(sawstar::StereoSample candidate,sawstar::StereoSample referenc
 #ifdef SAWSTAR_NUMERICAL_TRACE
                   ,const sawstar::NumericalTrace& candidateTrace,const sawstar::NumericalTrace& referenceTrace
 #endif
+                  ,const fp_observation::Frame* fpFrame=nullptr
                   ){
   const bool audioMismatch=!Same(candidate,reference)||!Same(candidatePre,referencePre)||
     !std::isfinite(candidate.left)||!std::isfinite(candidate.right)||
@@ -54,13 +56,14 @@ inline void Check(sawstar::StereoSample candidate,sawstar::StereoSample referenc
 #else
   if(!audioMismatch)return;
 #endif
+  // Snapshot before any diagnostic stream formatting can alter status flags.
+  const auto failureFp=fp_observation::Capture();
   log<<std::setprecision(17)<<"Numerical mismatch waveform="<<at.waveform<<" rate="<<at.rate
      <<" filter_mode="<<at.filter<<" voice_mode="<<at.voice<<" fx="<<at.fx
-     <<" phase="<<at.phase<<" frame="<<at.frame<<" fp_rounding="<<std::fegetround();
-#if defined(__SSE__)
-  log<<" mxcsr=0x"<<std::hex<<_mm_getcsr()<<std::dec;
-#endif
+     <<" phase="<<at.phase<<" frame="<<at.frame<<" fp_rounding="<<failureFp.cRounding;
+  if(failureFp.mxcsrAvailable)log<<" mxcsr=0x"<<std::hex<<failureFp.raw<<std::dec;
   log<<'\n';
+  if(fpFrame)fp_observation::PrintFrame(log,*fpFrame);
   const auto pair=[&](const char* name,float c,float r){log<<name<<" candidate_bits=0x"<<std::hex<<Bits(c)
     <<" reference_bits=0x"<<Bits(r)<<std::dec<<" candidate="<<c<<" reference="<<r<<'\n';};
   // Always log both points before throwing, even when output differs first.
