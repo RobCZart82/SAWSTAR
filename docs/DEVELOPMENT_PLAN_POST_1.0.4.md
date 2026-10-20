@@ -3,6 +3,8 @@
 **Aktuális release-végrehajtási terv:**
 [NEXT_RELEASE_DEVELOPMENT_PLAN.md](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
 **Aktuális készültség:** [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md).
+**2026-10-20-i audit javítási munkacsomagja:**
+[BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md).
 Az alábbi dátumozott bejegyzések fejlesztési előzmények. A bennük szereplő
 „következő”, „nyitott” és korábbi main-azonosítók a bejegyzés idejére
 vonatkoznak; nem kérik a már lezárt M1/Windows mérési kampány újraindítását.

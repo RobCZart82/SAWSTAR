@@ -1,6 +1,6 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
-Terv dátuma: **2026-10-17**, állapotfrissítés: **2026-10-18**. Tulajdonos és zenei elfogadó: Robert.
+Terv dátuma: **2026-10-17**, állapotfrissítés: **2026-10-20**. Tulajdonos és zenei elfogadó: Robert.
 A kiinduló nyilvános verzió 1.0.4; az új verziószám és kiadási dátum még nincs kijelölve.
 A végrehajtási terv nem jelent release-, tag- vagy publikálási engedélyt.
 
@@ -9,6 +9,21 @@ A kiinduló PR/main-azonosítók dátumozott ellenőrzési alapok; a mindenkori
 CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
 
 ## 1. Kiinduló állapot
+
+**Friss audit és javítási munkacsomag:**
+[BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md).
+A 2026-10-20-án ellenőrzött main `547f84d4` (#115) négy fő workflow-ja sikeres.
+#116 nyitott, head `fb3114eb`; az eredeti Triangle x86_64/Rosetta biteltérés
+oka nem ismert. Ez külön M1 numerikus blokkoló; a későbbi zöld diagnosztika
+nem okbizonyítás. A részletes bizonyíték a nyitott PR ágán van, nem mainben.
+
+A B1 szubnormális mixer/MIDI-simítóállapot helyileg reprodukált P2, javítása M0;
+a B2 SUB-frekvenciaplafon reprodukált P3/policydöntés M3. Az R1 többpéldányos
+preset-lock kódból levezetett kockázat: mérés/döntés M5, súlyos reprodukciónál M0.
+D1/D2/D3 a dokumentáció/metadata munkája, Q1 a pontos RC natív jegyzőkönyve;
+T1 opcionális CMake-minimum kontroll. A javító PR-k az érintett M1/M2/M5
+ellenőrzéseket új forrásazonossággal végzik el; a lezárt régi kampányok megmaradnak.
+Az alábbi korábbi implementációs eredmények ettől nem válnak natív elfogadássá.
 
 - A #102–#111 fejlesztési sorozat beolvadt, a javító #106-tal együtt.
   A #111 merge-je `f1b559fa6a74f0931bfe748e432c93644cfcce06`.
@@ -40,6 +55,7 @@ CI-állapotot a pontos aktuális headen külön kell ellenőrizni.
 | Sorrend | Mérföldkő | Elvégzendő munka | Lezárás bizonyítéka |
 | --- | --- | --- | --- |
 | M0 | Stabil fejlesztési alap | #114 utáni main és minden új PR pontos headjének ellenőrzése; szükséges CI-hibajavítás. | Minden releváns PR-workflow és job sikeres, a main négy fő workflow-ja is sikeres; szabályos soros merge. |
+| M0 audit-munkacsomag | B1 és súlyos reprodukált hibák | B1 eredeti-forrást elutasító regresszió és célzott javítás; R1 vizsgálatából származó súlyos hiba előresorolása. | Bizonyíték, pontos forrás/CI és az érintett numerikus/natív kontrollok; részletes feltételek a hibajavítási tervben. |
 | M1 | Natív tesztelhető jelölt | Pontosan azonosított, külön Reference/Candidate tesztbuild a Premium lookup és Saw-dispatch úthoz; azonos filter, gain, paraméterek és buildpolicy. Numerikus regressziók, validator, telepítési próba. | Két egyértelmű buildazonosság és binárishash, azonos tesztprojekt; a jelölt nincs ettől productionné minősítve. |
 | M2 | Natív CPU-/dropout-elfogadás | Az alábbi REAPER-terv végrehajtása M1 és Windows célgépen, minden eredménnyel és külön tartalékvizsgálattal. | Konfigurációnként kitöltött jegyzőkönyv; hibák rendezve; Robert név szerint elfogadja a megjelölt buildet és tartományt. |
 | M3 | Filterminőség és végleges ráta-/pufferpolicy | LP12/LP24/HP12/BP12, rezonancia, Drive, cutoff, módváltás, magas hangok, nagy ráta; zenei és műszaki ellenőrzés. | Dokumentált minőség/költség döntés és támogatási tartomány; hibás és nem vizsgált tartományok is feltüntetve. |

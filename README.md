@@ -67,6 +67,7 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Changelog](CHANGELOG.md) and [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md)
 - [1.0.4 publication record and historical checklist](docs/RELEASE_1.0.4_CHECKLIST.md)
 - [Development documentation index and current status](docs/DEVELOPMENT_DOCUMENTATION_INDEX.md)
+- [Consolidated bugfix and validation plan, 2026-10-20](docs/BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md)
 - [Next release plan and real REAPER CPU acceptance](docs/NEXT_RELEASE_DEVELOPMENT_PLAN.md)
 - [Current development order and open release gates](docs/DEVELOPMENT_ROADMAP.md)
 - [Historical development log and measurement evidence](docs/DEVELOPMENT_PLAN_POST_1.0.4.md)
