@@ -17,8 +17,11 @@ A 2026-10-20-án ellenőrzött main `547f84d4` (#115) négy fő workflow-ja sike
 oka nem ismert. Ez külön M1 numerikus blokkoló; a későbbi zöld diagnosztika
 nem okbizonyítás. A részletes bizonyíték a #116 rögzített headjén van, nem mainben.
 
-A B1 szubnormális mixer/MIDI-simítóállapot P2 [javítása/regressziója](B1_CONTROL_SMOOTHING_FIX.md) implementált M0-feladat; friss CI/natív ellenőrzés külön;
-a B2 SUB-frekvenciaplafon reprodukált P3/policydöntés M3. Az R1 többpéldányos
+A B1 szubnormális mixer/MIDI-simítóállapot P2 [javítása/regressziója](B1_CONTROL_SMOOTHING_FIX.md)
+#118-ként beolvadt: 17 PR-workflow és az új `feda3ea9` main négy fő workflow-ja
+sikeres, natív elfogadás külön. A B2 SUB-frekvenciaplafon P3
+[policyja/javítása és regressziója](B2_SUB_FREQUENCY_FIX.md) implementált
+M3-feladat, friss CI/natív kapu külön. Az R1 többpéldányos
 preset-lock kódból levezetett kockázat: mérés/döntés M5, súlyos reprodukciónál M0.
 D1/D2/D3 a dokumentáció/metadata munkája, Q1 a pontos RC natív jegyzőkönyve;
 T1 opcionális CMake-minimum kontroll. A javító PR-k az érintett M1/M2/M5

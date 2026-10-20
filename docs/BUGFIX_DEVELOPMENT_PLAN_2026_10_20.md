@@ -29,10 +29,10 @@ a lezárt célgépes kampányokat és a negatív eredményeket nem írjuk át.
 
 | ID | Prioritás és állapot | Feladat | Mérföldkő |
 | --- | --- | --- | --- |
-| B1 | P2, javítás és negatív kontroll implementálva; CI/natív kapuk külön | A mixer/MIDI-simítók szubnormális lecsengésének lezárása, átmeneti regressziókkal | M0, majd érintett M1/M2/M5 |
+| B1 | P2, #118 beolvadt; 17 PR- és 4 main-workflow sikeres; natív/CPU nyitott | A mixer/MIDI-simítók szubnormális lecsengésének lezárása, átmeneti regressziókkal | M0, majd érintett M1/M2/M5 |
 | K1 | Candidate numerikus elfogadási blokkoló; ismert, nyitott | #116 eredeti Triangle x86_64/Rosetta biteltérésének okfeltárása | M1, production-promóció előtt |
 | R1 | Vizsgálandó P2-kockázat; natív próba nyitott | Példányok közötti preset-mutex és GUI-várakozás mérése, szükség esetén javítása | M5; súlyos reprodukciónál M0 |
-| B2 | P3, frekvenciaeltérés reprodukált; policy/javítás nyitott | SUB 20 kHz-es abszolút plafon és mintavételarányos korlát egységesítése | M3, M5/M6 regresszió |
+| B2 | P3, mintavételarányos policy/javítás és regresszió implementált; friss CI/natív kapuk külön | SUB 20 kHz-es abszolút plafon és mintavételarányos korlát egységesítése | M3, M5/M6 regresszió |
 | D1 | P3, a státuszmondat ebben a dokumentációs változásban pontosítva | ARP történeti pending és későbbi felhasználói próba megkülönböztetése | M8 |
 | D2 | Karbantartási adósság, nyitott | A `release_date` jelentésének és a jövőbeli build/publikálási dátummezőknek rendezése | M7–M8 |
 | Q1 | Dokumentált lefedettségi hiány; következő RC-re kötelező | Pontos végleges RC-hez esetenkénti natív jegyzőkönyv és architektúránkénti státusz | M5, M7–M9 |
@@ -154,6 +154,12 @@ fagyás M0-hibává emeli; enyhébb korlát dokumentált M5-döntést kaphat.
 konkurenciateszt és natív ismétlés. Pusztán a worker megléte nem lezárás.
 
 ## 6. B2 — SUB felső frekvenciapolicy
+
+**Friss implementáció:** [B2 javítás és regresszió](B2_SUB_FREQUENCY_FIX.md).
+A policy egységesen a mintavételi frekvencia 45%-a; az abszolút 20 kHz-es
+belső korlát megszűnik. A közvetlen és motor/bend regresszió az eredeti
+headerrel hibázott. Friss platform-CI és natív magasregiszter-próba külön kapu.
+Az alábbi eredeti reprodukció és lezárási feltételek megmaradnak.
 
 **Hely:** [SubOscillator.h](../src/dsp/SubOscillator.h), `SetFreq()`
 abszolút 20000 Hz-es clamp; a [Synth.cpp](../src/engine/Synth.cpp) már előtte
@@ -282,6 +288,6 @@ szükséges sikeres ellenőrzésekkel; force/bypass/vak auto-merge nélkül.
   az eredeti dokumentációs audit nem jelentett új tesztet vagy javítást.
   A B1 későbbi implementációjának új ellenőrzéseit a hivatkozott javítási lap rögzíti.
 
-**Következő konkrét munka:** az implementált B1 javítás pontos-head CI-je
-és érintett elfogadása; külön K1 bizonyítékalapú okfeltárás. Az R1 natív próba tervezhető,
+**Következő konkrét munka:** az implementált B2 javítás pontos-head CI-je
+és a B1/B2 érintett natív elfogadása; külön K1 bizonyítékalapú okfeltárás. Az R1 natív próba tervezhető,
 de eredménye és elfogadása jelenleg nyitott.

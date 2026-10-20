@@ -61,12 +61,23 @@ ctest --test-dir build --output-on-failure --timeout 600
   összesen 960 esetmegfigyelés. Mindkét folyamat exit 0; a kimeneti és pre-FX
   peak/relative-RMS hibák minden sorban pontosan nullák. Véges helyi numerikus
   kontroll; nem K1-okbizonyítás és nem CPU-mérés.
-- Friss PR-head platform-CI: külön kapu; indulás/függő állapot nem PASS.
+- PR-head platform-CI és a merge utáni main: az alábbi friss bejegyzés szerint sikeres.
 - Natív REAPER, Windows célgép, tényleges CPU/dropout-hatás: még nem mért.
+
+## Beolvasztás és platform-CI — 2026-10-20
+
+#118 beolvadt, head `4ae076df0b2881c3c84ddcd161f74d8e78bb250a`: mind a 17
+PR-workflow completed/success. Az új main
+`feda3ea9d3f62f01905b16f187e8490fe7088a4c` négy fő workflow-ja szintén sikeres:
+[macOS](https://github.com/RobCZart82/SAWSTAR/actions/runs/39372390500),
+[Windows](https://github.com/RobCZart82/SAWSTAR/actions/runs/39372390379),
+[Code quality](https://github.com/RobCZart82/SAWSTAR/actions/runs/39372390297),
+[workflow lint](https://github.com/RobCZart82/SAWSTAR/actions/runs/39372390263).
+Ez a B1 platformkapuit lezárja; a natív/CPU-elfogadást és K1-et nem.
 
 ## Következő kapuk
 
-Pontos-head CI, majd merge utáni új main CI; érintett hangzó automatizálási
+A fenti CI-kapuk teljesültek; hátravan az érintett hangzó automatizálási
 próba és a Preview/Candidate célgépes numerikus kontrolljai. A K1 továbbra külön ügy:
 #116 beolvasztás nélkül lezárult, a hibás diagnosztikai head bizonyítéka megmarad.
 A következő külön diagnosztikai munkának a dokumentált első belső jelút-eltérést
