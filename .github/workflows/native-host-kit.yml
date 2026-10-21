@@ -1,0 +1,40 @@
+name: Native host kit preflight
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/prepare-native-host-kit.py'
+      - 'scripts/package-premium-preview.py'
+      - 'tests/native_host_kit.py'
+      - 'tests/premium_preview_package.py'
+      - '.github/workflows/native-host-kit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/prepare-native-host-kit.py'
+      - 'scripts/package-premium-preview.py'
+      - 'tests/native_host_kit.py'
+      - 'tests/premium_preview_package.py'
+      - '.github/workflows/native-host-kit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-host-kit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify package rejection controls and unmeasured worksheet protocol
+        run: |
+          python3 tests/premium_preview_package.py
+          python3 tests/native_host_kit.py
