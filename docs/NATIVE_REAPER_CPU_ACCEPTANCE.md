@@ -29,9 +29,10 @@ CI-siker vagy natív halláspróba nem helyettesíti annak okfeltárását.
 ## Mit mérünk?
 
 A cél a tényleges plugin/host működés és hallható kimaradások ellenőrzése.
-Az offline oszcillátor-dispatch jelölt **nincs ettől beépítve** a Preview-ba:
-a meglévő Preview tesztje nem igazolja automatikusan a kutatási jelölt natív
-teljesítményét. Mindig a tesztelt bináris pontos azonosságát és szerepét írjuk le.
+A Saw-dispatch jelölt külön **SAWSTAR Premium Candidate** VST3-ként épül.
+A **SAWSTAR Premium Preview** a Reference; a meglévő Preview önálló tesztje
+nem igazolja a külön Candidate natív teljesítményét.
+Mindig a tesztelt bináris pontos azonosságát és szerepét írjuk le.
 A végleges production RC-t integráció után újra, önállóan el kell fogadni.
 
 ## Futtatásonként rögzítendő adatok
@@ -105,6 +106,9 @@ adatsor. Nincs automatikus újrapróbálás vagy a hibás ablak törlése.
 
 ## Kitöltendő eredménytábla
 
+A [macOS mérési csomag előkészítője](NATIVE_HOST_KIT.md) ellenőrzi a két ZIP
+azonosságát és üres, 112 ablakos adatlapot készít. Ez nem natív mérés vagy PASS.
+
 Az alábbi üres sorok nem mérési eredmények; szükség szerint minden esetre másold őket.
 
 | Gép/build | Ráta/puffer | Hang/mód/terhelés | Sorrend/GUI | REAPER mérő és időablak | CPU megfigyelés | Xrun induló→vég | Hallható hiba/clipping | Bizonyíték |
@@ -122,3 +126,4 @@ tűnnek el attól, hogy az átlag alacsony. Bizonyíték nélkül nincs általá
 
 CPU-elfogadás után is külön feladat a filterminőség/rátapolicy, production-
 integráció, GUI-state, preset/lifecycle és végső RC telepítési/host-ellenőrzés.
+

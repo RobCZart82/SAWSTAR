@@ -22,6 +22,16 @@ esethez vagy konkrét hipotézishez kötött. A következő prioritás a natív
 Reference/Candidate host-/REAPER-elfogadás. Production/RC/publikálási kapu
 ettől nem teljesült; az új main és e dokumentáció friss CI-je külön kapu.
 
+## Következő végrehajtási lépés — 2026-10-21
+
+#127 beolvadt (`28ec3c1`), négy PR-workflow / 11 job sikeres.
+A [macOS natív méréselőkészítő](NATIVE_HOST_KIT.md) külön fejlesztési lépés:
+azonos forrású Reference/Candidate csomagellenőrzés és a meglévő 28 eset /
+112 ablak üres adatlapjának előállítása. Nem DSP-módosítás vagy új K1-próba.
+A pontos új PR/head CI-je, a friss páros artifactok, célgépes telepítési smoke,
+majd Robert tényleges REAPER-mérése és elfogadása továbbra külön kapu.
+Windows-csomag preflightot e macOS eszközverzió nem végez.
+
 ## 1. Kiinduló állapot
 
 **Friss audit és javítási munkacsomag:**
@@ -264,3 +274,4 @@ Kapcsolódó dokumentumok: [roadmap](DEVELOPMENT_ROADMAP.md),
 [ráta-/pufferpolicy](RATE_BUFFER_ACCEPTANCE_POLICY.md),
 [GUI-state elfogadás](GUI_SCALE_PROJECT_STATE.md),
 [elfogadott hangerő](PREMIUM_PREVIEW_LEVELS.md).
+

@@ -119,9 +119,9 @@ Telepítési smoke a Mac célgépen, REAPER bezárása után:
 5. A CPU A/B-próbában egyszerre csak a mért hangszer legyen online;
    a másik legyen offline. A két hangszer együttes szólása külön tartalékteszt.
 
-A jelen Linux környezetben nincs macOS VST3-/REAPER-telepítési próba.
-A helyi Release Candidate smoke, 480 esetes bitazonosság és Reference smoke
-ellenőrizhető, a macOS bundle/validator kaput a friss CI-nek kell bizonyítania.
+A fejlesztői környezetre vonatkozó korábbi Linux-megjegyzés történeti adat.
+A CI bundle/validator eredménye és a célgépes REAPER-telepítési/host-próba
+külön bizonyíték; ebből a dokumentumból nem következik natív elfogadás.
 
 ## Windows x64 tesztpár
 
@@ -134,6 +134,9 @@ Windows ARM64 támogatást és tényleges REAPER-/ASIO-elfogadást ez nem ad.
 
 ## Hátralévő M1 munka
 
+A [macOS mérési csomag előkészítője](NATIVE_HOST_KIT.md) ellenőrzi a két ZIP
+azonosságát és üres, 112 ablakos adatlapot készít. Ez nem natív mérés vagy PASS.
+
 1. A külön Candidate VST3 macOS pontos-head platform-CI-je és két kész
    csomag/binárishash ellenőrzése, tényleges célgépes telepítési smoke.
 2. Az implementált Windows x64 csomagolás friss CI-/validator-/hash-kapuja,
@@ -143,3 +146,4 @@ Windows ARM64 támogatást és tényleges REAPER-/ASIO-elfogadást ez nem ad.
 
 A régi p99/túllépés-eredmények és a 0,44 dB RMS-korrekció elfogadása megmarad.
 Nincs automatikus production-integráció, CPU-/natív elfogadás, release vagy publikálás.
+
