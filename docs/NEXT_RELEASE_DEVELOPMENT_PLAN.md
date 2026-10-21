@@ -1,6 +1,6 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
-Terv dátuma: **2026-10-17**, állapotfrissítés: **2026-10-20**. Tulajdonos és zenei elfogadó: Robert.
+Terv dátuma: **2026-10-17**, állapotfrissítés: **2026-10-21**. Tulajdonos és zenei elfogadó: Robert.
 A kiinduló nyilvános verzió 1.0.4; az új verziószám és kiadási dátum még nincs kijelölve.
 A végrehajtási terv nem jelent release-, tag- vagy publikálási engedélyt.
 
@@ -30,9 +30,14 @@ azonos forrású Reference/Candidate csomagellenőrzés és a meglévő 28 eset 
 112 ablak üres adatlapjának előállítása. Nem DSP-módosítás vagy új K1-próba.
 A pontos új PR/head CI-je, a friss páros artifactok, célgépes telepítési smoke,
 majd Robert tényleges REAPER-mérése és elfogadása továbbra külön kapu.
-A következő bővítés a Windows x64 preflight ugyanazzal a csomagolói
-SDK factory-/eredetellenőrzővel. A [négy valódi #128-csomag auditja](NATIVE_PACKAGE_PREFLIGHT_2026_10_21.md)
+A Windows x64 preflight #129-ként beolvadt (`fa03b3cf`), a csomagolóval közös
+SDK factory-/eredetellenőrzővel. Ennek a mainnek mind az öt workflow-ja sikeres.
+A [négy valódi #128-csomag auditja](NATIVE_PACKAGE_PREFLIGHT_2026_10_21.md)
 rögzíti a pontos forrást és hashokat; továbbra nincs natív host-/CPU-elfogadás.
+A következő előkészítés [rögzített 1/8/16 hangos P0 MIDI-bemeneteket](NATIVE_HOST_MIDI_INPUTS.md)
+ad a mérési adatlaphoz és külön letölthető CI-artifactként. A MIDI nem preset,
+nem cutoff-automatizálás és nem végrehajtott REAPER-próba. A sajátgépes
+telepítési/hostkapuk és P1 zenei bemenet még hátravannak.
 
 ## 1. Kiinduló állapot
 

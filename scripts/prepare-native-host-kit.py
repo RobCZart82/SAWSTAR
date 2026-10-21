@@ -31,6 +31,11 @@ _spec = importlib.util.spec_from_file_location('preview_package_identity',
 _packager = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_packager)
 
+_midi_spec = importlib.util.spec_from_file_location('native_host_midi',
+    Path(__file__).with_name('native-host-midi.py'))
+_midi = importlib.util.module_from_spec(_midi_spec)
+_midi_spec.loader.exec_module(_midi)
+
 
 def sha(data):
     return hashlib.sha256(data).hexdigest()
@@ -189,6 +194,7 @@ def measurement_rows(fx_mode):
                                                 ('BA', 'candidate'), ('BA', 'reference')), 1):
             row = dict(case, window_id=case['case_id'] + '-' + str(index), order=order, role=role,
                        warmup_seconds=10, observation_seconds=60, status='not_run')
+            row['midi_fixture'] = _midi.filename(case['voices']) if case['preset'] == 'P0' else ''
             for key in ('started_at', 'ended_at', 'cpu_meter', 'cpu_method', 'cpu_average',
                         'cpu_maximum', 'cpu_observed_min', 'cpu_observed_max', 'rt_meter',
                         'rt_observation', 'xrun_start', 'xrun_end', 'audible_issue', 'clipping',
@@ -207,8 +213,17 @@ def prepare(reference, candidate, output, expected_source, fx_mode, platform='ma
     output = Path(output)
     # mkdir is exclusive: existing evidence is never overwritten, even an empty directory.
     output.mkdir(parents=True, exist_ok=False)
+    inputs = {}
+    for voices in (1, 8, 16):
+        relative_path = _midi.filename(voices)
+        data = _midi.held_notes(voices)
+        path = output / relative_path
+        path.parent.mkdir(exist_ok=True)
+        path.write_bytes(data)
+        inputs[relative_path] = dict(sha256=sha(data), specification=_midi.specification(voices))
     provenance = dict(schema=1, source_commit=expected_source, platform=platform,
                       packages=packages, fx_filter_mode=fx_mode, cases=28, windows=112,
+                      generated_inputs=inputs,
                       native_host_acceptance=False, production_promotion_allowed=False,
                       status='not_run', ci_success_verified=False)
     (output / 'provenance.json').write_text(json.dumps(provenance, indent=2) + '\n', encoding='utf-8')
@@ -238,6 +253,12 @@ def prepare(reference, candidate, output, expected_source, fx_mode, platform='ma
         'Complete environment.json before playback. Save identical P0/P1 presets, MIDI,\n'
         'cutoff automation and headroom for both roles. P0 has chorus/delay/reverb off;\n'
         'P1 is a preset chosen before the run with fixed FX. Check actual 1/8/16 voices.\n'
+        'P0 MIDI files in midi/: 120 BPM, channel 1, velocity 80, held notes 48 upward.\n'
+        'Import at project time zero and keep project tempo 120 BPM with no item stretch/loop.\n'
+        'Start each window at zero: note-on at 0s, observe 10–70s, note-off at 70s.\n'
+        'Use Poly mode and a sustaining P0 envelope; MIDI note count is not proof of active voices.\n'
+        'P1 musical MIDI/automation must still be chosen and saved before measurement.\n'
+        'Let playback continue after note-off for the full release/FX tail; do not loop.\n'
         'Exactly one instrument online; the other offline, not merely muted.\n'
         'Run the first four C-128 AUTO cases as prescreen, then the remaining rows.\n'
         'Each case: Reference, Candidate, Candidate, Reference; 10s warmup + 60s each.\n'

@@ -23,6 +23,7 @@ def module(name, path):
 
 kit = module('host_kit', 'scripts/prepare-native-host-kit.py')
 package = module('preview_package', 'scripts/package-premium-preview.py')
+midi = module('native_midi', 'scripts/native-host-midi.py')
 SOURCE = 'a' * 40
 
 
@@ -109,6 +110,16 @@ class NativeHostKit(unittest.TestCase):
         provenance = json.loads((output / 'provenance.json').read_text())
         self.assertFalse(provenance['native_host_acceptance'])
         self.assertFalse(provenance['ci_success_verified'])
+        self.assertEqual(len(provenance['generated_inputs']), 3)
+        for name, entry in provenance['generated_inputs'].items():
+            self.assertEqual(kit.sha((output / name).read_bytes()), entry['sha256'])
+            self.assertFalse(entry['specification']['actual_synth_voices_verified'])
+        for row in rows:
+            if row['preset'] == 'P0':
+                self.assertIn(row['midi_fixture'], provenance['generated_inputs'])
+                self.assertEqual(provenance['generated_inputs'][row['midi_fixture']]['specification']['expected_input_notes'], int(row['voices']))
+            else:
+                self.assertEqual(row['midi_fixture'], '')
         self.assertTrue(all(value == '' for value in json.loads((output / 'environment.json').read_text()).values()))
         for role, path in self.paths.items():
             self.assertEqual(path.read_bytes(), before[role])
@@ -277,6 +288,100 @@ class WindowsHostKit(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 self.prepare()
             self.assertFalse((self.root / 'output').exists())
+
+
+class NativeMidiInputs(unittest.TestCase):
+    @staticmethod
+    def parse(data):
+        # Independent event reader: validates chunk boundaries and absolute timing.
+        if data[:4] != b'MThd' or struct.unpack_from('>IHHH', data, 4) != (6, 0, 1, 480):
+            raise ValueError('Invalid SMF format/track/PPQ header')
+        if data[14:18] != b'MTrk' or struct.unpack_from('>I', data, 18)[0] != len(data) - 22:
+            raise ValueError('Invalid MIDI track length')
+        position, tick, events = 22, 0, []
+
+        def read_delta():
+            nonlocal position
+            value = 0
+            for _ in range(4):
+                byte = data[position]
+                position += 1
+                value = (value << 7) | (byte & 127)
+                if byte < 128:
+                    return value
+            raise ValueError('Oversize VLQ')
+
+        while position < len(data):
+            tick += read_delta()
+            status = data[position]
+            position += 1
+            if status == 255:
+                kind = data[position]
+                position += 1
+                length = read_delta()
+                payload = data[position:position + length]
+                position += length
+                events.append((tick, status, kind, payload))
+            elif status in (0x80, 0x90):
+                events.append((tick, status, data[position], data[position + 1]))
+                position += 2
+            else:
+                raise ValueError('Unexpected MIDI control/running status')
+        if position != len(data) or events[-1] != (67200, 255, 47, b''):
+            raise ValueError('Invalid track termination')
+        return events
+
+    def test_note_ownership_timing_and_no_hidden_controllers(self):
+        for voices in (1, 8, 16):
+            with self.subTest(voices=voices):
+                data = midi.held_notes(voices)
+                self.assertEqual(data, midi.held_notes(voices))
+                events = self.parse(data)
+                self.assertIn((0, 255, 81, b'\x07\xa1\x20'), events)
+                self.assertIn((9600, 255, 6, b'OBSERVE_START'), events)
+                self.assertIn((67200, 255, 6, b'OBSERVE_END'), events)
+                active = set()
+                for tick, status, note, velocity in events:
+                    if status == 0x90:
+                        self.assertEqual(tick, 0)
+                        self.assertEqual(velocity, 80)
+                        self.assertNotIn(note, active)
+                        active.add(note)
+                    elif status == 0x80:
+                        self.assertEqual(tick, 67200)
+                        self.assertIn(note, active)
+                        active.remove(note)
+                    elif tick == 9600:
+                        self.assertEqual(active, set(range(48, 48 + voices)))
+                self.assertEqual(active, set())
+                self.assertEqual(sum(event[1] == 0x90 for event in events), voices)
+
+    def test_writer_records_generator_source_hashes_and_refuses_overwrite(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'inputs'
+            midi.write_inputs(output, SOURCE)
+            manifest = json.loads((output / 'MIDI-INPUTS.json').read_text())
+            self.assertEqual(manifest['generator_source_commit'], SOURCE)
+            self.assertFalse(manifest['native_host_acceptance'])
+            self.assertEqual(manifest['status'], 'not_run')
+            for name, entry in manifest['files'].items():
+                self.assertEqual(kit.sha((output / name).read_bytes()), entry['sha256'])
+                self.parse((output / name).read_bytes())
+            with self.assertRaises(FileExistsError):
+                midi.write_inputs(output, SOURCE)
+
+    def test_invalid_voice_count_source_and_delta_rejected(self):
+        for value in (0, 2, 17, True, '16'):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                midi.held_notes(value)
+        for delta in (-1, 0x10000000):
+            with self.assertRaises(ValueError):
+                midi.vlq(delta)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'invalid'
+            with self.assertRaises(ValueError):
+                midi.write_inputs(output, 'main')
+            self.assertFalse(output.exists())
 
 
 if __name__ == '__main__':

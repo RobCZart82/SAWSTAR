@@ -65,6 +65,12 @@ A workflow sikerét és eredetét külön kell ellenőrizni és feljegyezni.
 | `measurements.csv` | 28 C/V/G/F eset × 4 ablak = 112 sor; 10 s bemelegítés + 60 s megfigyelés, Reference/Candidate/Candidate/Reference sorrend. Mérési adatok üresek. |
 | `environment.json` | Kitöltendő környezet, tényleges hostarchitektúra, eszköz/driver, preset/projekt/MIDI/automatizálás hash, mérőmódszer és elfogadási scope. |
 | `README.md` | Végrehajtási korlátok és rövid ellenőrzőlista. |
+| `midi/P0-held-*-notes.mid` | Rögzített 1/8/16 hangos P0 bemenet, SHA-256 és leírás a provenance-ban; C/V/G sorokból hivatkozva. |
+
+A [MIDI-bemenetek használata](NATIVE_HOST_MIDI_INPUTS.md) a kézi MIDI-készítést
+váltja ki. A `Native host kit preflight` workflow külön, plugin nélküli
+`native-host-midi-inputs` artifactot is ad: ezt Windows alatt Python nélkül
+használhatod. A fájl-/protokollteszt nem bizonyít natív importot vagy aktív voice-számot.
 
 A CSV első négy esete a C /128 AUTO előszűrés: 16 ablak, nettó 18 perc
 40 másodperc. A teljes terv nettó 130 perc 40 másodperc/gép, setup és tail nélkül.
