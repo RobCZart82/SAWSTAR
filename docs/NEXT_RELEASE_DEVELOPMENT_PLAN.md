@@ -30,7 +30,9 @@ azonos forrású Reference/Candidate csomagellenőrzés és a meglévő 28 eset 
 112 ablak üres adatlapjának előállítása. Nem DSP-módosítás vagy új K1-próba.
 A pontos új PR/head CI-je, a friss páros artifactok, célgépes telepítési smoke,
 majd Robert tényleges REAPER-mérése és elfogadása továbbra külön kapu.
-Windows-csomag preflightot e macOS eszközverzió nem végez.
+A következő bővítés a Windows x64 preflight ugyanazzal a csomagolói
+SDK factory-/eredetellenőrzővel. A [négy valódi #128-csomag auditja](NATIVE_PACKAGE_PREFLIGHT_2026_10_21.md)
+rögzíti a pontos forrást és hashokat; továbbra nincs natív host-/CPU-elfogadás.
 
 ## 1. Kiinduló állapot
 

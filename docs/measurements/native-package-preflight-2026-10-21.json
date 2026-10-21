@@ -1,0 +1,276 @@
+{
+  "schema": 1,
+  "audit_date": "2026-10-21",
+  "package_source_commit": "92d0cd83e5c255c6592817688a24ad753cc2aeec",
+  "merged_main_commit": "ea57553c75179f0470f026028a64b3cef4618340",
+  "workflow_runs": {
+    "macos": 39596022244,
+    "windows-x64": 39596022289
+  },
+  "artifacts": [
+    {
+      "artifact_id": 12344630306,
+      "name": "SAWSTAR-Premium-Preview-macOS-Universal",
+      "artifact_sha256": "b9eccfbe14917c8c44be0a3f6a141c5cd6ae568c6bb26aeffaf38531a07d7006",
+      "size_bytes": 1648758
+    },
+    {
+      "artifact_id": 12343559463,
+      "name": "SAWSTAR-Premium-Candidate-macOS-Universal",
+      "artifact_sha256": "2fc97da547f6d1486af9678996decb630c2a93e8578644ba3cac55b2090620e7",
+      "size_bytes": 1650783
+    },
+    {
+      "artifact_id": 12344510231,
+      "name": "SAWSTAR-Premium-Candidate-Windows-x64",
+      "artifact_sha256": "128f5d1f6726c75e0e73b7674ad41076c4a1d5a76ce1728ef34e3b6e226bf4c6",
+      "size_bytes": 762528
+    },
+    {
+      "artifact_id": 12344062893,
+      "name": "SAWSTAR-Premium-Preview-Windows-x64",
+      "artifact_sha256": "18c1fc14ad7c7dc90bccf6e00f03a09c8cbd59c3558d7ba76c48fb847948ce2e",
+      "size_bytes": 762305
+    }
+  ],
+  "status": "package_consistency_verified_host_not_run",
+  "native_host_acceptance": false,
+  "production_promotion_allowed": false,
+  "kit_template": {
+    "cases": 28,
+    "windows": 112,
+    "status": "not_run",
+    "fx_mode": "LP24",
+    "preset_project_and_environment": "not_selected_or_measured"
+  },
+  "packages": {
+    "macos": {
+      "reference": {
+        "package_filename": "SAWSTAR-Premium-Preview-macOS-Universal.zip",
+        "package_sha256": "23af26495f5408e7f55c47ea7167a836e827e868d07432920a3ef1508c2a063f",
+        "package_manifest_sha256": "5cf007fad79b2b74f9d40b8d21d4420bbaac3ae3b9b1cbb9e6da6dfe2a8b2228",
+        "manifest": {
+          "product": "SAWSTAR Premium Preview",
+          "pair_role": "reference",
+          "experimental": true,
+          "source_commit": "92d0cd83e5c255c6592817688a24ad753cc2aeec",
+          "platform": "macos",
+          "bundle_identifier": "io.github.robczart82.sawstarpremiumpreview",
+          "vst3_class_id": null,
+          "plugin_unique_id": "SwPP",
+          "oscillator": "SevenSaw",
+          "binary_sha256": "d3c0853e1775227b656f7be46e740407e5c867fe6f6d08b2d905c328536c5318",
+          "native_host_acceptance": false,
+          "engine": "RateScaledLookupEnginePremiumFilter",
+          "latency_samples": 32,
+          "level_policy": "wet-output-3db-factory-trim-v1",
+          "production_promotion_allowed": false,
+          "files_sha256": {
+            "SAWSTARPremiumPreview.vst3/Contents/Info.plist": "d161024642019ba89efaaa460ce32640d3515b665a4c0bf9e626ea4fc7c6bf12",
+            "SAWSTARPremiumPreview.vst3/Contents/MacOS/SAWSTARPremiumPreview": "d3c0853e1775227b656f7be46e740407e5c867fe6f6d08b2d905c328536c5318",
+            "SAWSTARPremiumPreview.vst3/Contents/PkgInfo": "d06a80ba92de0833d0ed03de1b02b7c8913f126d9e8c8931b190765dd5d83b11",
+            "SAWSTARPremiumPreview.vst3/Contents/_CodeSignature/CodeResources": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b",
+            "licenses/DaisySP-LICENSE.txt": "ae36576d7394109775a8cc86c31c94f016de256526e86d11ee554ef25d429570",
+            "licenses/DejaVu-NOTICE.txt": "029e77a2f2b2f7bd985617a19a739c20d73fb604d45b47192227d6fba6b7a797",
+            "licenses/FontStash-NOTICE.txt": "a51be3affcbdcb598d3ae5799bac4e8ec9ad773326f062b6cf91064428e684f7",
+            "licenses/InnoSetup-LICENSE.txt": "3df23505b7ec00dc007a1e1e9ba32ee3895e7ce90043bcd1ac1b9b47155921a7",
+            "licenses/KHR-NOTICE.txt": "438187dca092de4032c1a16524aa4c34c71a0f985a71251a675aad54e77ed561",
+            "licenses/MetalNanoVG-LICENSE.txt": "9707215b3200629ba689c3fb6a4646f96ba022be1ce9eff969be0829f6215c44",
+            "licenses/NanoSVG-LICENSE.txt": "05013ed6643293c88110521dd5cdd4700d5a9f74f58fd168ed604e9aa90a9157",
+            "licenses/NanoVG-LICENSE.txt": "d1c46d70e4e62e6324ff845bc8f4831912e33a940a5e7949298250be74ef47aa",
+            "licenses/Orbitron-OFL.txt": "e0dcb396bc35a553c0d7bd8e471434444834f2d3afe91cf40aab1dffe6a75ac1",
+            "licenses/STB-NOTICE.txt": "f05af4d713c5c4fb21e01dae496f04ec481284f37b8ffcf981fe6053f90ab446",
+            "licenses/VST3-SDK-LICENSE.txt": "e86d79e19e4a33ebc442d2e0d083887dfc75a2a8de9fe17eeddedb84810ad74e",
+            "licenses/VST3-base-LICENSE.txt": "e86d79e19e4a33ebc442d2e0d083887dfc75a2a8de9fe17eeddedb84810ad74e",
+            "licenses/VST3-pluginterfaces-LICENSE.txt": "e86d79e19e4a33ebc442d2e0d083887dfc75a2a8de9fe17eeddedb84810ad74e",
+            "licenses/VST3-public.sdk-LICENSE.txt": "e86d79e19e4a33ebc442d2e0d083887dfc75a2a8de9fe17eeddedb84810ad74e",
+            "licenses/WDL-NOTICE.txt": "caf131d946c31d9a81f1651622795228a35446c233d2eb787f893a961f2335ae",
+            "licenses/glad-LICENSE.txt": "a2a88399d4ef1cab60abcd6ddbd301b4535d10cf051e940edf35d8665749fb45",
+            "licenses/iPlug2-LICENSE.txt": "b2b7f46e4950d36650173dc0153590131f78775252c457cd027513d9e26d348e",
+            "LICENSE": "ea9749963aed0ea27e89bd0ef1ac3d6ea1ae6b1ebc21105e357b42a0a560fb67",
+            "README-PREMIUM-PREVIEW.md": "48bc26b3652a040c9e26f253860523b88374bc11df13775c7f3dabd7139add51",
+            "NATIVE_PREVIEW_PAIR_QUALIFICATION.md": "bb418810468aa656b5f8df766f509151b326bc9c3886f8c5cbffb928c7045b91",
+            "PREMIUM_PREVIEW_LEVELS.md": "f773d2fc59ff2b445fbcbbd92a73a20178c7f4bd6c4724936148f96cb3491c62",
+            "measurements/premium-preview-levels-2026-10-15-local-arm64.csv": "c66789ab4445891b02338ac387008bbc96168c89567c7d36cc329aef69c0b9e7",
+            "licenses/SAWSTAR-BRANDING-LICENSE.txt": "4b955548be048041ff9d156280d5ff0e0a297a00a596c0ad4683a8dccb76ad84",
+            "THIRD_PARTY_NOTICES.md": "7947a87137974b03c5b1196a79fd5d324864a36f1b6991966458b94266b97b40"
+          }
+        },
+        "binary_path": "SAWSTARPremiumPreview.vst3/Contents/MacOS/SAWSTARPremiumPreview",
+        "architectures": [
+          "arm64",
+          "x86_64"
+        ]
+      },
+      "candidate": {
+        "package_filename": "SAWSTAR-Premium-Candidate-macOS-Universal.zip",
+        "package_sha256": "afe0b93d7db2ffedba6161b09188e805bf213365a93019e782cd47d222390cfb",
+        "package_manifest_sha256": "ee23520499b45148a85e1fa8f7bac4a1b226f2b318493b18a03715c060dfd78c",
+        "manifest": {
+          "product": "SAWSTAR Premium Candidate",
+          "pair_role": "candidate",
+          "experimental": true,
+          "source_commit": "92d0cd83e5c255c6592817688a24ad753cc2aeec",
+          "platform": "macos",
+          "bundle_identifier": "io.github.robczart82.sawstarpremiumcandidate",
+          "vst3_class_id": null,
+          "plugin_unique_id": "SwPC",
+          "oscillator": "SawDispatchSevenSaw",
+          "binary_sha256": "32e423815ff7e2b3dfd438f6d08f95f8f444aac08d498a52f1da08054257677e",
+          "native_host_acceptance": false,
+          "engine": "RateScaledLookupEnginePremiumFilter",
+          "latency_samples": 32,
+          "level_policy": "wet-output-3db-factory-trim-v1",
+          "production_promotion_allowed": false,
+          "files_sha256": {
+            "SAWSTARPremiumCandidate.vst3/Contents/Info.plist": "263b54278eab73d23d5c7ebe668c1f2b096fb30d811e25e460bc02329dfec085",
+            "SAWSTARPremiumCandidate.vst3/Contents/MacOS/SAWSTARPremiumCandidate": "32e423815ff7e2b3dfd438f6d08f95f8f444aac08d498a52f1da08054257677e",
+            "SAWSTARPremiumCandidate.vst3/Contents/PkgInfo": "d06a80ba92de0833d0ed03de1b02b7c8913f126d9e8c8931b190765dd5d83b11",
+            "SAWSTARPremiumCandidate.vst3/Contents/_CodeSignature/CodeResources": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b",
+            "licenses/DaisySP-LICENSE.txt": "ae36576d7394109775a8cc86c31c94f016de256526e86d11ee554ef25d429570",
+            "licenses/DejaVu-NOTICE.txt": "029e77a2f2b2f7bd985617a19a739c20d73fb604d45b47192227d6fba6b7a797",
+            "licenses/FontStash-NOTICE.txt": "a51be3affcbdcb598d3ae5799bac4e8ec9ad773326f062b6cf91064428e684f7",
+            "licenses/InnoSetup-LICENSE.txt": "3df23505b7ec00dc007a1e1e9ba32ee3895e7ce90043bcd1ac1b9b47155921a7",
+            "licenses/KHR-NOTICE.txt": "438187dca092de4032c1a16524aa4c34c71a0f985a71251a675aad54e77ed561",
+            "licenses/MetalNanoVG-LICENSE.txt": "9707215b3200629ba689c3fb6a4646f96ba022be1ce9eff969be0829f6215c44",
+            "licenses/NanoSVG-LICENSE.txt": "05013ed6643293c88110521dd5cdd4700d5a9f74f58fd168ed604e9aa90a9157",
+            "licenses/NanoVG-LICENSE.txt": "d1c46d70e4e62e6324ff845bc8f4831912e33a940a5e7949298250be74ef47aa",
+            "licenses/Orbitron-OFL.txt": "e0dcb396bc35a553c0d7bd8e471434444834f2d3afe91cf40aab1dffe6a75ac1",
+            "licenses/STB-NOTICE.txt": "f05af4d713c5c4fb21e01dae496f04ec481284f37b8ffcf981fe6053f90ab446",
+            "licenses/VST3-SDK-LICENSE.txt": "e86d79e19e4a33ebc442d2e0d083887dfc75a2a8de9fe17eeddedb84810ad74e",
+            "licenses/VST3-base-LICENSE.txt": "e86d79e19e4a33ebc442d2e0d083887dfc75a2a8de9fe17eeddedb84810ad74e",
+            "licenses/VST3-pluginterfaces-LICENSE.txt": "e86d79e19e4a33ebc442d2e0d083887dfc75a2a8de9fe17eeddedb84810ad74e",
+            "licenses/VST3-public.sdk-LICENSE.txt": "e86d79e19e4a33ebc442d2e0d083887dfc75a2a8de9fe17eeddedb84810ad74e",
+            "licenses/WDL-NOTICE.txt": "caf131d946c31d9a81f1651622795228a35446c233d2eb787f893a961f2335ae",
+            "licenses/glad-LICENSE.txt": "a2a88399d4ef1cab60abcd6ddbd301b4535d10cf051e940edf35d8665749fb45",
+            "licenses/iPlug2-LICENSE.txt": "b2b7f46e4950d36650173dc0153590131f78775252c457cd027513d9e26d348e",
+            "LICENSE": "ea9749963aed0ea27e89bd0ef1ac3d6ea1ae6b1ebc21105e357b42a0a560fb67",
+            "README-PREMIUM-PREVIEW.md": "48bc26b3652a040c9e26f253860523b88374bc11df13775c7f3dabd7139add51",
+            "NATIVE_PREVIEW_PAIR_QUALIFICATION.md": "bb418810468aa656b5f8df766f509151b326bc9c3886f8c5cbffb928c7045b91",
+            "PREMIUM_PREVIEW_LEVELS.md": "f773d2fc59ff2b445fbcbbd92a73a20178c7f4bd6c4724936148f96cb3491c62",
+            "measurements/premium-preview-levels-2026-10-15-local-arm64.csv": "c66789ab4445891b02338ac387008bbc96168c89567c7d36cc329aef69c0b9e7",
+            "licenses/SAWSTAR-BRANDING-LICENSE.txt": "4b955548be048041ff9d156280d5ff0e0a297a00a596c0ad4683a8dccb76ad84",
+            "THIRD_PARTY_NOTICES.md": "7947a87137974b03c5b1196a79fd5d324864a36f1b6991966458b94266b97b40"
+          }
+        },
+        "binary_path": "SAWSTARPremiumCandidate.vst3/Contents/MacOS/SAWSTARPremiumCandidate",
+        "architectures": [
+          "arm64",
+          "x86_64"
+        ]
+      }
+    },
+    "windows-x64": {
+      "reference": {
+        "package_filename": "SAWSTAR-Premium-Preview-Windows-x64.zip",
+        "package_sha256": "aa2f5c170e8177b9590d7e0ff7c0aad6f7f181bd6b40d107f658217da5e83dbd",
+        "package_manifest_sha256": "138e5696c548c7582bc17f954165302d21f3cdfb037c7ea58d0abb5dc8be3865",
+        "manifest": {
+          "product": "SAWSTAR Premium Preview",
+          "pair_role": "reference",
+          "experimental": true,
+          "source_commit": "92d0cd83e5c255c6592817688a24ad753cc2aeec",
+          "platform": "windows-x64",
+          "bundle_identifier": null,
+          "vst3_class_id": "F2AEE70D00DE4F4E5243383253775050",
+          "plugin_unique_id": "SwPP",
+          "oscillator": "SevenSaw",
+          "binary_sha256": "a71cf04ab6e264698dfcc014c89d4f9fe3d83f3999b69ddcb9c3fb7843300eca",
+          "native_host_acceptance": false,
+          "engine": "RateScaledLookupEnginePremiumFilter",
+          "latency_samples": 32,
+          "level_policy": "wet-output-3db-factory-trim-v1",
+          "production_promotion_allowed": false,
+          "files_sha256": {
+            "SAWSTARPremiumPreview.vst3/Contents/x86_64-win/SAWSTARPremiumPreview.vst3": "a71cf04ab6e264698dfcc014c89d4f9fe3d83f3999b69ddcb9c3fb7843300eca",
+            "evidence/moduleinfo.json": "f110412e04848ae158921e540bcf43dcde85a4c0deab5347745490ad0385f769",
+            "evidence/moduleinfo.provenance.json": "4ad54bea07565f62b79459950d6c77e6974b74c42dfd63af26b3069faa081f16",
+            "licenses/DaisySP-LICENSE.txt": "6b4818e3167b5f1fd2a4f1ed2101015db93e9faf97056ee7be945b3121427bea",
+            "licenses/DejaVu-NOTICE.txt": "c629f95dcedeb657e1eb32cae9e31041aae8c40cafb606d48ffdcb61c4fe3fa3",
+            "licenses/FontStash-NOTICE.txt": "8edbefab84cb41aba5a44394e3f8f969e126ddca67b367cde94540dda1ed5789",
+            "licenses/glad-LICENSE.txt": "c1473d22bb563f50f691cf74a19cb257a4367edd8e8693bb92505e511b3c3fdb",
+            "licenses/InnoSetup-LICENSE.txt": "2e5346868c2a18434489824e11d65c3031620f792fefc415d05f19cd441abf5c",
+            "licenses/iPlug2-LICENSE.txt": "5b5bd13fba0ae2269b7b59b95e1bb1ea6034bde4b73fdc0d6697383f5a29d674",
+            "licenses/KHR-NOTICE.txt": "a4be3716671cb6dbc2ed80aa91bb6675eb01971147c77d7a62bee11f15b83c14",
+            "licenses/MetalNanoVG-LICENSE.txt": "da1a9afb10cc0ffd6738f00c05d5d1bd2731be3124c47f83004294590fee9818",
+            "licenses/NanoSVG-LICENSE.txt": "e82bc3dd03400aecabe12201219ba14750dbc4b36faab58663a7a6068548d372",
+            "licenses/NanoVG-LICENSE.txt": "45185a6680ed83863bef33e1055f9fd76374df4b81c957802c19a286c982dfd2",
+            "licenses/Orbitron-OFL.txt": "cfa59a2c602fccaae7509965a6f9e515e4f89c66686eb3294336b88e4f0b007b",
+            "licenses/STB-NOTICE.txt": "fbc44c152902eabc41531dfbb54e09fa7cb71410260743b9bacbf9c9b553337a",
+            "licenses/VST3-base-LICENSE.txt": "b99e03d84202686308ba0c6556fcdff70885897cab8a87c02e75e4964a29aa76",
+            "licenses/VST3-pluginterfaces-LICENSE.txt": "b99e03d84202686308ba0c6556fcdff70885897cab8a87c02e75e4964a29aa76",
+            "licenses/VST3-public.sdk-LICENSE.txt": "b99e03d84202686308ba0c6556fcdff70885897cab8a87c02e75e4964a29aa76",
+            "licenses/VST3-SDK-LICENSE.txt": "b99e03d84202686308ba0c6556fcdff70885897cab8a87c02e75e4964a29aa76",
+            "licenses/WDL-NOTICE.txt": "6f2200fe4c1bb90bbf609657c6349573ce8c2d2c4826bdff3ddf12c23caa5d68",
+            "LICENSE": "7204c81e490eac2829a05f3965083455f85beded54818e45cd584668851d96b7",
+            "README-PREMIUM-PREVIEW.md": "2af6182239b8fc765723731f21447ca1d1300e9fc9ffa681f37b252ed447f0b7",
+            "NATIVE_PREVIEW_PAIR_QUALIFICATION.md": "ed1e1432843eda98267243d5b98e85e7a594ef0e597c1642ae639a6681c3fc75",
+            "PREMIUM_PREVIEW_LEVELS.md": "630de527cad54023728f3eaa5298d0da50230588e72ee94098066c234e3496d0",
+            "measurements/premium-preview-levels-2026-10-15-local-arm64.csv": "c48a09c2131fdb3f1dd664eb7a2bfd80e914f38f4d50467ba95e43f7c1665438",
+            "licenses/SAWSTAR-BRANDING-LICENSE.txt": "f43e1f8a25a6581df4b69838c5105c8acefdbaf2f89233bd076113e81f1f2462",
+            "THIRD_PARTY_NOTICES.md": "7947a87137974b03c5b1196a79fd5d324864a36f1b6991966458b94266b97b40"
+          }
+        },
+        "binary_path": "SAWSTARPremiumPreview.vst3/Contents/x86_64-win/SAWSTARPremiumPreview.vst3",
+        "architectures": [
+          "x86_64"
+        ]
+      },
+      "candidate": {
+        "package_filename": "SAWSTAR-Premium-Candidate-Windows-x64.zip",
+        "package_sha256": "7767927c2f51206880acfa0dc76236ee48736b583c5e0208bfb02e06d1ef3cdc",
+        "package_manifest_sha256": "f16665754fb2d7fc50171e7ae7306510707daabcfd5e15b256748abc3270f6c2",
+        "manifest": {
+          "product": "SAWSTAR Premium Candidate",
+          "pair_role": "candidate",
+          "experimental": true,
+          "source_commit": "92d0cd83e5c255c6592817688a24ad753cc2aeec",
+          "platform": "windows-x64",
+          "bundle_identifier": null,
+          "vst3_class_id": "F2AEE70D00DE4F4E5243383253775043",
+          "plugin_unique_id": "SwPC",
+          "oscillator": "SawDispatchSevenSaw",
+          "binary_sha256": "633d9f2d1157d9db3c20665a44ef7e7b5e0e4717508b41f550c5de63b9978f3f",
+          "native_host_acceptance": false,
+          "engine": "RateScaledLookupEnginePremiumFilter",
+          "latency_samples": 32,
+          "level_policy": "wet-output-3db-factory-trim-v1",
+          "production_promotion_allowed": false,
+          "files_sha256": {
+            "SAWSTARPremiumCandidate.vst3/Contents/x86_64-win/SAWSTARPremiumCandidate.vst3": "633d9f2d1157d9db3c20665a44ef7e7b5e0e4717508b41f550c5de63b9978f3f",
+            "evidence/moduleinfo.json": "acf27ce717bb4e1affbbd65d690b2bea284ac50c4e3db3b7b0a678d7c519ae95",
+            "evidence/moduleinfo.provenance.json": "aadbcf73fe1d2216e3b864f6a0b32bb8b91ec38fbbeceaad0094e23d31ef0196",
+            "licenses/DaisySP-LICENSE.txt": "6b4818e3167b5f1fd2a4f1ed2101015db93e9faf97056ee7be945b3121427bea",
+            "licenses/DejaVu-NOTICE.txt": "c629f95dcedeb657e1eb32cae9e31041aae8c40cafb606d48ffdcb61c4fe3fa3",
+            "licenses/FontStash-NOTICE.txt": "8edbefab84cb41aba5a44394e3f8f969e126ddca67b367cde94540dda1ed5789",
+            "licenses/glad-LICENSE.txt": "c1473d22bb563f50f691cf74a19cb257a4367edd8e8693bb92505e511b3c3fdb",
+            "licenses/InnoSetup-LICENSE.txt": "2e5346868c2a18434489824e11d65c3031620f792fefc415d05f19cd441abf5c",
+            "licenses/iPlug2-LICENSE.txt": "5b5bd13fba0ae2269b7b59b95e1bb1ea6034bde4b73fdc0d6697383f5a29d674",
+            "licenses/KHR-NOTICE.txt": "a4be3716671cb6dbc2ed80aa91bb6675eb01971147c77d7a62bee11f15b83c14",
+            "licenses/MetalNanoVG-LICENSE.txt": "da1a9afb10cc0ffd6738f00c05d5d1bd2731be3124c47f83004294590fee9818",
+            "licenses/NanoSVG-LICENSE.txt": "e82bc3dd03400aecabe12201219ba14750dbc4b36faab58663a7a6068548d372",
+            "licenses/NanoVG-LICENSE.txt": "45185a6680ed83863bef33e1055f9fd76374df4b81c957802c19a286c982dfd2",
+            "licenses/Orbitron-OFL.txt": "cfa59a2c602fccaae7509965a6f9e515e4f89c66686eb3294336b88e4f0b007b",
+            "licenses/STB-NOTICE.txt": "fbc44c152902eabc41531dfbb54e09fa7cb71410260743b9bacbf9c9b553337a",
+            "licenses/VST3-base-LICENSE.txt": "b99e03d84202686308ba0c6556fcdff70885897cab8a87c02e75e4964a29aa76",
+            "licenses/VST3-pluginterfaces-LICENSE.txt": "b99e03d84202686308ba0c6556fcdff70885897cab8a87c02e75e4964a29aa76",
+            "licenses/VST3-public.sdk-LICENSE.txt": "b99e03d84202686308ba0c6556fcdff70885897cab8a87c02e75e4964a29aa76",
+            "licenses/VST3-SDK-LICENSE.txt": "b99e03d84202686308ba0c6556fcdff70885897cab8a87c02e75e4964a29aa76",
+            "licenses/WDL-NOTICE.txt": "6f2200fe4c1bb90bbf609657c6349573ce8c2d2c4826bdff3ddf12c23caa5d68",
+            "LICENSE": "7204c81e490eac2829a05f3965083455f85beded54818e45cd584668851d96b7",
+            "README-PREMIUM-PREVIEW.md": "2af6182239b8fc765723731f21447ca1d1300e9fc9ffa681f37b252ed447f0b7",
+            "NATIVE_PREVIEW_PAIR_QUALIFICATION.md": "ed1e1432843eda98267243d5b98e85e7a594ef0e597c1642ae639a6681c3fc75",
+            "PREMIUM_PREVIEW_LEVELS.md": "630de527cad54023728f3eaa5298d0da50230588e72ee94098066c234e3496d0",
+            "measurements/premium-preview-levels-2026-10-15-local-arm64.csv": "c48a09c2131fdb3f1dd664eb7a2bfd80e914f38f4d50467ba95e43f7c1665438",
+            "licenses/SAWSTAR-BRANDING-LICENSE.txt": "f43e1f8a25a6581df4b69838c5105c8acefdbaf2f89233bd076113e81f1f2462",
+            "THIRD_PARTY_NOTICES.md": "7947a87137974b03c5b1196a79fd5d324864a36f1b6991966458b94266b97b40"
+          }
+        },
+        "binary_path": "SAWSTARPremiumCandidate.vst3/Contents/x86_64-win/SAWSTARPremiumCandidate.vst3",
+        "architectures": [
+          "x86_64"
+        ]
+      }
+    }
+  }
+}

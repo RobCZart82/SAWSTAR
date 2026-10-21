@@ -28,11 +28,9 @@ def read_module_info(data):
     return json.loads(text)
 
 
-def windows_identity(bundle, stem, product, signature, module_info, revision):
-    binary = bundle / ('Contents/x86_64-win/' + stem + '.vst3')
-    if not binary.is_file():
-        raise ValueError('Missing Windows x64 preview executable')
-    data = binary.read_bytes()
+def windows_identity_bytes(data, binary_relative_path, stem, product, signature,
+                           module_info_data, proof, revision):
+    """Validate SDK identity/provenance against bytes, without loading the DLL."""
     if len(data) < 64 or data[:2] != b'MZ':
         raise ValueError('Expected a Windows PE image')
     pe = struct.unpack_from('<I', data, 60)[0]
@@ -40,17 +38,12 @@ def windows_identity(bundle, stem, product, signature, module_info, revision):
             struct.unpack_from('<H', data, pe+4)[0] != 0x8664 or
             struct.unpack_from('<H', data, pe+24)[0] != 0x20b):
         raise ValueError('Expected a Windows x64 PE32+ image')
-    if module_info is None:
-        raise ValueError('Windows packaging requires fresh SDK module info and provenance')
-    module_info = Path(module_info)
-    provenance = Path(str(module_info) + '.provenance.json')
-    info = read_module_info(module_info.read_bytes())
-    proof = json.loads(provenance.read_bytes())
+    info = read_module_info(module_info_data)
     digest = hashlib.sha256(data).hexdigest()
     if (proof.get('schema') != 1 or proof.get('source_commit') != revision or
             proof.get('binary_sha256') != digest or
-            proof.get('binary_relative_path') != binary.relative_to(bundle).as_posix() or
-            proof.get('module_info_sha256') != hashlib.sha256(module_info.read_bytes()).hexdigest() or
+            proof.get('binary_relative_path') != binary_relative_path or
+            proof.get('module_info_sha256') != hashlib.sha256(module_info_data).hexdigest() or
             proof.get('sdk_commit') != '3cdf9ca5d1f5b1b21e0a86832aa4abe55607bd96' or
             proof.get('validator_passed') is not True or
             not re.fullmatch(r'[0-9a-f]{64}', proof.get('module_info_tool_sha256', '')) or
@@ -66,6 +59,20 @@ def windows_identity(bundle, stem, product, signature, module_info, revision):
             classes[0].get('Category') != 'Audio Module Class' or
             classes[0].get('Vendor') != 'RobCZart82'):
         raise ValueError('Windows VST3 factory identity mismatch')
+    return cid
+
+
+def windows_identity(bundle, stem, product, signature, module_info, revision):
+    binary = bundle / ('Contents/x86_64-win/' + stem + '.vst3')
+    if not binary.is_file():
+        raise ValueError('Missing Windows x64 preview executable')
+    if module_info is None:
+        raise ValueError('Windows packaging requires fresh SDK module info and provenance')
+    module_info = Path(module_info)
+    provenance = Path(str(module_info) + '.provenance.json')
+    cid = windows_identity_bytes(binary.read_bytes(), binary.relative_to(bundle).as_posix(),
+                                 stem, product, signature, module_info.read_bytes(),
+                                 json.loads(provenance.read_bytes()), revision)
     return binary, cid, {'evidence/moduleinfo.json': module_info,
                          'evidence/moduleinfo.provenance.json': provenance}
 
@@ -140,3 +147,4 @@ if __name__ == '__main__':
     parser.add_argument('--module-info', type=Path)
     args = parser.parse_args()
     print(package(args.bundle, args.output, role=args.role, platform=args.platform, module_info=args.module_info))
+

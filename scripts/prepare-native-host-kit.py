@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Verify macOS Preview ZIPs and prepare unmeasured REAPER worksheets.
+"""Verify macOS or Windows x64 Preview ZIPs and prepare unmeasured REAPER worksheets.
 
 No extraction, installation, plugin execution or DAW modification is performed.
 Checksums establish consistency, not authenticity or successful CI/host testing.
@@ -9,6 +9,7 @@ import argparse
 import csv
 import hashlib
 import io
+import importlib.util
 import json
 from pathlib import Path, PurePosixPath
 import plistlib
@@ -24,6 +25,11 @@ IDENTITIES = {
 MODES = ('LP12', 'LP24', 'HP12', 'BP12')
 MAX_MEMBER = 128 * 1024 * 1024
 MAX_TOTAL = 512 * 1024 * 1024
+
+_spec = importlib.util.spec_from_file_location('preview_package_identity',
+    Path(__file__).with_name('package-premium-preview.py'))
+_packager = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_packager)
 
 
 def sha(data):
@@ -71,7 +77,9 @@ def universal_architectures(data):
     return ['arm64', 'x86_64']
 
 
-def verify_package(path, role, expected_source):
+def verify_package(path, role, expected_source, platform='macos'):
+    if platform not in ('macos', 'windows-x64'):
+        raise ValueError('Unsupported package platform')
     path = Path(path)
     raw = path.read_bytes()
     checksum = Path(str(path) + '.sha256').read_text(encoding='utf-8').strip()
@@ -104,8 +112,8 @@ def verify_package(path, role, expected_source):
             raise ValueError('Package manifest must be a JSON object')
         product, stem, signature, oscillator = IDENTITIES[role]
         identity = dict(product=product, pair_role=role, experimental=True,
-                        source_commit=expected_source, platform='macos',
-                        bundle_identifier='io.github.robczart82.' + stem.lower(),
+                        source_commit=expected_source, platform=platform,
+                        bundle_identifier='io.github.robczart82.' + stem.lower() if platform == 'macos' else None,
                         plugin_unique_id=signature, oscillator=oscillator,
                         engine='RateScaledLookupEnginePremiumFilter', latency_samples=32,
                         level_policy='wet-output-3db-factory-trim-v1',
@@ -123,18 +131,27 @@ def verify_package(path, role, expected_source):
         if bundles != {stem + '.vst3'}:
             raise ValueError('Unexpected plugin bundle inventory')
         prefix = stem + '.vst3/Contents/'
-        info = plistlib.loads(archive.read(prefix + 'Info.plist'))
-        for key, value in dict(CFBundleIdentifier=identity['bundle_identifier'],
-                               CFBundleSignature=signature, CFBundleExecutable=stem, CFBundleName=stem).items():
-            if info.get(key) != value:
-                raise ValueError('Bundle plist identity mismatch: ' + key)
-        binary_path = prefix + 'MacOS/' + stem
+        if platform == 'macos':
+            info = plistlib.loads(archive.read(prefix + 'Info.plist'))
+            for key, value in dict(CFBundleIdentifier=identity['bundle_identifier'],
+                                   CFBundleSignature=signature, CFBundleExecutable=stem, CFBundleName=stem).items():
+                if info.get(key) != value:
+                    raise ValueError('Bundle plist identity mismatch: ' + key)
+        binary_path = prefix + ('MacOS/' + stem if platform == 'macos' else 'x86_64-win/' + stem + '.vst3')
         binary = archive.read(binary_path)
         if sha(binary) != manifest.get('binary_sha256'):
             raise ValueError('Executable hash mismatch')
-        if not archive.getinfo(binary_path).external_attr >> 16 & 0o111:
-            raise ValueError('Executable permissions missing')
-        architectures = universal_architectures(binary)
+        if platform == 'macos':
+            if not archive.getinfo(binary_path).external_attr >> 16 & 0o111:
+                raise ValueError('Executable permissions missing')
+            architectures = universal_architectures(binary)
+        else:
+            proof = json.loads(archive.read('evidence/moduleinfo.provenance.json'), object_pairs_hook=unique_object)
+            cid = _packager.windows_identity_bytes(binary, binary_path[len(stem + '.vst3/'):],
+                stem, product, signature, archive.read('evidence/moduleinfo.json'), proof, expected_source)
+            if manifest.get('vst3_class_id') != cid:
+                raise ValueError('Manifest VST3 class ID mismatch')
+            architectures = ['x86_64']
     return dict(package_filename=path.name, package_sha256=sha(raw),
                 package_manifest_sha256=sha(manifest_data),
                 manifest=manifest, binary_path=binary_path, architectures=architectures)
@@ -181,16 +198,16 @@ def measurement_rows(fx_mode):
     return rows
 
 
-def prepare(reference, candidate, output, expected_source, fx_mode):
+def prepare(reference, candidate, output, expected_source, fx_mode, platform='macos'):
     if not re.fullmatch('[0-9a-f]{40}', expected_source):
         raise ValueError('Expected source must be a full lowercase commit SHA')
     rows = measurement_rows(fx_mode)
-    packages = {role: verify_package(path, role, expected_source)
+    packages = {role: verify_package(path, role, expected_source, platform)
                 for role, path in [('reference', reference), ('candidate', candidate)]}
     output = Path(output)
     # mkdir is exclusive: existing evidence is never overwritten, even an empty directory.
     output.mkdir(parents=True, exist_ok=False)
-    provenance = dict(schema=1, source_commit=expected_source, platform='macos',
+    provenance = dict(schema=1, source_commit=expected_source, platform=platform,
                       packages=packages, fx_filter_mode=fx_mode, cases=28, windows=112,
                       native_host_acceptance=False, production_promotion_allowed=False,
                       status='not_run', ci_success_verified=False)
@@ -211,11 +228,12 @@ def prepare(reference, candidate, output, expected_source, fx_mode):
     (output / 'environment.json').write_text(json.dumps(environment, indent=2) + '\n', encoding='utf-8')
     (output / 'README.md').write_text(
         '# Native REAPER measurement kit — NOT RUN\n\n'
-        'ZIP consistency and CPU headers checked; no plugin was installed or executed.\n'
+        'ZIP consistency and platform identity checked; no plugin was installed or executed.\n'
         'Checksums are not authenticity, CI success, validator or host acceptance.\n'
         'Verify both exact-source workflow jobs succeeded and record their URLs.\n'
         'After installation compare actual executable hashes with provenance.json.\n'
-        'Use native arm64 REAPER on Apple Silicon; native x86_64 on Intel.\n'
+        'macOS: native arm64 REAPER on Apple Silicon, native x86_64 on Intel.\n'
+        'Windows x64: native x64 REAPER; no Windows ARM64 qualification.\n'
         'Record actual process architecture; Universal headers do not prove execution.\n\n'
         'Complete environment.json before playback. Save identical P0/P1 presets, MIDI,\n'
         'cutoff automation and headroom for both roles. P0 has chorus/delay/reverb off;\n'
@@ -241,11 +259,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--reference', type=Path, required=True, help='Inner package ZIP, with adjacent .zip.sha256')
     parser.add_argument('--candidate', type=Path, required=True)
+    parser.add_argument('--platform', choices=('macos', 'windows-x64'), default='macos')
     parser.add_argument('--expected-source', required=True, help='Exact successful workflow checkout SHA')
     parser.add_argument('--fx-mode', choices=MODES, required=True, help='Preselected P1 filter mode')
     parser.add_argument('--output', type=Path, required=True, help='New directory; existing paths refused')
     args = parser.parse_args()
     try:
-        print(prepare(args.reference, args.candidate, args.output, args.expected_source, args.fx_mode))
+        print(prepare(args.reference, args.candidate, args.output, args.expected_source, args.fx_mode, args.platform))
     except (ValueError, OSError, KeyError, zipfile.BadZipFile, plistlib.InvalidFileException) as error:
         parser.exit(1, 'Preflight failed: ' + str(error) + '\n')
