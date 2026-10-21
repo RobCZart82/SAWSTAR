@@ -194,5 +194,90 @@ class NativeHostKit(unittest.TestCase):
             json.loads('{"pair_role":"reference","pair_role":"candidate"}', object_pairs_hook=kit.unique_object)
 
 
+class WindowsHostKit(unittest.TestCase):
+    rewrite = NativeHostKit.rewrite
+
+    def setUp(self):
+        fixtures = module('package_fixtures', 'tests/premium_preview_package.py')
+        fixture = fixtures.WindowsPreviewPackage()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        self.root = fixture.root
+        self.paths = {}
+        fixture.output = self.root / 'reference.zip'
+        fixture.run_package()
+        self.paths['reference'] = fixture.output
+        previous = fixture.bundle
+        fixture.bundle = self.root / 'SAWSTARPremiumCandidate.vst3'
+        previous.rename(fixture.bundle)
+        old = fixture.bundle / 'Contents/x86_64-win/SAWSTARPremiumPreview.vst3'
+        fixture.binary = old.with_name('SAWSTARPremiumCandidate.vst3')
+        old.rename(fixture.binary)
+        fixture.info['Name'] = 'SAWSTARPremiumCandidate'
+        fixture.info['Classes'][0].update(Name='SAWSTAR Premium Candidate', CID='F2AEE70D00DE4F4E5243383253775043')
+        fixture.write_evidence()
+        fixture.output = self.root / 'candidate.zip'
+        fixture.run_package('candidate')
+        self.paths['candidate'] = fixture.output
+
+    def prepare(self):
+        return kit.prepare(self.paths['reference'], self.paths['candidate'],
+                           self.root / 'output', SOURCE, 'LP24', 'windows-x64')
+
+    def test_windows_pair_preserves_protocol_and_explicit_platform(self):
+        output = self.prepare()
+        provenance = json.loads((output / 'provenance.json').read_text())
+        self.assertEqual(provenance['platform'], 'windows-x64')
+        self.assertFalse(provenance['native_host_acceptance'])
+        for role in ('reference', 'candidate'):
+            self.assertEqual(provenance['packages'][role]['architectures'], ['x86_64'])
+        with (output / 'measurements.csv').open(newline='') as stream:
+            rows = list(csv.DictReader(stream))
+        self.assertEqual(len(rows), 112)
+        self.assertTrue(all(row['status'] == 'not_run' and row['xrun_start'] == '' for row in rows))
+        self.assertEqual({row['filter_mode'] for row in rows if row['preset'] == 'P1'}, {'LP24'})
+
+    def test_platform_and_manifest_factory_mismatch_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'mismatch'):
+            kit.verify_package(self.paths['candidate'], 'candidate', SOURCE)
+        self.rewrite(change=lambda manifest, items: manifest.update(vst3_class_id='F2AEE70D00DE4F4E5243383253775374'))
+        with self.assertRaisesRegex(ValueError, 'class ID'):
+            self.prepare()
+        self.assertFalse((self.root / 'output').exists())
+
+    def test_rehashed_forged_or_stale_sdk_evidence_rejected(self):
+        original = self.paths['candidate'].read_bytes()
+        changes = [('proof', 'source_commit', 'b' * 40),
+                   ('proof', 'binary_sha256', '0' * 64),
+                   ('proof', 'module_info_sha256', '0' * 64),
+                   ('proof', 'validator_passed', False),
+                   ('proof', 'sdk_commit', 'c' * 40),
+                   ('class', 'CID', 'F2AEE70D00DE4F4E5243383253775374')]
+        for target, key, value in changes:
+            self.paths['candidate'].write_bytes(original)
+
+            def change(manifest, items):
+                for index, (info, data) in enumerate(items):
+                    if info.filename == ('evidence/moduleinfo.provenance.json' if target == 'proof' else 'evidence/moduleinfo.json'):
+                        content = json.loads(data)
+                        if target == 'proof':
+                            content[key] = value
+                        else:
+                            content['Classes'][0][key] = value
+                        items[index] = (info, json.dumps(content).encode())
+                if target == 'class':
+                    digest = kit.sha(next(data for info, data in items if info.filename == 'evidence/moduleinfo.json'))
+                    for index, (info, data) in enumerate(items):
+                        if info.filename == 'evidence/moduleinfo.provenance.json':
+                            proof = json.loads(data)
+                            proof['module_info_sha256'] = digest
+                            items[index] = (info, json.dumps(proof).encode())
+
+            self.rewrite(change=change, refresh_hashes=True)
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.prepare()
+            self.assertFalse((self.root / 'output').exists())
+
+
 if __name__ == '__main__':
     unittest.main()

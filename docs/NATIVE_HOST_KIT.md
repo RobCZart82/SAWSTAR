@@ -1,4 +1,4 @@
-# Natív mérési csomag előkészítése — macOS
+# Natív mérési csomag előkészítése — macOS / Windows x64
 
 Állapot: **implementált előkészítő eszköz, nincs natív mérési eredmény**.
 A #127-ben összesített K1-kontrollok után a következő prioritás a külön
@@ -6,11 +6,14 @@ Reference/Candidate pár tényleges host-/CPU-vizsgálata. K1 oka továbbra isme
 
 ## Letöltés és előellenőrzés
 
-1. Válassz egy pontos checkout SHA-jú, sikeres `macOS Premium Preview` futást.
+1. Válassz egy pontos checkout SHA-jú, sikeres `macOS Premium Preview` vagy
+   `Windows Premium Preview pair` futást a célplatform szerint.
    Mindkét szerep build-, páros numerikus-, saját smoke- és validator-jobja
    legyen sikeres. Rögzítsd a futás URL-jét és a teljes 40 karakteres SHA-t.
 2. Töltsd le a `SAWSTAR-Premium-Preview-macOS-Universal` és
    `SAWSTAR-Premium-Candidate-macOS-Universal` artifactokat ugyanerről a headről.
+   Windowshoz a `SAWSTAR-Premium-Preview-Windows-x64` és
+   `SAWSTAR-Premium-Candidate-Windows-x64` artifactok szükségesek.
 3. A GitHub artifact külső ZIP-jéből külön könyvtárba bontsd ki a belső
    plugin-csomag ZIP-et és a mellette levő `.zip.sha256` fájlt.
    Az eszköz bemenete a **belső csomag**, nem az artifact külső ZIP-je.
@@ -19,12 +22,17 @@ Reference/Candidate pár tényleges host-/CPU-vizsgálata. K1 oka továbbra isme
 
 ```sh
 python3 scripts/prepare-native-host-kit.py \
+  --platform macos \
   --reference /path/to/reference-package.zip \
   --candidate /path/to/candidate-package.zip \
   --expected-source FULL_40_CHARACTER_CHECKOUT_SHA \
   --fx-mode HP12 \
   --output /path/to/new-measurement-directory
 ```
+
+Windowshoz `--platform windows-x64` és a Windows belső ZIP-jei kellenek.
+A két szerep platformja és forrása is egyezzen; a script nem kever platformokat.
+Az alapértelmezés a visszafelé kompatibilis `macos`.
 
 A script kizárólag olvas és új adatlapkönyvtárat ír. Nem bont ki plugint,
 nem telepít, nem indít REAPER-t, nem módosít projektet és nem játszik le hangot.
@@ -34,6 +42,11 @@ Ellenőrzések: külső SHA-256 és fájlnév; manifest teljes fájljegyzéke é
 tag hash-a; azonos várt forráscommit; role/product/oscillator/ID/plist;
 közös engine/latency/level policy és kísérleti státusz; executable hash és
 jogosultság; Universal arm64/x86_64 fat-tábla és CPU-fejlécek határai.
+Windows alatt a PE x64/PE32+ fejléc, a szerephez tartozó SDK factory-CID,
+module-info, rögzített SDK-commit és a forrás-/bináris-/module-info hashokkal
+összekötött validator-eredetjegyzék ellenőrzött. A csomagoló és a preflight
+ugyanazt a bytes-alapú Windows-identitásellenőrzőt használja; egyik sem tölti
+be a DLL-t. A Windows ZIP tagjainak Unix executable bitje nem követelmény.
 Duplikált/case-colliding útvonal, symlink, nem reguláris vagy manifestből
 hiányzó tag elutasított. A vizsgálati méretkorlát tagonként 128 MiB,
 összesen 512 MiB és 10 000 tag.
@@ -63,6 +76,8 @@ Telepítési smoke előtt a REAPER legyen bezárva; kövesd a
 Utána a **telepített** executable hashait is hasonlítsd össze a provenance-szal.
 Apple Siliconon natív arm64 REAPER, Intelen natív x86_64 REAPER kell;
 az aktuális hostfolyamat architektúráját is rögzítsd. Rosetta-kontroll külön próba.
+Windowson natív x64 REAPER és a [Windows telepítési útmutató](PREMIUM_PREVIEW_WINDOWS.md)
+követendő; Windows ARM64 hostelfogadás ebből nem következik.
 
 Mérés előtt töltsd ki a környezetadatokat, mentsd az azonos P0/P1 presetet,
 MIDI-t és automatizálást. A script nem talál ki helyetted paramétereket vagy
@@ -77,8 +92,11 @@ FX CPU-ból nincs RT-tartalék. Hibás ablakot ne írj felül: külön ismétlé
 A [natív adatlap](NATIVE_REAPER_CPU_ACCEPTANCE.md) és a
 [release terv 4–7. pontja](NEXT_RELEASE_DEVELOPMENT_PLAN.md) marad a mérvadó.
 Robert konkrét build/gép/tartomány szerinti elfogadása, a Windows x64 célgépes
-mérés és a végső production RC újraellenőrzése külön feladat. Ez az első
-eszközverzió csak macOS csomagot fogad; Windows-csomaghoz nem ad hamis sikert.
+mérés és a végső production RC újraellenőrzése külön feladat.
+
+A #128 pontos headjének négy valódi csomagján elvégzett ellenőrzést a
+[2026-10-21-i csomagaudit](NATIVE_PACKAGE_PREFLIGHT_2026_10_21.md) rögzíti.
+Ez nem tényleges hostmérés és nem más forráscommit eredménye.
 
 ## Fejlesztői ellenőrzés
 
@@ -87,7 +105,7 @@ python3 tests/premium_preview_package.py
 python3 tests/native_host_kit.py
 ```
 
-A fixture a valódi csomagolóval készített szintetikus Universal csomagot használ;
+A fixture a valódi csomagolóval készített szintetikus Universal/PE csomagot használ;
 nem valódi plugin/validator/REAPER-próba. A külön `Native host kit preflight`
 workflow ugyanazokat a pozitív és elutasítási kontrollokat futtatja Linuxon.
 A natív pár útmutatójának módosítása a két platform Preview-csomagoló CI-jét
