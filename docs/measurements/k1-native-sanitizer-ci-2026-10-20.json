@@ -1,0 +1,1532 @@
+{
+  "schema": 1,
+  "source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+  "verification": "Local recheck of downloaded ZIPs, manifests, retained files and raw CSVs using the exact-head validators and a separate archive audit.",
+  "artifacts": [
+    {
+      "kind": "sanitized",
+      "revision": "original",
+      "architecture": "x86_64",
+      "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\n",
+      "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)\nTarget: x86_64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+      "tested_source_commit": "fb3114eb829442223083e103929a15ad25d3efeb",
+      "executable_sha256": "51c0c37e1e1ca82513b1351026d23b5768c73ba2a91ff5fa507a322f4cc7d2d0",
+      "controls_sha256": "44649f791234ea5493af96811f811e18415f7a217f2075bfb1804f5b002fd564",
+      "validated_cases": 480,
+      "verified_logs": 6,
+      "expected_sanitizer_reports": 2,
+      "manifest": {
+        "schema": 1,
+        "state": "complete",
+        "revision": "original",
+        "instrumented": true,
+        "rebuild": true,
+        "original_binary_replay": false,
+        "fp_override": false,
+        "required_compile_flags": [
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "-fno-omit-frame-pointer",
+          "-O1"
+        ],
+        "leak_detection": false,
+        "purpose": "Calibrated Preview memory/UB checks; not K1 closure, CPU or native host acceptance",
+        "production_promotion_allowed": false,
+        "native_host_acceptance": false,
+        "results": [
+          {
+            "name": "control-asan",
+            "expected_failure": true,
+            "returncode": -6,
+            "log_sha256": "a6b8d0864d2d0ec7ebd60c0781d3f6b6f104ba300460ba0a47f09576b33d5513",
+            "expected_report_verified": true
+          },
+          {
+            "name": "control-ubsan",
+            "expected_failure": true,
+            "returncode": -6,
+            "log_sha256": "53bcfe2eea3cbae62209b89862d79ce74331dd09f7d6797bf2756fa2412ac940",
+            "expected_report_verified": true
+          },
+          {
+            "name": "waveform-0",
+            "arguments": [
+              "--waveform",
+              "0"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          },
+          {
+            "name": "waveform-1",
+            "arguments": [
+              "--waveform",
+              "1"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          },
+          {
+            "name": "waveform-2",
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "name": "waveform-3",
+            "arguments": [
+              "--waveform",
+              "3"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          }
+        ],
+        "host_architecture": "x86_64",
+        "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\n",
+        "runner_image": "20260824.0482.1",
+        "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)\nTarget: x86_64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+        "runner_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+        "tested_source_commit": "fb3114eb829442223083e103929a15ad25d3efeb",
+        "asan_options": "detect_leaks=0:halt_on_error=1:abort_on_error=1",
+        "ubsan_options": "print_stacktrace=1:halt_on_error=1:abort_on_error=1",
+        "translation_probe": {
+          "returncode": 0,
+          "stdout": ""
+        },
+        "instrumented_translation_units": 17,
+        "executable_sha256": "51c0c37e1e1ca82513b1351026d23b5768c73ba2a91ff5fa507a322f4cc7d2d0",
+        "controls_sha256": "44649f791234ea5493af96811f811e18415f7a217f2075bfb1804f5b002fd564",
+        "cache_sha256": "ecb02ad5b88d11e788a5be017339708ae4ca5f8c690868baa2d19287ea116e20",
+        "compile_commands_sha256": "0d7b4c0b432820bf7efaac948bea6687e52f3cbfe202166d2d9d3a62c8811351"
+      },
+      "artifact_id": 12292578165,
+      "artifact_name": "k1-sanitized-original-macos-15-intel-7480154d7c6f4596925992df1a7bd61940d6468d",
+      "artifact_zip_sha256": "43c909713f35b83267e5e2aebc5cabcda0fa9f85a889ea58af66d96313f9e649",
+      "workflow_run_id": 39482712146
+    },
+    {
+      "kind": "sanitized",
+      "revision": "current",
+      "architecture": "x86_64",
+      "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\n",
+      "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)\nTarget: x86_64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+      "tested_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+      "executable_sha256": "00c957e7d29749f2c3731c2d88272f8890064193dd35c2ef173064433a9fc6cc",
+      "controls_sha256": "a1f5ed4f856f97106859335dcb47fcb577cc166396c5271cb1fb1a8407d32d1b",
+      "validated_cases": 480,
+      "verified_logs": 6,
+      "expected_sanitizer_reports": 2,
+      "manifest": {
+        "schema": 1,
+        "state": "complete",
+        "revision": "current",
+        "instrumented": true,
+        "rebuild": true,
+        "original_binary_replay": false,
+        "fp_override": false,
+        "required_compile_flags": [
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "-fno-omit-frame-pointer",
+          "-O1"
+        ],
+        "leak_detection": false,
+        "purpose": "Calibrated Preview memory/UB checks; not K1 closure, CPU or native host acceptance",
+        "production_promotion_allowed": false,
+        "native_host_acceptance": false,
+        "results": [
+          {
+            "name": "control-asan",
+            "expected_failure": true,
+            "returncode": -6,
+            "log_sha256": "fbb38acd88a3e012bb1c19dd45c6489ab548d56529d203777ceb6e0659cd4873",
+            "expected_report_verified": true
+          },
+          {
+            "name": "control-ubsan",
+            "expected_failure": true,
+            "returncode": -6,
+            "log_sha256": "e8cd2c2226fa02d11491408141384f05a48efb7afae82fe921fb942481c9883f",
+            "expected_report_verified": true
+          },
+          {
+            "name": "waveform-0",
+            "arguments": [
+              "--waveform",
+              "0"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          },
+          {
+            "name": "waveform-1",
+            "arguments": [
+              "--waveform",
+              "1"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          },
+          {
+            "name": "waveform-2",
+            "arguments": [
+              "--waveform",
+              "2"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          },
+          {
+            "name": "waveform-3",
+            "arguments": [
+              "--waveform",
+              "3"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          }
+        ],
+        "host_architecture": "x86_64",
+        "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\n",
+        "runner_image": "20260824.0482.1",
+        "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)\nTarget: x86_64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+        "runner_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+        "tested_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+        "asan_options": "detect_leaks=0:halt_on_error=1:abort_on_error=1",
+        "ubsan_options": "print_stacktrace=1:halt_on_error=1:abort_on_error=1",
+        "translation_probe": {
+          "returncode": 0,
+          "stdout": ""
+        },
+        "instrumented_translation_units": 18,
+        "executable_sha256": "00c957e7d29749f2c3731c2d88272f8890064193dd35c2ef173064433a9fc6cc",
+        "controls_sha256": "a1f5ed4f856f97106859335dcb47fcb577cc166396c5271cb1fb1a8407d32d1b",
+        "cache_sha256": "a2a94dfc8b8a72636047d552545824eaa5f3296fa0865c7180d9b4ba9683ee2d",
+        "compile_commands_sha256": "d294fc4efa01c89be2a8d8c72fdc1e1bd4746b9ca08adbed6b7e13cbf6ba068f"
+      },
+      "artifact_id": 12292578077,
+      "artifact_name": "k1-sanitized-current-macos-15-intel-7480154d7c6f4596925992df1a7bd61940d6468d",
+      "artifact_zip_sha256": "f9b7aa3d18f17e4dc7bce572de679843aa07ea57bd9d84653d04849d381be3b7",
+      "workflow_run_id": 39482712146
+    },
+    {
+      "kind": "sanitized",
+      "revision": "original",
+      "architecture": "arm64",
+      "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t14.8.9\nBuildVersion:\t\t23J631\n",
+      "compiler": "Apple clang version 15.0.0 (clang-1500.3.9.4)\nTarget: arm64-apple-darwin23.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+      "tested_source_commit": "fb3114eb829442223083e103929a15ad25d3efeb",
+      "executable_sha256": "20ab330b9c4868881273af5d0c2e1220e84e10e41ce48c1aadbe3a6dd568e204",
+      "controls_sha256": "d3385c8573fcf643005a147bc714ca6705a950e3613117e0319d869466bfeccd",
+      "validated_cases": 480,
+      "verified_logs": 6,
+      "expected_sanitizer_reports": 2,
+      "manifest": {
+        "schema": 1,
+        "state": "complete",
+        "revision": "original",
+        "instrumented": true,
+        "rebuild": true,
+        "original_binary_replay": false,
+        "fp_override": false,
+        "required_compile_flags": [
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "-fno-omit-frame-pointer",
+          "-O1"
+        ],
+        "leak_detection": false,
+        "purpose": "Calibrated Preview memory/UB checks; not K1 closure, CPU or native host acceptance",
+        "production_promotion_allowed": false,
+        "native_host_acceptance": false,
+        "results": [
+          {
+            "name": "control-asan",
+            "expected_failure": true,
+            "returncode": -6,
+            "log_sha256": "adee8673f2e718f5df62ea0c161184fd0be2e4ce8b79f07440d8f15b236a53ee",
+            "expected_report_verified": true
+          },
+          {
+            "name": "control-ubsan",
+            "expected_failure": true,
+            "returncode": -6,
+            "log_sha256": "e8f318a6f437b05574cca80f034de06cd6fb462119bee5eee127ac99d0ce66a7",
+            "expected_report_verified": true
+          },
+          {
+            "name": "waveform-0",
+            "arguments": [
+              "--waveform",
+              "0"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          },
+          {
+            "name": "waveform-1",
+            "arguments": [
+              "--waveform",
+              "1"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          },
+          {
+            "name": "waveform-2",
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+          },
+          {
+            "name": "waveform-3",
+            "arguments": [
+              "--waveform",
+              "3"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          }
+        ],
+        "host_architecture": "arm64",
+        "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t14.8.9\nBuildVersion:\t\t23J631\n",
+        "runner_image": "20260831.0302.1",
+        "compiler": "Apple clang version 15.0.0 (clang-1500.3.9.4)\nTarget: arm64-apple-darwin23.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+        "runner_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+        "tested_source_commit": "fb3114eb829442223083e103929a15ad25d3efeb",
+        "asan_options": "detect_leaks=0:halt_on_error=1:abort_on_error=1",
+        "ubsan_options": "print_stacktrace=1:halt_on_error=1:abort_on_error=1",
+        "translation_probe": {
+          "returncode": 0,
+          "stdout": "0"
+        },
+        "instrumented_translation_units": 17,
+        "executable_sha256": "20ab330b9c4868881273af5d0c2e1220e84e10e41ce48c1aadbe3a6dd568e204",
+        "controls_sha256": "d3385c8573fcf643005a147bc714ca6705a950e3613117e0319d869466bfeccd",
+        "cache_sha256": "293d4dd5a6c4176a1565f9aed111315f350f94ec37368f90ef17b5033a91290b",
+        "compile_commands_sha256": "9857d8238897a0777a459d1970c4763c2a19878a5f093921ed04ad1b595a89ed"
+      },
+      "artifact_id": 12292197218,
+      "artifact_name": "k1-sanitized-original-macos-14-7480154d7c6f4596925992df1a7bd61940d6468d",
+      "artifact_zip_sha256": "d6991df04015718f6bb96d4c0d11c2e1cf6a9a37fe064c58ccf9a70d4a1d5f00",
+      "workflow_run_id": 39482712146
+    },
+    {
+      "kind": "sanitized",
+      "revision": "current",
+      "architecture": "arm64",
+      "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t14.8.9\nBuildVersion:\t\t23J631\n",
+      "compiler": "Apple clang version 15.0.0 (clang-1500.3.9.4)\nTarget: arm64-apple-darwin23.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+      "tested_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+      "executable_sha256": "ffc7f36ee547639501eab8661bfa8ce5e6bceafcab7a2beaa628eea2e8564e5e",
+      "controls_sha256": "070faf5d33498b4e3b4be8f542849e4ef0cf9f8963be1c2c14c4498f4e4e1efb",
+      "validated_cases": 480,
+      "verified_logs": 6,
+      "expected_sanitizer_reports": 2,
+      "manifest": {
+        "schema": 1,
+        "state": "complete",
+        "revision": "current",
+        "instrumented": true,
+        "rebuild": true,
+        "original_binary_replay": false,
+        "fp_override": false,
+        "required_compile_flags": [
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "-fno-omit-frame-pointer",
+          "-O1"
+        ],
+        "leak_detection": false,
+        "purpose": "Calibrated Preview memory/UB checks; not K1 closure, CPU or native host acceptance",
+        "production_promotion_allowed": false,
+        "native_host_acceptance": false,
+        "results": [
+          {
+            "name": "control-asan",
+            "expected_failure": true,
+            "returncode": -6,
+            "log_sha256": "a986344da8cb6ff1922c2f0dea6036ef6e8a7cc7c532e7bbb647fbdfc2bc1181",
+            "expected_report_verified": true
+          },
+          {
+            "name": "control-ubsan",
+            "expected_failure": true,
+            "returncode": -6,
+            "log_sha256": "824cb336c6ee2046ed6c3ee50e9ae13892abe0da1642bbdc9ddd75fce5d920cd",
+            "expected_report_verified": true
+          },
+          {
+            "name": "waveform-0",
+            "arguments": [
+              "--waveform",
+              "0"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          },
+          {
+            "name": "waveform-1",
+            "arguments": [
+              "--waveform",
+              "1"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          },
+          {
+            "name": "waveform-2",
+            "arguments": [
+              "--waveform",
+              "2"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          },
+          {
+            "name": "waveform-3",
+            "arguments": [
+              "--waveform",
+              "3"
+            ],
+            "expected_failure": false,
+            "returncode": 0,
+            "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+            "sanitizer_reported": false,
+            "numerical_divergence_reported": false,
+            "validated_cases": 120
+          }
+        ],
+        "host_architecture": "arm64",
+        "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t14.8.9\nBuildVersion:\t\t23J631\n",
+        "runner_image": "20260831.0302.1",
+        "compiler": "Apple clang version 15.0.0 (clang-1500.3.9.4)\nTarget: arm64-apple-darwin23.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+        "runner_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+        "tested_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+        "asan_options": "detect_leaks=0:halt_on_error=1:abort_on_error=1",
+        "ubsan_options": "print_stacktrace=1:halt_on_error=1:abort_on_error=1",
+        "translation_probe": {
+          "returncode": 0,
+          "stdout": "0"
+        },
+        "instrumented_translation_units": 18,
+        "executable_sha256": "ffc7f36ee547639501eab8661bfa8ce5e6bceafcab7a2beaa628eea2e8564e5e",
+        "controls_sha256": "070faf5d33498b4e3b4be8f542849e4ef0cf9f8963be1c2c14c4498f4e4e1efb",
+        "cache_sha256": "63a704981f9b2e7c8fbcd5dbe162a658712d2f4f857550f514d92aad362c7744",
+        "compile_commands_sha256": "f162a4c4fc94b66e7d79d21ec69c8ff7833c0bbaf68f07a9db28e945541c098f"
+      },
+      "artifact_id": 12291858323,
+      "artifact_name": "k1-sanitized-current-macos-14-7480154d7c6f4596925992df1a7bd61940d6468d",
+      "artifact_zip_sha256": "a7bc9eac3c514c992b035281485e881f98cfb2d21de4bbef008f96532e6020e0",
+      "workflow_run_id": 39482712146
+    },
+    {
+      "kind": "original-replay",
+      "execution_mode": "native-intel",
+      "origin": "candidate",
+      "architecture": "x86_64",
+      "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\n",
+      "cpu_brand": "Intel(R) Core(TM) i7-8700B CPU @ 3.20GHz",
+      "executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+      "validated_cases": 840,
+      "verified_logs": 21,
+      "manifest": {
+        "schema": 1,
+        "state": "complete",
+        "origin": "candidate",
+        "execution_mode": "native-intel",
+        "artifact_id": 12186151118,
+        "original_source_commit": "fb3114eb829442223083e103929a15ad25d3efeb",
+        "expected_executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+        "process_timeout_seconds": 120,
+        "process_count": 7,
+        "rebuild": false,
+        "fp_override": false,
+        "results": [
+          {
+            "waveform": 0,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "0"
+            ],
+            "log_file": "x86_64-waveform-0.txt",
+            "returncode": 0,
+            "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 1,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "1"
+            ],
+            "log_file": "x86_64-waveform-1.txt",
+            "returncode": 0,
+            "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 3,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "3"
+            ],
+            "log_file": "x86_64-waveform-3.txt",
+            "returncode": 0,
+            "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 1,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-1.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 2,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-2.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 3,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-3.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          }
+        ],
+        "purpose": "Original K1 binary replay; not root cause, CPU or native host acceptance",
+        "production_promotion_allowed": false,
+        "native_host_acceptance": false,
+        "translation_probe": {
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "cpu_vendor": "GenuineIntel",
+        "cpu_brand": "Intel(R) Core(TM) i7-8700B CPU @ 3.20GHz",
+        "runner_arch_env": "X64",
+        "execution_plan": [
+          {
+            "waveform": 0,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 1,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 3,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 1
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 2
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 3
+          }
+        ],
+        "runner_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+        "runtime_platform": "macOS-15.7.9-x86_64-i386-64bit-Mach-O",
+        "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\n",
+        "runner_image": "20260824.0482.1",
+        "runner_architecture": "x86_64",
+        "original_zip_sha256": "247fe73cec4300ff828cd529993fdcb9572def3edb9388c9f0918165814fda6c",
+        "executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+        "cmake_cache_sha256": "724ef070e4f53f378735996c4f76517784a2e44b5618971234633efd5b6100b1",
+        "slices": "x86_64 arm64",
+        "observed_malloc_environment": {},
+        "interpretation": "Inspect every process result; any numerical failure remains a failed campaign. An all-success replay does not fix or close the original K1 failure."
+      },
+      "artifact_id": 12293295054,
+      "artifact_name": "k1-native-intel-candidate-7480154d7c6f4596925992df1a7bd61940d6468d",
+      "artifact_zip_sha256": "c88fca6eb4e5aeab50ba7a3bf2da174a23e7b91697c67b4607a262f3213feff9",
+      "workflow_run_id": 39482712051
+    },
+    {
+      "kind": "original-replay",
+      "execution_mode": "native-intel",
+      "origin": "reference",
+      "architecture": "x86_64",
+      "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\n",
+      "cpu_brand": "Intel(R) Core(TM) i7-8700B CPU @ 3.20GHz",
+      "executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+      "validated_cases": 840,
+      "verified_logs": 21,
+      "manifest": {
+        "schema": 1,
+        "state": "complete",
+        "origin": "reference",
+        "execution_mode": "native-intel",
+        "artifact_id": 12185332231,
+        "original_source_commit": "fb3114eb829442223083e103929a15ad25d3efeb",
+        "expected_executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+        "process_timeout_seconds": 120,
+        "process_count": 7,
+        "rebuild": false,
+        "fp_override": false,
+        "results": [
+          {
+            "waveform": 0,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "0"
+            ],
+            "log_file": "x86_64-waveform-0.txt",
+            "returncode": 0,
+            "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 1,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "1"
+            ],
+            "log_file": "x86_64-waveform-1.txt",
+            "returncode": 0,
+            "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 3,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "3"
+            ],
+            "log_file": "x86_64-waveform-3.txt",
+            "returncode": 0,
+            "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 1,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-1.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 2,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-2.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 3,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-3.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          }
+        ],
+        "purpose": "Original K1 binary replay; not root cause, CPU or native host acceptance",
+        "production_promotion_allowed": false,
+        "native_host_acceptance": false,
+        "translation_probe": {
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "cpu_vendor": "GenuineIntel",
+        "cpu_brand": "Intel(R) Core(TM) i7-8700B CPU @ 3.20GHz",
+        "runner_arch_env": "X64",
+        "execution_plan": [
+          {
+            "waveform": 0,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 1,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 3,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 1
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 2
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 3
+          }
+        ],
+        "runner_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+        "runtime_platform": "macOS-15.7.9-x86_64-i386-64bit-Mach-O",
+        "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\n",
+        "runner_image": "20260824.0482.1",
+        "runner_architecture": "x86_64",
+        "original_zip_sha256": "cdcbb17305ddec26ae15174062fc19627e068240df35b37d08836b7355877a72",
+        "executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+        "cmake_cache_sha256": "2ee72e00fce2d5db3f8360342c63977e4718a6d37d3c7e3a8fe0651d340081a4",
+        "slices": "x86_64 arm64",
+        "observed_malloc_environment": {},
+        "interpretation": "Inspect every process result; any numerical failure remains a failed campaign. An all-success replay does not fix or close the original K1 failure."
+      },
+      "artifact_id": 12291908749,
+      "artifact_name": "k1-native-intel-reference-7480154d7c6f4596925992df1a7bd61940d6468d",
+      "artifact_zip_sha256": "0bf37d2d15f675fdb22823e03544942207b4e82b27596b6d59a0dc5d6dc64ab9",
+      "workflow_run_id": 39482712051
+    },
+    {
+      "kind": "original-replay",
+      "execution_mode": "apple-silicon",
+      "origin": "reference",
+      "architecture": "arm64",
+      "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t14.8.9\nBuildVersion:\t\t23J631\n",
+      "cpu_brand": null,
+      "executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+      "validated_cases": 1680,
+      "verified_logs": 28,
+      "manifest": {
+        "schema": 1,
+        "state": "complete",
+        "origin": "reference",
+        "execution_mode": "apple-silicon",
+        "artifact_id": 12185332231,
+        "original_source_commit": "fb3114eb829442223083e103929a15ad25d3efeb",
+        "expected_executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+        "process_timeout_seconds": 120,
+        "process_count": 14,
+        "rebuild": false,
+        "fp_override": false,
+        "results": [
+          {
+            "waveform": 0,
+            "architecture": "arm64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "0"
+            ],
+            "log_file": "arm64-waveform-0.txt",
+            "returncode": 0,
+            "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 0,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "0"
+            ],
+            "log_file": "x86_64-waveform-0.txt",
+            "returncode": 0,
+            "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 1,
+            "architecture": "arm64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "1"
+            ],
+            "log_file": "arm64-waveform-1.txt",
+            "returncode": 0,
+            "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 1,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "1"
+            ],
+            "log_file": "x86_64-waveform-1.txt",
+            "returncode": 0,
+            "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 0,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "arm64-waveform-2.txt",
+            "returncode": 0,
+            "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 3,
+            "architecture": "arm64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "3"
+            ],
+            "log_file": "arm64-waveform-3.txt",
+            "returncode": 0,
+            "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 3,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "3"
+            ],
+            "log_file": "x86_64-waveform-3.txt",
+            "returncode": 0,
+            "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 1,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "arm64-waveform-2-cold-1.txt",
+            "returncode": 0,
+            "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 1,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-1.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 2,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "arm64-waveform-2-cold-2.txt",
+            "returncode": 0,
+            "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 2,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-2.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 3,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "arm64-waveform-2-cold-3.txt",
+            "returncode": 0,
+            "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 3,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-3.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          }
+        ],
+        "purpose": "Original K1 binary replay; not root cause, CPU or native host acceptance",
+        "production_promotion_allowed": false,
+        "native_host_acceptance": false,
+        "translation_probe": {
+          "returncode": 0,
+          "stdout": "0",
+          "stderr": ""
+        },
+        "execution_plan": [
+          {
+            "waveform": 0,
+            "architecture": "arm64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 0,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 1,
+            "architecture": "arm64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 1,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 3,
+            "architecture": "arm64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 3,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 1
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 1
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 2
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 2
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 3
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 3
+          }
+        ],
+        "runner_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+        "runtime_platform": "macOS-14.8.9-arm64-arm-64bit-Mach-O",
+        "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t14.8.9\nBuildVersion:\t\t23J631\n",
+        "runner_image": "20260831.0302.1",
+        "runner_architecture": "arm64",
+        "original_zip_sha256": "cdcbb17305ddec26ae15174062fc19627e068240df35b37d08836b7355877a72",
+        "executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+        "cmake_cache_sha256": "2ee72e00fce2d5db3f8360342c63977e4718a6d37d3c7e3a8fe0651d340081a4",
+        "slices": "x86_64 arm64",
+        "observed_malloc_environment": {},
+        "interpretation": "Inspect every process result; any numerical failure remains a failed campaign. An all-success replay does not fix or close the original K1 failure."
+      },
+      "artifact_id": 12293065802,
+      "artifact_name": "k1-original-replay-reference-7480154d7c6f4596925992df1a7bd61940d6468d",
+      "artifact_zip_sha256": "bd0940460c584986df1ff33468460eaa1a0234ee96cd5793a3e5a2f2237b3e5c",
+      "workflow_run_id": 39482711939
+    },
+    {
+      "kind": "original-replay",
+      "execution_mode": "apple-silicon",
+      "origin": "candidate",
+      "architecture": "arm64",
+      "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t14.8.9\nBuildVersion:\t\t23J631\n",
+      "cpu_brand": null,
+      "executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+      "validated_cases": 1680,
+      "verified_logs": 28,
+      "manifest": {
+        "schema": 1,
+        "state": "complete",
+        "origin": "candidate",
+        "execution_mode": "apple-silicon",
+        "artifact_id": 12186151118,
+        "original_source_commit": "fb3114eb829442223083e103929a15ad25d3efeb",
+        "expected_executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+        "process_timeout_seconds": 120,
+        "process_count": 14,
+        "rebuild": false,
+        "fp_override": false,
+        "results": [
+          {
+            "waveform": 0,
+            "architecture": "arm64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "0"
+            ],
+            "log_file": "arm64-waveform-0.txt",
+            "returncode": 0,
+            "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 0,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "0"
+            ],
+            "log_file": "x86_64-waveform-0.txt",
+            "returncode": 0,
+            "log_sha256": "bcce011ddc81b698ae0e9673cac00a2b6a2bf0880ab3039d42140956a07efd30",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 1,
+            "architecture": "arm64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "1"
+            ],
+            "log_file": "arm64-waveform-1.txt",
+            "returncode": 0,
+            "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 1,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "1"
+            ],
+            "log_file": "x86_64-waveform-1.txt",
+            "returncode": 0,
+            "log_sha256": "728c56cb00c7bb65738c3819f6061986a5b93bcf09c377b324f8b0017241b887",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 0,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "arm64-waveform-2.txt",
+            "returncode": 0,
+            "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 3,
+            "architecture": "arm64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "3"
+            ],
+            "log_file": "arm64-waveform-3.txt",
+            "returncode": 0,
+            "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 3,
+            "architecture": "x86_64",
+            "cold_run": 0,
+            "arguments": [
+              "--waveform",
+              "3"
+            ],
+            "log_file": "x86_64-waveform-3.txt",
+            "returncode": 0,
+            "log_sha256": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+            "validated_cases": 120
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 1,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "arm64-waveform-2-cold-1.txt",
+            "returncode": 0,
+            "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 1,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-1.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 2,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "arm64-waveform-2-cold-2.txt",
+            "returncode": 0,
+            "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 2,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-2.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 3,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "arm64-waveform-2-cold-3.txt",
+            "returncode": 0,
+            "log_sha256": "c3866cb236b8d22eecf87efc0fa6a18512c2d1c7e45b9f03f366ac863e727990",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 3,
+            "arguments": [
+              "--diagnostic-waveform",
+              "2"
+            ],
+            "log_file": "x86_64-waveform-2-cold-3.txt",
+            "returncode": 0,
+            "log_sha256": "05a07296c6c434c9d2a86b482974203af744acff4dd914258ffb0b77ee0e19d4",
+            "validated_cases": 120,
+            "fingerprint_table_sha256": "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+          }
+        ],
+        "purpose": "Original K1 binary replay; not root cause, CPU or native host acceptance",
+        "production_promotion_allowed": false,
+        "native_host_acceptance": false,
+        "translation_probe": {
+          "returncode": 0,
+          "stdout": "0",
+          "stderr": ""
+        },
+        "execution_plan": [
+          {
+            "waveform": 0,
+            "architecture": "arm64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 0,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 1,
+            "architecture": "arm64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 1,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 3,
+            "architecture": "arm64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 3,
+            "architecture": "x86_64",
+            "cold_run": 0
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 1
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 1
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 2
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 2
+          },
+          {
+            "waveform": 2,
+            "architecture": "arm64",
+            "cold_run": 3
+          },
+          {
+            "waveform": 2,
+            "architecture": "x86_64",
+            "cold_run": 3
+          }
+        ],
+        "runner_source_commit": "7480154d7c6f4596925992df1a7bd61940d6468d",
+        "runtime_platform": "macOS-14.8.9-arm64-arm-64bit-Mach-O",
+        "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t14.8.9\nBuildVersion:\t\t23J631\n",
+        "runner_image": "20260831.0302.1",
+        "runner_architecture": "arm64",
+        "original_zip_sha256": "247fe73cec4300ff828cd529993fdcb9572def3edb9388c9f0918165814fda6c",
+        "executable_sha256": "3228d4d226e7e5f6b213773831406b326a74a260340ed738e012efa1009cccd0",
+        "cmake_cache_sha256": "724ef070e4f53f378735996c4f76517784a2e44b5618971234633efd5b6100b1",
+        "slices": "x86_64 arm64",
+        "observed_malloc_environment": {},
+        "interpretation": "Inspect every process result; any numerical failure remains a failed campaign. An all-success replay does not fix or close the original K1 failure."
+      },
+      "artifact_id": 12292786431,
+      "artifact_name": "k1-original-replay-candidate-7480154d7c6f4596925992df1a7bd61940d6468d",
+      "artifact_zip_sha256": "192ab362227795478308212660ca284113c488fd1a016499aad8c4b619d51d2b",
+      "workflow_run_id": 39482711939
+    }
+  ],
+  "triangle_fingerprint_groups": {
+    "native-intel/x86_64": {
+      "observations": 8,
+      "unique_table_sha256": [
+        "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+      ]
+    },
+    "apple-silicon/arm64": {
+      "observations": 8,
+      "unique_table_sha256": [
+        "ca1b8aa3bdb0ea55f18b5e3e8a3821171030eeb305235f4e282ed89b91d424a2"
+      ]
+    },
+    "apple-silicon/x86_64": {
+      "observations": 8,
+      "unique_table_sha256": [
+        "998b01c921eb167ffbeba5f60a8245d902b949a158e20fc3e3132e2d61ac37c1"
+      ]
+    }
+  },
+  "verified_log_files": 122,
+  "counts": {
+    "sanitized_cases": 1920,
+    "native_intel_cases": 1680,
+    "apple_silicon_replay_cases": 3360
+  },
+  "k1_status": "Not reproduced in these campaigns; cause and fix remain unknown",
+  "production_promotion_allowed": false,
+  "native_host_acceptance": false,
+  "ci_summary": {
+    "pr": 126,
+    "workflow_count": 7,
+    "job_count": 22,
+    "all_success": true
+  },
+  "local_validator_tests": {
+    "replay_csv_host": 19,
+    "sanitizer_control": 5,
+    "all_success": true
+  },
+  "expected_negative_control_reports": 8,
+  "interpretation": [
+    "The reported log count includes preserved copies of the original logs in several archives, not 122 independent executions.",
+    "Triangle table SHA256 values hash FNV-1a diagnostic fingerprints, not raw audio.",
+    "The x86_64 Triangle table hash matched in all eight native Intel and eight Rosetta observations. ARM64 is a separate executable slice and has its own table hash.",
+    "No sanitizer report or numerical divergence occurred in the tested engine grids. Intentional sanitizer control reports are expected failures.",
+    "Sanitized builds differ from the original archived executable; absence of findings does not exclude every uninitialized read, race, logic or environment error.",
+    "No native REAPER/plugin/audiointerface/CPU acceptance or production promotion is implied."
+  ]
+}

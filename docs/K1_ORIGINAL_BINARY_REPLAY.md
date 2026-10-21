@@ -5,7 +5,15 @@ Alap: `9383d46d45bd1569616f0f5452137e2ef2e55646`, a #123 beolvasztása után.
 A #123 összesen 19 workflow-ja / 59 jobja sikeres volt; a megelőző main négy
 workflow-ja is sikeres. Az új main saját ellenőrzése külön kapu.
 
-## Elvégzett kampány — 2026-10-20
+## Legfrissebb kontrollok
+
+A #126-ban az eredeti executable natív Intel macOS-en és újabb
+Apple Silicon/Rosetta kampányban is hibamentesen futott. A kalibrált
+sanitizer-gridek is sikeresek; minden csomag helyileg újraellenőrzött.
+[Összesített eredmény és értelmezés](K1_NATIVE_SANITIZER_RESULTS_2026_10_20.md).
+Az alábbi #124-kampány történeti bizonyítéka változatlanul megmarad.
+
+## Elvégzett #124-kampány — 2026-10-20
 
 A [39463485911-es workflow](https://github.com/RobCZart82/SAWSTAR/actions/runs/39463485911)
 a `5f859452cfdf48d27757b40d18692c8f804a001d` headen sikeres.
@@ -30,7 +38,7 @@ A #124 mind az öt PR-workflow-ja / 14 jobja sikeres; a megelőző main négy
 workflow-ja / 11 jobja is sikeres. #124 beolvadt:
 `16f024e3bad4a84cd21f22362694f711e18fdf07`.
 Az új main és a következő PR saját CI-je külön kapu.
-Következő a [setup alatti IE műveletszintű lokalizálása](K1_SETUP_FP_LOCALIZATION.md).
+Ezt követte a [setup alatti IE műveletszintű lokalizálása](K1_SETUP_FP_LOCALIZATION.md).
 Ez a sikeres replay nem írja felül az eredeti negatív bizonyítékot.
 
 ## Miért ez a következő lépés?
