@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/prepare-native-host-kit.py'
+      - 'scripts/native-host-midi.py'
       - 'scripts/package-premium-preview.py'
       - 'tests/native_host_kit.py'
       - 'tests/premium_preview_package.py'
@@ -12,6 +13,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/prepare-native-host-kit.py'
+      - 'scripts/native-host-midi.py'
       - 'scripts/package-premium-preview.py'
       - 'tests/native_host_kit.py'
       - 'tests/premium_preview_package.py'
@@ -38,3 +40,12 @@ jobs:
         run: |
           python3 tests/premium_preview_package.py
           python3 tests/native_host_kit.py
+      - name: Prepare deterministic MIDI inputs without plugins
+        run: >-
+          python3 scripts/native-host-midi.py --output native-midi-inputs
+          --source "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-host-midi-inputs
+          path: native-midi-inputs/
+          if-no-files-found: error
