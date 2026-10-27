@@ -10,6 +10,15 @@ a teljes C/V/G/F tesztmátrixot és a döntési feltételeket a
 A terv natív tartalékcélja futás előtt rögzítendő javaslat, nem meglévő
 mérési eredmény vagy az offline CPU-küszöb átírása.
 
+## macOS alappróba — visszajelzés 2026-10-27
+
+Robert mindkét telepített Reference/Candidate plugin működését és hangját
+hibamentesnek jelezte. [Pontos hatókör, forrás és telepített hashok](NATIVE_HOST_SMOKE_2026_10_27.md).
+Ez sikeres felhasználói alappróba; a 28 eset / 112 ablak CPU-/dropout-mérése,
+a külön GUI/state/preset-próbák és a Windows-elfogadás még nyitottak.
+Következő: a C 48 kHz /128 AUTO négy módjának rögzített AB/BA előszűrése
+**(sajátgépes reaper)**. K1 és a production/RC/publikálási kapuk változatlanok.
+
 ## Kiegészítő hibajavítási próbák — 2026-10-20
 
 Az [audit javítási terve](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md) B1/R1/B2/Q1

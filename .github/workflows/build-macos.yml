@@ -11,8 +11,9 @@ concurrency:
   cancel-in-progress: true
 jobs:
   foundation:
+    # Stable required-check name in ruleset 23025854; actual runner is macos-15.
     name: macos-14 / ${{ matrix.config }}
-    runs-on: macos-14
+    runs-on: macos-15
     # The complete unoptimized DSP suite exceeded 25 minutes on hosted macOS.
     # Include the full-engine waveform grid; keep every test enabled.
     timeout-minutes: ${{ matrix.config == 'Debug' && 45 || 15 }}
@@ -55,7 +56,7 @@ jobs:
     name: VST3 Universal / Release
     env:
       SAWSTAR_MAC_ARCHS: "arm64;x86_64"
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
