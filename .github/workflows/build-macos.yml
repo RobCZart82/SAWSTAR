@@ -11,7 +11,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   foundation:
-    name: macos-15 / ${{ matrix.config }}
+    # Stable required-check name in ruleset 23025854; actual runner is macos-15.
+    name: macos-14 / ${{ matrix.config }}
     runs-on: macos-15
     # The complete unoptimized DSP suite exceeded 25 minutes on hosted macOS.
     # Include the full-engine waveform grid; keep every test enabled.

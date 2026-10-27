@@ -28,8 +28,8 @@ futás megmarad, eredményét nem írjuk át sikeresre.
 
 ## A módosítás és kapuja
 
-Csak a fő macOS buildworkflow két `runs-on` értéke és a foundation kijelzett
-gépneve változik. A `macos-latest` mozgó alias helyett explicit `macos-15`
+A fő macOS buildworkflow két `runs-on` értéke változik; a foundation
+kötelező checkneve visszafelé kompatibilis marad. A `macos-latest` mozgó alias helyett explicit `macos-15`
 szerepel. A Debug/Release tesztmátrix, összes teszt, benchmarkküszöb,
 időkeret és függőségpin megmarad. A Universal VST3 továbbra arm64+x86_64,
 11.0 deployment targettel, validatorral, csomag-/installerpróbával készül.
@@ -41,5 +41,23 @@ Intel-próba, és nem oldja fel K1-et vagy a production/RC/publikálási kaput.
 A többi, külön macOS workflow kivezetési felülvizsgálata külön feladat;
 azok régi diagnosztikai eredményeit ez a változás nem írja át.
 
-Ellenőrzés: a workflow szöveges diffje kizárólag a fenti három értéket érinti;
-a pontos head workflow-lintje és teljes négy fő workflow-ja külön igazolandó.
+## Kötelező checknevek és igazolt futás
+
+A `c45b66228851cfc2721f44d27f6ed1458532c129` head mind a négy workflow-ja /
+11 jobja sikeresen befejeződött, köztük a macOS 15 Debug/Release és Universal
+VST3/validator/installer ellenőrzése. Ez a kör már nem félkész.
+
+A beolvasztás ellenőrzésekor a [main ruleset 23025854](https://github.com/RobCZart82/SAWSTAR/rules/23025854)
+még `macos-14 / Debug` és `macos-14 / Release` nevű kötelező checkeket várt.
+A runnercsere melletti névcsere ezért a sikeres tesztek ellenére blokkolta a
+merge-et. A workflow visszaállítja a két stabil checknevet; ugyanazokban a
+teljes jobokban továbbra ténylegesen `macos-15` gép és változatlan tesztek futnak.
+A megjelenő `macos-14` szöveg ebben a két checknévben örökölt azonosító,
+nem a tényleges OS állítása; a `runs-on`, runneradatok és setupnapló mutatják
+az új környezetet. A workflow kommentje ezt külön jelzi.
+
+A védelmi szabály nem változik, nincs bypass, helyettesítő sikerjelzés vagy
+teszt nélküli bridge-job. Az új head összes checkjének és a teljes előző
+mainnek ismét sikeresnek kell lennie. A c45b662 kör eredménye nem másolható
+át az új headre. Későbbi, összehangolt ruleset-átnevezésnél a megjelenített
+checknév is modernizálható.
