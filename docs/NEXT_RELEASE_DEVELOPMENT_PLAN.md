@@ -22,6 +22,13 @@ esethez vagy konkrét hipotézishez kötött. A következő prioritás a natív
 Reference/Candidate host-/REAPER-elfogadás. Production/RC/publikálási kapu
 ettől nem teljesült; az új main és e dokumentáció friss CI-je külön kapu.
 
+## macOS CI futtatókörnyezet — 2026-10-27
+
+A fő `Build macos foundation` workflow a kivezetés alatt álló `macos-14`
+helyett rögzített `macos-15` gépet kér.
+[Indok, megőrzött elakadás és ellenőrzési feltételek](CI_MACOS_RUNNER_2026_10_27.md).
+Az új head teljes CI-je külön kapu; ez nem K1-javítás vagy natív host-elfogadás.
+
 ## macOS alappróba — visszajelzés 2026-10-27
 
 Robert mindkét telepített Reference/Candidate plugin működését és hangját
