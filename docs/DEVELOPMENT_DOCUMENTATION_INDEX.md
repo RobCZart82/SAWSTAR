@@ -1,6 +1,6 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
-Utolsó állapotfrissítés: **2026-10-20**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
+Utolsó állapotfrissítés: **2026-10-27**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 
@@ -22,6 +22,7 @@ ettől nem teljesült; az új main és e dokumentáció friss CI-je külön kapu
 
 | Dokumentum | Szerepe |
 | --- | --- |
+| [macOS felhasználói alappróba — 2026-10-27](NATIVE_HOST_SMOKE_2026_10_27.md) | Robert sikeres Reference/Candidate működési/hang-visszajelzése; ellenőrzött telepített hashok, hiányzó mérési adatok és következő sajátgépes lépés. |
 | [K1 natív és sanitizer-eredmények](K1_NATIVE_SANITIZER_RESULTS_2026_10_20.md) | A #126 mért eredményei, helyi raw-data audit, nyitott K1 és a natív host-elfogadásra visszatérő prioritás. |
 | [K1 natív/sanitizer módszertan](K1_NATIVE_AND_SANITIZER_CONTROLS.md) | Az eredeti Intel-bináris és az új instrumentált kalibrált pár külön tesztterve és értelmezési korlátai. |
 | [Következő release fejlesztési terve](NEXT_RELEASE_DEVELOPMENT_PLAN.md) | Az M0–M9 sorrend, a valós REAPER CPU-terv, a döntési feltételek és a külön végső RC/publikálási kapu. Ez a részletes végrehajtási terv. |

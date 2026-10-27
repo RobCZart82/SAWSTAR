@@ -1,6 +1,6 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
-Terv dátuma: **2026-10-17**, állapotfrissítés: **2026-10-21**. Tulajdonos és zenei elfogadó: Robert.
+Terv dátuma: **2026-10-17**, állapotfrissítés: **2026-10-27**. Tulajdonos és zenei elfogadó: Robert.
 A kiinduló nyilvános verzió 1.0.4; az új verziószám és kiadási dátum még nincs kijelölve.
 A végrehajtási terv nem jelent release-, tag- vagy publikálási engedélyt.
 
@@ -22,7 +22,16 @@ esethez vagy konkrét hipotézishez kötött. A következő prioritás a natív
 Reference/Candidate host-/REAPER-elfogadás. Production/RC/publikálási kapu
 ettől nem teljesült; az új main és e dokumentáció friss CI-je külön kapu.
 
-## Következő végrehajtási lépés — 2026-10-21
+## macOS alappróba — visszajelzés 2026-10-27
+
+Robert mindkét telepített Reference/Candidate plugin működését és hangját
+hibamentesnek jelezte. [Pontos hatókör, forrás és telepített hashok](NATIVE_HOST_SMOKE_2026_10_27.md).
+Ez sikeres felhasználói alappróba; a 28 eset / 112 ablak CPU-/dropout-mérése,
+a külön GUI/state/preset-próbák és a Windows-elfogadás még nyitottak.
+Következő: a C 48 kHz /128 AUTO négy módjának rögzített AB/BA előszűrése
+**(sajátgépes reaper)**. K1 és a production/RC/publikálási kapuk változatlanok.
+
+## Előkészítés története — 2026-10-21
 
 #127 beolvadt (`28ec3c1`), négy PR-workflow / 11 job sikeres.
 A [macOS natív méréselőkészítő](NATIVE_HOST_KIT.md) külön fejlesztési lépés:

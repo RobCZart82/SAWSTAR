@@ -1,4 +1,4 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-20
+# Elfogadott fejlesztési sorrend — állapot: 2026-10-27
 
 **A release-ig vezető részletes végrehajtási terv és a valós REAPER CPU-elfogadás:**
 [NEXT_RELEASE_DEVELOPMENT_PLAN.md](NEXT_RELEASE_DEVELOPMENT_PLAN.md).
@@ -12,6 +12,15 @@ B1 [#118-ként beolvadt](B1_CONTROL_SMOOTHING_FIX.md), CI sikeres; B2 [#119-kén
 külön; K1 a #116 ismert numerikus blokkolója. A D/Q/T feladatok külön követik a
 dokumentációt, metadata-policyt és a tényleges natív lefedettséget. A részletes
 M0–M9 kiadási tervbe bekötve; az implementáció és az elfogadás külön követendő.
+
+## macOS alappróba — visszajelzés 2026-10-27
+
+Robert mindkét telepített Reference/Candidate plugin működését és hangját
+hibamentesnek jelezte. [Pontos hatókör, forrás és telepített hashok](NATIVE_HOST_SMOKE_2026_10_27.md).
+Ez sikeres felhasználói alappróba; a 28 eset / 112 ablak CPU-/dropout-mérése,
+a külön GUI/state/preset-próbák és a Windows-elfogadás még nyitottak.
+Következő: a C 48 kHz /128 AUTO négy módjának rögzített AB/BA előszűrése
+**(sajátgépes reaper)**. K1 és a production/RC/publikálási kapuk változatlanok.
 
 ## K1 — aktuális állapot a #126 után
 
