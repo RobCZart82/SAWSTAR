@@ -91,5 +91,55 @@ macOS felhasználói hangpróba hatóköre nem bővül.
   `git diff --check` sikeres.
 - A két eredeti forrással futtatott negatív kontroll a leírt hibával elbukott.
 
-Távoli workflow-futtatás, Windows build, teljes VST3-build és valódi
-REAPER-próba ebben a körben nincs; ezek külön kapuk.
+Az alábbi távoli állapot az eredeti audit-headhez tartozik; a későbbi
+LFO-kódmódosítás saját CI-je új, külön kapu. Natív elfogadást nem jelent.
+
+
+## Távoli CI és LFO-költség korrekció — 2026-11-02
+
+A #132 eredeti headje `8b164082`, base `b24f4451`, a CI tesztmerge-je
+`4160c8ed`. Mind a 23 workflow befejeződött: 22 sikeres; az összes 71 job közül 70 sikeres. A macOS foundation
+Debug és Universal VST3 job sikeres; Release-ben 142/142 CTest és a külön
+source/engine audit is sikeres, de a production CPU-kapu hibás.
+[Negatív futás, attempt 2](https://github.com/RobCZart82/SAWSTAR/actions/runs/41503133369/attempts/2).
+A hét, géphiány miatt el sem indult job korábbi infrastruktúrahibája külön
+esemény; nem keverhető össze a tényleges CPU-küszöbtúllépéssel.
+
+A megőrzött artifact `13183531221`, feltöltési ZIP SHA-256:
+`6b8866bfbb24821ae62a32a8f629acb6b49e9ffae64ebf84b6461be0846aec39`.
+Mind a 18 CSV hashét ellenőriztük és a mediánokat újraszámoltuk.
+`full_fx / 8`: baseline 9,00337495%, current 11,2677562% valós idejű CPU;
++25,1503604%, a változatlan +25% és +1,0 százalékpontos kapu hibázik.
+A határ 11,2542186875%; a túllépés 0,0135375125 százalékpont. A kis különbség
+nem ok az eredmény figyelmen kívül hagyására vagy a mérés ismétlésére.
+
+A korábbi zöld main [futásának](https://github.com/RobCZart82/SAWSTAR/actions/runs/40564944069)
+18 CSV-je is hash-ellenőrzött. Azonos baseline bináris mellett a 16 hangos
+full_fx baseline medián 17,1184% → 21,5343%, a current 19,7063% → 19,6055%.
+A workload és a küszöbök azonosak, az operációs rendszer verziója eltér.
+Ez időzítési változást mutat, de nem bizonyít infrastruktúra-eredetű felmentést.
+A benchmark rögzített referenciája `08730644`, nem a PR előtti main;
+a +25,15% ezért önmagában nem rendelhető a #132-höz.
+
+A #132 egyetlen audioút-változása az LFO-mélységsimító lecsengési védelme.
+AppleClang 21 arm64 `-O3 -DNDEBUG` külön fordított Process-próbájában az
+új rövidzáras feltétel a teljes függvény feltételes ugrásait 7-ről 18-ra,
+a gépi utasítássorokat 122-ről 188-ra növelte. Ez statikus kódelemzés,
+nem a CI-lassulás gyökérok-bizonyítása és nem CPU-mérés.
+
+A korrekció a két tiszta bool összehasonlítást rövidzár nélkül értékeli
+(`&` bool operandusokkal). A zéruscél-feltétel, az 1e-24 küszöb és az
+aritmetikai simítórecurrencia változatlan. Ugyanabban a fordítási próbában
+7 feltételes ugrás és 131 utasítássor keletkezik; a nullázás feltételes
+választóutasítást használ. Más fordító eredményét ez nem garantálja.
+
+A korábbi rövidzáras implementációval végzett helyi differenciális próba
+34 231 616 mintán az összes kimenet, Value és Phase bitazonosságát igazolta:
+öt mintavételi ráta, 64 vezérlésváltás/rátánként, mind a négy cél és alak,
+zéró/normál/nagyon kis nem zéró mélység, sync/retrigger és célváltás.
+Ez numerikus ekvivalenciapróba, nem kedvezőbb eredményért ismételt CPU-kapu.
+A Debug lecsengési regresszió sikeres (1/1). Az új Release újrafordítás
+és a teljes 142/142 CTest sikeres (220,18 s); metadata és diff-ellenőrzés
+sikeres. Az új head távoli CI-je még függő; a korábbi piros eredmény megmarad.
+A korrekció nem tekinthető a CPU-blokkoló bizonyított lezárásának.
+K1 és a natív REAPER/Windows/CPU-elfogadás változatlanul nyitott.

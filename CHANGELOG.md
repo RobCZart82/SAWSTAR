@@ -5,7 +5,8 @@
 - Migrate the remaining macOS 14 CI runners to macOS 15, including Preview,
   qualification and diagnostic workflows; keep the dispatch artifact pair aligned.
 - Finish inaudible zero-target LFO depth tails before floating-point underflow,
-  including fades from a previous modulation destination.
+  including fades from a previous modulation destination; avoid per-depth
+  short-circuit branches in the new tail guard.
 - Remove the unbounded process-local favorites mutex; retain timed filesystem
   locking and atomic replacement across threads and processes.
 - Stop zero-target mixer, mod-wheel and pressure smoothing before float underflow (#118).

@@ -28,7 +28,9 @@ public:
    depths_[i]+=slew_*(goal-depths_[i]);
    // Finish inaudible zero-target tails before gradual underflow. Preserve
    // the recurrence for nonzero depths and the audible part of each fade.
-   if(goal==0.f&&std::abs(depths_[i])<1.e-24f)depths_[i]=0.f;
+   // Both comparisons are pure and finite. Evaluate both so compilers can
+   // select zero without a short-circuit branch for every depth/sample.
+   if((goal==0.f)&(std::abs(depths_[i])<1.e-24f))depths_[i]=0.f;
   }
   return {value_*depths_[0]*24, value_*depths_[1],1-depths_[2]*(value_+1)*.5f,value_*depths_[3]};
  }
