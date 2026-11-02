@@ -23,7 +23,13 @@ public:
   switch(shape_){case 0:raw=static_cast<float>(std::sin(6.283185307179586*phase_));break;case 1:raw=static_cast<float>(1-4*std::abs(phase_-.5));break;case 2:raw=static_cast<float>(2*phase_-1);break;default:raw=phase_<.5?1.f:-1.f;}
   value_+=edge_*(raw-value_);
   phase_+=hz_/rate_;phase_-=std::floor(phase_);
-  for(int i=0;i<4;++i)depths_[i]+=slew_*((i==target_?depth_:0)-depths_[i]);
+  for(int i=0;i<4;++i){
+   const float goal=i==target_?depth_:0;
+   depths_[i]+=slew_*(goal-depths_[i]);
+   // Finish inaudible zero-target tails before gradual underflow. Preserve
+   // the recurrence for nonzero depths and the audible part of each fade.
+   if(goal==0.f&&std::abs(depths_[i])<1.e-24f)depths_[i]=0.f;
+  }
   return {value_*depths_[0]*24, value_*depths_[1],1-depths_[2]*(value_+1)*.5f,value_*depths_[3]};
  }
  float Value()const{return value_;}

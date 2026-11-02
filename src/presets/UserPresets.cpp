@@ -376,7 +376,8 @@ std::set<std::string> ChangeFavorite(const fs::path& root,const std::string& key
   if(hasLineBreak(key)||(moveTo&&hasLineBreak(*moveTo)))
     throw std::runtime_error("Preset paths containing line breaks cannot be favorites.");
   // No filesystem work or locking on the audio callback.
-  static std::mutex mutex;std::lock_guard<std::mutex> local(mutex);
+  // FavoritesLock already excludes separate handles in this process as well
+  // as other processes. Do not wait on an unbounded mutex before its timeout.
   fs::create_directories(root);FavoritesLock lock(root/"favorites.lock");auto next=ReadFavoritesUnlocked(root);
   if(moveTo){if(!next.erase(key))return next;if(!moveTo->empty())next.insert(*moveTo);}
   else if(!next.erase(key))next.insert(key);

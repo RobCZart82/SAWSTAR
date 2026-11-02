@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, macos-14]
+        os: [windows-2022, macos-15]
     runs-on: ${{ matrix.os }}
     # Four modulated grids took ~13 minutes in run 38633852888 on Windows.
     # Thirty-two grids plus qualification/raw review can exceed 90 minutes.
@@ -69,7 +69,7 @@ jobs:
           path: ${{ runner.temp }}/dispatch-windows
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: dispatch-cpu-macos-14
+          name: dispatch-cpu-macos-15
           path: ${{ runner.temp }}/dispatch-macos
       - name: Recompute raw evidence and retain every round
         shell: bash

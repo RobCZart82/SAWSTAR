@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [windows-2022, macos-14]
+        runner: [windows-2022, macos-15]
         role: [reference, candidate]
     env:
       SAWSTAR_PAIR_ROLE: ${{ matrix.role }}

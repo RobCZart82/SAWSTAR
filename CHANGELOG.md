@@ -2,7 +2,21 @@
 
 ## Unreleased
 
-No further changes recorded.
+- Migrate the remaining macOS 14 CI runners to macOS 15, including Preview,
+  qualification and diagnostic workflows; keep the dispatch artifact pair aligned.
+- Finish inaudible zero-target LFO depth tails before floating-point underflow,
+  including fades from a previous modulation destination.
+- Remove the unbounded process-local favorites mutex; retain timed filesystem
+  locking and atomic replacement across threads and processes.
+- Stop zero-target mixer, mod-wheel and pressure smoothing before float underflow (#118).
+- Apply the sample-rate-relative frequency ceiling to the SUB oscillator (#119).
+- Reject competing process-local preset UI mutations with a retryable busy response (#120).
+- Add isolated Premium Reference/Candidate builds, package qualification and native
+  host measurement kits; add deterministic MIDI inputs and GUI-scale project state.
+- Add numerical diagnostics and replay/sanitizer controls. The K1 cause remains
+  unknown; native CPU acceptance and production promotion remain open.
+
+Local validation and remaining gates: [2026-11-02 audit fixes](docs/AUDIT_FIXES_2026_11_02.md).
 
 ## 1.0.4 - 2026-10-02
 

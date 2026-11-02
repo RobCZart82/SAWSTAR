@@ -36,7 +36,7 @@ jobs:
             study: tanh
             target: sawstar_premium_tanh_deadline
             contract: premium_tanh_deadline_fixture
-          - os: macos-14
+          - os: macos-15
             study: tanh
             target: sawstar_premium_tanh_deadline
             contract: premium_tanh_deadline_fixture
@@ -44,7 +44,7 @@ jobs:
             study: simd-fir
             target: sawstar_premium_simd_deadline
             contract: premium_simd_deadline_fixture
-          - os: macos-14
+          - os: macos-15
             study: simd-fir
             target: sawstar_premium_simd_deadline
             contract: premium_simd_deadline_fixture
@@ -52,7 +52,7 @@ jobs:
             study: rate-simd-fir
             target: sawstar_premium_rate_simd_deadline
             contract: premium_rate_simd_deadline_fixture
-          - os: macos-14
+          - os: macos-15
             study: rate-simd-fir
             target: sawstar_premium_rate_simd_deadline
             contract: premium_rate_simd_deadline_fixture
@@ -60,7 +60,7 @@ jobs:
             study: gain-normalization
             target: sawstar_premium_gain_deadline
             contract: premium_gain_deadline_fixture
-          - os: macos-14
+          - os: macos-15
             study: gain-normalization
             target: sawstar_premium_gain_deadline
             contract: premium_gain_deadline_fixture
@@ -68,7 +68,7 @@ jobs:
             study: rate-gain-normalization
             target: sawstar_premium_rate_gain_deadline
             contract: premium_rate_gain_deadline_fixture
-          - os: macos-14
+          - os: macos-15
             study: rate-gain-normalization
             target: sawstar_premium_rate_gain_deadline
             contract: premium_rate_gain_deadline_fixture
@@ -76,7 +76,7 @@ jobs:
             study: rate-lookup
             target: sawstar_premium_lookup_deadline
             contract: premium_lookup_deadline_fixture
-          - os: macos-14
+          - os: macos-15
             study: rate-lookup
             target: sawstar_premium_lookup_deadline
             contract: premium_lookup_deadline_fixture
@@ -85,7 +85,7 @@ jobs:
             workload: modulated-v1
             target: sawstar_premium_lookup_deadline
             contract: premium_lookup_modulated_deadline_fixture
-          - os: macos-14
+          - os: macos-15
             study: rate-lookup
             workload: modulated-v1
             target: sawstar_premium_lookup_deadline

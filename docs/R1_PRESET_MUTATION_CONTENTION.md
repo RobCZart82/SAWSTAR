@@ -2,6 +2,12 @@
 
 Állapot: a korlátlan process-local mutex-várakozás célzott javítása implementált;
 teljes natív GUI-/I/O-elfogadás továbbra nyitott.
+
+**2026-11-02-i helyi kiegészítés:** a kedvencek módosítása elől is kikerül
+a korlátlan process-local mutex. A meglévő, időkorlátos `FavoritesLock`
+védi a teljes read-modify-write műveletet szálak és folyamatok között.
+[Részletek és ellenőrzés](AUDIT_FIXES_2026_11_02.md#3-kedvencek-zárolása).
+Ez nem teljes R1-lezárás: a fájlzár és az I/O továbbra várakoztathat.
 Forrásalap: main `661fe6147fe3539ee160e7236ecb555c98053f1b` (#119 után).
 [R1 feladat és elfogadás](BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md#5-r1--több-példány-presetműveleteinek-gui-várakozása).
 

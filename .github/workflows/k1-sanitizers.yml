@@ -43,7 +43,7 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        os: [macos-14, macos-15-intel]
+        os: [macos-15, macos-15-intel]
         revision: [original, current]
     env:
       ASAN_OPTIONS: detect_leaks=0:halt_on_error=1:abort_on_error=1

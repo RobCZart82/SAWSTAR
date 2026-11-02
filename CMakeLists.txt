@@ -166,6 +166,10 @@ endif()
 
 if(BUILD_TESTING)
 
+  add_executable(sawstar_lfo_smoothing_tests tests/lfo_smoothing.cpp)
+  target_link_libraries(sawstar_lfo_smoothing_tests PRIVATE SAWSTAR::Foundation)
+  add_test(NAME lfo_zero_target_smoothing COMMAND sawstar_lfo_smoothing_tests)
+
   add_executable(
     sawstar_meter_tests
     tests/meter.cpp
