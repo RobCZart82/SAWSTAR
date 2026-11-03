@@ -56,10 +56,11 @@ elfogadás; Windows ARM64 Premium RC e lépésben még nem kvalifikált.
 
 ## Kézikönyv-kiegészítés és kiadási kapuk
 
-A csomagban levő korábbi PDF-kézikönyvek a változatlan kezelőszervekhez és
-presetkezeléshez használhatók. A Premium filter, RC státusz, 32 mintás latency
-és migráció szempontjából ez a kiegészítés az irányadó; a PDF-ek végleges,
-verziózott újrakiadása a release előtt még szükséges.
+A csomagban levő magyar és angol PDF-kézikönyvek most 1.1.0 rc1 kiadásúak,
+15-15 oldallal. Az első két oldal RC-hatókört/telepítést ír le, a 15. fejezet
+a Premium motort, migrációt, 32 mintás latencyt és nyitott kapukat rögzíti.
+A képek változatlanul jelölt 1.0.3 képernyőképek. Végleges publikálás előtt
+a tényleges elfogadott buildhez még egyszer jóvá kell hagyni a kézikönyveket.
 
 Nyitott: a teljes natív Mac/Windows CPU-/dropout-mátrix, filterminőség és
 ráta/puffer döntés; K1 numerikus anomália rendezése; GUI/preset/lifecycle
@@ -70,3 +71,16 @@ nem ennek az RC-nek az elfogadása. A teljes CI sikere is külön feltétel.
 
 Nincs release/tag/publikálás, nincs aláírt/notarizált végleges installer és
 nincs állított natív PASS ebben a fejlesztési lépcsőben.
+
+## RC-provenance
+
+Az első RC-k `source_dirty=true` mezője megmarad történeti bizonyítékként.
+A bootstrap szándékosan javít két rögzített iPlug2 fájlt és a placeholder SDK
+README helyére a rögzített VST3 SDK-t teszi. Az új csomagoló külön ellenőrzi
+a projekt checkout tisztaságát, minden teljes javított fájlt a gitlinkhez
+tartozó eredetiből újra előállított elvárt bájtokkal, az SDK/gyermekrepo pinjeit
+és a tiszta DaisySP-t. CRLF/LF különbséget normalizál az összevetéshez, de a
+nyers és normalizált fájlhashokat is megőrzi. Váratlan változásnál elutasít.
+A nyers dirty jelölést nem állítja hamisan false-ra; a külön
+`source_provenance` mutatja az ellenőrzött, szándékos függőségeltéréseket.
+Ez nem upstream-pristine vagy natív elfogadási állítás.

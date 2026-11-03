@@ -74,3 +74,15 @@ bájtra egyezik az első sikeres helyi gyűjtéssel. actionlint/diff ellenőrzé
 sikeres. A javítás előkészítve; a régi head többi folyamatban levő mérését
 nem szakítjuk meg feltöltéssel. A következő ellenőrzéskor, az aktuális kampány
 lezárása után ugyanebbe a PR-be kerülhet fel. Új PR és mérési retry nincs.
+
+
+## #133 lezárás és RC-dokumentációs lépcső
+
+#133 végső PR-head 22 workflow / 67 job sikeres után beolvadt b9f35574 mainre;
+a main 5 workflow / 12 job sikeres. Publikálást az rc1 guard kihagyta.
+[A tartós csomag-/CI-bizonyíték és az új provenance/PDF munka](PREMIUM_RC_CI_EVIDENCE_2026_11_03.md)
+külön választja a régi mérési forrást az új dokumentációs headtől.
+A magyar/angol RC-kézikönyv 15-15 oldalon elkészült és vizuálisan ellenőrzött.
+A raw dirty mező megtartása mellett új teljesfájl-/pinellenőrzés kerül a
+csomagolásba; a helyi pozitív dependency és negatív checkout kontroll sikeres.
+Az új head CI-je még függő; natív/zenei elfogadás nem történt.

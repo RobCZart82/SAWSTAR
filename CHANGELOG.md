@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Refresh both 1.1.0 rc1 PDF manuals with Premium migration, latency and open gates.
+- Record verified RC artifacts and factory evidence; verify complete pinned
+  dependency patches and checkout provenance before RC packaging, preserving
+  the raw dirty flag and rejecting unexplained changes.
+
 - Prepare 1.1.0 rc1 and an explicit Premium production integration build with
   the SAWSTAR identity, preserved parameters/state and 32-sample latency.
 - Reuse accepted Premium factory trims; add production state/recall checks,
