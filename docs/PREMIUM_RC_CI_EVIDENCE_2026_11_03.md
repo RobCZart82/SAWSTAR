@@ -72,8 +72,20 @@ a generátor és a PDF-ek együtt verziózottak. Ez nem végleges kiadási jóv�
 ## Ellenőrzési státusz
 
 Implementált: dokumentáció/PDF és szigorúbb csomag-provenance.
-Helyileg: négy csomag/provenance regresszió, elvárt dependency teljesfájl-próba,
+Helyileg: öt csomag/provenance regresszió, elvárt dependency teljesfájl-próba,
 módosított projekt negatív kontroll, actionlint, szintaxis, PDF render/text/layout
 és hivatkozás/diff ellenőrzés. E lépcső új pontos-head CI-je még szükséges.
 A korábbi 22/67 és main 5/12 kizárólag az azonosított régi commitokra érvényes.
 Natív és zenei elfogadás: továbbra nyitott; K1 és a rate/buffer döntés szintén.
+
+## #134 review: nem követett iPlug2 fájlok
+
+Az automatizált P2 review felvetését valós, ideiglenes iPlug2 headerrel
+reprodukáltuk: az eredeti ellenőrzés a nem követett fájlt elfogadta, mert
+a git diff csak a követett változásokat leltározta. A korrekció külön
+`git ls-files --others --exclude-standard` leltárt készít, és kizárólag
+a később külön ellenőrzött SDK könyvtárat engedi meg. A váratlan header
+elutasított; törlése után az elvárt függőségfa sikeres. Új, ideiglenes
+Git-repón végrehajtott regresszió őrzi a hibát; öt teszt és a CTest-cél sikeres.
+A teszt saját fájlját minden esetben eltávolította. A futó régi CI-t nem
+szakítjuk meg: e korrekció annak lezárása után kerül ugyanabba a PR-be.

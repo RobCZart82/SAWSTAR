@@ -3,7 +3,7 @@ import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
-import zipfile,json,hashlib
+import zipfile,json,hashlib,subprocess
 from unittest.mock import patch
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('rc',ROOT/'scripts/package-premium-rc.py')
@@ -54,4 +54,17 @@ class CacheTests(unittest.TestCase):
         with patch('rc_provenance.git',side_effect=[b'pinned',b'different']):
             with self.assertRaisesRegex(ValueError,'gitlink'):
                 dependency_provenance(ROOT)
+    def test_untracked_iplug_source_is_rejected_with_only_sdk_exempted(self):
+        from rc_provenance import require_managed_untracked
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            subprocess.run(['git','init','--quiet',folder],check=True)
+            sdk=root/'Dependencies/IPlug/VST3_SDK';sdk.mkdir(parents=True)
+            (sdk/'README.md').write_text('separately verified SDK fixture')
+            require_managed_untracked(root)
+            unexpected=root/'unexpected.h';unexpected.write_text('unexplained source')
+            with self.assertRaisesRegex(ValueError,'untracked iPlug2'):
+                require_managed_untracked(root)
+            unexpected.unlink()
+            require_managed_untracked(root)
 if __name__=='__main__':unittest.main()

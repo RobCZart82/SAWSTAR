@@ -86,3 +86,12 @@ A magyar/angol RC-kézikönyv 15-15 oldalon elkészült és vizuálisan ellenőr
 A raw dirty mező megtartása mellett új teljesfájl-/pinellenőrzés kerül a
 csomagolásba; a helyi pozitív dependency és negatív checkout kontroll sikeres.
 Az új head CI-je még függő; natív/zenei elfogadás nem történt.
+
+
+## #134 P2 review-korrekció
+
+A nem követett iPlug2 header elutasításának hiányát valós helyi fájllal
+reprodukáltuk és külön untracked leltárral javítottuk. Csak a külön
+pin/tisztaság szerint ellenőrzött SDK fa kivétel; más ismeretlen fájl tiltott.
+Öt packaging/provenance teszt, valódi pozitív/negatív dependency-kontroll
+és CTest packaging cél sikeres. Feltöltés az aktuális CI lezárása után.

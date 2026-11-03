@@ -27,6 +27,15 @@ def require_paths(actual, allowed, label):
         raise ValueError(f'Unexpected {label} changes: {sorted(unexpected)}')
 
 
+def require_managed_untracked(iplug):
+    names = git(iplug, 'ls-files', '--others', '--exclude-standard', '-z').decode().split('\0')
+    # The SDK is a nested, separately pinned and fully checked repository.
+    # No other untracked iPlug2 source may be silently accepted.
+    unexpected = [name for name in names if name and
+                  not name.startswith('Dependencies/IPlug/VST3_SDK/')]
+    require_paths(unexpected, set(), 'untracked iPlug2')
+
+
 def checkout_provenance(root):
     root = Path(root).resolve()
     status = git(root, 'status', '--porcelain=v1', '-z', '--untracked-files=all').decode().split('\0')
@@ -47,6 +56,7 @@ def dependency_provenance(root):
     spec = importlib.util.spec_from_file_location('rc_pinned_patch', root / 'scripts/patch-iplug2-midi-overflow.py')
     patch = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(patch)
+    require_managed_untracked(iplug)
     paths = sorted({x[0] for x in patch.PATCHES})
     changed = git(iplug, 'diff', '--name-only', 'HEAD', '-z').decode().split('\0')
     require_paths([x for x in changed if x], set(paths) | {'Dependencies/IPlug/VST3_SDK/README.md'}, 'iPlug2')
