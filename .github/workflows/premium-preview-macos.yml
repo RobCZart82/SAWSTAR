@@ -38,7 +38,7 @@ jobs:
             candidate: 'ON'
             product: SAWSTARPremiumCandidate
             artifact: SAWSTAR-Premium-Candidate
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 35
     env:
       SAWSTAR_MAC_ARCHS: 'arm64;x86_64'

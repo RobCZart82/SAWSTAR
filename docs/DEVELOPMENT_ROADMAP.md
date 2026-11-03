@@ -1,4 +1,14 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-10-27
+# Elfogadott fejlesztési sorrend — állapot: 2026-11-02
+
+## Auditjavítások — helyi implementáció, 2026-11-02
+
+A #131 utáni `b24f445` alapra elkészült a maradék macOS 14 workflow-k
+migrációja, az LFO nullára tartó mélységének lezárása és a kedvencek
+korlátlan process-local mutexének eltávolítása. A kiadatlan változások
+bekerültek a CHANGELOG-ba.
+[Részletek és ellenőrzési bizonyíték](AUDIT_FIXES_2026_11_02.md).
+Távoli pontos-head CI, Windows és natív hostpróba még szükséges;
+K1, teljes R1-elfogadás és a lenti M0–M9 kiadási kapuk nyitottak maradnak.
 
 **A release-ig vezető részletes végrehajtási terv és a valós REAPER CPU-elfogadás:**
 [NEXT_RELEASE_DEVELOPMENT_PLAN.md](NEXT_RELEASE_DEVELOPMENT_PLAN.md).

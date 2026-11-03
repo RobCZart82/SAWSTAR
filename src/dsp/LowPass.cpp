@@ -11,6 +11,7 @@ void LowPass::Init(float sampleRate){
   dcPole_=std::exp(-2*3.14159265358979323846*5/rate_);
   slew_=1-std::exp(-1/(0.01*rate_));cutoff_=-1;
   mode_=0;weights_={{1,0,0,0}};drive_=targetDrive_=0;
+  cachedDrive_=-1;
   Set(12000,0,0);g_=targetG_;k_=targetK_;mix_=0;Clear();
 }
 void LowPass::Clear(){dcInput_.fill(0);dcOutput_.fill(0);ic1_.fill(0);ic2_.fill(0);cascade1_.fill(0);cascade2_.fill(0);}
@@ -32,8 +33,14 @@ StereoSample LowPass::Process(StereoSample input){
   for(size_t i=0;i<weights_.size();++i)if(static_cast<int>(i)!=mode_&&weights_[i]<1.e-24){
     weights_[mode_]+=weights_[i];weights_[i]=0;
   }
-  const double driveGain=drive_==0?1.:std::pow(10.,drive_/20.);
-  const double driveDenominator=drive_==0?1.:std::tanh(driveGain);
+  // Reuse only at the exact same smoothed Drive value. Automation retains
+  // every original pow/tanh evaluation while the value is changing.
+  if(drive_!=cachedDrive_){
+    driveGain_=drive_==0?1.:std::pow(10.,drive_/20.);
+    driveDenominator_=drive_==0?1.:std::tanh(driveGain_);
+    cachedDrive_=drive_;
+  }
+  const double driveGain=driveGain_,driveDenominator=driveDenominator_;
   const double driveBlend=std::min(1.,drive_/6.);
   const double a=1/(1+g_*(g_+k_)),cascadeA=1/(1+g_*(g_+2.));
   std::array<float,2> samples{{input.left,input.right}};

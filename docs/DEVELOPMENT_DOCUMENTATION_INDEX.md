@@ -1,8 +1,17 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
-Utolsó állapotfrissítés: **2026-10-27**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
+Utolsó állapotfrissítés: **2026-11-02**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
+
+## Helyi auditjavítások — 2026-11-02
+
+A #131 utáni `b24f445` mainre készülő javítások: a maradék macOS 14
+workflow-k migrációja, LFO zero-target underflow, kedvencek korlátlan
+mutexvárakozásának eltávolítása és CHANGELOG-frissítés.
+[Implementáció, negatív kontroll, helyi ellenőrzés és nyitott kapuk](AUDIT_FIXES_2026_11_02.md).
+Ezek helyi változások; távoli CI és natív elfogadás külön szükséges.
+K1 és a release-kapuk státusza változatlan.
 
 ## K1 — aktuális állapot a #126 után
 

@@ -27,7 +27,7 @@ jobs:
   replay:
     name: Archived ${{ matrix.origin }} / macOS 14
     needs: parser
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 35
     strategy:
       fail-fast: false

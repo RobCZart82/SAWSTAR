@@ -12,6 +12,8 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 #include <csignal>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #endif
 using namespace sawstar;
@@ -55,6 +57,38 @@ auto root=parent/("sawstar-reliable-"+std::to_string(std::chrono::steady_clock::
  for(auto name:{"CON","con.txt","PRN","AUX","NUL","COM1","LPT9","CONIN$"})check(!ValidPresetName(name),"reserved filename accepted");
  std::string accents;for(int i=0;i<80;++i)accents+=u8"\u0151";check(ValidPresetName(accents),"80 Unicode letters");check(!ValidPresetName(accents+"a"),"81 letters accepted");check(!ValidPresetName(std::string("bad\xc0\xaf")),"invalid UTF-8 accepted");
  auto values=DefaultSnapshot();
+#ifndef _WIN32
+ if(!external||!*external){ // Optional FAT/exFAT volumes do not support FIFOs.
+ // Hold a favorites read inside one library using a FIFO. The writer opens
+ // only once that read has started, so this is a deterministic slow-I/O
+ // control, not a sleep-based race to acquire the old process-global mutex.
+ auto slowRoot=root/"slow-favorites",independentRoot=root/"independent-favorites";
+ fs::create_directories(slowRoot);
+ const auto fifo=slowRoot/"favorites.txt";
+ check(::mkfifo(fifo.c_str(),0600)==0,"cannot create slow favorites fixture");
+ auto slow=std::async(std::launch::async,[&]{return ChangeFavorite(slowRoot,"slow");});
+ int writer=-1;
+ const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(3);
+ do {
+  writer=::open(fifo.c_str(),O_WRONLY|O_NONBLOCK);
+  if(writer<0)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+ }while(writer<0&&std::chrono::steady_clock::now()<deadline);
+ if(writer<0){
+  // Unblock a still-opening reader before destroying its future on failure.
+  const int rescue=::open(fifo.c_str(),O_RDWR|O_NONBLOCK);
+  if(rescue>=0)::close(rescue);
+  throw std::runtime_error("slow favorites reader did not start");
+ }
+ auto independent=std::async(std::launch::async,[&]{return ChangeFavorite(independentRoot,"independent");});
+ const bool independentFinished=independent.wait_for(std::chrono::seconds(2))==std::future_status::ready;
+ ::close(writer); // EOF releases the first read; both futures can now finish.
+ const auto slowResult=slow.get(),independentResult=independent.get();
+ check(independentFinished,"favorites in another library waited on a process-global mutex");
+ check(slowResult.count("slow")==1&&independentResult.count("independent")==1&&
+       ReadFavorites(slowRoot)==slowResult&&ReadFavorites(independentRoot)==independentResult,
+       "independent favorites mutations lost data");
+ }
+#endif
  // Hold the real process-local mutation guard on a worker. Every public
  // mutation must reject contention before the holder is released. Repeat for
  // two target directories: exclusion remains global. No import-size race/sleep.

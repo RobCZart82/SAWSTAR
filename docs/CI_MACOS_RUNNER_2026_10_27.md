@@ -1,5 +1,10 @@
 # macOS foundation CI — futtatókörnyezet frissítése, 2026-10-27
 
+**Folytatás, 2026-11-02:** a #131 beolvadt (`b24f445`); az alábbi
+head-/merge-leírás történeti. A maradék 18 macOS 14 workflow migrációja
+[külön helyi auditjavításként elkészült](AUDIT_FIXES_2026_11_02.md#1-macos-futtatókörnyezet).
+Ennek saját távoli CI-je és új mérési eredete még külön kapu.
+
 A `Build macos foundation` workflow Debug/Release és Universal VST3 jobjai
 rögzített `macos-15` futtatógépre állnak át. A pontos új head teljes
 CI-eredménye a beolvasztás előfeltétele.
