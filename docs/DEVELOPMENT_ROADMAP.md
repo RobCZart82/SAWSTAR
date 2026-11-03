@@ -1,5 +1,16 @@
 # Elfogadott fejlesztési sorrend — állapot: 2026-11-03
 
+## #133 beolvadt, main CI sikeres — 2026-11-03
+
+A Premium integráció és RC-előkészítés #133-ként beolvadt `b9f35574` mainre.
+A pontos PR-head 22 workflow / 67 job, az új main 5 workflow / 12 job sikeres.
+A tényleges macOS Universal/Windows x64 RC-k és a három factory CSV ellenőrzött.
+[Teljes CI-/csomagbizonyíték, dirty-provenance és RC-PDF állapot](PREMIUM_RC_CI_EVIDENCE_2026_11_03.md).
+A 15 oldalas magyar/angol RC-kézikönyvek elkészültek; a végleges publikáláskor
+a jóváhagyott buildhez újra felülvizsgálandók. A native/zenei/K1 kapuk nem
+zárultak le. Az alábbi korábbi „helyi/függő” bejegyzések történeti állapotok.
+
+
 ## Aktuális fejlesztési lépcső — 2026-11-03
 
 #132 beolvadt `d0bad8edd44e418c1a7b3527a2e20f862b0ebc4a` mainre:

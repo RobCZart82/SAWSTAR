@@ -10,6 +10,8 @@ import sys
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'scripts'))
+from rc_provenance import checkout_provenance
 
 def integration_cache(path):
     values = {}
@@ -58,6 +60,7 @@ def main():
     meta = json.loads((ROOT / 'release.json').read_text())
     if not meta['candidate'].startswith('rc') or meta.get('release_date'):
         raise ValueError('RC packaging requires candidate metadata and no release date')
+    provenance = checkout_provenance(ROOT)
     bundle = build / 'out/SAWSTAR.vst3'
     subprocess.run([sys.executable, str(ROOT / 'scripts/validate-plugin.py'),
                     '--bundle', str(bundle)], check=True)
@@ -71,7 +74,7 @@ def main():
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     dirty = bool(subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=no'], cwd=ROOT, text=True).strip())
     manifest = dict(schema=1, version=meta['version'], candidate=meta['candidate'],
-                    source_commit=revision, source_dirty=dirty,
+                    source_commit=revision, source_dirty=dirty, source_provenance=provenance,
                     engine='calibrated-premium-lookup-reference', latency_samples=32,
                     plugin_name='SAWSTAR', replaces_classic_identity=True,
                     validator_passed=True, native_host_acceptance=False,
