@@ -3,6 +3,9 @@
 #if defined(SAWSTAR_PREMIUM_NATIVE_CANDIDATE) && !defined(SAWSTAR_PREMIUM_PREVIEW)
 #error Premium Candidate requires Premium Preview calibration
 #endif
+#if defined(SAWSTAR_PREMIUM_PRODUCTION) && (defined(SAWSTAR_PREMIUM_PREVIEW) || defined(SAWSTAR_PREMIUM_NATIVE_CANDIDATE))
+#error Production integration must retain the SAWSTAR identity
+#endif
 #ifdef SAWSTAR_PREMIUM_NATIVE_CANDIDATE
 #define PLUG_NAME "SAWSTAR Premium Candidate"
 #define PLUG_UNIQUE_ID 'SwPC'
@@ -24,13 +27,17 @@
 #define PLUG_NAME "SAWSTAR"
 #define PLUG_UNIQUE_ID 'SwSt'
 #define BUNDLE_NAME "SAWSTAR"
+#ifdef SAWSTAR_PREMIUM_PRODUCTION
+#define PLUG_LATENCY 32
+#else
 #define PLUG_LATENCY 0
+#endif
 #define SHARED_RESOURCES_SUBPATH "SAWSTAR"
 #define PLUG_CLASS_NAME SAWSTAR
 #endif
 #define PLUG_MFR "RobCZart82"
-#define PLUG_VERSION_HEX 0x00010004
-#define PLUG_VERSION_STR "1.0.4"
+#define PLUG_VERSION_HEX 0x00010100
+#define PLUG_VERSION_STR "1.1.0"
 #define PLUG_MFR_ID 'RC82'
 #define PLUG_URL_STR "https://github.com/RobCZart82/SAWSTAR"
 #define PLUG_EMAIL_STR ""

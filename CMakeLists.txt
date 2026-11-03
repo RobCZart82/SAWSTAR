@@ -52,6 +52,7 @@ option(
   OFF
 )
 
+option(SAWSTAR_PREMIUM_PRODUCTION "Build Premium integration RC with the SAWSTAR identity (not native acceptance)" OFF)
 option(SAWSTAR_PREMIUM_PREVIEW "Build the separate experimental premium preview identity" OFF)
 option(SAWSTAR_NUMERICAL_TRACE "Instrument offline engines for K1 investigation (never a plugin)" OFF)
 if(SAWSTAR_NUMERICAL_TRACE)
@@ -61,10 +62,13 @@ if(SAWSTAR_NUMERICAL_TRACE)
   add_compile_definitions(SAWSTAR_NUMERICAL_TRACE=1)
 endif()
 option(SAWSTAR_PREMIUM_NATIVE_CANDIDATE "Build the separate Saw-dispatch Premium Candidate identity" OFF)
+if(SAWSTAR_PREMIUM_PRODUCTION AND (SAWSTAR_PREMIUM_PREVIEW OR SAWSTAR_PREMIUM_NATIVE_CANDIDATE))
+  message(FATAL_ERROR "Production integration cannot use Preview/Candidate identities")
+endif()
 if(SAWSTAR_PREMIUM_NATIVE_CANDIDATE AND NOT SAWSTAR_PREMIUM_PREVIEW)
   message(FATAL_ERROR "Premium Candidate requires SAWSTAR_PREMIUM_PREVIEW=ON; production cannot select it")
 endif()
-if(SAWSTAR_PREMIUM_PREVIEW)
+if(SAWSTAR_PREMIUM_PREVIEW OR SAWSTAR_PREMIUM_PRODUCTION)
   set(SAWSTAR_CHECK_DAISYSP ON)
 endif()
 
@@ -1358,7 +1362,7 @@ endif()
 # iPlug2 VST3 plugin
 # ---------------------------------------------------------------------------
 
-if(SAWSTAR_PREMIUM_PREVIEW)
+if(SAWSTAR_PREMIUM_PREVIEW OR SAWSTAR_PREMIUM_PRODUCTION)
   include(cmake/PremiumPreview.cmake)
 endif()
 
@@ -1439,6 +1443,8 @@ if(BUILD_TESTING AND (SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN))
   target_link_libraries(sawstar_editor_wheel_mailbox_tests PRIVATE sawstar_engine Threads::Threads)
   add_test(NAME editor_wheel_mailbox COMMAND sawstar_editor_wheel_mailbox_tests)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  add_test(NAME premium_rc_packaging_contract
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/premium_rc_package.py")
   add_test(NAME premium_filter_preview_contract
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/premium_filter_preview.py"
       $<TARGET_FILE:sawstar_premium_filter_preview>)

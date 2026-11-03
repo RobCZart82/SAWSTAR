@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Prepare 1.1.0 rc1 and an explicit Premium production integration build with
+  the SAWSTAR identity, preserved parameters/state and 32-sample latency.
+- Reuse accepted Premium factory trims; add production state/recall checks,
+  native-package CI and RC-only packaging with explicit open acceptance gates.
+
 - Migrate the remaining macOS 14 CI runners to macOS 15, including Preview,
   qualification and diagnostic workflows; keep the dispatch artifact pair aligned.
 - Finish inaudible zero-target LFO depth tails before floating-point underflow,

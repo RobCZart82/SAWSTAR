@@ -1,0 +1,51 @@
+# Fejlesztési napló — 2026-11-03, Premium production RC
+
+Alap: `d0bad8edd44e418c1a7b3527a2e20f862b0ebc4a` (#132 squash merge).
+A base PR-jének 23 workflow / 71 job, majd a main négy workflow-ja sikeres.
+Robert kifejezetten kérte az integráció, factory/RC és kiadási dokumentáció
+előrehozását; a natív, minőségi és K1-kapuk nem válnak ettől elfogadottá.
+
+## Implementált
+
+- Explicit `SAWSTAR_PREMIUM_PRODUCTION=ON` a SAWSTAR wrapperben, közös
+  PluginSynth-kiválasztás a wrapper és tesztek számára. Kalibrált lookup
+  referencia; a Saw-dispatch Candidate nem került előléptetésre.
+- SAWSTAR név/ID, paraméterek, state/preset-formátum és presetmappa megőrizve;
+  jelentett latency 32 minta; Preview/Candidate kapcsolóval ütközés tiltott.
+- Premium factory kalibráció és az Init wrapper-default alkalmazva az RC-re,
+  változatlan factory trimekkel és védelmekkel.
+- 1.1.0 rc1 metadata, üres release_date; Aboutban integration jelölés.
+- RC-only csomagoló tényleges VST3-validálással, teljes fájlhash-jegyzékkel,
+  natív/zenei/publikálási elfogadás false jelöléssel; felülírás tiltott.
+- macOS Universal / Windows x64 integrációs CI, Macen mindkét szelet
+  state/smoke/headroom ellenőrzésével. Nincs automatikus telepítés/publikálás.
+- [RC és migrációs kézikönyv-kiegészítés](PREMIUM_PRODUCTION_RC.md),
+  [factory mérések](PREMIUM_FACTORY_RC_2026_11_03.md),
+  [release notes tervezet](RELEASE_NOTES_1.1.0.md), roadmap/index/terv frissítése.
+
+## Helyi ellenőrzés
+
+- macOS arm64 Release Premium engine, smoke és SAWSTAR VST3 sikeresen lefordult.
+- Két production identity/latency/state regresszió 2/2 sikeres; minden factory
+  preset sound/host/GUI-scale és visszahívott render vizsgálva.
+- Kalibráció/guard szerződés és 144/144 limiter előtti factory-headroom eset
+  sikeres; legnagyobb csúcs −6,51293 dBFS, változatlan −6 dBFS kapuval.
+- RC-csomag build/identity elutasításai és ZIP-integritás két Python-tesztje sikeres.
+- Mindkét tiltott Preview/Candidate + production konfiguráció elutasítva.
+- actionlint 1.7.12, Python-szintaxis és központi release metadata ellenőrzött.
+- Teljes helyi Classic Release regresszió 144/144 sikeres (225,25 s).
+
+A helyi SDK-validátor konfigurálása teljes Xcode hiánya miatt elakadt;
+a CLT fordítóval a plugin maga sikeresen elkészült. Emiatt helyileg validált
+RC ZIP nincs állítva és nem csomagoltunk ellenőrizetlen terméket. A tényleges
+validátor és Windows/Universal csomag távoli CI-kapu.
+
+## Még nem elfogadott
+
+Az új PR távoli CI-je, az RC pontos natív telepítése és REAPER/Windows CPU-,
+bypass-, automatizálás-, GUI-/lifecycle-próbája; presetenkénti zenei meghallgatás;
+K1 gyökérok/rendezés; végleges rate/buffer policy és PDF-kézikönyv-újrakiadás;
+a konkrét végleges RC és publikálási tartalom jóváhagyása.
+Az alapértelmezett build Classic. Nincs release/tag, production alapértelmezés-
+átkapcsolás vagy publikálási művelet. A korábbi negatív mérési bizonyítékok
+változatlanul megmaradnak.

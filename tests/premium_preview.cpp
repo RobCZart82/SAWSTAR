@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: MIT
-#ifdef SAWSTAR_PREMIUM_NATIVE_CANDIDATE
-#include "PremiumNativeCandidateSynth.h"
-using PreviewSynth = sawstar::premium_native_candidate_engine::Synth;
-#else
-#include "PremiumPreviewSynth.h"
-using PreviewSynth = sawstar::premium_preview_engine::Synth;
-#endif
+#include "plugin/SynthEngine.h"
+using PreviewSynth = sawstar::PluginSynth;
 #include "engine/Synth.h"
 #include "plugin/config.h"
 #include "presets/UserPresets.h"
@@ -19,8 +14,16 @@ using PreviewSynth = sawstar::premium_preview_engine::Synth;
 int main() {
   try {
     static_assert(PLUG_LATENCY == 32, "Preview must report its adapter latency");
+#ifndef SAWSTAR_PREMIUM_PRODUCTION
     static_assert(PLUG_UNIQUE_ID != 'SwSt', "Preview must not replace the release");
-#ifdef SAWSTAR_PREMIUM_NATIVE_CANDIDATE
+#endif
+#if defined(SAWSTAR_PREMIUM_PRODUCTION)
+    static_assert(PLUG_UNIQUE_ID == 'SwSt', "Integration must retain existing projects identity");
+    if(std::string_view(PLUG_NAME)!="SAWSTAR" ||
+       std::string_view(BUNDLE_NAME)!="SAWSTAR" ||
+       std::string_view(SAWSTAR_STRING(PLUG_CLASS_NAME))!="SAWSTAR" ||
+       std::string_view(sawstar::kPresetProductFolder)!="SAWSTAR")
+#elif defined(SAWSTAR_PREMIUM_NATIVE_CANDIDATE)
     static_assert(PLUG_UNIQUE_ID == 'SwPC', "Candidate must not replace Preview");
     if(std::string_view(PLUG_NAME)!="SAWSTAR Premium Candidate" ||
        std::string_view(BUNDLE_NAME)!="SAWSTARPremiumCandidate" ||

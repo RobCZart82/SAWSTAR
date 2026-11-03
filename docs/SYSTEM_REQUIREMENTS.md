@@ -1,5 +1,11 @@
 # System requirements - build targets
 
+For the unpublished **1.1.0 rc1 Premium integration**, follow the
+[RC supplement](PREMIUM_PRODUCTION_RC.md), including the shared SAWSTAR identity,
+32-sample latency and open native acceptance gates. The versioned instructions
+below remain historical for the stable release.
+
+
 Development tools and end-user requirements are separate. The following OS
 versions are **build/installer targets, not yet verified minimum support claims**.
 

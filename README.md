@@ -7,6 +7,10 @@ The Sounds of Trance.
 An open-source VST3 synthesizer for approachable leads, pads and plucks, with
 clear signal flow and a preset browser that explains saved sounds.
 
+**Development RC:** 1.1.0 rc1 Premium integration is being prepared; the public
+stable release remains 1.0.4. See [RC build, migration and open acceptance gates](docs/PREMIUM_PRODUCTION_RC.md).
+The RC is not a published or natively accepted release.
+
 ![SAWSTAR MAIN](docs/reference/screenshot-main.png)
 
 ![SAWSTAR ADVANCED](docs/reference/screenshot-advanced.png)

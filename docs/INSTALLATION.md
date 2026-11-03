@@ -1,5 +1,11 @@
 # Installing SAWSTAR 1.0.4 / Telepítés
 
+For the unpublished **1.1.0 rc1 Premium integration**, follow the
+[RC supplement](PREMIUM_PRODUCTION_RC.md), including the shared SAWSTAR identity,
+32-sample latency and open native acceptance gates. The versioned instructions
+below remain historical for the stable release.
+
+
 Download the matching package from [SAWSTAR Releases](https://github.com/RobCZart82/SAWSTAR/releases).
 Recommended: the matching installer. Optional: a manual-install ZIP.
 Back up projects and user presets and close the DAW before updating.
