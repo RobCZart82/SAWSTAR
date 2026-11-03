@@ -29,10 +29,12 @@ jobs:
           - os: macos-15
             args: '"-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64"'
             bin: build-rc/
+            exe: ''
             platform: macOS-Universal
           - os: windows-2022
             args: '-A x64'
             bin: build-rc/Release/
+            exe: .exe
             platform: Windows-x64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
@@ -54,16 +56,16 @@ jobs:
       - run: cmake --build build-rc --config Release --target SAWSTAR-vst3 sawstar_premium_preview_smoke sawstar_premium_production_state sawstar_premium_preview_levels --parallel 3
       - name: Identity, latency and sound/state recall
         run: |
-          ${{ matrix.bin }}sawstar_premium_preview_smoke
-          ${{ matrix.bin }}sawstar_premium_production_state
+          ${{ matrix.bin }}sawstar_premium_preview_smoke${{ matrix.exe }}
+          ${{ matrix.bin }}sawstar_premium_production_state${{ matrix.exe }}
       - name: Factory pre-guard headroom and accepted calibration
-        run: ${{ matrix.bin }}sawstar_premium_preview_levels > factory-levels.csv
+        run: ${{ matrix.bin }}sawstar_premium_preview_levels${{ matrix.exe }} > factory-levels.csv
       - name: Validate translated Intel slice
         if: runner.os == 'macOS'
         run: |
-          arch -x86_64 ${{ matrix.bin }}sawstar_premium_preview_smoke
-          arch -x86_64 ${{ matrix.bin }}sawstar_premium_production_state
-          arch -x86_64 ${{ matrix.bin }}sawstar_premium_preview_levels > factory-levels-x86_64.csv
+          arch -x86_64 ${{ matrix.bin }}sawstar_premium_preview_smoke${{ matrix.exe }}
+          arch -x86_64 ${{ matrix.bin }}sawstar_premium_production_state${{ matrix.exe }}
+          arch -x86_64 ${{ matrix.bin }}sawstar_premium_preview_levels${{ matrix.exe }} > factory-levels-x86_64.csv
       - name: Validate and package integration RC only
         run: python scripts/package-premium-rc.py build-rc SAWSTAR-1.1.0-rc1-Premium-${{ matrix.platform }}.zip
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

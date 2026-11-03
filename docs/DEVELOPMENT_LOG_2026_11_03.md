@@ -49,3 +49,28 @@ a konkrét végleges RC és publikálási tartalom jóváhagyása.
 Az alapértelmezett build Classic. Nincs release/tag, production alapértelmezés-
 átkapcsolás vagy publikálási művelet. A korábbi negatív mérési bizonyítékok
 változatlanul megmaradnak.
+
+
+## Windows RC CI-diagnosztika — első head, 2026-11-03
+
+A `3e0037dd` head Windows x64 VST3 fordítása és az identity/latency/state
+próbák sikeresek. A factory levels executable indításakor exit 127 jelent meg,
+az első CSV-sor előtt; nincs headroom-küszöbtúllépésből eredő hiba.
+[Futás](https://github.com/RobCZart82/SAWSTAR/actions/runs/41576883296),
+job `125722350364`. A feltöltött 152 bájtos artifact csak üres CSV,
+nem validált RC-csomag és nem sikeres mérés.
+
+A fixture több nagy Synth objektumot tett a veremre (egy Premium Synth
+helyileg 481 984 bájt). AppleClang 21 arm64 -O3 statikus stack-usage szerint
+a main kerete 1 013 744 bájt volt. A nagy tesztmotorokat egyedi heap-tárolóba
+helyező korrekcióval 295 632 bájt; a DSP, vezérlések, bemenetek, kalibráció
+és minden numerikus/headroom-küszöb változatlan. A Windows veremhiba oka
+még hipotézis, távoli új ellenőrzés szükséges; nem minősítjük bizonyítottnak
+pusztán az arm64 kódelemzés alapján. A workflow Windows útjai explicit .exe
+kiterjesztést kapnak az indítás egyértelműsítésére.
+
+A korrigált fixture helyileg 144/144 esetben sikeres, és a teljes CSV
+bájtra egyezik az első sikeres helyi gyűjtéssel. actionlint/diff ellenőrzés
+sikeres. A javítás előkészítve; a régi head többi folyamatban levő mérését
+nem szakítjuk meg feltöltéssel. A következő ellenőrzéskor, az aktuális kampány
+lezárása után ugyanebbe a PR-be kerülhet fel. Új PR és mérési retry nincs.
