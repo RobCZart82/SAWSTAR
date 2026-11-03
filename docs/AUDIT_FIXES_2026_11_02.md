@@ -143,3 +143,51 @@ A Debug lecsengési regresszió sikeres (1/1). Az új Release újrafordítás
 sikeres. Az új head távoli CI-je még függő; a korábbi piros eredmény megmarad.
 A korrekció nem tekinthető a CPU-blokkoló bizonyított lezárásának.
 K1 és a natív REAPER/Windows/CPU-elfogadás változatlanul nyitott.
+
+
+## Második negatív CPU-kapu és Classic Drive-költség — 2026-11-03
+
+A `01884509` head minden workflow-ja befejeződött: 22/23 sikeres, 70/71 job
+sikeres. Az egyetlen piros ismét a macOS Release CPU-kapu, most full_fx / 16:
+baseline 14,739725%, current 19,25259795%, +30,61707698%; határ 18,42465625%.
+A nyolchangú eset +14,94886%, de ez nem írja felül a tizenhathangú hibát.
+[Második megőrzött negatív futás](https://github.com/RobCZart82/SAWSTAR/actions/runs/41541817295).
+Artifact `13188426742`, feltöltési ZIP SHA-256
+`2bf34fa8a299b132066b4c7f173298d82e43ff80f94973ca949a85cab21a6a98`.
+Mind a 18 CSV hash-ellenőrzött; a meglévő read-only auditor is konzisztensnek
+ítélte az eredeti, továbbra is sikertelen kaput. A LFO-korrekció nem igazolta
+az első CPU-hiba okát vagy a blokkoló lezárását.
+
+A rögzített `0873064487e02b2e1da49b42d0fd12ca83e11ec7` referencia forrását
+külön megvizsgáltuk. A mai motor sok korábbi, szükséges javításban eltér:
+Drive DC-szűrés, biztonsági/vezérlés-simítás, hangújrafelhasználás stb.
+Nem vonunk vissza védelmet vagy hangminőségi javítást a kedvezőbb számért.
+
+Helyi M1/AppleClang 21 Release hívásverem-profil készült a full_fx / 16
+beállításokat használó meghosszabbított renderrel. Ez nem ismételt CI-kapu,
+nincs belőle új CPU-arány vagy elfogadás. Az öt másodperces profil 4218
+veremmintájából az OSC1/OSC2 ág 1203/934, a fő LowPass ág 1034 mintával
+szerepel. A filterágban látható a Drive `pow` és normalizáló `tanh` hívása.
+Ez költséghelyet jelöl, a CI-hiba gyökérokát nem bizonyítja.
+
+A Classic filter minden mintán újraszámolta ezeket akkor is, amikor a
+simított Drive double értéke már pontosan változatlan. 48 kHz/6 dB-nél a
+recurrencia helyi számtani vizsgálata kb. 0,309 s után érte el ezt az állapotot.
+A korrekció példányonként tárolja a pontos Drive-kulcsot és az eredeti
+`pow(10.,drive_/20.)`, `tanh(driveGain)` eredményét. Csak pontos kulcsegyezés
+mellett használja újra; a nullás Drive útja és minden változó mintán az
+összes eredeti művelet megmarad. Init érvényteleníti a kulcsot, SnapToTargets
+utáni értékváltást a következő Process felismeri; Clear a továbbra érvényes
+vezérlési adatot megtarthatja. Nincs globális cache, másodlagos szálszinkron,
+közelítő matematika vagy megváltozott slew/threshold.
+
+Helyi differenciális ellenőrzés a `01884509` eredeti LowPass implementációval:
+15 282 000 sztereó minta bitazonos, öt ráta × négy mód, tíz Drive-szakasz,
+zéró/kicsi/6/12/24 dB, simítás, SnapToTargets, Clear, ismételt Init és NaN
+bemenet után is. Külön műveletszámláló próbában 100 000 rögzített, már
+snapelt Drive-minta korábban 100 000 pow és 100 000 normalizáló tanh hívást
+végzett, most 1–1-et. Ez műveletszám, nem CPU-gyorsulási mérés.
+Debug filter_character 1/1 sikeres; új Release újrafordítás és teljes
+142/142 CTest sikeres (219,57 s). Metadata és diff-ellenőrzés sikeres.
+Az új forrás távoli CI-je még függő, külön kapu.
+A két korábbi negatív CPU-bizonyíték megmarad, CPU-/natív-/K1-lezárás nincs.

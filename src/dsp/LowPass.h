@@ -19,6 +19,7 @@ private:
   std::array<double,4> weights_{{1,0,0,0}};
   int mode_=0;
   double drive_=0,targetDrive_=0;
+  double cachedDrive_=-1,driveGain_=1,driveDenominator_=1;
   double rate_=44100,slew_=0.002,g_=1,targetG_=1,k_=2,targetK_=2,mix_=0,targetMix_=0;
   float cutoff_=-1;
 };

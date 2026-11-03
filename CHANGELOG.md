@@ -7,6 +7,8 @@
 - Finish inaudible zero-target LFO depth tails before floating-point underflow,
   including fades from a previous modulation destination; avoid per-depth
   short-circuit branches in the new tail guard.
+- Reuse Classic filter Drive gain/normalization only when the smoothed Drive
+  value is exactly unchanged; retain per-sample updates during automation.
 - Remove the unbounded process-local favorites mutex; retain timed filesystem
   locking and atomic replacement across threads and processes.
 - Stop zero-target mixer, mod-wheel and pressure smoothing before float underflow (#118).
