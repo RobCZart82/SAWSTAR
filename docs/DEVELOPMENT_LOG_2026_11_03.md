@@ -125,3 +125,29 @@ ez nem az új presetbank natív/zenei elfogadása.
 
 [Hanglista, játékutasítások, teljes helyi CSV és mérési korlátok](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
 Nincs DSP/state/ID/threshold változtatás, default Classic marad; release nincs.
+
+
+### #135: Windows Debug időkorlát és hat új hang zenei jóváhagyása
+
+Robert a hat új exportált hangot meghallgatta és jelezte: „meghallgattam jól
+szólnak”. Ez az új hat snapshot zenei elfogadása; a teljes bank/pontos VST3
+natív host-/CPU-/lifecycle-/K1-/publikálási kapui ettől nem záródnak le.
+
+Az első head Windows foundation futása `41710536547`: Release és VST3 x64
+sikeres; Debug 142/143 sikeres, a `factory_presets` 600,01 másodpercnél timeout.
+A külön Premium production RC `41710536432` sikeres. Ez tesztmunka-méretezési
+hiba, nem bizonyított hang-/preset-/CPU-regresszió.
+A teljes factory render/ráták/akkord/lecsengés-ellenőrzés két diszjunkt,
+indexalapú félbank-tesztre bontva fut; a 600 s időkorlát és valamennyi
+mintaszám/küszöb/állítás megmarad. A bank globális kulcs/név-egyedisége
+mindkét tesztben ellenőrzött. Az argumentum nélküli futtatás továbbra teljes bank.
+A javítás feltöltése megvárja a régi head még futó workflow-it.
+
+
+A félbank-javítás helyi ellenőrzése: Debug 2/2 sikeres (101,01 s és 78,80 s),
+Release 2/2 sikeres (13,79 s és 10,36 s). Mind a 30 preset ugyanazokon a
+mintaszámokon, rátákon és lecsengési állításokon ment végig.
+2026-11-03 21:00 UTC-kor a régi head Windows workflow-ja már 2. kísérletben
+futott, GitHub triggering_actor `RobCZart82`, új Debug job `126197624639`;
+ezt az agent nem indította. Az első timeout bizonyítéka megmarad, a javítás
+feltöltése megvárja e futás végét is.

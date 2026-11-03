@@ -34,8 +34,9 @@ meglévő forrásai dolgoznak. A címek és a browser lesson szövegek is segít
   A maximális controller-értéket külön az 1-es eset vizsgálja.
 - Távoli CI: külön, pontos PR-headhez kötött kapu; a korábbi #134 csomagok
   a régi, 24-es bank bizonyítékai, nem tartalmazzák ezeket az új hangokat.
-- Natív/zenei elfogadás: az új hangok még Robert presetenkénti meghallgatására
-  várnak. A korábbi Windows/macOS alapműködési visszajelzés a korábbi RC-re
+- Natív/zenei elfogadás: Robert a külön exportált hat új hangot meghallgatta
+  és jóváhagyta („meghallgattam jól szólnak”). Ez a hat snapshot zenei elfogadása,
+  nem a későbbi VST3 csomag teljes natív elfogadása. A korábbi Windows/macOS alapműködési visszajelzés a korábbi RC-re
   vonatkozik. Ez a bővítés nem zárja le a CPU/dropout-, lifecycle- vagy K1-kaput.
 
 Nincs release/tag/publikálás vagy automatikus plugintelepítés.

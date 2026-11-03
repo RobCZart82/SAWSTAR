@@ -1197,7 +1197,11 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
 
     add_test(
       NAME factory_presets
-      COMMAND sawstar_factory_tests
+      COMMAND sawstar_factory_tests --first-half
+    )
+    add_test(
+      NAME factory_presets_remaining
+      COMMAND sawstar_factory_tests --second-half
     )
 
 

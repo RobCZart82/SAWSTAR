@@ -9,13 +9,20 @@
 #include <memory>
 #include <string>
 void check(bool ok,const char* why){if(!ok){std::cerr<<why<<'\n';std::exit(1);}}
-int main(){
+int main(int argc,char** argv){
  using namespace sawstar;const auto& presets=FactoryPresets();std::set<std::string> keys,names;
+ size_t begin=0,end=presets.size();
+ // Keep every rate/render/release assertion, but bound each Debug CI task.
+ if(argc==2&&std::string(argv[1])=="--first-half")end=presets.size()/2;
+ else if(argc==2&&std::string(argv[1])=="--second-half")begin=presets.size()/2;
+ else if(argc!=1){std::cerr<<"Usage: factory_tests [--first-half|--second-half]\n";return 1;}
+ // Identity uniqueness covers the entire bank, even in a render shard.
+ for(const auto& preset:presets)
+  check(keys.insert(preset.key).second&&names.insert(preset.name).second,"unique preset identities");
  check(presets[0].values==DefaultSnapshot(),"Init must use parameter defaults");
- for(size_t p=0;p<presets.size();++p){const auto& v=presets[p].values;
+ for(size_t p=begin;p<end;++p){const auto& v=presets[p].values;
   check(std::string(presets[p].tags).size()>0&&std::string(presets[p].tags).size()<=36,"short factory tags");
   check(v[size_t(ParameterId::ArpHold)]==0,"factory must not latch notes by default");
-  check(keys.insert(presets[p].key).second&&names.insert(presets[p].name).second,"unique preset identities");
   for(size_t i=0;i<v.size();++i)check(std::isfinite(v[i])&&v[i]>=kParameters[i].minimum&&v[i]<=kParameters[i].maximum,"valid factory value");
   check(MatchFactoryPreset(v)==static_cast<int>(p),"factory recognition");
   if(std::string(presets[p].category)=="Templates"){for(auto id:{ParameterId::ChorusEnabled,ParameterId::DelayEnabled,ParameterId::ReverbEnabled,ParameterId::ArpEnabled,ParameterId::LfoDepth,ParameterId::Lfo2Depth})check(v[size_t(id)]==0,"templates stay dry and unmodulated");}
