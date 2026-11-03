@@ -9,6 +9,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -26,8 +27,9 @@ void GainContract() {
   // listening engine, with identical filter/Drive/FX histories and latency.
   for(float rate:{44100.f,48000.f,96000.f,192000.f}) for(int mode=0;mode<4;++mode)
     for(float mix:{0.f,50.f,100.f}) {
-      sawstar::premium_preview_engine::Synth candidate;
-      sawstar::premium_preview_reference::Synth reference;
+      auto candidateStorage=std::make_unique<sawstar::premium_preview_engine::Synth>();
+      auto referenceStorage=std::make_unique<sawstar::premium_preview_reference::Synth>();
+      auto& candidate=*candidateStorage;auto& reference=*referenceStorage;
       auto setup=[&](auto& synth){
         synth.Reset(rate);synth.SetParameters(-40,1,100,.7,40);synth.SetOutputBoost(0);
         synth.SetSaw(23,70,90);synth.SetFilter(2000,25,mix);
@@ -53,7 +55,8 @@ void GainContract() {
 }
 void GuardContract() {
   for(float rate:{44100.f,48000.f,96000.f,192000.f}){
-    sawstar::premium_preview_engine::Synth synth;
+    auto storage=std::make_unique<sawstar::premium_preview_engine::Synth>();
+    auto& synth=*storage;
     synth.Reset(rate);synth.SetParameters(0,1,100,1,10);synth.SetOutputBoost(24);
     synth.SetSaw(10,0,0);synth.SetFilter(20000,0,100);synth.SetFilterCharacter(0,0);
     for(int n:notes)synth.Midi(0x90,n,127);
@@ -76,7 +79,8 @@ int main(int argc,char** argv){try{
   for(float rate:{44100.f,48000.f})for(const auto& preset:sawstar::FactoryPresets())for(int count:{1,8,16}){
     // This copy has the SAME signal path and gain but no output limiter: a
     // passing factory test cannot hide clipping behind the safety guard.
-    sawstar::premium_preview_meter::Synth synth;sawstar::Arpeggiator arp;
+    auto storage=std::make_unique<sawstar::premium_preview_meter::Synth>();
+    auto& synth=*storage;sawstar::Arpeggiator arp;
     synth.Reset(rate);arp.Init(rate);Controls(synth,arp,preset.values);
     auto send=[&](int a,int b,int c){synth.Midi(a,b,c);};
     for(int i=0;i<count;++i)arp.Midi(0x90,notes[i],127,send);

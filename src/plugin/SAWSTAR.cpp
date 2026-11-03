@@ -32,7 +32,7 @@ SAWSTAR::SAWSTAR(const InstanceInfo& info)
   for (const auto& spec : sawstar::kParameters) {
     auto* param = GetParam(static_cast<int>(spec.id));
     double initial=spec.initial;
-#ifdef SAWSTAR_PREMIUM_PREVIEW
+#if defined(SAWSTAR_PREMIUM_PREVIEW) || defined(SAWSTAR_PREMIUM_PRODUCTION)
     // Match factory Init for both new instances and host parameter reset.
     if(spec.id==sawstar::ParameterId::OutputGain)
       initial=sawstar::FactoryPresets()[0].values[static_cast<size_t>(spec.id)];

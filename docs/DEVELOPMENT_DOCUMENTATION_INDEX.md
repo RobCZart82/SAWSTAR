@@ -1,6 +1,28 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
-Utolsó állapotfrissítés: **2026-11-02**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
+[Aktuális fejlesztési napló és ellenőrzési állapot](DEVELOPMENT_LOG_2026_11_03.md).
+
+## Aktuális fejlesztési lépcső — 2026-11-03
+
+#132 beolvadt `d0bad8edd44e418c1a7b3527a2e20f862b0ebc4a` mainre:
+a végső PR-head 23 workflow / 71 job sikeres; a merge utáni main mind a négy
+workflow-ja sikeres (macOS 41570979286, Windows 41570979317,
+Code quality 41570979245, workflow-validálás 41570979369).
+A két korábbi negatív CPU-futás megmarad, a későbbi zöld nem gyökérok-bizonyítás.
+
+Robert kérésére az M4/M6/M8 előkészítése előrekerült az M2/M3 lezárása elé.
+[Premium production RC: működés, migráció és kapuk](PREMIUM_PRODUCTION_RC.md).
+Az 1.1.0 rc1 explicit SAWSTAR-identitású integráció implementált; a kalibrált
+lookup referencia motor, eredeti paraméter-ID-k és state-formátum, 32 mintás
+késleltetés. Az alapértelmezett Classic build megmarad az elfogadásig.
+[Factory műszaki mérés és nyitott hallgatási kapu](PREMIUM_FACTORY_RC_2026_11_03.md).
+A helyi ellenőrzés nem távoli CI, natív host-, K1- vagy publikálási elfogadás.
+Következő: új integrációs PR minden CI-je, validált RC-csomagok, majd a nyitott
+M2/M3/M5 és pontos RC host/zenei elfogadási feltételek teljesítése.
+A lentebb dátumozott korábbi állapotok történetiek.
+
+
+Utolsó állapotfrissítés: **2026-11-03**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 

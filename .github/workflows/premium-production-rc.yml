@@ -1,0 +1,80 @@
+name: Premium production integration RC
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'cmake/**'
+      - 'CMakeLists.txt'
+      - 'release.json'
+      - 'experiments/premium_filter/**'
+      - 'scripts/package-premium-rc.py'
+      - 'scripts/package-plugin.py'
+      - 'scripts/validate-plugin.py'
+      - 'tests/premium*'
+      - 'docs/PREMIUM_PRODUCTION_RC.md'
+      - 'docs/RELEASE_NOTES_1.1.0.md'
+      - '.github/workflows/premium-production-rc.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: premium-production-rc-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  integration:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            args: '"-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64"'
+            bin: build-rc/
+            exe: ''
+            platform: macOS-Universal
+          - os: windows-2022
+            args: '-A x64'
+            bin: build-rc/Release/
+            exe: .exe
+            platform: Windows-x64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    env:
+      SAWSTAR_MAC_ARCHS: ${{ matrix.os == 'macos-15' && 'arm64;x86_64' || '' }}
+      SAWSTAR_WINDOWS_ARCH: ${{ matrix.os == 'windows-2022' && 'x64' || '' }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - run: python scripts/bootstrap-plugin.py
+      - run: python tests/premium_rc_package.py
+      - name: Configure production identity without installation
+        run: cmake -S . -B build-rc -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PRODUCTION=ON -DIPLUG_DEPLOY_PLUGINS=OFF ${{ matrix.args }}
+      - run: cmake --build build-rc --config Release --target SAWSTAR-vst3 sawstar_premium_preview_smoke sawstar_premium_production_state sawstar_premium_preview_levels --parallel 3
+      - name: Identity, latency and sound/state recall
+        run: |
+          ${{ matrix.bin }}sawstar_premium_preview_smoke${{ matrix.exe }}
+          ${{ matrix.bin }}sawstar_premium_production_state${{ matrix.exe }}
+      - name: Factory pre-guard headroom and accepted calibration
+        run: ${{ matrix.bin }}sawstar_premium_preview_levels${{ matrix.exe }} > factory-levels.csv
+      - name: Validate translated Intel slice
+        if: runner.os == 'macOS'
+        run: |
+          arch -x86_64 ${{ matrix.bin }}sawstar_premium_preview_smoke${{ matrix.exe }}
+          arch -x86_64 ${{ matrix.bin }}sawstar_premium_production_state${{ matrix.exe }}
+          arch -x86_64 ${{ matrix.bin }}sawstar_premium_preview_levels${{ matrix.exe }} > factory-levels-x86_64.csv
+      - name: Validate and package integration RC only
+        run: python scripts/package-premium-rc.py build-rc SAWSTAR-1.1.0-rc1-Premium-${{ matrix.platform }}.zip
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: Premium-integration-RC-${{ matrix.platform }}
+          path: |
+            SAWSTAR-1.1.0-rc1-Premium-*.zip
+            SAWSTAR-1.1.0-rc1-Premium-*.sha256
+            factory-levels*.csv
+          if-no-files-found: warn
+          retention-days: 30
