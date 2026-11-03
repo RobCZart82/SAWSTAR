@@ -8,6 +8,7 @@
 #include <cmath>
 #include <memory>
 #include <type_traits>
+#include <string_view>
 int main(){
  static_assert(std::is_same_v<sawstar::PluginSynth,sawstar::premium_preview_engine::Synth>);
  for(const auto& preset:sawstar::FactoryPresets()){
@@ -35,6 +36,21 @@ int main(){
    auto x=a->ProcessStereo(),y=b->ProcessStereo();
    if(x.left!=y.left||x.right!=y.right||!std::isfinite(x.left)||!std::isfinite(x.right))return 1;
   }
+  if(std::string_view(preset.name).find("(use modwheel)")!=std::string_view::npos){
+   setup(*a,arpa,preset.values);setup(*b,arpb,preset.values);
+   arpb.Midi(0xb0,1,127,sendB);
+   arpa.Midi(0x90,60,110,sendA);arpb.Midi(0x90,60,110,sendB);
+   double difference=0,energy=0;
+   for(int i=0;i<96000;++i){
+    arpa.Process(sendA);arpb.Process(sendB);
+    const auto x=a->ProcessStereo(),y=b->ProcessStereo();
+    if(!std::isfinite(x.left)||!std::isfinite(y.left)||!std::isfinite(x.right)||!std::isfinite(y.right))return 1;
+    difference+=std::abs(x.left-y.left)+std::abs(x.right-y.right);
+    energy+=std::abs(x.left)+std::abs(x.right);
+   }
+   if(energy<.01||difference<energy*.01){std::cerr<<preset.key<<": inaudible wheel response\n";return 1;}
+  }
+
  }
  std::cout<<"All factory presets: sound/host state, GUI scale and recalled render PASS\n";
 }

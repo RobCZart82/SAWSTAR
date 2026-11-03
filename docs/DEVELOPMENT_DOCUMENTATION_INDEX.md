@@ -1,5 +1,12 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
+## Új kérés: performance factory bank — 2026-11-03
+
+Robert kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
+30-ra, a korábbi hangok megőrzésével. [Hanglista, játék és ellenőrzési kapuk](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
+Az új hangok zenei elfogadása külön nyitott; nincs release vagy Premium-default váltás.
+
+
 ## #133 beolvadt, main CI sikeres — 2026-11-03
 
 A Premium integráció és RC-előkészítés #133-ként beolvadt `b9f35574` mainre.

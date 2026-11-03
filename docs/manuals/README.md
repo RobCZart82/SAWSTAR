@@ -4,10 +4,10 @@
 - [Magyar PDF](SAWSTAR-User-Manual-HU.pdf)
 
 These 15-page guides describe the unpublished SAWSTAR **1.1.0 rc1** and its
-24 embedded factory presets. Chapter 15 covers Premium integration, the shared
+30 embedded factory presets. Chapter 15 covers Premium integration, the shared
 SAWSTAR identity, migration, 32-sample latency and open acceptance gates.
 The public stable release remains 1.0.4; its published packages are unchanged.
-Screenshots show SAWSTAR 1.0.3, capture build 8040390. The displayed preset count includes user-library entries; the factory library contains 24 presets.
+Screenshots show SAWSTAR 1.0.3, capture build 8040390. The displayed preset count includes user-library entries; the factory library contains 30 presets.
 
 See the [installation guide](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/INSTALLATION.md) for installation and bilingual macOS troubleshooting.
 

@@ -95,3 +95,33 @@ reprodukáltuk és külön untracked leltárral javítottuk. Csak a külön
 pin/tisztaság szerint ellenőrzött SDK fa kivétel; más ismeretlen fájl tiltott.
 Öt packaging/provenance teszt, valódi pozitív/negatív dependency-kontroll
 és CTest packaging cél sikeres. Feltöltés az aktuális CI lezárása után.
+
+
+## Új kérés: hat performance factory hang
+
+Alap: #134 squash merge `1660ced6605343d61b485dfca2514547c3414b0f`;
+frissen ellenőrzött négy main workflow mind sikeres, nyitott PR nem volt.
+Robert korábbi rc1 csomagokra Windows/macOS alapműködési sikert jelzett;
+ez nem az új presetbank natív/zenei elfogadása.
+
+- Implementált: 24 → 30 bank, hozzáfűzött stabil kulcsokkal/indexekkel;
+  négy filtermód, két LFO/mátrix, wheel/pressure/velocity, glide, effektek,
+  két arp és névben játékutasítás. Régi 24 definíció és trim változatlan.
+- Helyileg tesztelt: Classic Release 144/144 CTest; Premium production
+  state/recall és identity/latency 2/2, névvel jelölt CC1 hangváltozással.
+  Az első teljes futás egy elavult négy-lead elvárása megbukott; az ötödik
+  leadre igazítás és wheel/hold keresési ellenőrzés után teljes sor sikeres.
+- Végleges Premium pre-guard headroom: 252/252 eset, változatlan -6 dBFS határ,
+  worst -6.51292972 dBFS. Az eredeti 144 mért sor változatlan; az új hangok
+  hangerőhangolása utáni végleges újforrás-mérés, nem CPU-retry.
+- A valódi arm64 VST3 lefordult, automatikus install nem történt. A helyi
+  validátorhoz szükséges teljes Xcode továbbra nincs; validált Mac/Windows
+  RC-t a távoli CI bizonyíthat, helyi fordítás önmagában nem.
+- EN/HU PDF 15/15 oldal frissítve, renderelve és szöveghatárokkal ellenőrizve.
+  A régi browser-képet a bővült hanglista váltja a 10. fejezetben; a korábbi
+  24/144-es RC-bizonyíték történeti jelölése megmarad.
+- Távoli CI: az új PR pontos headjére még függő, eredménye a PR-leírásban
+  véglegesítendő. Natív/zenei elfogadás: az új hangokra nyitott.
+
+[Hanglista, játékutasítások, teljes helyi CSV és mérési korlátok](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
+Nincs DSP/state/ID/threshold változtatás, default Classic marad; release nincs.
