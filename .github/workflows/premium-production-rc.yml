@@ -16,6 +16,7 @@ on:
       - 'scripts/package-plugin.py'
       - 'scripts/validate-plugin.py'
       - 'tests/premium*'
+      - 'tests/factory_presets.cpp'
       - 'docs/PREMIUM_PRODUCTION_RC.md'
       - 'docs/RELEASE_NOTES_1.1.0.md'
       - '.github/workflows/premium-production-rc.yml'

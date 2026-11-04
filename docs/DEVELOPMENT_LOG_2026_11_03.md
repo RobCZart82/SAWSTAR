@@ -184,3 +184,28 @@ sikeres. A CTest JSON-jegyzék pontosan a 0..29 indexeket tartalmazza, hiány é
 ismétlés nélkül; hibás/negatív/tartományon túli selector elutasított. A régi
 félbank és argumentum nélküli teljesbank futtatás elérhető marad.
 A távoli javítás hatását és a K1 státuszát az új pontos head CI-je külön méri.
+
+
+### 66c100d: a Windows Debug lassú eset azonosítva
+
+Windows `41783140508`, Debug job `126419088940`: 171/172 sikeres, kizárólag
+`factory_presets_25` / Velvet Orbit érte el a 600,01 s időkorlátot. A többi
+29 preset sikeres (az új 24/26/27/28/29 indexek 9,01/9,26/15,79/5,90/11,46 s).
+A finomabb felosztás tehát azonosította az esetet, de nem javította a lassulást.
+A Windows Release, VST3 x64/ARM64 és Premium RC workflow sikeres.
+A korábbi „tesztmunka-méretezési” minősítés hipotézis volt; a konkrét ok
+még nem bizonyított, nem növeljük az időkorlátot és nem rövidítjük a rendert.
+
+Célzott helyi x86_64 Debug/Rosetta Velvet Orbit teljes próba sikeres, a timeout
+nem reprodukálódott. Egy külön helyi állapotmegfigyelő a 48 kHz-es, 18 másodperces
+single+release szakaszban 1024 mintánként vizsgálta a név szerint elért engine,
+LFO, delay/reverb/chorus, filter, ADSR és oszcillátor állapotokat: subnormal érték
+nem volt. Ez ritka/köztes jelenséget, más rátát vagy Windows-különbséget nem zár ki.
+A helyi probe outputs/ci-135-velvet-debug alatt van; nem pluginrésze.
+
+A factoryteszt Velvet Orbit esetén most minden ráta/single/chord/release
+határon, a release-ben másodpercenként flush-ölt időbélyeges előrehaladást ír.
+A DSP, presetadat és valamennyi render/ellenőrzés marad. Ez célzott Windows
+hibaazonosítás, nem bizonyított javítás vagy CPU-/natív elfogadási mérés.
+A Premium RC workflow pathlistája e factoryteszt-függőséget is figyeli, hogy
+az aktuális headhez tartozó csomagok később valóban előálljanak.
