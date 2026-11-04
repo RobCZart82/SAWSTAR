@@ -8,25 +8,49 @@
 #include <set>
 #include <memory>
 #include <string>
+#include <chrono>
 void check(bool ok,const char* why){if(!ok){std::cerr<<why<<'\n';std::exit(1);}}
-int main(){
+int main(int argc,char** argv){
  using namespace sawstar;const auto& presets=FactoryPresets();std::set<std::string> keys,names;
+ size_t begin=0,end=presets.size();
+ // Keep every rate/render/release assertion, but bound each Debug CI task.
+ if(argc==2&&std::string(argv[1])=="--first-half")end=presets.size()/2;
+ else if(argc==2&&std::string(argv[1])=="--second-half")begin=presets.size()/2;
+ else if(argc==3&&std::string(argv[1])=="--preset"){
+  char* endArg=nullptr;const long index=std::strtol(argv[2],&endArg,10);
+  if(!argv[2][0]||*endArg||index<0||static_cast<size_t>(index)>=presets.size())return 1;
+  begin=static_cast<size_t>(index);end=begin+1;
+ }
+ else if(argc!=1){std::cerr<<"Usage: factory_tests [--first-half|--second-half|--preset INDEX]\n";return 1;}
+ // Identity uniqueness covers the entire bank, even in a render shard.
+ for(const auto& preset:presets)
+  check(keys.insert(preset.key).second&&names.insert(preset.name).second,"unique preset identities");
  check(presets[0].values==DefaultSnapshot(),"Init must use parameter defaults");
- for(size_t p=0;p<presets.size();++p){const auto& v=presets[p].values;
+ for(size_t p=begin;p<end;++p){const auto& v=presets[p].values;
+  std::cout<<"Factory preset "<<p<<": "<<presets[p].key<<std::endl;
   check(std::string(presets[p].tags).size()>0&&std::string(presets[p].tags).size()<=36,"short factory tags");
   check(v[size_t(ParameterId::ArpHold)]==0,"factory must not latch notes by default");
-  check(keys.insert(presets[p].key).second&&names.insert(presets[p].name).second,"unique preset identities");
   for(size_t i=0;i<v.size();++i)check(std::isfinite(v[i])&&v[i]>=kParameters[i].minimum&&v[i]<=kParameters[i].maximum,"valid factory value");
   check(MatchFactoryPreset(v)==static_cast<int>(p),"factory recognition");
   if(std::string(presets[p].category)=="Templates"){for(auto id:{ParameterId::ChorusEnabled,ParameterId::DelayEnabled,ParameterId::ReverbEnabled,ParameterId::ArpEnabled,ParameterId::LfoDepth,ParameterId::Lfo2Depth})check(v[size_t(id)]==0,"templates stay dry and unmodulated");}
   auto bytes=EncodeState(v);Snapshot restored{};check(DecodeState(bytes.data(),bytes.size(),restored)==bytes.size()&&restored==v,"factory save/recall");
   auto edited=v;edited[0]+=.01;check(MatchFactoryPreset(edited)==-1,"edited sound is Custom");
   for(float sr:{44100.f,48000.f,96000.f}){
+   const bool detailed=std::string(presets[p].key)=="velvet_orbit";
+   const auto phaseStart=std::chrono::steady_clock::now();
+   const auto progress=[&](const char* phase,int second=-1){
+    if(!detailed)return;
+    const double elapsed=std::chrono::duration<double>(std::chrono::steady_clock::now()-phaseStart).count();
+    std::cout<<"Factory diagnostic key="<<presets[p].key<<" rate="<<sr<<" phase="<<phase
+             <<" rendered_second="<<second<<" elapsed_seconds="<<elapsed<<std::endl;
+   };
+   progress("single-start");
    auto configure=[&](Rig& s,const Snapshot& values){s.init(sr);s.apply(values);};
    auto single=std::make_unique<Rig>();auto& s=*single;configure(s,v);
    s.midi(0x90,p==4?36:60,100);double energy=0;
    for(int i=0;i<sr*2;++i){auto x=s.process();check(std::isfinite(x.left)&&std::isfinite(x.right)&&std::abs(x.left)<=1&&std::abs(x.right)<=1,"factory audio bounds");energy+=x.left*x.left+x.right*x.right;}
    check(energy>.001,"factory preset produces audio");
+   progress("single-complete");
    if(p==6||p==7){
     auto full=std::make_unique<Rig>(),reducedRig=std::make_unique<Rig>();auto& chord=*full;auto& withoutSecond=*reducedRig;configure(chord,v);auto reduced=v;reduced[21]=0;configure(withoutSecond,reduced);
     for(int note:{48,55,60,64,67}){chord.midi(0x90,note,110);withoutSecond.midi(0x90,note,110);}
@@ -41,6 +65,7 @@ int main(){
     std::cout<<presets[p].name<<" @ "<<sr<<" Hz chord peak "<<20*std::log10(peak)<<" dBFS\n";
    }
    if(sr==48000.f){
+    progress("chord-start");
     auto chord=std::make_unique<Rig>();configure(*chord,v);
     const bool bass=std::string(presets[p].category)=="Bass"||std::string(presets[p].key)=="bass_init";
     if(bass)chord->midi(0x90,36,110);
@@ -51,7 +76,11 @@ int main(){
     check(peak>.001&&peak<.95,"factory phrase audible with headroom");
     std::cout<<"Factory level: "<<presets[p].key<<" peak "<<20*std::log10(peak)<<" dBFS, six-second RMS "<<10*std::log10(energy/(48000*6))<<" dBFS\n";
    }
-   s.midi(0x80,p==4?36:60,0);for(int i=0;i<sr*std::max(12.,1.+5.*v[4]/1000.);++i)s.process();check(s.synth.ActiveVoices()==0,"factory release finishes");
+   progress("release-start");
+   s.midi(0x80,p==4?36:60,0);for(int i=0;i<sr*std::max(12.,1.+5.*v[4]/1000.);++i){
+    s.process();if(detailed&&i%static_cast<int>(sr)==0)progress("release",i/static_cast<int>(sr));
+   }
+   progress("release-complete");check(s.synth.ActiveVoices()==0,"factory release finishes");
   }
  }
  check(StepFactoryPreset(0,-1)==int(presets.size())-1&&StepFactoryPreset(int(presets.size())-1,1)==0,"selector wraps");

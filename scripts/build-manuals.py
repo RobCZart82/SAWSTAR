@@ -25,11 +25,11 @@ S.add(ParagraphStyle(name='Sub',fontName='DVB',fontSize=12,leading=17,spaceBefor
 S.add(ParagraphStyle(name='Small2',fontName='DV',fontSize=8,leading=11,spaceAfter=7,textColor=colors.HexColor('#526573')))
 # Use supplied screenshots unchanged; ReportLab scales them on the page.
 import shutil
-for n in ['main','advanced','presets']:
+for n in ['main','advanced']:
     shutil.copy2(REPO/f'docs/reference/screenshot-{n}.png',ROOT/f'tmp/pdfs/{n}.png')
 EN=[
 ('Start here',[
-('About this guide',f'SAWSTAR is a VST3 synthesizer for saw leads, pads, plucks and related sounds. This guide describes SAWSTAR {EDITION_LABEL} and its 24 embedded factory presets. Edition: {EDITION} Screenshots show version 1.0.3, capture build 8040390. The displayed preset count includes user-library entries.'),
+('About this guide',f'SAWSTAR is a VST3 synthesizer for saw leads, pads, plucks and related sounds. This guide describes SAWSTAR {EDITION_LABEL} and its 30 embedded factory presets. Edition: {EDITION} Screenshots show version 1.0.3, capture build 8040390. The displayed preset count includes user-library entries.'),
 ('Reading the interface','Names such as MAIN, ADVANCED, PRESETS, Save As and NOISE COLOR are the labels to look for in the plugin. Start with MAIN for sound design; ADVANCED contains performance and deeper controls; PRESETS manages the library and explains saved sounds.'),
 ('Contents','2 Installation and first sound • 3 Navigation and controls • 4 Sound sources and output • 5 Filter, envelopes and scope • 6 Effects • 7 Performance and arpeggiator • 8 LFO and modulation • 9 Preset workflow • 10 Factory library • 11 Sound design recipes • 12 Troubleshooting and support • 13 Performance details • 14 Updating to 1.0.4')]),
 ('Installation and first sound',[
@@ -75,12 +75,13 @@ EN=[
 ('Import, Copy and Paste','Import accepts multiple .sawstar files at once, so a collection need not be imported one file at a time. It reports skipped or failed items and does not automatically play a preset. Copy/Paste transfers sound settings within the editor and creates no file until saved. This clipboard is temporary and is cleared when the editor closes.'),
 ('Rename, Delete and Initialize','Rename changes a selected user preset name. Delete asks for confirmation and retains a .deleted backup; it does not stop the currently playing sound. Initialize asks before resetting the sound to Init. Save changes you want to keep before initializing or loading another sound.'),
 ('Library and recovery','User files: macOS ~/Library/Application Support/SAWSTAR/Presets ; Windows %APPDATA%\\SAWSTAR\\Presets . Save backups are kept in .sawstar-backups below that folder. Restore a backup by copying it into the library under an unused .sawstar filename. DAW projects store sound parameters independently, but may not restore the association with a user file for Save; reload that user preset to re-establish it.')]),
-('Factory library: 24 starting points',[
+('Factory library: 30 presets',[
 ('Seven Templates','Init • Pad-Init • Lead-Init • Pluck-Init • Bass-Init • Keys-Init • Arp-Init. These are deliberate starting points rather than finished demonstrations. Effects and movement are kept off. In Arp-Init, enable ARP yourself to begin developing a pattern.'),
 ('Leads','Wide Saw Lead • SuperSaw One • Silk Lead • Solid Saw Lead. Explore stereo unison, fuller saw layers and connected lead playing. Compare with Lead-Init to understand which changes create the finished character.'),
 ('Pads','Soft Pad • Soft Pad One • Warm Horizon • Velvet Pad. Use held chords to hear envelope development and tails. Keep space for other instruments when adding width and reverb.'),
 ('Plucks, basses and keys','Plucks: Saw Pluck • Glass Pluck • Trance Pluck. Basses: Deep Bass • Round Sub. Keys: Bright Keys • Air Keys. Try short and long notes, plus different velocities, to understand the envelope response.'),
-('Arpeggiated sounds','Simple Steps • Octave Steps. Hold a chord and explore rate and gate before changing the oscillators. Empty categories in the browser do not indicate a missing installation; this edition contains the 24 named presets above. User presets are additional and are not part of the embedded factory count.')]),
+('Arpeggiated sounds','Simple Steps • Octave Steps. Hold a chord and explore rate and gate before changing the oscillators. Empty categories in the browser do not indicate a missing installation; this edition contains 30 presets, including the six performance sounds below. User presets are additional and are not part of the embedded factory count.'),
+('Six performance sounds','Wheelfire (use modwheel): LP24 legato lead. Velvet Orbit (use modwheel): moving BP12 pad. Copper Pulse (use modwheel): synced LP24 bass. Polar Keys (use modwheel): BP12 keys. Neon Current (hold chord): LP12 up/down arp. Glass Circuit (hold chord): HP12 descending arp. Wheel opens the filter; HOLD stays off. Robert approved these six sounds using the separate preset test pack; exact-build host acceptance remains open.')]),
 ('Three sound design exercises',[
 ('A broad lead','Load Lead-Init. Choose Saw for OSC 1, raise UNISON gradually and use moderate DETUNE. Bring in OSC 2 at a lower mixer level to add body. Adjust WIDTH while checking mono. Use a fast amp attack and a release that does not overlap phrases too much. Add a restrained delay, then balance OUTPUT against another instrument. Save As with your own name.'),
 ('A soft pad','Load Pad-Init. Blend two oscillators and lengthen amp attack and release. Lower cutoff with FILTER MIX active, and use a gentle filter-envelope amount. Add a small chorus and reverb. If needed, introduce a very slow, low-depth pan or cutoff LFO. Avoid adding modulation only because it is available: a stable pad is a valid design.'),
@@ -94,7 +95,7 @@ EN=[
 ('Project and credits','SAWSTAR: Simple Synth - Big Sound. The Sounds of Trance. Created by Gyuricza Róbert / RobCZart82. Project, source and issue reporting: https://github.com/RobCZart82/SAWSTAR . The project license and third-party notices are supplied in the repository. See the release notes for download packages and supported configurations.')])]
 HU=[
 ('Kezdjük itt',[
-('Az útmutatóról',f'A SAWSTAR VST3 szintetizátor saw lead, pad, pluck és rokon hangszínek készítésére. Ez az útmutató a SAWSTAR {EDITION_LABEL} változatot és annak 24 beépített factory presetjét ismerteti. Kiadás: {EDITION} A képek az 1.0.3 verzió 8040390 buildjéről készültek. A megjelenített presetszám felhasználói hangszíneket is tartalmaz.'),
+('Az útmutatóról',f'A SAWSTAR VST3 szintetizátor saw lead, pad, pluck és rokon hangszínek készítésére. Ez az útmutató a SAWSTAR {EDITION_LABEL} változatot és annak 30 beépített factory presetjét ismerteti. Kiadás: {EDITION} A képek az 1.0.3 verzió 8040390 buildjéről készültek. A megjelenített presetszám felhasználói hangszíneket is tartalmaz.'),
 ('A felület olvasása','A MAIN, ADVANCED, PRESETS, Save As és NOISE COLOR neveket a programban is így találod. A MAIN a hangkészítésé, az ADVANCED a részletesebb és előadási beállításoké, a PRESETS pedig a hangszínkönyvtáré és a mentett hangok magyarázatáé.'),
 ('Tartalom','2 Telepítés és első hang • 3 Nézetek és kezelőszervek • 4 Hangforrások és kimenet • 5 Szűrő, burkolók és scope • 6 Effektek • 7 Előadás és arpeggiator • 8 LFO és moduláció • 9 Presetek kezelése • 10 Factory könyvtár • 11 Hangkészítési gyakorlatok • 12 Hibaelhárítás és támogatás • 13 Játék és vezérlők • 14 Frissítés az 1.0.4-re')]),
 ('Telepítés és első hang',[
@@ -140,12 +141,13 @@ HU=[
 ('Import, Copy és Paste','Az Import egyszerre több .sawstar fájlt fogad, így nem kell egyesével betölteni a gyűjteményt. Jelzi a kihagyott vagy hibás fájlokat, és nem indít el automatikusan hangszínt. A Copy/Paste a szerkesztőn belül másol hangbeállítást; mentésig nem készít fájlt. Ez a vágólap átmeneti, az editor bezárásakor törlődik.'),
 ('Rename, Delete és Initialize','A Rename a kijelölt user preset nevét módosítja. A Delete megerősítést kér és .deleted biztonsági másolatot hagy; az éppen szóló hangot nem állítja le. Az Initialize megerősítés után Initre állít. Betöltés vagy inicializálás előtt mentsd, amit meg akarsz tartani.'),
 ('Könyvtár és visszaállítás','User mappa: macOS ~/Library/Application Support/SAWSTAR/Presets ; Windows %APPDATA%\\SAWSTAR\\Presets . A Save mentései az alatta lévő .sawstar-backups mappába kerülnek. Visszaállításhoz másold a mentést a könyvtárba még nem használt .sawstar néven. A DAW projekt külön tárolja a hangparamétereket, de a user fájlhoz tartozó Save kapcsolat nem feltétlenül áll vissza; ehhez töltsd újra a user presetet.')]),
-('Factory könyvtár: 24 kiindulópont',[
+('Factory könyvtár: 30 hang',[
 ('Hét Templates hang','Init • Pad-Init • Lead-Init • Pluck-Init • Bass-Init • Keys-Init • Arp-Init. Ezek tudatos kiindulópontok, nem kész bemutatóhangok. Az effektek és mozgások kikapcsoltak. Az Arp-Init esetén is magad kapcsold be az ARP-ot a minta kidolgozásához.'),
 ('Lead hangok','Wide Saw Lead • SuperSaw One • Silk Lead • Solid Saw Lead. Sztereó unisonhoz, testes saw rétegekhez és összekötött dallamjátékhoz. A Lead-Inithez hasonlítva könnyebb megérteni, miből születik a kész karakter.'),
 ('Pad hangok','Soft Pad • Soft Pad One • Warm Horizon • Velvet Pad. Kitartott akkordokon hallgasd a burkolók fejlődését és lecsengését. Szélesítés és reverb közben hagyj helyet a többi hangszernek is.'),
 ('Pluck, basszus és keys','Pluck: Saw Pluck • Glass Pluck • Trance Pluck. Basszus: Deep Bass • Round Sub. Keys: Bright Keys • Air Keys. Próbálj rövid és hosszú hangokat, különböző leütési erősséggel, hogy megismerd a burkolók válaszát.'),
-('Arpeggiált hangok','Simple Steps • Octave Steps. Tarts le akkordot, és először a rate/gate hatását vizsgáld. Az üres kategória nem telepítési hiba: ebben a változatban a fenti 24 factory hang szerepel. A saját user presetek ezen felül jelennek meg, nem tartoznak a beépített darabszámba.')]),
+('Arpeggiált hangok','Simple Steps • Octave Steps. Tarts le akkordot, és először a rate/gate hatását vizsgáld. Az üres kategória nem telepítési hiba: ebben a változatban 30 factory hang szerepel, az alábbi hat új hanggal együtt. A saját user presetek ezen felül jelennek meg, nem tartoznak a beépített darabszámba.'),
+('Hat új performance hang','Wheelfire (use modwheel): LP24 legato lead. Velvet Orbit (use modwheel): mozgó BP12 pad. Copper Pulse (use modwheel): szinkron LP24 basszus. Polar Keys (use modwheel): BP12 keys. Neon Current (hold chord): LP12 fel/le arp. Glass Circuit (hold chord): HP12 lefelé arp. A kerék nyitja a filtert; a HOLD kikapcsolt. Robert a külön presetcsomagban meghallgatta és elfogadta e hat hangot; a pontos build host-elfogadása még nyitott.')]),
 ('Három hangkészítési gyakorlat',[
 ('Széles lead','Töltsd be a Lead-Initet. OSC 1-en válassz Saw-t, fokozatosan emeld az UNISON-t, mérsékelt DETUNE mellett. OSC 2-t halkabban keverd hozzá a testességhez. Állíts WIDTH-ot, monóban is ellenőrizve. Az amp attack legyen gyors, a release ne mossa össze túlságosan a frázisokat. Adj kevés delayt, majd más hangszerhez mérve állíts kimeneti szintet. Save As saját néven.'),
 ('Lágy pad','Töltsd be a Pad-Initet. Keverj két oszcillátort, hosszabbítsd az amp attackot és release-t. Aktív FILTER MIX mellett csökkents cutoffot, adj enyhe filter-envelope amountot. Kevés chorus és reverb következhet. Ha szükséges, használj nagyon lassú, kis mélységű pan vagy cutoff LFO-t. A mozgás nem kötelező: a stabil pad is jó hangszín.'),
@@ -186,8 +188,8 @@ HU.append(('Frissítés az 1.0.4-re',[
 # Candidate manuals distinguish the RC from the public stable release and
 # describe the production integration without claiming native acceptance.
 if CANDIDATE:
- EN[0][1][0] = ('About this RC guide', f'This is the unpublished SAWSTAR {EDITION_LABEL} test-candidate guide, not a final release or native acceptance report. It covers 24 factory presets. Screenshots remain from 1.0.3, capture build 8040390; they illustrate the established layout. Read chapter 15 before replacing a plugin. Edition: {EDITION}.')
- HU[0][1][0] = ('Az RC-utmutató hatóköre', f'Ez a nem publikált SAWSTAR {EDITION_LABEL} tesztjelölt útmutatója, nem végleges kiadás vagy natív elfogadási jegyzőkönyv. A bank 24 factory presetet tartalmaz. A képek az 1.0.3 verzió 8040390 buildjéből származnak, a meglévő elrendezést szemléltetik. Plugincsere előtt olvasd el a 15. fejezetet. Kiadásjelölés: {EDITION}.')
+ EN[0][1][0] = ('About this RC guide', f'This is the unpublished SAWSTAR {EDITION_LABEL} test-candidate guide, not a final release or native acceptance report. It covers 30 factory presets. Screenshots remain from 1.0.3, capture build 8040390; they illustrate the established layout. Read chapter 15 before replacing a plugin. Edition: {EDITION}.')
+ HU[0][1][0] = ('Az RC-utmutató hatóköre', f'Ez a nem publikált SAWSTAR {EDITION_LABEL} tesztjelölt útmutatója, nem végleges kiadás vagy natív elfogadási jegyzőkönyv. A bank 30 factory presetet tartalmaz. A képek az 1.0.3 verzió 8040390 buildjéből származnak, a meglévő elrendezést szemléltetik. Plugincsere előtt olvasd el a 15. fejezetet. Kiadásjelölés: {EDITION}.')
  EN[0][1][-1] = ('Contents', EN[0][1][-1][1].replace('Updating to 1.0.4', 'Earlier compatibility fixes') + ' • 15 Premium integration RC')
  HU[0][1][-1] = ('Tartalom', HU[0][1][-1][1].replace('Frissítés az 1.0.4-re', 'Korábbi kompatibilitási javítások') + ' • 15 Premium integrációs RC')
  EN[1][1][0] = ('RC packages', 'The Premium integration RC is prepared as macOS Universal and Windows x64 VST3 bundles. Windows ARM64 Premium RC is not qualified. The build does not install automatically. Use only a package with matching source, hashes and validator evidence; a successful build does not imply host acceptance.')
@@ -200,13 +202,13 @@ if CANDIDATE:
   ('Engine and identity', 'The explicit Premium production integration uses the calibrated lookup reference engine. It keeps the SAWSTAR name, plugin ID, parameter IDs, preset folder and state format. Preview and Candidate remain separate test identities. The default source build stays Classic until acceptance gates are met.'),
   ('Project migration', 'Classic state and preset data remain readable, but the Premium filter changes the sound. This is format compatibility, not identical Classic recall. Preserve the previous plugin and projects. Do not install Classic and this RC side by side with the same SAWSTAR identity.'),
   ('Filter and latency', 'LP12, LP24, HP12 and BP12 retain the existing controls. The Premium build reports 32 samples of latency; dry and wet filter paths are aligned. Check host compensation, automation and bypass with the exact RC. Calibration retains dry unity, the accepted wet gain and preset trims; it is not automatic loudness matching.'),
-  ('Factory checks', 'The offline 24-preset headroom grid covers 44.1/48 kHz and 1/8/16 held roots at velocity 127. All 144 cells passed the unchanged -6 dBFS pre-guard limit, worst -6.51293 dBFS. These are engineering checks, not musical listening or a realtime CPU guarantee.'),
+  ('Factory checks', 'The previous 24-preset RC headroom grid covered 44.1/48 kHz and 1/8/16 held roots at velocity 127. All 144 cells passed the unchanged -6 dBFS pre-guard limit, worst -6.51293 dBFS. The six added performance presets require the expanded 252-case grid: 180 default cases plus 72 full/swept wheel-pressure cases. See the exact build evidence; these are engineering checks, not musical listening or a realtime CPU guarantee.'),
   ('Open release gates', 'Native Mac/Windows CPU/dropout, filter quality, GUI/lifecycle and exact-RC host checks remain open, as do preset listening and K1 numerical resolution. A validated ZIP is not native acceptance. No publication is authorized by this manual. The public stable release remains 1.0.4.')]))
  HU.append(('Premium integrációs RC', [
   ('Motor és identitás', 'Az explicit Premium production-integráció a kalibrált lookup referenciamotort használja. A SAWSTAR név, plugin-ID, paraméter-ID-k, presetmappa és állapotformátum megmarad. A Preview és Candidate külön tesztidentitás. A forrás alapértelmezett buildje az elfogadási kapukig Classic.'),
   ('Projektek migrációja', 'A Classic állapot és preset továbbra olvasható, de a Premium filter megváltoztatja a hangot. Ez formátumkompatibilitás, nem azonos Classic hangzás. Őrizd meg a régi plugint és projekteket. Az RC-t és a Classicot ne telepítsd egymás mellé azonos SAWSTAR-identitással.'),
   ('Filter és késleltetés', 'Az LP12/LP24/HP12/BP12 meglévő kezelőszervei maradnak. A Premium build 32 minta késleltetést jelent; a dry és wet filterút egyezik. A pontos RC-vel ellenőrizd a host kompenzációját, automatizálást és bypass-t. A kalibráció dry unity, elfogadott wet gain és preset-trimek; nem automatikus hangerőkiegyenlítés.'),
-  ('Factory ellenőrzés', 'Az offline 24 presetes headroom-rács 44,1/48 kHz-et, 1/8/16 kitartott MIDI-gyökeret és velocity 127-et vizsgál. Mind a 144 eset teljesítette a változatlan -6 dBFS limiter előtti határt; a legrosszabb csúcs -6,51293 dBFS. Ez műszaki próba, nem zenei meghallgatás vagy realtime CPU-garancia.'),
+  ('Factory ellenőrzés', 'A korábbi, 24 presetes RC headroom-rácsa 44,1/48 kHz-et, 1/8/16 kitartott MIDI-gyökeret és velocity 127-et vizsgál. Mind a 144 eset teljesítette a változatlan -6 dBFS limiter előtti határt; a legrosszabb csúcs -6,51293 dBFS. A hat új performance hanghoz 252 eset kell: 180 alaphelyzeti és 72 teljes/mozgatott kerék- és pressure-eset. Az eredményt a pontos build bizonyítja; ez műszaki próba, nem zenei meghallgatás vagy realtime CPU-garancia.'),
   ('Nyitott kiadási kapuk', 'A natív Mac/Windows CPU/dropout-, filterminőségi, GUI/lifecycle- és pontos RC hostpróbák, presetenkénti hallgatás és K1 numerikus rendezés nyitottak. A validált ZIP nem natív elfogadás. Az útmutató nem publikálási engedély; a nyilvános stabil kiadás továbbra 1.0.4.')]))
 
 def footer(c,d):
@@ -226,9 +228,9 @@ def build(lang,pages):
   else: story.append(Paragraph(f'{ix+1:02d} / {title}',S['Title2']))
   for heading,body in sections:
    story.append(KeepTogether([Paragraph(heading,S['Sub']),Paragraph(body,S['Body'])]))
-  if ix in (2,9):
+  if ix==2:
    story.append(Spacer(1,14))
-   story.append(Image(str(ROOT/('tmp/pdfs/advanced.png' if ix==2 else 'tmp/pdfs/presets.png')),width=370,height=220))
+   story.append(Image(str(ROOT/'tmp/pdfs/advanced.png'),width=370,height=220))
  doc.build(story,onFirstPage=footer,onLaterPages=footer)
  print(out)
 for lang,pages in [('EN',EN),('HU',HU)]:build(lang,pages)

@@ -95,3 +95,152 @@ reprodukáltuk és külön untracked leltárral javítottuk. Csak a külön
 pin/tisztaság szerint ellenőrzött SDK fa kivétel; más ismeretlen fájl tiltott.
 Öt packaging/provenance teszt, valódi pozitív/negatív dependency-kontroll
 és CTest packaging cél sikeres. Feltöltés az aktuális CI lezárása után.
+
+
+## Új kérés: hat performance factory hang
+
+Alap: #134 squash merge `1660ced6605343d61b485dfca2514547c3414b0f`;
+frissen ellenőrzött négy main workflow mind sikeres, nyitott PR nem volt.
+Robert korábbi rc1 csomagokra Windows/macOS alapműködési sikert jelzett;
+ez nem az új presetbank natív/zenei elfogadása.
+
+- Implementált: 24 → 30 bank, hozzáfűzött stabil kulcsokkal/indexekkel;
+  négy filtermód, két LFO/mátrix, wheel/pressure/velocity, glide, effektek,
+  két arp és névben játékutasítás. Régi 24 definíció és trim változatlan.
+- Helyileg tesztelt: Classic Release 144/144 CTest; Premium production
+  state/recall és identity/latency 2/2, névvel jelölt CC1 hangváltozással.
+  Az első teljes futás egy elavult négy-lead elvárása megbukott; az ötödik
+  leadre igazítás és wheel/hold keresési ellenőrzés után teljes sor sikeres.
+- Végleges Premium pre-guard headroom: 252/252 eset, változatlan -6 dBFS határ,
+  worst -6.51292972 dBFS. Az eredeti 144 mért sor változatlan; az új hangok
+  hangerőhangolása utáni végleges újforrás-mérés, nem CPU-retry.
+- A valódi arm64 VST3 lefordult, automatikus install nem történt. A helyi
+  validátorhoz szükséges teljes Xcode továbbra nincs; validált Mac/Windows
+  RC-t a távoli CI bizonyíthat, helyi fordítás önmagában nem.
+- EN/HU PDF 15/15 oldal frissítve, renderelve és szöveghatárokkal ellenőrizve.
+  A régi browser-képet a bővült hanglista váltja a 10. fejezetben; a korábbi
+  24/144-es RC-bizonyíték történeti jelölése megmarad.
+- Távoli CI: az új PR pontos headjére még függő, eredménye a PR-leírásban
+  véglegesítendő. Natív/zenei elfogadás: az új hangokra nyitott.
+
+[Hanglista, játékutasítások, teljes helyi CSV és mérési korlátok](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
+Nincs DSP/state/ID/threshold változtatás, default Classic marad; release nincs.
+
+
+### #135: Windows Debug időkorlát és hat új hang zenei jóváhagyása
+
+Robert a hat új exportált hangot meghallgatta és jelezte: „meghallgattam jól
+szólnak”. Ez az új hat snapshot zenei elfogadása; a teljes bank/pontos VST3
+natív host-/CPU-/lifecycle-/K1-/publikálási kapui ettől nem záródnak le.
+
+Az első head Windows foundation futása `41710536547`: Release és VST3 x64
+sikeres; Debug 142/143 sikeres, a `factory_presets` 600,01 másodpercnél timeout.
+A külön Premium production RC `41710536432` sikeres. Ez tesztmunka-méretezési
+hiba, nem bizonyított hang-/preset-/CPU-regresszió.
+A teljes factory render/ráták/akkord/lecsengés-ellenőrzés két diszjunkt,
+indexalapú félbank-tesztre bontva fut; a 600 s időkorlát és valamennyi
+mintaszám/küszöb/állítás megmarad. A bank globális kulcs/név-egyedisége
+mindkét tesztben ellenőrzött. Az argumentum nélküli futtatás továbbra teljes bank.
+A javítás feltöltése megvárja a régi head még futó workflow-it.
+
+
+A félbank-javítás helyi ellenőrzése: Debug 2/2 sikeres (101,01 s és 78,80 s),
+Release 2/2 sikeres (13,79 s és 10,36 s). Mind a 30 preset ugyanazokon a
+mintaszámokon, rátákon és lecsengési állításokon ment végig.
+2026-11-03 21:00 UTC-kor a régi head Windows workflow-ja már 2. kísérletben
+futott, GitHub triggering_actor `RobCZart82`, új Debug job `126197624639`;
+ezt az agent nem indította. Az első timeout bizonyítéka megmarad, a javítás
+feltöltése megvárja e futás végét is.
+
+
+### 2026-11-04: 001847b CI — megőrzött új K1 negatív eset
+
+A 22 workflow közül kettő piros: Windows foundation `41724068907` Debug
+`factory_presets_remaining` 600,01 s timeout (143/144 sikeres); az első
+félbank 111,06 s alatt sikeres. Release/VST3 x64/ARM64 és Premium RC sikeres.
+A félbank-felosztás Windows Debugban tehát nem elég. A teljes mintaszámú
+ellenőrzés presetenként külön CTest-feladatra bontva fut; a globális egyediség
+minden feladatban ellenőrzött, a 600 s és numerikus határok maradnak.
+A napló flush-ölt presetkulcsot is ír a lassú eset azonosításához.
+
+K1 passive FP observation `41724068835`, job `126224107488`, artifact
+`13272794936`: valódi új negatív megfigyelés, nem infrastruktúrahiba.
+Rosetta x86_64 observed, triangle/waveform2, 176400 Hz, filter0, poly/voice0,
+FX on, reference→candidate sorrend, main frame152: pre-FX right
+reference `0x407b4cb2` / candidate `0x407b4cb1` (1 ULP). A kimeneti két
+csatorna ebben az első eltérő mintában még bitazonos. MXCSR mindkét process
+előtt/után `0x1fb3`, controls `0x1f80`, rounding0; nincs itt vezérlőváltás.
+Az arm64 baseline/observed/candidate-first és x86 baseline/candidate-first
+sikeres, az x86 observed megszakadt a 49. teljes eset után. Ez nem okbizonyítás.
+[Teljes manifest és első eltérés](measurements/k1-passive-001847b-negative.json).
+Mind a 20 nyers output/log hash a letöltés után egyezett a manifesttel.
+
+A presetadatok újrahangolása vagy a K1-küszöb lazítása nem történik. A CMake
+szükséges tesztfelosztási javításának új CI-je nem változatlan mérés retryja;
+egy későbbi zöld K1-futás nem törli ezt a negatív bizonyítékot és nem K1-javítás.
+
+A presetenkénti végleges tesztfelosztás helyben Release 30/30, Debug 30/30
+sikeres. A CTest JSON-jegyzék pontosan a 0..29 indexeket tartalmazza, hiány és
+ismétlés nélkül; hibás/negatív/tartományon túli selector elutasított. A régi
+félbank és argumentum nélküli teljesbank futtatás elérhető marad.
+A távoli javítás hatását és a K1 státuszát az új pontos head CI-je külön méri.
+
+
+### 66c100d: a Windows Debug lassú eset azonosítva
+
+Windows `41783140508`, Debug job `126419088940`: 171/172 sikeres, kizárólag
+`factory_presets_25` / Velvet Orbit érte el a 600,01 s időkorlátot. A többi
+29 preset sikeres (az új 24/26/27/28/29 indexek 9,01/9,26/15,79/5,90/11,46 s).
+A finomabb felosztás tehát azonosította az esetet, de nem javította a lassulást.
+A Windows Release, VST3 x64/ARM64 és Premium RC workflow sikeres.
+A korábbi „tesztmunka-méretezési” minősítés hipotézis volt; a konkrét ok
+még nem bizonyított, nem növeljük az időkorlátot és nem rövidítjük a rendert.
+
+Célzott helyi x86_64 Debug/Rosetta Velvet Orbit teljes próba sikeres, a timeout
+nem reprodukálódott. Egy külön helyi állapotmegfigyelő a 48 kHz-es, 18 másodperces
+single+release szakaszban 1024 mintánként vizsgálta a név szerint elért engine,
+LFO, delay/reverb/chorus, filter, ADSR és oszcillátor állapotokat: subnormal érték
+nem volt. Ez ritka/köztes jelenséget, más rátát vagy Windows-különbséget nem zár ki.
+A helyi probe outputs/ci-135-velvet-debug alatt van; nem pluginrésze.
+
+A factoryteszt Velvet Orbit esetén most minden ráta/single/chord/release
+határon, a release-ben másodpercenként flush-ölt időbélyeges előrehaladást ír.
+A DSP, presetadat és valamennyi render/ellenőrzés marad. Ez célzott Windows
+hibaazonosítás, nem bizonyított javítás vagy CPU-/natív elfogadási mérés.
+A Premium RC workflow pathlistája e factoryteszt-függőséget is figyeli, hogy
+az aktuális headhez tartozó csomagok később valóban előálljanak.
+
+
+### 2026-11-04: a Velvet Orbit hibájának helyi bizonyítása és javítása
+
+Az 1f138ea Windows `41787944470` Debug `126434314232` naplója: 44,1 kHz,
+single2s gyors, release0..10s gyors (összesen2,7167s), következő checkpoint hiányzik.
+A chorus negatív körpozíciója float kerekítéssel 8192 lehetett, az első
+interpolációs cím wrap nélkül érvénytelen lett. Az exact Velvet chorus
+ütemezés 565729. mintánál /12,828322s-nél előidézte e címet, a Windows
+elakadás intervallumán belül. Külön 48k fixture a régi bal olvasásban a jobb
+csatorna -0,75 értékét adta a várt +0,25 helyett. A regresszió a régi
+feldolgozási kóddal ténylegesen piros volt; az egyszerűsített „csak hosszú teszt”
+hipotézis elvetve.
+
+A fix az első chorus címet is modulo8192 körbeforgatja, az eredeti törtrészt
+megőrzi. Ez szükséges közös DSP-javítás a preset-PR-ben; a régi és új
+presetadat/ID/trim változatlan. Nem timeout/threshold/FP lazítás.
+[Részletes bizonyíték, mérés és teszt](CHORUS_RING_BOUNDARY_2026_11_04.md).
+A javított Windows/RC CI és a helyi szélesebb eredmények külön rögzítendők;
+a K1 előző negatív nem törlődik és nem válik ettől megoldottá.
+
+
+## Helyi javítás utáni eredmény
+
+- Teljes Classic Release CTest: **173/173 sikeres** (91,31 s).
+- Debug: a chorus regresszió és a 30 factory feladat **31/31 sikeres** (120,54 s).
+- Premium production state/identity: **2/2 sikeres**.
+- Premium limiter előtti headroom: **252/252 sikeres**, worst **-6.51292972 dBFS**;
+  a teljes CSV byte-egyezik a korábbi commitolt rácséval.
+- Külön AddressSanitizer/UBSan boundary-probe: sikeres, a korábbi -0,75 helyett
+  a helyes +0,25 bal csatorna. A régi feldolgozási kód negatív kontrollja megmarad.
+- Valódi arm64 VST3 újrafordult; nincs automatikus install/publikálás.
+
+A távoli Windows Debug és valamennyi pontos-head CI/RC bizonyíték még függő.
+A korábbi K1 negatív külön nyitott, a chorus-javítás nem K1-javítás.

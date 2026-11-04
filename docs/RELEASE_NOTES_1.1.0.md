@@ -1,5 +1,8 @@
 # SAWSTAR 1.1.0 rc1 — kiadási leírás tervezete
 
+- Fejlesztés alatt: hat új performance factory preset, 30-as bank, modwheel/akkord játékutasításokkal. [Részletek és elfogadási kapuk](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
+
+
 Nem publikált végleges kiadás. A nyilvános stabil kiadás továbbra 1.0.4.
 
 - Premium LP12/LP24/HP12/BP12 filter integrációs build a SAWSTAR wrapperben.

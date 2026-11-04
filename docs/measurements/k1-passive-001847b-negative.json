@@ -1,0 +1,130 @@
+{
+  "manifest": {
+    "schema": 1,
+    "state": "failed",
+    "passive": true,
+    "ftz_daz_override": false,
+    "internal_synth_trace": false,
+    "purpose": "K1 FP-state observation; not root-cause proof or CPU acceptance",
+    "source_commit": "001847ba7932a9d65fa38104e7e1b888db770b53",
+    "host_architecture": "arm64",
+    "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t15.8.2\nBuildVersion:\t\t24H232\n",
+    "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+    "executable_sha256": "2fb9f21146ade7ee54061846da06886e22460ba90b68490dd754a5831d213115",
+    "cache_sha256": "ebd3e74db2527bca0586c4bfd2e3f8a962a75f079d5287831739f4cc4923954f",
+    "results": [
+      {
+        "architecture": "arm64",
+        "name": "fp-self-test",
+        "returncode": 0,
+        "stdout_sha256": "05e5a25ee8c3ea5bb08a4cc442d6b2368f097e2fe8f2f6d1eac77bdb07638851",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "arm64",
+        "name": "diagnostic-self-test",
+        "returncode": 0,
+        "stdout_sha256": "e947271961abcc700dd9279511354ab7b2f33cb5fa77da6bf2442fc39853cda0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "arm64",
+        "name": "baseline",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "arm64",
+        "name": "observed",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "32888be03609f463f1605dc134061d74c922e871ecb58ca810cecd6bfccaf357",
+        "mxcsr_available": false,
+        "observed_controls_hex": [],
+        "transition_totals": {
+          "reference_status": 0,
+          "candidate_status": 0,
+          "entry_status": 0,
+          "reference_controls": 0,
+          "candidate_controls": 0,
+          "entry_controls": 0,
+          "between_calls_controls": 0,
+          "between_frames_status": 0,
+          "between_frames_controls": 0
+        }
+      },
+      {
+        "architecture": "arm64",
+        "name": "candidate-first",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "234a3aba48b0990dd598670780f2aa88c22d0c8f7b206cc9d116dc9575350230",
+        "mxcsr_available": false,
+        "observed_controls_hex": [],
+        "transition_totals": {
+          "reference_status": 0,
+          "candidate_status": 0,
+          "entry_status": 0,
+          "reference_controls": 0,
+          "candidate_controls": 0,
+          "entry_controls": 0,
+          "between_calls_controls": 0,
+          "between_frames_status": 0,
+          "between_frames_controls": 0
+        }
+      },
+      {
+        "architecture": "x86_64",
+        "name": "fp-self-test",
+        "returncode": 0,
+        "stdout_sha256": "05e5a25ee8c3ea5bb08a4cc442d6b2368f097e2fe8f2f6d1eac77bdb07638851",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "diagnostic-self-test",
+        "returncode": 0,
+        "stdout_sha256": "e947271961abcc700dd9279511354ab7b2f33cb5fa77da6bf2442fc39853cda0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "baseline",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "observed",
+        "returncode": 1,
+        "stdout_sha256": "d41934a02b6067941ff61146c420c0b275608e9b68d4ca4554ae52e9525981c4",
+        "stderr_sha256": "5b5d45a9110ef491ebc45d91ea139dd4a9c9409cf6cb530c30217ed8ee360680"
+      },
+      {
+        "architecture": "x86_64",
+        "name": "candidate-first",
+        "returncode": 0,
+        "stdout_sha256": "0836ed43bda6f39f5ec1fc1377b44d8bc787252002bd8d5074b26142f893488d",
+        "stderr_sha256": "96129f0041dee7a2ef70061ff97e2cb4a2186aae3930b7cb0608c54bf95e5c18",
+        "mxcsr_available": true,
+        "observed_controls_hex": [
+          "1f80"
+        ],
+        "transition_totals": {
+          "reference_status": 0,
+          "candidate_status": 1,
+          "entry_status": 1,
+          "reference_controls": 0,
+          "candidate_controls": 0,
+          "entry_controls": 0,
+          "between_calls_controls": 0,
+          "between_frames_status": 0,
+          "between_frames_controls": 0
+        }
+      }
+    ]
+  },
+  "first_mismatch": "Numerical mismatch waveform=2 rate=176400 filter_mode=0 voice_mode=0 fx=1 phase=main frame=152 fp_rounding=0 mxcsr=0x1fb3\nfp_frame phase=main frame=152 order=reference-candidate\nreference_before mxcsr_available=1 raw=0x1fb3 status=0x33 controls=0x1f80 c_rounding=0\nreference_after mxcsr_available=1 raw=0x1fb3 status=0x33 controls=0x1f80 c_rounding=0\ncandidate_before mxcsr_available=1 raw=0x1fb3 status=0x33 controls=0x1f80 c_rounding=0\ncandidate_after mxcsr_available=1 raw=0x1fb3 status=0x33 controls=0x1f80 c_rounding=0\noutput.left candidate_bits=0x3da8cca4 reference_bits=0x3da8cca4 candidate=0.082421571016311646 reference=0.082421571016311646\noutput.right candidate_bits=0x3eadbeb3 reference_bits=0x3eadbeb3 candidate=0.3393455445766449 reference=0.3393455445766449\npre_fx.left candidate_bits=0x3f742582 reference_bits=0x3f742582 candidate=0.9536973237991333 reference=0.9536973237991333\npre_fx.right candidate_bits=0x407b4cb1 reference_bits=0x407b4cb2 candidate=3.926555871963501 reference=3.9265561103820801\n"
+}

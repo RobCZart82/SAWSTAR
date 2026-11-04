@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Wrap both chorus interpolation indices when floating-point rounding maps a
+  read position to the ring length; prevent cross-channel/out-of-bounds reads
+  exposed by the Velvet Orbit tail, preserving ordinary interpolation exactly.
+
+- Expand the factory bank from 24 to 30 with expressive wheel/pressure leads,
+  dual-LFO pads, synced bass, velocity keys and two tempo arpeggios; retain
+  existing preset identities and values. Add playing hints, controller-aware
+  pre-guard headroom checks and updated bilingual RC manuals.
+
 - Refresh both 1.1.0 rc1 PDF manuals with Premium migration, latency and open gates.
 - Record verified RC artifacts and factory evidence; verify complete pinned
   dependency patches and checkout provenance before RC packaging, preserving

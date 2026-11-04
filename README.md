@@ -18,7 +18,7 @@ The RC is not a published or natively accepted release.
 ![SAWSTAR PRESETS](docs/reference/screenshot-presets.png)
 
 *Real SAWSTAR 1.0.3 screenshots captured in REAPER, supplied by Gyuricza Róbert
-(build `8040390`). The displayed preset count includes user-library entries alongside 24 factory presets.*
+(build `8040390`). The displayed preset count includes user-library entries alongside factory presets. The current development bank contains 30 factory presets (24 original and six new performance sounds).*
 
 ## Download
 

@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <limits>
+#include <memory>
 using namespace sawstar;
 void check(bool ok,const char* why){if(!ok){std::cerr<<why<<'\n';std::exit(1);}}
 void Configure(Synth& s,float sr){
@@ -16,7 +17,39 @@ void Configure(Synth& s,float sr){
  s.SetOsc2(v[27],v[28],v[29]);s.SetFilterCharacter(v[31],v[32]);s.SetWaveforms(v[33],v[34]);
  s.SetLfo(v[35],v[36],v[37],v[38],v[39]!=0,v[40],120,v[41]!=0);
 }
+namespace sawstar {
+struct ChorusReadRegression {
+ static void Run(){
+  auto storage=std::make_unique<Chorus>();auto& c=*storage;
+  c.Init(48000);c.write_=576;c.buffer_[0].fill(.25f);c.buffer_[1].fill(-.75f);
+  const float ms=std::nextafter(12.f,std::numeric_limits<float>::infinity());
+  const float wrapped=static_cast<float>(c.write_)-ms*.001f*48000+c.kSize;
+  check(wrapped==c.kSize,"fixture rounds a negative read position to the ring size");
+  check(c.Read(0,ms)==.25f&&c.Read(1,ms)==-.75f,"rounded wrap must read index zero in the same channel");
+  // Preserve the exact interpolation at every ordinary write position.
+  for(float sr:{44100.f,48000.f,96000.f,192000.f}){
+   c.Init(sr);
+   for(size_t i=0;i<c.kSize;++i){c.buffer_[0][i]=float(i%113)*.001f;c.buffer_[1][i]=-float(i%127)*.002f;}
+   for(size_t w=0;w<c.kSize;++w)for(float milliseconds:{8.f,12.f,17.f,21.f}){
+    c.write_=w;const float delay=std::min(milliseconds*.001f*sr,float(c.kSize-2));
+    float pos=float(w)-delay;if(pos<0)pos+=c.kSize;
+    const auto i=static_cast<size_t>(pos);if(i>=c.kSize)continue;
+    const float f=pos-float(i);
+    for(size_t ch=0;ch<2;++ch){const float expected=c.buffer_[ch][i]*(1-f)+c.buffer_[ch][(i+1)%c.kSize]*f;
+     check(c.Read(ch,milliseconds)==expected,"ordinary chorus interpolation remains bit-identical");}
+   }
+  }
+  // Real Velvet Orbit chorus timeline reaches the boundary around 12.828 s
+  // on the observed platforms; channel-constant inputs expose cross-channel reads.
+  c.Init(44100);c.Set(true,18,.2f,30);c.buffer_[0].fill(.25f);c.buffer_[1].fill(-.75f);
+  for(int i=0;i<44100*13;++i){const auto y=c.Process({.25f,-.75f});
+   check(std::isfinite(y.left)&&std::isfinite(y.right)&&std::abs(y.left-.25f)<1.e-6f&&std::abs(y.right+.75f)<1.e-6f,
+         "Velvet Orbit chorus wrap retains channel boundaries");}
+ }
+};
+}
 int main(){
+ ChorusReadRegression::Run();
  for(float sr:{44100.f,48000.f,96000.f,192000.f}){
   Chorus c;c.Init(sr);
   double stereo=0,difference=0;

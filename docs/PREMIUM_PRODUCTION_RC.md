@@ -1,5 +1,13 @@
 # SAWSTAR 1.1.0 rc1 — Premium production-integráció
 
+## Új factory bővítés — 2026-11-03
+
+A fejlesztési bank 30 hangra bővül; az eredeti 24 változatlan.
+[Hat új performance hang és 252-es controller-aware ellenőrzés](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
+A lentebbi 24/144-es mérés a #133/#134 RC történeti bizonyítéka; az új hangok
+külön pontos-head CI- és zenei elfogadást igényelnek.
+
+
 Állapot: fejlesztési kiadásjelölt, nem publikált végleges kiadás.
 Robert 2026-11-03-án kérte a production-integráció, factory/RC és dokumentáció
 előrehozását. Ez nem pótolja a natív CPU-, filterminőségi és zenei elfogadást.

@@ -74,18 +74,24 @@ int main(int argc,char** argv){try{
   const bool measure=argc==2&&std::string_view(argv[1])=="--measure";
   if(argc>1&&!measure)throw std::runtime_error("Usage: premium_preview_levels [--measure]");
   GainContract();GuardContract();
-  std::cout<<"preset,sample_rate,held_roots,velocity,pre_guard_peak_dbfs,rms_dbfs\n"<<std::setprecision(9);
+  std::cout<<"preset,sample_rate,held_roots,velocity,pre_guard_peak_dbfs,rms_dbfs,performance\n"<<std::setprecision(9);
   double worst=-400;int cells=0;
-  for(float rate:{44100.f,48000.f})for(const auto& preset:sawstar::FactoryPresets())for(int count:{1,8,16}){
+  for(float rate:{44100.f,48000.f})for(const auto& preset:sawstar::FactoryPresets())for(int count:{1,8,16})
+    for(int performance=0;performance<(std::string_view(preset.name).find("(")!=std::string_view::npos?3:1);++performance){
     // This copy has the SAME signal path and gain but no output limiter: a
     // passing factory test cannot hide clipping behind the safety guard.
     auto storage=std::make_unique<sawstar::premium_preview_meter::Synth>();
     auto& synth=*storage;sawstar::Arpeggiator arp;
     synth.Reset(rate);arp.Init(rate);Controls(synth,arp,preset.values);
     auto send=[&](int a,int b,int c){synth.Midi(a,b,c);};
+    if(performance==1){arp.Midi(0xb0,1,127,send);arp.Midi(0xd0,127,0,send);}
     for(int i=0;i<count;++i)arp.Midi(0x90,notes[i],127,send);
     double peak=0,energy=0;const int frames=static_cast<int>(rate*6);
     for(int i=0;i<frames;++i){
+      if(performance==2&&i%256==0){
+        const int cc=static_cast<int>((i%static_cast<int>(rate*2))/(rate*2)*127);
+        arp.Midi(0xb0,1,cc,send);arp.Midi(0xd0,cc,0,send);
+      }
       if(i==static_cast<int>(rate*4))for(int n=0;n<count;++n)arp.Midi(0x80,notes[n],0,send);
       arp.Process(send);const auto y=synth.ProcessStereo();
       if(!std::isfinite(y.left)||!std::isfinite(y.right))throw std::runtime_error("Non-finite factory output");
@@ -93,7 +99,7 @@ int main(int argc,char** argv){try{
       energy+=double(y.left)*y.left+double(y.right)*y.right;
     }
     const double db=Db(peak);worst=std::max(worst,db);++cells;
-    std::cout<<preset.key<<','<<rate<<','<<count<<",127,"<<db<<','<<10*std::log10(std::max(energy/(frames*2),1.e-40))<<std::endl;
+    std::cout<<preset.key<<','<<rate<<','<<count<<",127,"<<db<<','<<10*std::log10(std::max(energy/(frames*2),1.e-40))<<','<<performance<<std::endl;
     if(!measure&&db>-6.0)throw std::runtime_error(std::string("Factory headroom failed: ")+preset.key);
   }
   std::cerr<<"Preview level contracts PASS; factory cells="<<cells<<"; worst pre-guard peak="<<worst<<" dBFS\n";
