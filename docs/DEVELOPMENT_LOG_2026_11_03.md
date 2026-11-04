@@ -151,3 +151,36 @@ mintaszámokon, rátákon és lecsengési állításokon ment végig.
 futott, GitHub triggering_actor `RobCZart82`, új Debug job `126197624639`;
 ezt az agent nem indította. Az első timeout bizonyítéka megmarad, a javítás
 feltöltése megvárja e futás végét is.
+
+
+### 2026-11-04: 001847b CI — megőrzött új K1 negatív eset
+
+A 22 workflow közül kettő piros: Windows foundation `41724068907` Debug
+`factory_presets_remaining` 600,01 s timeout (143/144 sikeres); az első
+félbank 111,06 s alatt sikeres. Release/VST3 x64/ARM64 és Premium RC sikeres.
+A félbank-felosztás Windows Debugban tehát nem elég. A teljes mintaszámú
+ellenőrzés presetenként külön CTest-feladatra bontva fut; a globális egyediség
+minden feladatban ellenőrzött, a 600 s és numerikus határok maradnak.
+A napló flush-ölt presetkulcsot is ír a lassú eset azonosításához.
+
+K1 passive FP observation `41724068835`, job `126224107488`, artifact
+`13272794936`: valódi új negatív megfigyelés, nem infrastruktúrahiba.
+Rosetta x86_64 observed, triangle/waveform2, 176400 Hz, filter0, poly/voice0,
+FX on, reference→candidate sorrend, main frame152: pre-FX right
+reference `0x407b4cb2` / candidate `0x407b4cb1` (1 ULP). A kimeneti két
+csatorna ebben az első eltérő mintában még bitazonos. MXCSR mindkét process
+előtt/után `0x1fb3`, controls `0x1f80`, rounding0; nincs itt vezérlőváltás.
+Az arm64 baseline/observed/candidate-first és x86 baseline/candidate-first
+sikeres, az x86 observed megszakadt a 49. teljes eset után. Ez nem okbizonyítás.
+[Teljes manifest és első eltérés](measurements/k1-passive-001847b-negative.json).
+Mind a 20 nyers output/log hash a letöltés után egyezett a manifesttel.
+
+A presetadatok újrahangolása vagy a K1-küszöb lazítása nem történik. A CMake
+szükséges tesztfelosztási javításának új CI-je nem változatlan mérés retryja;
+egy későbbi zöld K1-futás nem törli ezt a negatív bizonyítékot és nem K1-javítás.
+
+A presetenkénti végleges tesztfelosztás helyben Release 30/30, Debug 30/30
+sikeres. A CTest JSON-jegyzék pontosan a 0..29 indexeket tartalmazza, hiány és
+ismétlés nélkül; hibás/negatív/tartományon túli selector elutasított. A régi
+félbank és argumentum nélküli teljesbank futtatás elérhető marad.
+A távoli javítás hatását és a K1 státuszát az új pontos head CI-je külön méri.

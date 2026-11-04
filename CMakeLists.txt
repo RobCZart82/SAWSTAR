@@ -1195,14 +1195,20 @@ if(SAWSTAR_CHECK_DAISYSP OR SAWSTAR_BUILD_PLUGIN)
         sawstar_engine
     )
 
-    add_test(
-      NAME factory_presets
-      COMMAND sawstar_factory_tests --first-half
-    )
-    add_test(
-      NAME factory_presets_remaining
-      COMMAND sawstar_factory_tests --second-half
-    )
+    # One complete preset render per task: keep Debug's existing timeout and
+    # every sample/rate/release assertion, with an identifiable slow preset.
+    file(READ "${PROJECT_SOURCE_DIR}/src/presets/FactoryPresets.h" _factory_header)
+    string(REGEX MATCH "kFactoryPresetCount[ \t]*=[ \t]*([0-9]+)" _factory_count_match "${_factory_header}")
+    if(NOT _factory_count_match)
+      message(FATAL_ERROR "Cannot determine factory preset test inventory")
+    endif()
+    math(EXPR _factory_last "${CMAKE_MATCH_1} - 1")
+    foreach(_factory_index RANGE 0 ${_factory_last})
+      add_test(
+        NAME factory_presets_${_factory_index}
+        COMMAND sawstar_factory_tests --preset ${_factory_index}
+      )
+    endforeach()
 
 
     add_executable(

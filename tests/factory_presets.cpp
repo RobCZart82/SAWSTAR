@@ -15,12 +15,18 @@ int main(int argc,char** argv){
  // Keep every rate/render/release assertion, but bound each Debug CI task.
  if(argc==2&&std::string(argv[1])=="--first-half")end=presets.size()/2;
  else if(argc==2&&std::string(argv[1])=="--second-half")begin=presets.size()/2;
- else if(argc!=1){std::cerr<<"Usage: factory_tests [--first-half|--second-half]\n";return 1;}
+ else if(argc==3&&std::string(argv[1])=="--preset"){
+  char* endArg=nullptr;const long index=std::strtol(argv[2],&endArg,10);
+  if(!argv[2][0]||*endArg||index<0||static_cast<size_t>(index)>=presets.size())return 1;
+  begin=static_cast<size_t>(index);end=begin+1;
+ }
+ else if(argc!=1){std::cerr<<"Usage: factory_tests [--first-half|--second-half|--preset INDEX]\n";return 1;}
  // Identity uniqueness covers the entire bank, even in a render shard.
  for(const auto& preset:presets)
   check(keys.insert(preset.key).second&&names.insert(preset.name).second,"unique preset identities");
  check(presets[0].values==DefaultSnapshot(),"Init must use parameter defaults");
  for(size_t p=begin;p<end;++p){const auto& v=presets[p].values;
+  std::cout<<"Factory preset "<<p<<": "<<presets[p].key<<std::endl;
   check(std::string(presets[p].tags).size()>0&&std::string(presets[p].tags).size()<=36,"short factory tags");
   check(v[size_t(ParameterId::ArpHold)]==0,"factory must not latch notes by default");
   for(size_t i=0;i<v.size();++i)check(std::isfinite(v[i])&&v[i]>=kParameters[i].minimum&&v[i]<=kParameters[i].maximum,"valid factory value");
