@@ -4,6 +4,7 @@
 
 Robert kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
 30-ra, a korábbi hangok megőrzésével. [Hanglista, játék és ellenőrzési kapuk](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
+[Velvet Orbit: bizonyított chorus-puffercímzési hiba és regresszió](CHORUS_RING_BOUNDARY_2026_11_04.md).
 Az új hangok zenei elfogadása külön nyitott; nincs release vagy Premium-default váltás.
 
 

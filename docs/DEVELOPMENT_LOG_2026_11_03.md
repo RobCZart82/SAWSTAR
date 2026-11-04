@@ -209,3 +209,38 @@ A DSP, presetadat és valamennyi render/ellenőrzés marad. Ez célzott Windows
 hibaazonosítás, nem bizonyított javítás vagy CPU-/natív elfogadási mérés.
 A Premium RC workflow pathlistája e factoryteszt-függőséget is figyeli, hogy
 az aktuális headhez tartozó csomagok később valóban előálljanak.
+
+
+### 2026-11-04: a Velvet Orbit hibájának helyi bizonyítása és javítása
+
+Az 1f138ea Windows `41787944470` Debug `126434314232` naplója: 44,1 kHz,
+single2s gyors, release0..10s gyors (összesen2,7167s), következő checkpoint hiányzik.
+A chorus negatív körpozíciója float kerekítéssel 8192 lehetett, az első
+interpolációs cím wrap nélkül érvénytelen lett. Az exact Velvet chorus
+ütemezés 565729. mintánál /12,828322s-nél előidézte e címet, a Windows
+elakadás intervallumán belül. Külön 48k fixture a régi bal olvasásban a jobb
+csatorna -0,75 értékét adta a várt +0,25 helyett. A regresszió a régi
+feldolgozási kóddal ténylegesen piros volt; az egyszerűsített „csak hosszú teszt”
+hipotézis elvetve.
+
+A fix az első chorus címet is modulo8192 körbeforgatja, az eredeti törtrészt
+megőrzi. Ez szükséges közös DSP-javítás a preset-PR-ben; a régi és új
+presetadat/ID/trim változatlan. Nem timeout/threshold/FP lazítás.
+[Részletes bizonyíték, mérés és teszt](CHORUS_RING_BOUNDARY_2026_11_04.md).
+A javított Windows/RC CI és a helyi szélesebb eredmények külön rögzítendők;
+a K1 előző negatív nem törlődik és nem válik ettől megoldottá.
+
+
+## Helyi javítás utáni eredmény
+
+- Teljes Classic Release CTest: **173/173 sikeres** (91,31 s).
+- Debug: a chorus regresszió és a 30 factory feladat **31/31 sikeres** (120,54 s).
+- Premium production state/identity: **2/2 sikeres**.
+- Premium limiter előtti headroom: **252/252 sikeres**, worst **-6.51292972 dBFS**;
+  a teljes CSV byte-egyezik a korábbi commitolt rácséval.
+- Külön AddressSanitizer/UBSan boundary-probe: sikeres, a korábbi -0,75 helyett
+  a helyes +0,25 bal csatorna. A régi feldolgozási kód negatív kontrollja megmarad.
+- Valódi arm64 VST3 újrafordult; nincs automatikus install/publikálás.
+
+A távoli Windows Debug és valamennyi pontos-head CI/RC bizonyíték még függő.
+A korábbi K1 negatív külön nyitott, a chorus-javítás nem K1-javítás.

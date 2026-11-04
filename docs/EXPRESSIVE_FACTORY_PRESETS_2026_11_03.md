@@ -3,7 +3,9 @@
 Robert kérésére a 24 meglévő hang mellé hat új preset kerül. Az eredeti
 kulcsok, indexek és paraméterértékek megmaradnak; a bank vége bővül 30-ra.
 A hangok Classicban is elérhetők, hangszíntervezési céljuk a Premium RC.
-Nem DSP-, paraméter-ID-, presetformátum- vagy kiadási kapu-változtatás.
+A presetbővítés nem változtat paraméter-ID-t, presetformátumot vagy kiadási kaput.
+A Windows-teszt közben feltárt chorus körpuffer-címzési hiba külön, szükséges
+DSP-javításként került ugyanebbe a PR-be; a hangértékek megmaradtak.
 
 | Név | Játék és karakter | Fő képességek |
 | --- | --- | --- |

@@ -37,11 +37,15 @@ public:
   return out;
  }
 private:
+ friend struct ChorusReadRegression;
  static float Clean(float v,float lo,float hi,float fallback){return std::isfinite(v)?std::clamp(v,lo,hi):fallback;}
  float Read(size_t channel,float milliseconds)const {
   const float delay=std::min(milliseconds*.001f*rate_,static_cast<float>(kSize-2));
   float pos=static_cast<float>(write_)-delay;if(pos<0)pos+=kSize;
-  const auto i=static_cast<size_t>(pos);const float f=pos-static_cast<float>(i);
+  // A tiny negative pos can round to kSize when adding the ring length.
+  // Keep its original fractional part, but wrap both interpolation indices.
+  const auto whole=static_cast<size_t>(pos);const float f=pos-static_cast<float>(whole);
+  const auto i=whole%kSize;
   return buffer_[channel][i]*(1-f)+buffer_[channel][(i+1)%kSize]*f;
  }
  static constexpr size_t kSize=8192;
