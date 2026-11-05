@@ -3,7 +3,7 @@
 - [English PDF](SAWSTAR-User-Manual-EN.pdf)
 - [Magyar PDF](SAWSTAR-User-Manual-HU.pdf)
 
-These 15-page guides describe the unpublished SAWSTAR **1.1.0 rc1** and its
+These 15-page guides describe the unpublished SAWSTAR **1.2.0 rc1** and its
 30 embedded factory presets. Chapter 15 covers Premium integration, the shared
 SAWSTAR identity, migration, 32-sample latency and open acceptance gates.
 The public stable release remains 1.0.4; its published packages are unchanged.
@@ -16,6 +16,6 @@ Rebuild with `python scripts/build-manuals.py` (ReportLab and Pillow). Set
 DejaVuSans-Bold.ttf. Outputs are under build-manuals/output/pdf; visually verify
 both languages before copying them here.
 
-RC edition: 2026-11-03. Both PDFs were rendered and visually checked in both
+RC edition: 2026-11-05. Both PDFs were rendered and visually checked in both
 languages. They document a test candidate, not a final-release or native PASS.
 Historical fixes are identified separately; screenshots remain from 1.0.3.

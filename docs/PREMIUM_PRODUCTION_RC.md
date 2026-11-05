@@ -1,11 +1,12 @@
-# SAWSTAR 1.1.0 rc1 — Premium production-integráció
+# SAWSTAR 1.2.0 rc1 — Premium production-integráció
 
 ## Új factory bővítés — 2026-11-03
 
-A fejlesztési bank 30 hangra bővül; az eredeti 24 változatlan.
+A fejlesztési bank 30 hangra bővült; az eredeti 24 változatlan.
 [Hat új performance hang és 252-es controller-aware ellenőrzés](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
 A lentebbi 24/144-es mérés a #133/#134 RC történeti bizonyítéka; az új hangok
-külön pontos-head CI- és zenei elfogadást igényelnek.
+hat exportált snapshotjának hangzását Robert jóváhagyta. A #135 pontos RC-je
+22 workflow / 67 job mellett sikeres volt; ez nem az új 1.2.0 RC natív elfogadása.
 
 
 Állapot: fejlesztési kiadásjelölt, nem publikált végleges kiadás.
@@ -35,7 +36,7 @@ A Preview/Candidate külön pluginazonosságai továbbra használhatók külön.
 
 Az alapértelmezett CMake-build Classic marad a nyitott elfogadási kapukig.
 A production-integráció és Preview/Candidate kapcsoló együtt tiltott.
-Az About felirat `1.1.0 rc1-premium-integration`, a kiadási dátum üres.
+Az About felirat `1.2.0 rc1-premium-integration`, a kiadási dátum üres.
 A verzió RC-javaslat; a végleges publikáláskor még jóváhagyandó.
 
 ## Fordítás, ellenőrzés és csomag
@@ -64,7 +65,7 @@ elfogadás; Windows ARM64 Premium RC e lépésben még nem kvalifikált.
 
 ## Kézikönyv-kiegészítés és kiadási kapuk
 
-A csomagban levő magyar és angol PDF-kézikönyvek most 1.1.0 rc1 kiadásúak,
+A csomagban levő magyar és angol PDF-kézikönyvek most 1.2.0 rc1 kiadásúak,
 15-15 oldallal. Az első két oldal RC-hatókört/telepítést ír le, a 15. fejezet
 a Premium motort, migrációt, 32 mintás latencyt és nyitott kapukat rögzíti.
 A képek változatlanul jelölt 1.0.3 képernyőképek. Végleges publikálás előtt
