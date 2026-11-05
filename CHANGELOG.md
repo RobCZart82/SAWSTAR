@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## Unreleased — 1.2.0 rc1
+
+- Target 1.2.0 rc1 with synchronized plugin metadata and bilingual manuals;
+  retain candidate publication guards and document exact-RC release gates.
+- Avoid unused arpeggiator pattern expansion/sorting while bypassed (#137),
+  preserving MIDI forwarding and rebuilding held roots when enabled.
 
 - Wrap both chorus interpolation indices when floating-point rounding maps a
   read position to the ring length; prevent cross-channel/out-of-bounds reads

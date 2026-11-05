@@ -1,5 +1,16 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
+## Aktuális kiadási cél: 1.2.0 rc1 — 2026-11-05
+
+Robert az 1.2.0 publikálását jelölte ki célként és engedélyezte az előkészítő
+fejlesztés folytatását. [Kiadási sorrend, bizonyítékok és nyitott kapuk](RELEASE_1.2.0_CHECKLIST.md).
+[Az előkészítés naplója](DEVELOPMENT_LOG_2026_11_05_RELEASE.md).
+Ez a szakasz az aktuális végrehajtási alap; az alábbi dátumozott feljegyzések
+történetiek. A hat új exportált preset zenei jóváhagyása megtörtént; a teljes
+pontos RC elfogadása ettől külön marad. Az 1.1.0 rc1 korábbi fejlesztési jelölt,
+nem publikált kiadás. Az új metaadat 1.2.0 rc1, üres kiadási dátummal.
+
+
 ## Forrásaudit és ARP bypass teljesítményjavítás — 2026-11-05
 
 [Igazolt találatok, javítások, helyi tesztek és nyitott vizsgálati lépések](SOURCE_AUDIT_2026_11_05.md).
@@ -22,7 +33,7 @@ célzott ellenőrzései **(sajátgépes reaper)**; külön publikálási jóváh
 Robert kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
 30-ra, a korábbi hangok megőrzésével. [Hanglista, játék és ellenőrzési kapuk](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
 [Velvet Orbit: bizonyított chorus-puffercímzési hiba és regresszió](CHORUS_RING_BOUNDARY_2026_11_04.md).
-Az új hangok zenei elfogadása külön nyitott; nincs release vagy Premium-default váltás.
+A hat exportált új hang zenei elfogadása megtörtént; a teljes RC natív elfogadása külön kapu.
 
 
 ## #133 beolvadt, main CI sikeres — 2026-11-03
