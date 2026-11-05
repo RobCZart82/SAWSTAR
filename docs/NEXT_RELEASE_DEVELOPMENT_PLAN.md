@@ -1,5 +1,15 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
+## Windows/macOS működési visszajelzés — 2026-11-05
+
+Robert a legutóbb linkelt main buildet Windows és macOS alatt is
+hibamentesnek jelezte. [Visszajelzés, csomagkapcsolat és hatókör](NATIVE_HOST_FEEDBACK_2026_11_05.md).
+Mindkét platform alapműködésére van pozitív felhasználói tapasztalat.
+A részletes CPU-/dropout-/GUI/state/preset adatok és a külön Premium RC
+elfogadása ettől még nem teljes. Következő: a konkrét RC fennmaradó
+célzott ellenőrzései **(sajátgépes reaper)**; külön publikálási jóváhagyás.
+
+
 ## Új kérés: performance factory bank — 2026-11-03
 
 Robert kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
@@ -38,7 +48,7 @@ M2/M3/M5 és pontos RC host/zenei elfogadási feltételek teljesítése.
 A lentebb dátumozott korábbi állapotok történetiek.
 
 
-Terv dátuma: **2026-10-17**, állapotfrissítés: **2026-11-03**. Tulajdonos és zenei elfogadó: Robert.
+Terv dátuma: **2026-10-17**, állapotfrissítés: **2026-11-05**. Tulajdonos és zenei elfogadó: Robert.
 A kiinduló nyilvános verzió 1.0.4; az új verziószám és kiadási dátum még nincs kijelölve.
 A végrehajtási terv nem jelent release-, tag- vagy publikálási engedélyt.
 
