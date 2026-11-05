@@ -83,7 +83,11 @@ public:
 private:
  static float Safe(float v,float lo,float hi){return std::isfinite(v)?std::clamp(v,lo,hi):lo;}
  template<class Send> void Stop(Send send){if(active_>=0){send(0x80|(active_/128),active_%128,0);active_=-1;}}
- void Rebuild(){count_=0;for(int i=0;i<2048;++i)if(keys_[i].down||keys_[i].latched)for(int octave=0;octave<octaves_;++octave){int pitch=i%128+octave*12;if(pitch<=127)notes_[count_++]={pitch,i/128,keys_[i].velocity,octave,keys_[i].order};}
+ void Rebuild(){count_=0;
+  // Bypass still tracks physical keys for a later enable, but consumes no
+  // pattern. Set rebuilds from those keys on every off-to-on transition.
+  if(!on_)return;
+  for(int i=0;i<2048;++i)if(keys_[i].down||keys_[i].latched)for(int octave=0;octave<octaves_;++octave){int pitch=i%128+octave*12;if(pitch<=127)notes_[count_++]={pitch,i/128,keys_[i].velocity,octave,keys_[i].order};}
   std::sort(notes_.begin(),notes_.begin()+count_,[this](const Note& a,const Note& b){if(mode_==4){if(a.octave!=b.octave)return a.octave<b.octave;if(a.order!=b.order)return a.order<b.order;}if(a.pitch!=b.pitch)return a.pitch<b.pitch;return a.channel<b.channel;});
   if(!count_){fresh_=true;step_=0;}
  }

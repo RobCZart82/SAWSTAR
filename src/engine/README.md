@@ -1,23 +1,26 @@
 # SAWSTAR engine
 
-Synth owns 16 fixed voices, SAWSTAR SevenSaw oscillators using DaisySP polyBLEP primitives and ADSR envelopes.
-It has no GUI or iPlug2 dependency. The plugin adapter schedules MIDI at sample
-offsets using a fixed 1024-event buffer; overflow clears voices to prevent stuck
-notes. Equal-offset events preserve arrival order. Pending future events retain
-their offsets across blocks. Parameter values are sampled once per block; gain
-uses a 5 ms one-pole smoothing filter.
+Synth owns 16 fixed voices with SevenSaw oscillators, SUB/noise, SAWSTAR ADSR
+and filter envelopes. It has no GUI or iPlug2 dependency. The plugin schedules
+MIDI at sample offsets with a fixed 1024-event queue; overflow invokes panic and
+controller recovery. Equal-offset events preserve arrival order, and future
+events retain their relative offsets across blocks.
 
-Repeated notes on one channel retrigger a voice. Allocation prefers idle voices,
-then the oldest released voice, then the oldest held voice. Stealing uses a soft
-envelope retrigger but changes frequency immediately; a dedicated steal crossfade
-is deferred. CC64 sustain, CC120 all sound off, CC123 all notes off and CC121
-sustain reset are handled independently per channel. Pitch bend and modulation
-work per MIDI channel. The voice sum retains 1/16 scaling, with a calibrated
-Level Boost and stereo peak guard. See docs/SOURCE_MIXER.md for source routing
-and old-project gain compatibility.
-See docs/SEVEN_SAW.md for unison behavior.
+Repeated same-channel pitches retrigger one voice while retaining press counts.
+Allocation prefers idle voices, then the oldest released voice, then the oldest
+held voice. Reused poly voices have a 3 ms output-correction ramp. Mono/Legato,
+last-note priority and glide have their own key ownership and transition logic.
 
-GUI note feedback is a 30 FPS snapshot of held voices, not an event history;
-notes shorter than an editor refresh may not flash. Audio triggering still uses
-sample offsets. Atomics convey held-note state to the UI; render callbacks never
-access graphics or allocate memory.
+CC64, CC120, CC123 and CC121 are handled per channel. Bend, mod wheel and
+channel pressure feed performance/modulation controls. The voice sum retains
+1/16 scaling with combined Volume/Boost smoothing and a linked stereo peak guard.
+Chorus, Delay, Reverb and Width follow the summed voice path.
+
+GUI note feedback snapshots physically held MIDI pitches across channels, not
+the voice allocator's sounding/release state. Very short notes may not appear
+between editor refreshes. Rendering never accesses graphics. Delay/reverb storage
+is prepared by Reset/Init; sample processing does not allocate.
+
+See [source routing](../../docs/SOURCE_MIXER.md),
+[unison behavior](../../docs/SEVEN_SAW.md) and the
+[current development index](../../docs/DEVELOPMENT_DOCUMENTATION_INDEX.md).
