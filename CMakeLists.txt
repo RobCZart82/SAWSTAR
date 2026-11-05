@@ -174,6 +174,10 @@ if(BUILD_TESTING)
   target_link_libraries(sawstar_lfo_smoothing_tests PRIVATE SAWSTAR::Foundation)
   add_test(NAME lfo_zero_target_smoothing COMMAND sawstar_lfo_smoothing_tests)
 
+  add_executable(sawstar_arpeggiator_bypass_tests tests/arpeggiator_bypass.cpp)
+  target_link_libraries(sawstar_arpeggiator_bypass_tests PRIVATE SAWSTAR::Foundation)
+  add_test(NAME arpeggiator_bypass_ownership COMMAND sawstar_arpeggiator_bypass_tests)
+
   add_executable(
     sawstar_meter_tests
     tests/meter.cpp

@@ -1,5 +1,12 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
+## Forrásaudit és ARP bypass teljesítményjavítás — 2026-11-05
+
+[Igazolt találatok, javítások, helyi tesztek és nyitott vizsgálati lépések](SOURCE_AUDIT_2026_11_05.md).
+A kikapcsolt ARP felesleges mintarendezése megszűnik; nyolc elavult src README
+frissül. A teljes natív CI és a kiadási kapuk külön ellenőrzendők.
+
+
 ## Windows/macOS működési visszajelzés — 2026-11-05
 
 Robert a legutóbb linkelt main buildet Windows és macOS alatt is

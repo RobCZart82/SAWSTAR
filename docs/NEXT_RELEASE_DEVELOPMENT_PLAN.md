@@ -1,5 +1,12 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
+## Forrásaudit és ARP bypass teljesítményjavítás — 2026-11-05
+
+[Igazolt találatok, javítások, helyi tesztek és nyitott vizsgálati lépések](SOURCE_AUDIT_2026_11_05.md).
+A kikapcsolt ARP felesleges mintarendezése megszűnik; nyolc elavult src README
+frissül. A teljes natív CI és a kiadási kapuk külön ellenőrzendők.
+
+
 ## Windows/macOS működési visszajelzés — 2026-11-05
 
 Robert a legutóbb linkelt main buildet Windows és macOS alatt is
@@ -345,4 +352,3 @@ Kapcsolódó dokumentumok: [roadmap](DEVELOPMENT_ROADMAP.md),
 [ráta-/pufferpolicy](RATE_BUFFER_ACCEPTANCE_POLICY.md),
 [GUI-state elfogadás](GUI_SCALE_PROJECT_STATE.md),
 [elfogadott hangerő](PREMIUM_PREVIEW_LEVELS.md).
-
