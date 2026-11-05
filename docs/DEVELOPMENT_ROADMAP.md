@@ -1,4 +1,14 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-11-03
+# Elfogadott fejlesztési sorrend — állapot: 2026-11-05
+
+## Windows/macOS működési visszajelzés — 2026-11-05
+
+Robert a legutóbb linkelt main buildet Windows és macOS alatt is
+hibamentesnek jelezte. [Visszajelzés, csomagkapcsolat és hatókör](NATIVE_HOST_FEEDBACK_2026_11_05.md).
+Mindkét platform alapműködésére van pozitív felhasználói tapasztalat.
+A részletes CPU-/dropout-/GUI/state/preset adatok és a külön Premium RC
+elfogadása ettől még nem teljes. Következő: a konkrét RC fennmaradó
+célzott ellenőrzései **(sajátgépes reaper)**; külön publikálási jóváhagyás.
+
 
 ## Új kérés: performance factory bank — 2026-11-03
 

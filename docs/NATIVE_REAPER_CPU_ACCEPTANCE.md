@@ -1,5 +1,15 @@
 # Natív REAPER CPU- és dropout-elfogadási jegyzőkönyv
 
+## Windows/macOS működési visszajelzés — 2026-11-05
+
+Robert a legutóbb linkelt main buildet Windows és macOS alatt is
+hibamentesnek jelezte. [Visszajelzés, csomagkapcsolat és hatókör](NATIVE_HOST_FEEDBACK_2026_11_05.md).
+Mindkét platform alapműködésére van pozitív felhasználói tapasztalat.
+A részletes CPU-/dropout-/GUI/state/preset adatok és a külön Premium RC
+elfogadása ettől még nem teljes. Következő: a konkrét RC fennmaradó
+célzott ellenőrzései **(sajátgépes reaper)**; külön publikálási jóváhagyás.
+
+
 Állapot: **előkészített eljárás, formális natív elfogadás nincs**.
 A korábbi pozitív hangkarakter-/hangerő-visszajelzés és REAPER CPU-pillanatképek
 megmaradnak, de nem töltik ki automatikusan ezt a jegyzőkönyvet.

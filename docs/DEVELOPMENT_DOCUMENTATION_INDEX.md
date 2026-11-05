@@ -1,5 +1,15 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
+## Windows/macOS működési visszajelzés — 2026-11-05
+
+Robert a legutóbb linkelt main buildet Windows és macOS alatt is
+hibamentesnek jelezte. [Visszajelzés, csomagkapcsolat és hatókör](NATIVE_HOST_FEEDBACK_2026_11_05.md).
+Mindkét platform alapműködésére van pozitív felhasználói tapasztalat.
+A részletes CPU-/dropout-/GUI/state/preset adatok és a külön Premium RC
+elfogadása ettől még nem teljes. Következő: a konkrét RC fennmaradó
+célzott ellenőrzései **(sajátgépes reaper)**; külön publikálási jóváhagyás.
+
+
 ## Új kérés: performance factory bank — 2026-11-03
 
 Robert kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
@@ -41,7 +51,7 @@ M2/M3/M5 és pontos RC host/zenei elfogadási feltételek teljesítése.
 A lentebb dátumozott korábbi állapotok történetiek.
 
 
-Utolsó állapotfrissítés: **2026-11-03**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
+Utolsó állapotfrissítés: **2026-11-05**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 
