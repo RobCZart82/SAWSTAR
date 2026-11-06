@@ -63,7 +63,7 @@ inline void BuildLayout(IGraphics* g,float& guiScale,int& page,int& lfoPage,int&
  section(IRECT(12,646,1268,724),"","",Blue);g->AttachControl(new PerformanceWheel(IRECT(23,654,54,702),true));g->AttachControl(new PerformanceWheel(IRECT(65,654,96,702),false));g->AttachControl(new ITextControl(IRECT(23,703,54,721),"PITCH",IText(9,Text)));g->AttachControl(new ITextControl(IRECT(65,703,96,721),"MOD",IText(9,Text)));
  g->AttachControl(new Keyboard(IRECT(115,654,1258,715),36,96,false,IColor(255,202,209,210),IColor(255,19,24,27),Blue,PanelColor,Text));g->AttachControl(new Status(IRECT(20,729,830,750),cpu,rate,voices),9101);
  g->AttachControl(new ITextControl(IRECT(830,729,1260,750),Motto,IText(14,Text).WithFont("SAWSTAR-Bold").WithAlign(EAlign::Far)));
- auto* about=new AboutWindow(IRECT(0,0,1280,760),brandFont);
+ auto* about=new AboutWindow(IRECT(0,0,1280,760),brandFont,*g);
  g->AttachControl(new SettingsMenu(IRECT(1228,20,1268,60),about,guiScale,scaleChanged));
  g->AttachControl(about);
  g->AttachControl(confirm);
