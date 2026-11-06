@@ -11,14 +11,10 @@ namespace sawstar::gui {
 // Full-editor overlay intercepts clicks and wheel events until OK is pressed.
 class AboutWindow final:public IControl {
  bool fontLoaded_=false;
- ISVG signature_;
  IRECT Box()const{return mRECT.GetCentredInside(620,460);}
  IRECT OK()const{auto b=Box();return IRECT(b.MW()-60,b.B-57,b.MW()+60,b.B-21);}
 public:
- AboutWindow(IRECT r,bool fontLoaded,IGraphics& graphics)
-   :IControl(r),fontLoaded_(fontLoaded),
-    signature_(graphics.LoadSVG("SAWSTAR-DeveloperSignature-Light", DeveloperSignatureSvg,
-                                sizeof(DeveloperSignatureSvg)-1)){Hide(true);}
+ explicit AboutWindow(IRECT r,bool fontLoaded):IControl(r),fontLoaded_(fontLoaded){Hide(true);}
  void Open(){Hide(false);GetUI()->SetAllControlsDirty();}
  void Close(){Hide(true);GetUI()->SetAllControlsDirty();}
  void Draw(IGraphics& g)override{
@@ -34,11 +30,7 @@ public:
   g.DrawLine(Blue,b.L+85,b.T+184,b.R-85,b.T+184);
   DrawDeveloperMark(g,IRECT(b.L+140,b.T+202,b.L+183,b.T+271));
   g.DrawText(IText(13,Muted),"Developed by",IRECT(b.L,b.T+200,b.R,b.T+222));
-  if(signature_.IsValid() && signature_.H()>0.f){
-   constexpr float height=34.f;
-   const float width=height*signature_.W()/signature_.H();
-   g.DrawSVG(signature_,IRECT(b.MW()-width/2,b.T+224,b.MW()+width/2,b.T+224+height));
-  }
+  DrawDeveloperSignature(g,IRECT(b.MW()-40,b.T+224,b.MW()+40,b.T+258));
   g.DrawText(IText(11,Text),"Version " SAWSTAR_DISPLAY_VERSION " / " SAWSTAR_BUILD_ID,IRECT(b.L,b.T+262,b.R,b.T+284));
   g.DrawText(IText(12,Blue),"github.com/RobCZart82/SAWSTAR",IRECT(b.L,b.T+291,b.R,b.T+316));
   g.DrawLine(Blue,b.L+85,b.T+321,b.R-85,b.T+321);

@@ -2,7 +2,7 @@
 
 ## Unreleased — 1.2.0 rc1
 
-- Show the light vector signature in About alongside the existing GYR mark.
+- Draw the light About signature with native vector paths alongside the existing GYR mark.
 
 - Target 1.2.0 rc1 with synchronized plugin metadata and bilingual manuals;
   retain candidate publication guards and document exact-RC release gates.
