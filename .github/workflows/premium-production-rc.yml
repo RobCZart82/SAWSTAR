@@ -18,7 +18,7 @@ on:
       - 'tests/premium*'
       - 'tests/factory_presets.cpp'
       - 'docs/PREMIUM_PRODUCTION_RC.md'
-      - 'docs/RELEASE_NOTES_1.1.0.md'
+      - 'docs/RELEASE_NOTES_*.md'
       - '.github/workflows/premium-production-rc.yml'
   workflow_dispatch:
 permissions:
@@ -73,14 +73,32 @@ jobs:
           arch -x86_64 ${{ matrix.bin }}sawstar_premium_production_state${{ matrix.exe }}
           arch -x86_64 ${{ matrix.bin }}sawstar_premium_preview_levels${{ matrix.exe }} > build-rc/factory-levels-x86_64.csv
       - name: Validate and package integration RC only
-        run: python scripts/package-premium-rc.py build-rc SAWSTAR-1.1.0-rc1-Premium-${{ matrix.platform }}.zip
+        env:
+          RC_PLATFORM: ${{ matrix.platform }}
+        run: |
+          python - <<'PYTHON'
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          metadata = json.loads(Path("release.json").read_text(encoding="utf-8"))
+          version = metadata["version"]
+          candidate = metadata["candidate"]
+          if not re.fullmatch(r"[0-9]+[.][0-9]+[.][0-9]+", version) or not re.fullmatch(r"rc[0-9]+", candidate):
+              raise SystemExit("Expected a numeric version and RC candidate in release.json")
+          output = f"SAWSTAR-{version}-{candidate}-Premium-{os.environ['RC_PLATFORM']}.zip"
+          subprocess.run([sys.executable, "scripts/package-premium-rc.py", "build-rc", output], check=True)
+          PYTHON
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: Premium-integration-RC-${{ matrix.platform }}
           path: |
-            SAWSTAR-1.1.0-rc1-Premium-*.zip
-            SAWSTAR-1.1.0-rc1-Premium-*.sha256
+            SAWSTAR-*-Premium-*.zip
+            SAWSTAR-*-Premium-*.sha256
             build-rc/factory-levels*.csv
           if-no-files-found: warn
           retention-days: 30
