@@ -1,5 +1,11 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
+## Célzott K1 Sine-vizsgálat — 2026-11-07
+
+Robert a publikálás elé helyezte a konkrét 810a388 negatív oknyomozását.
+[Előre kijelölt kontrollok, bizonyítékok és eredmények](K1_SINE_INVESTIGATION_2026_11_07.md).
+
+
 ## 1.2.0 kiadási döntés — 2026-11-07
 
 Robert a 003b007 Premium RC Windows/macOS működését hibamentesnek jelezte és

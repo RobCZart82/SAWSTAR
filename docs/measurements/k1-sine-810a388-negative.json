@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "source_commit": "810a38860eaebbdf7660450ccf751cbb13df34e7",
+  "workflow_run": 42365411396,
+  "job": 128382317422,
+  "workflow": "macOS Premium Preview",
+  "role": "reference",
+  "execution": "x86_64 under Rosetta inferred from alternating arm64/x86_64 workflow order; preceding arm64 waveform 3 completed 120 cases",
+  "waveform": 3,
+  "waveform_name": "Sine",
+  "sample_rate": 48000,
+  "filter_mode": 1,
+  "voice_mode": 0,
+  "fx": true,
+  "phase": "main",
+  "frame": 423,
+  "mxcsr": "0x1fb3",
+  "rounding": 0,
+  "output_left": {
+    "candidate_bits": "0x3c059802",
+    "reference_bits": "0x3c059808",
+    "ulp_distance": 6
+  },
+  "output_right": {
+    "candidate_bits": "0x3d2087bd",
+    "reference_bits": "0x3d2087bd",
+    "ulp_distance": 0
+  },
+  "pre_fx_left": {
+    "candidate_bits": "0x3de367ac",
+    "reference_bits": "0x3de367b4",
+    "ulp_distance": 8
+  },
+  "pre_fx_right": {
+    "candidate_bits": "0x3f08a0d5",
+    "reference_bits": "0x3f08a0d5",
+    "ulp_distance": 0
+  },
+  "completed_cases_in_failing_process": 7,
+  "raw_job_log_sha256": "0abe114f85d085d92e774be262fee2cdd70103b95121a625e54bae2f6144f1cc",
+  "root_cause": "unknown",
+  "original_failing_offline_binary_preserved": false,
+  "binary_limitation": "The workflow did not upload the offline comparison executable after this failure. The saved job log is the available original evidence.",
+  "shipping_engine": "calibrated Premium lookup reference; the compared Saw-dispatch Candidate remains experimental",
+  "release_status": "blocked on current red qualification; no retry or threshold change requested"
+}
