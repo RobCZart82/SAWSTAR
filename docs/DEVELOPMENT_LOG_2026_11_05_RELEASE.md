@@ -58,3 +58,24 @@ A draft-előkészítő várakozása 75 perc, a workflow-é 85 perc, hogy a 60 pe
 quality jobok végét megvárhassa. A release guard időtúllépés-regressziója
 az új határt ellenőrzi; 21/21 teszt sikeres. A teszt- és mérési korlátok
 változtatása nélkül készül a végleges PR.
+
+A 7ff2a1e PR-head Windows VST3 x64/ARM64 teljes tesztbuildje a
+parameter_registration fixture-ben elbukott. A Premium ág által hivatkozott
+FactoryPresets deklarációja hiányzott a teszt include-jai közül. Pótlása után
+a helyi próba az output.gain_db Classic defaultját váró állításon elbukott.
+A fixture most a Premium factory Init kalibrált alapértékét követeli meg,
+a többi paraméter korábbi bounds/default és kanonizálási állításával együtt.
+Az alkalmazás regisztrációs kódja és a kalibrált hangerő nem változott.
+A 42359244622 futás és a helyi negatív próba a javítás indoka.
+
+A teljes helyi Premium CTest további 30 fixture-hibát jelzett: a factory
+próbák ugyanazt a Classic Init-egyezést kérték számon, és a Classic riget
+használták. A test rig motorparamétert kap, a factory teszt a PluginSynth
+azonos motorját és a kalibrált Init kimeneti gainjét ellenőrzi. A Classic
+rig meglévő neve és hívásai megmaradnak. Minden render/rátaválasztás,
+lecsengési próba és numerikus küszöb azonos; a kiadott motorral futnak.
+
+A javított teljes Premium Release CTest 182/182 sikeres (125,72 s).
+A Classic factory és paraméterregisztráció célzott kontrollja 31/31 sikeres
+(13,99 s). A korábbi 152/182 negatív és a javított teljes log megőrzött.
+A javítás feltöltése a korábbi head összes futásának befejezése után történik.

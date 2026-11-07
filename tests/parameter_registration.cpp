@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #include "plugin/Parameters.h"
 #include "plugin/State.h"
+#include "presets/FactoryPresets.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -98,8 +99,14 @@ int main() {
     auto& param = registration.parameters[id];
     const std::string context(spec.key);
     Check(param.registrations == 1, "Registration count changed: " + context);
+    double expectedInitial = spec.initial;
+#if defined(SAWSTAR_PREMIUM_PREVIEW) || defined(SAWSTAR_PREMIUM_PRODUCTION)
+    // New Premium instances and host reset must match the calibrated factory Init.
+    if (spec.id == ParameterId::OutputGain)
+      expectedInitial = FactoryPresets()[0].values[id];
+#endif
     Check(param.minimum == spec.minimum && param.maximum == spec.maximum &&
-          param.initial == spec.initial, "Registration bounds/default differ: " + context);
+          param.initial == expectedInitial, "Registration bounds/default differ: " + context);
     Check(param.GetStepped() == spec.discrete,
           "Persisted discreteness differs from real registration: " + context);
     Check(param.logarithmic == (spec.mapping == Mapping::Logarithmic),
