@@ -79,3 +79,10 @@ A javított teljes Premium Release CTest 182/182 sikeres (125,72 s).
 A Classic factory és paraméterregisztráció célzott kontrollja 31/31 sikeres
 (13,99 s). A korábbi 152/182 negatív és a javított teljes log megőrzött.
 A javítás feltöltése a korábbi head összes futásának befejezése után történik.
+
+A d11087a headen a Windows x64 és macOS Universal Premium teljes CTest-je
+182/182, VST3 validátora 47/47 sikeres, mindkét macOS szelet validálva.
+A factory headroom lépés a külön EXCLUDE_FROM_ALL mérőprogram hiányán bukott
+el. A két telepítős workflow a használat előtt explicit lefordítja a
+sawstar_premium_preview_levels célt. A Windows lépés a fordítás hibáján
+azonnal kilép. A mérő helyi explicit buildje és 252 esete korábban sikeres.

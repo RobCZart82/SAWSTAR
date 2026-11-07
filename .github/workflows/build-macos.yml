@@ -74,6 +74,7 @@ jobs:
         run: python scripts/validate-plugin.py
       - name: Verify Premium production factory headroom on both slices
         run: |
+          cmake --build build-plugin --config Release --target sawstar_premium_preview_levels --parallel 3
           build-plugin/sawstar_premium_preview_levels > build-plugin/factory-levels.csv
           arch -x86_64 build-plugin/sawstar_premium_preview_levels > build-plugin/factory-levels-x86_64.csv
       - name: Package candidate, manuals and notices
