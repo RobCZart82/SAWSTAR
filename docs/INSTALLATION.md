@@ -1,22 +1,20 @@
-# Installing SAWSTAR 1.0.4 / Telepítés
+# Installing SAWSTAR 1.2.0 / Telepítés
 
-For the unpublished **1.1.0 rc1 Premium integration**, follow the
-[RC supplement](PREMIUM_PRODUCTION_RC.md), including the shared SAWSTAR identity,
-32-sample latency and open native acceptance gates. The versioned instructions
-below remain historical for the stable release.
-
+SAWSTAR 1.2.0 uses the Premium filter and reports 32 samples of latency.
+Classic projects and presets load with the new filter sound. Preserve the old
+plugin and project copies when exact earlier sound recall is needed.
 
 Download the matching package from [SAWSTAR Releases](https://github.com/RobCZart82/SAWSTAR/releases).
 Recommended: the matching installer. Optional: a manual-install ZIP.
 Back up projects and user presets and close the DAW before updating.
 
-This guide accompanies 1.0.4. Previously published packages remain unchanged;
+This guide accompanies 1.2.0. Previously published packages remain unchanged;
 use the instructions and checksums supplied with your selected version.
 
 A [SAWSTAR kiadások](https://github.com/RobCZart82/SAWSTAR/releases) oldalán:
 elsősorban a megfelelő telepítőt válaszd; kézi telepítéshez ZIP is elérhető.
 Frissítés előtt zárd be a DAW-ot, és mentsd a projektjeidet, saját presetjeidet.
-Ez az útmutató az 1.0.4 változathoz tartozik. A korábban kiadott csomagok
+Ez az útmutató az 1.2.0 változathoz tartozik. A korábban kiadott csomagok
 változatlanok; a választott verzió útmutatóját és ellenőrzőösszegeit használd.
 
 ## Windows

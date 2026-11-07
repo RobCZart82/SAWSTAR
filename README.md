@@ -7,10 +7,9 @@ The Sounds of Trance.
 An open-source VST3 synthesizer for approachable leads, pads and plucks, with
 clear signal flow and a preset browser that explains saved sounds.
 
-**Development RC:** 1.2.0 rc1 Premium integration is being prepared; the public
-stable release remains 1.0.4. See [RC build, migration and open acceptance gates](docs/PREMIUM_PRODUCTION_RC.md).
-The RC is not a published or natively accepted release.
-[1.2.0 release plan and remaining gates](docs/RELEASE_1.2.0_CHECKLIST.md).
+**SAWSTAR 1.2.0** uses the calibrated Premium LP12/LP24/HP12/BP12 filters,
+32-sample latency and 30 built-in factory presets. The About window includes
+the vector creator signature. [Release notes](docs/RELEASE_NOTES_1.2.0.md).
 
 ![SAWSTAR MAIN](docs/reference/screenshot-main.png)
 
@@ -26,8 +25,8 @@ The RC is not a published or natively accepted release.
 Download the **latest published SAWSTAR release** from [GitHub Releases](https://github.com/RobCZart82/SAWSTAR/releases/latest).
 The version marked **Latest** there is the public download version.
 
-**SAWSTAR 1.0.4 is published.** Download the verified Windows and macOS packages
-from [the 1.0.4 release](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.0.4).
+Download Windows and macOS installers or manual-install archives from
+[the 1.2.0 release](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.2.0).
 Later development on `main` may differ from the released packages.
 
 **Recommended installers:** Windows x64 / ARM64 Setup EXE, or macOS Universal

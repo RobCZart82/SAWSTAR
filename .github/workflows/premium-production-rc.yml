@@ -27,7 +27,27 @@ concurrency:
   group: premium-production-rc-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    outputs:
+      candidate: ${{ steps.metadata.outputs.candidate }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - id: metadata
+        shell: python
+        run: |
+          import json
+          import os
+          from pathlib import Path
+          metadata = json.loads(Path('release.json').read_text())
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('candidate=' + metadata['candidate'] + '\n')
   integration:
+    needs: metadata
+    if: startsWith(needs.metadata.outputs.candidate, 'rc')
     strategy:
       fail-fast: false
       matrix:

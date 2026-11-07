@@ -5,8 +5,9 @@
 #include "plugin/State.h"
 #include "plugin/EngineControls.h"
 using namespace sawstar;
-struct Rig{
- Synth synth;Arpeggiator arp;
+template <typename Engine>
+struct EngineRig{
+ Engine synth;Arpeggiator arp;
  void init(float sr){synth.Reset(sr);arp.Init(sr);}
  void midi(int status,int a,int b){arp.Midi(status,a,b,[this](int s,int n,int v){synth.Midi(s,n,v);});}
  void apply(const Snapshot& v){ApplyEngineControls(synth,arp,
@@ -15,3 +16,5 @@ struct Rig{
  StereoSample process(){arp.Process([this](int s,int n,int v){synth.Midi(s,n,v);});return synth.ProcessStereo();}
  void clear(){arp.Clear([this](int s,int n,int v){synth.Midi(s,n,v);});}
 };
+
+using Rig = EngineRig<Synth>;

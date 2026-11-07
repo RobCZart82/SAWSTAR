@@ -1,11 +1,11 @@
 # Changelog
 
-## Unreleased — 1.2.0 rc1
+## 1.2.0 — 2026-11-07
 
 - Draw the light About signature with native vector paths alongside the existing GYR mark.
 
-- Target 1.2.0 rc1 with synchronized plugin metadata and bilingual manuals;
-  retain candidate publication guards and document exact-RC release gates.
+- Release the calibrated Premium lookup filter engine with 32-sample latency,
+  updated bilingual manuals, 30 built-in presets and the vector About signature.
 - Avoid unused arpeggiator pattern expansion/sorting while bypassed (#137),
   preserving MIDI forwarding and rebuilding held roots when enabled.
 

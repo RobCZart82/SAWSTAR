@@ -49,3 +49,16 @@ Implementált: 1.2.0 rc1 metaadat és kiadási dokumentáció.
 Helyi tesztek, PDF-ellenőrzés és távoli CI pontos eredménye az előkészítő PR
 leírásában szerepel majd; nem jelöljük előre sikeresnek.
 Natív 1.2.0 RC-elfogadás és publikálás: **nyitott**.
+
+## Kiadási döntés — 2026-11-07
+
+Robert a közvetlenül linkelt, 003b007 Premium RC Windows/macOS használatát
+hibamentesnek jelezte és közölte: „Rendben, mehet a kiadás”. Az About képernyőkép
+003b007-et mutat, látható szignóval. A kiadás a tesztelt Premium motor/GUI
+forrását használja, új verzió- és dátumjelöléssel és végleges dokumentációval.
+A főág ea5d6dee mind a négy workflow-ja sikeres. A K1 megőrzött negatívja és
+a részletes CPU/minimumrendszer/Windows ARM64 hostlefedettség hiánya a végleges
+release notes ismert korlátai között szerepel. Ezekhez további eredmény nincs.
+A fenti korábbi előkészítési táblázat történeti munkasorrend.
+A végleges PR és főág CI-je, csomaghashai, telepítői és publikált letöltései
+külön ellenőrzendők. A sikeres csomagokkal az engedély alapján publikálunk.

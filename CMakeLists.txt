@@ -1378,6 +1378,13 @@ endif()
 
 if(SAWSTAR_PREMIUM_PREVIEW OR SAWSTAR_PREMIUM_PRODUCTION)
   include(cmake/PremiumPreview.cmake)
+  if(TARGET sawstar_factory_tests)
+    if(SAWSTAR_PREMIUM_NATIVE_CANDIDATE)
+      target_link_libraries(sawstar_factory_tests PRIVATE sawstar_premium_native_candidate_engine)
+    else()
+      target_link_libraries(sawstar_factory_tests PRIVATE sawstar_premium_preview_engine)
+    endif()
+  endif()
 endif()
 
 if(SAWSTAR_BUILD_PLUGIN)

@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 #include "presets/FactoryPresets.h"
 #include "SynthTestRig.h"
+#include "plugin/SynthEngine.h"
+#if defined(SAWSTAR_PREMIUM_PREVIEW) || defined(SAWSTAR_PREMIUM_PRODUCTION)
+#include "presets/PremiumPreviewLevels.h"
+#endif
+using FactoryRig = EngineRig<sawstar::PluginSynth>;
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -25,7 +30,11 @@ int main(int argc,char** argv){
  // Identity uniqueness covers the entire bank, even in a render shard.
  for(const auto& preset:presets)
   check(keys.insert(preset.key).second&&names.insert(preset.name).second,"unique preset identities");
- check(presets[0].values==DefaultSnapshot(),"Init must use parameter defaults");
+ auto expectedInit=DefaultSnapshot();
+#if defined(SAWSTAR_PREMIUM_PREVIEW) || defined(SAWSTAR_PREMIUM_PRODUCTION)
+ expectedInit[size_t(ParameterId::OutputGain)]-=PremiumPreviewFactoryTrim("init");
+#endif
+ check(presets[0].values==expectedInit,"Init must use engine-specific parameter defaults");
  for(size_t p=begin;p<end;++p){const auto& v=presets[p].values;
   std::cout<<"Factory preset "<<p<<": "<<presets[p].key<<std::endl;
   check(std::string(presets[p].tags).size()>0&&std::string(presets[p].tags).size()<=36,"short factory tags");
@@ -45,14 +54,14 @@ int main(int argc,char** argv){
              <<" rendered_second="<<second<<" elapsed_seconds="<<elapsed<<std::endl;
    };
    progress("single-start");
-   auto configure=[&](Rig& s,const Snapshot& values){s.init(sr);s.apply(values);};
-   auto single=std::make_unique<Rig>();auto& s=*single;configure(s,v);
+   auto configure=[&](FactoryRig& s,const Snapshot& values){s.init(sr);s.apply(values);};
+   auto single=std::make_unique<FactoryRig>();auto& s=*single;configure(s,v);
    s.midi(0x90,p==4?36:60,100);double energy=0;
    for(int i=0;i<sr*2;++i){auto x=s.process();check(std::isfinite(x.left)&&std::isfinite(x.right)&&std::abs(x.left)<=1&&std::abs(x.right)<=1,"factory audio bounds");energy+=x.left*x.left+x.right*x.right;}
    check(energy>.001,"factory preset produces audio");
    progress("single-complete");
    if(p==6||p==7){
-    auto full=std::make_unique<Rig>(),reducedRig=std::make_unique<Rig>();auto& chord=*full;auto& withoutSecond=*reducedRig;configure(chord,v);auto reduced=v;reduced[21]=0;configure(withoutSecond,reduced);
+    auto full=std::make_unique<FactoryRig>(),reducedRig=std::make_unique<FactoryRig>();auto& chord=*full;auto& withoutSecond=*reducedRig;configure(chord,v);auto reduced=v;reduced[21]=0;configure(withoutSecond,reduced);
     for(int note:{48,55,60,64,67}){chord.midi(0x90,note,110);withoutSecond.midi(0x90,note,110);}
     double peak=0,difference=0,stereo=0;
     for(int i=0;i<sr*5;++i){auto x=chord.process(),y=withoutSecond.process();
@@ -66,7 +75,7 @@ int main(int argc,char** argv){
    }
    if(sr==48000.f){
     progress("chord-start");
-    auto chord=std::make_unique<Rig>();configure(*chord,v);
+    auto chord=std::make_unique<FactoryRig>();configure(*chord,v);
     const bool bass=std::string(presets[p].category)=="Bass"||std::string(presets[p].key)=="bass_init";
     if(bass)chord->midi(0x90,36,110);
     else if(v[size_t(ParameterId::VoiceMode)]>0)chord->midi(0x90,60,110);

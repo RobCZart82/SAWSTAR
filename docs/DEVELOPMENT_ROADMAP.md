@@ -1,5 +1,14 @@
 # Elfogadott fejlesztési sorrend — állapot: 2026-11-05
 
+## 1.2.0 kiadási döntés — 2026-11-07
+
+Robert a 003b007 Premium RC Windows/macOS működését hibamentesnek jelezte és
+engedélyezte a publikálást. A végleges kiadás explicit Premium buildet és
+telepítőket kap. [Kiadási döntés és ellenőrzések](RELEASE_1.2.0_CHECKLIST.md),
+[ismert K1 eltérés és használati korlátok](RELEASE_NOTES_1.2.0.md).
+Az alábbi korábbi RC-bejegyzések dátumozott történeti állapotok.
+
+
 ## Aktuális kiadási cél: 1.2.0 rc1 — 2026-11-05
 
 Robert az 1.2.0 publikálását jelölte ki célként és engedélyezte az előkészítő

@@ -1,10 +1,8 @@
-# System requirements - build targets
+# System requirements — SAWSTAR 1.2.0
 
-For the unpublished **1.1.0 rc1 Premium integration**, follow the
-[RC supplement](PREMIUM_PRODUCTION_RC.md), including the shared SAWSTAR identity,
-32-sample latency and open native acceptance gates. The versioned instructions
-below remain historical for the stable release.
-
+Premium filters report 32 samples of latency. Robert reported successful use of
+the 003b007 Premium RC on macOS and Windows and approved publication. Native
+Windows ARM64 host testing and measured minimum-system coverage remain open.
 
 Development tools and end-user requirements are separate. The following OS
 versions are **build/installer targets, not yet verified minimum support claims**.
