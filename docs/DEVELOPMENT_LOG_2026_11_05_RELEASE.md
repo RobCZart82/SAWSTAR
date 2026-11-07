@@ -86,3 +86,40 @@ A factory headroom lépés a külön EXCLUDE_FROM_ALL mérőprogram hiányán bu
 el. A két telepítős workflow a használat előtt explicit lefordítja a
 sawstar_premium_preview_levels célt. A Windows lépés a fordítás hibáján
 azonnal kilép. A mérő helyi explicit buildje és 252 esete korábban sikeres.
+
+A 810a388 headen új K1-jellegű negatív keletkezett: macOS Premium Preview
+42365411396 / 128382317422, Sine / 48 kHz / LP24 / poly / FX-on, main frame
+423. A bal pre-FX eltérés 8 ULP, a bal kimeneti eltérés 6 ULP, a jobb csatorna
+azonos. MXCSR 0x1fb3, rounding 0. A folyamat Rosetta x86_64 futásként az
+arm64/x86_64 workflow-sorrendből azonosítható; a megelőző arm64 Sine teljes
+120 esete sikeres volt. A nyers joblog mentett és SHA-256-azonosított,
+a géppel olvasható rekord a measurements/k1-sine-810a388-negative.json.
+Az eredeti hibás offline executable nem került artifactba ezen a workflow-n.
+A negatív nem infrastruktúrahiba, oka ismeretlen. Nem indítunk változatlan
+mérési retryt kedvezőbb eredményért. A kiadási PR jelenlegi CI-je piros.
+
+## Célzott K1 Sine-vizsgálat indítása — 2026-11-07
+
+Robert az oknyomozást kérte a publikálás elé. A #142 időközben beolvadt
+4b614501 főágra; a vizsgálat erről indul. A publikus Latest az ellenőrzéskor
+1.0.4. A már megőrzött 810a388 negatív helyi rekordja és naplóhasha megmarad.
+
+A normál macOS Preview-ellenőrzés most minden eredmény mellett megőrzi
+az eredeti összehasonlító executable-t, cache-t, compiler/OS/commit adatot
+és generált motorforrást. A célzott külön vizsgálat egyszer futtatja a
+Sine 120 esetes rácsát (a hibás eset előtti hét setup/render/teardown
+esettel együtt), normál, passzív FP- és belső trace-módban. Minden mód
+binárisa, compilerparancsa, generált forrása és nyers naplója hash-elt.
+Egy negatív után is lefutnak a kijelölt kontrollok; a végső job piros marad.
+A két runner natív arm64/Rosetta és natív Intel összevetést ad. A program
+nem írja át az FP-környezetet és nem használ numerikus toleranciát.
+
+Két helyi fixture-regresszió igazolja, hogy szándékos numerikus negatív
+és timeout után is megmarad minden további kontroll és bináris/hash,
+és az eredménykönyvtár felülírása tiltott. A valós helyi futás eredménye
+külön rögzítendő; új gyökérok vagy javítás még nincs igazolva.
+
+A helyi célzott kör tíz folyamata sikeres: négy self-test és hat 120-esetes
+Sine-rács (720 megfigyelés) arm64/Rosetta alatt. Minden bináris/naplóhash és
+esetinventár ellenőrzött. Új eltérés nem reprodukált, az ok még ismeretlen.
+Részletek: K1_SINE_INVESTIGATION_2026_11_07.md. A CI-kontroll eredménye függő.
