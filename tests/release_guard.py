@@ -236,7 +236,7 @@ class FinalReleaseValidation(unittest.TestCase):
                 with patch('pathlib.Path.cwd', return_value=root), patch.dict(
                         os.environ, {'RELEASE_SHA': 'expected', 'GH_REPO': 'owner/repo'}), patch(
                         'subprocess.check_output', side_effect=fake_gh), patch(
-                        'time.monotonic', side_effect=[0, 2101]):
+                        'time.monotonic', side_effect=[0, 4501]):
                     with self.assertRaises(ValueError if kind == 'failed' else RuntimeError):
                         runpy.run_path(str(SCRIPT), run_name='__main__')
                 self.assertFalse((root / 'release-assets').exists())

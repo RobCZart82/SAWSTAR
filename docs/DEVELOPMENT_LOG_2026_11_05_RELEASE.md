@@ -35,3 +35,26 @@ A workflow korábban 1.1.0 rc1-et rögzített a ZIP és SHA-256 fájl nevében.
 A fájlnév most a release.json verziójából és RC-jelöléséből készül.
 A helyi csomagtesztek és a névképzés két érvényes/két hibás bemenete
 sikeres. Az új workflow eredménye és a natív elfogadás külön ellenőrzendő.
+
+## Kiadási véglegesítés — 2026-11-07
+
+Robert sikeres macOS/Windows használatot jelzett a 003b007 Premium RC-re,
+majd kifejezetten engedélyezte a kiadást. A végleges 1.2.0 metaadat dátuma
+2026.11.07. A normál telepítős Windows/macOS CI explicit Premium production
+buildet készít, factory headroom-kontrollal. Az RC workflow a candidate
+mező alapján csak RC esetén csomagol. A végleges kézikönyvek és release notes
+rögzítik a migrációt és a megőrzött K1/CPU/ARM64 host-lefedettségi korlátokat.
+A K1 okára vagy új natív CPU-mérésre vonatkozó eredmény nem keletkezett.
+
+Helyben a végleges metaadatú arm64 Premium VST3 lefordult. A production
+state/identity/latency próbák és a 252 factory eset sikeresek, a legrosszabb
+limiter előtti csúcs −6,51292972 dBFS. A release guard 21/21, display metadata
+7 eset, Premium RC csomag/provenance 5/5 és Preview csomagteszt 10/10 sikeres.
+Az actionlint, metadata sync és diff-ellenőrzés sikeres. A két 15 oldalas PDF
+mind a 30 oldala renderelve, kontaktlapon vizuálisan és szóhatárral ellenőrizve.
+A végleges forrás távoli CI-je és csomagellenőrzése ezután következik.
+
+A draft-előkészítő várakozása 75 perc, a workflow-é 85 perc, hogy a 60 perces
+quality jobok végét megvárhassa. A release guard időtúllépés-regressziója
+az új határt ellenőrzi; 21/21 teszt sikeres. A teszt- és mérési korlátok
+változtatása nélkül készül a végleges PR.

@@ -22,7 +22,8 @@ existing=release_for_tag(gh,repo,tag)
 if existing is not None and not existing['draft']:
  print(f'Release preparation skipped: {tag} is already published; no assets or tags changed')
  raise SystemExit(0)
-deadline=time.monotonic()+2100
+# Allow the 60-minute quality jobs to complete before preparing the draft.
+deadline=time.monotonic()+4500
 while True:
  runs=api(f'repos/{repo}/actions/runs?head_sha={sha}&event=push&per_page=100')['workflow_runs']
  selected=matching_runs(runs,sha)

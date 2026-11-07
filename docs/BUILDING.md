@@ -24,7 +24,7 @@ may appear modified because SDK placeholder files are replaced during setup.
 Use Xcode with its SDK and developer-accepted license. Build both slices:
 
 ```sh
-cmake -S . -B build-mac -DSAWSTAR_BUILD_PLUGIN=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+cmake -S . -B build-mac -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PRODUCTION=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 cmake --build build-mac --config Release
 ```
 
@@ -39,9 +39,9 @@ Install Visual Studio 2022 C++ desktop tools, CMake and the toolchain for the
 selected architecture. Use separate build directories:
 
 ```powershell
-cmake -S . -B build-x64 -G "Visual Studio 17 2022" -A x64 -DSAWSTAR_BUILD_PLUGIN=ON
+cmake -S . -B build-x64 -G "Visual Studio 17 2022" -A x64 -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PRODUCTION=ON
 cmake --build build-x64 --config Release
-cmake -S . -B build-arm64 -G "Visual Studio 17 2022" -A ARM64 -DSAWSTAR_BUILD_PLUGIN=ON
+cmake -S . -B build-arm64 -G "Visual Studio 17 2022" -A ARM64 -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PRODUCTION=ON
 cmake --build build-arm64 --config Release
 ```
 
