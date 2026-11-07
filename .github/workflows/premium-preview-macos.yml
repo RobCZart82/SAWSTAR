@@ -55,12 +55,32 @@ jobs:
         run: cmake -S . -B build-premium -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=ON -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_PREMIUM_NATIVE_CANDIDATE=${{ matrix.candidate }} '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64' -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DIPLUG_DEPLOY_PLUGINS=OFF
       - name: Build preview and engine smoke
         run: cmake --build build-premium --config Release --target ${{ matrix.product }}-vst3 sawstar_premium_preview_smoke sawstar_premium_preview_levels sawstar_premium_native_pair --parallel 3
+      - name: Record offline comparison provenance
+        run: |
+          mkdir -p comparison-evidence
+          git rev-parse HEAD > comparison-evidence/source-commit.txt
+          c++ --version > comparison-evidence/compiler.txt
+          sw_vers > comparison-evidence/os.txt
+          shasum -a 256 build-premium/sawstar_premium_native_pair build-premium/CMakeCache.txt > comparison-evidence/SHA256SUMS.txt
       - name: Qualify calibrated Preview reference and dispatch candidate on both slices
         run: |
+          set -o pipefail
           for wave in 0 1 2 3; do
-            build-premium/sawstar_premium_native_pair --waveform "$wave"
-            arch -x86_64 build-premium/sawstar_premium_native_pair --waveform "$wave"
+            build-premium/sawstar_premium_native_pair --waveform "$wave" 2>&1 | tee "comparison-evidence/arm64-wave-$wave.log"
+            arch -x86_64 build-premium/sawstar_premium_native_pair --waveform "$wave" 2>&1 | tee "comparison-evidence/x86_64-wave-$wave.log"
           done
+      - name: Preserve qualification executable and build provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: preview-comparison-${{ matrix.role }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            comparison-evidence/
+            build-premium/sawstar_premium_native_pair
+            build-premium/CMakeCache.txt
+            build-premium/premium_preview_engine/
+          retention-days: 90
+          if-no-files-found: warn
       - name: Check engine identity, audio and latency on both slices
         run: |
           build-premium/sawstar_premium_preview_smoke

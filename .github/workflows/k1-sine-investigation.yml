@@ -1,0 +1,62 @@
+name: K1 first Sine divergence investigation
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/k1-sine-investigation.yml'
+      - 'scripts/investigate-k1-sine.py'
+      - 'tests/k1_sine_investigation.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: k1-sine-investigation-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  investigate:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            architectures: 'arm64 x86_64'
+          - os: macos-15-intel
+            architectures: 'x86_64'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Initialize pinned DSP core
+        run: git submodule update --init third_party/DaisySP
+      - name: Check failure and timeout evidence retention
+        run: python3 tests/k1_sine_investigation.py
+      - name: Configure original and instrumented comparisons
+        run: |
+          for mode in baseline trace; do
+            trace=OFF
+            if [ "$mode" = trace ]; then trace=ON; fi
+            cmake -S . -B "build-$mode" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=OFF -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_NUMERICAL_TRACE="$trace" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
+          done
+      - name: Build both exact offline executables
+        run: |
+          cmake --build build-baseline --target sawstar_premium_native_pair --parallel 3
+          cmake --build build-trace --target sawstar_premium_native_pair --parallel 3
+      - name: Fixed Sine grid and first divergence trace
+        run: python3 scripts/investigate-k1-sine.py --baseline-build build-baseline --trace-build build-trace --output k1-sine --architectures ${{ matrix.architectures }}
+      - name: Preserve every result, exact binaries and build configuration
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: k1-sine-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            k1-sine/
+            build-baseline/sawstar_premium_native_pair
+            build-baseline/CMakeCache.txt
+            build-baseline/compile_commands.json
+            build-trace/sawstar_premium_native_pair
+            build-trace/CMakeCache.txt
+            build-trace/compile_commands.json
+          retention-days: 90
+          if-no-files-found: warn
