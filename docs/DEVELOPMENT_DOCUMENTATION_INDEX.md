@@ -1,5 +1,16 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
+## K1 név szerinti filter/FIR-diagnosztika — 2026-11-08
+
+Az [AI-átadási jelentés](K1_AI_DEBUG_HANDOFF_2026_11_08.md) megőrzi a külön
+negatívokat és a sikertelen okfeltárási próbák korlátait. A
+[mély filterállapot-nyomkövetés](K1_FILTER_STATE_FIRST_DIVERGENCE_2026_11_08.md)
+implementált és helyileg ellenőrzött: az aktuális és öt korábbi minta név szerinti
+bitmintái, FIR-lane és SVF köztes pontok, külön offline kapcsoló. Egy véges helyi
+Rosetta-körben nincs reprodukció; távoli CI még külön kapu, K1 nem javított.
+Az alábbi dátumozott állapotok történeti feljegyzések.
+
+
 ## Célzott K1 Sine-vizsgálat — 2026-11-07
 
 Robert a publikálás elé helyezte a konkrét 810a388 negatív oknyomozását.

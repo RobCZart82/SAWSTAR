@@ -26,6 +26,14 @@ public:
     drive_.Set(db);
   }
   void SnapToTargets() { drive_.SnapToTargets(); filter_.SnapToTargets(); mix_ = targetMix_; }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+  void CaptureState(::sawstar::FilterStateTrace& out) const {
+    out.Clear();drive_.CaptureState(out);filter_.CaptureState(out);
+    out.Add("adapter.dry_cursor",0,cursor_);out.Add("adapter.slew",0,slew_);
+    out.Add("adapter.mix",0,mix_);out.Add("adapter.target_mix",0,targetMix_);
+    for(unsigned i=0;i<dry_.size();++i)for(unsigned ch=0;ch<2;++ch)out.Add("adapter.dry",i*2+ch,dry_[i][ch]);
+  }
+#endif
   StereoSample Process(StereoSample input) {
     // Invalid samples clear both wet and delayed dry state on that channel.
     std::array<float, 2> x{input.left, input.right};

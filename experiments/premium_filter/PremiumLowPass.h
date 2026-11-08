@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "dsp/Safety.h"
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+#include "engine/FilterStateTrace.h"
+#endif
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -47,7 +50,24 @@ public:
     for (auto& channel : stages_) channel = {};
     twelve_ = {};
   }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+  void CaptureState(::sawstar::FilterStateTrace& out) const {
+    out.Add("filter.mode",0,mode_);out.Add("filter.controls_moving",0,controlsMoving_);
+    const std::array<double,13> controls{rate_,slew_,cutoff_,resonance_,g_,targetG_,k_,targetK_,k12_,targetK12_,a1_,a2_,a12_};
+    constexpr std::array<const char*,13> names{"filter.rate","filter.slew","filter.cutoff","filter.resonance","filter.g","filter.target_g","filter.k","filter.target_k","filter.k12","filter.target_k12","filter.a1","filter.a2","filter.a12"};
+    for(unsigned i=0;i<names.size();++i)out.Add(names[i],0,controls[i]);
+    for(unsigned i=0;i<4;++i)out.Add("filter.weights",i,weights_[i]);
+    for(unsigned ch=0;ch<2;++ch){
+      for(unsigned stage=0;stage<2;++stage){out.Add("filter.integrator.band",ch*3+stage,stages_[ch][stage].band);out.Add("filter.integrator.low",ch*3+stage,stages_[ch][stage].low);}
+      out.Add("filter.integrator.band",ch*3+2,twelve_[ch].band);out.Add("filter.integrator.low",ch*3+2,twelve_[ch].low);
+    }
+    out.Append(operations_);
+  }
+#endif
   std::array<float, 2> Process(std::array<float, 2> input) {
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+    operations_.Clear();traceStep_=0;
+#endif
     if (controlsMoving_) {
       const double previousG = g_, previousK = k_, previousK12 = k12_;
       g_ += slew_ * (targetG_ - g_);
@@ -97,9 +117,21 @@ private:
     a12_ = 1. / (1. + g_ * (g_ + k12_));
   }
   struct State { double band = 0, low = 0; };
-  static double Step(double x, State& state, double g, double a, double* bandOut = nullptr) {
+#ifndef SAWSTAR_FILTER_STATE_TRACE
+  static
+#endif
+  double Step(double x, State& state, double g, double a, double* bandOut = nullptr) {
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+    const unsigned at=traceStep_++;
+    operations_.Add("filter.step.input",at,x);
+    operations_.Add("filter.step.before.band",at,state.band);
+    operations_.Add("filter.step.before.low",at,state.low);
+#endif
     const double band = a * (state.band + g * (x - state.low));
     const double low = state.low + g * band;
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+    operations_.Add("filter.step.band",at,band);operations_.Add("filter.step.low",at,low);
+#endif
     state.band = 2 * band - state.band;
     state.low = 2 * low - state.low;
     if (std::abs(state.band) < 1e-24) state.band = 0;
@@ -107,6 +139,10 @@ private:
     if (bandOut) *bandOut = band;
     return low;
   }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+  ::sawstar::NamedStateTrace<32> operations_{};
+  unsigned traceStep_=0;
+#endif
   std::array<std::array<State, 2>, 2> stages_{};
   std::array<State, 2> twelve_{};
   std::array<double, 4> weights_{0, 1, 0, 0};

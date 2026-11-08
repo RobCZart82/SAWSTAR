@@ -123,3 +123,22 @@ A helyi célzott kör tíz folyamata sikeres: négy self-test és hat 120-esetes
 Sine-rács (720 megfigyelés) arm64/Rosetta alatt. Minden bináris/naplóhash és
 esetinventár ellenőrzött. Új eltérés nem reprodukált, az ok még ismeretlen.
 Részletek: K1_SINE_INVESTIGATION_2026_11_07.md. A CI-kontroll eredménye függő.
+
+
+## 2026-11-08 — K1 filter/FIR first-divergence instrumentation
+
+Robert accepted the bounded, named-field protocol. The calibrated Reference
+and Candidate share the same Premium filter/Drive representation; only the
+oscillator dispatch differs. The existing trace already compares voice and
+output fields per sample. A separate offline-only deep flag now observes active
+FIR histories/cursors/taps, inline lane sums, SVF integrators/intermediates and
+dry/mix state, retaining the current plus five preceding samples.
+See [method and limits](K1_FILTER_STATE_FIRST_DIVERGENCE_2026_11_08.md).
+
+Implemented and locally checked: one fixed Rosetta control passed five processes /
+360 case observations without divergence, before final coverage and manifest-drift
+validation additions. Final ARM64/Rosetta self-tests cover real Sine filter capture
+at 4x and 2x; six new runner regressions, two existing ones, four rejected build
+configurations and five ordinary chorus/pair/state/identity CTests pass. All 32
+local payload/log hashes were verified. Remote CI/native acceptance are not claimed. No production DSP policy, state/preset, tolerance, release
+metadata or publication change. K1 remains unexplained.

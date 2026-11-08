@@ -224,6 +224,9 @@ void Synth::Midi(int status, int note, int value) {
 StereoSample Synth::ProcessStereo() {
 #ifdef SAWSTAR_NUMERICAL_TRACE
   trace_={};
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+  filterStates_.Clear();
+#endif
 #endif
   // Resolve releases sharing a sample once; do not retrigger unrendered keys.
   if(monoSelectionPending_)SelectMono(false,true);
@@ -294,6 +297,7 @@ StereoSample Synth::ProcessStereo() {
     const StereoSample mixed{one.left*levels_[0]+two.left*levels_[1]+center,
                              one.right*levels_[0]+two.right*levels_[1]+center};
     const auto value=v.filter.Process(mixed);
+    // Premium filter state probe is injected here by the offline build.
     float velocity=v.velocity;
     if(voiceMode_!=0&& &v==&voices_[0]&&monoPitchValid_){monoPitchRendered_=true;monoVelocity_+=smoothing_*(v.velocity-monoVelocity_);velocity=monoVelocity_;}
     const float routedAmp=1+route[2];
