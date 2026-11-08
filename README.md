@@ -35,7 +35,8 @@ are available for each target. All packages include English/Hungarian PDF guides
 and license notices. The installers are unsigned; read the installation guide
 before proceeding through platform security prompts.
 
-See the [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md) for the current public packages.
+See the [1.2.0 release notes](docs/RELEASE_NOTES_1.2.0.md) for the current public packages.
+The next maintenance target is [1.2.1](docs/RELEASE_1.2.1_PLAN.md); it is not yet published.
 
 ## Features
 
@@ -44,7 +45,7 @@ See the [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md) for the current publi
 - Four-source mixer, filter modes/drive, amp and filter ADSR envelopes.
 - Poly/Mono/Legato, glide, pitch/mod wheels, two LFOs and four modulation routes.
 - Arpeggiator, chorus, delay, reverb and master stereo width.
-- 24 embedded presets: seven Templates and 17 finished sounds.
+- 30 embedded presets: seven Templates, 17 original finished sounds and six performance sounds.
 - User .sawstar files, batch import, favorites, safe Save/Save As and recovery.
 - MAIN, ADVANCED and PRESETS pages, pre-FX scope, output meter and DSP CPU display.
 
@@ -68,8 +69,9 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [English PDF](docs/manuals/SAWSTAR-User-Manual-EN.pdf)
 - [Magyar PDF](docs/manuals/SAWSTAR-User-Manual-HU.pdf)
 - [Factory library](docs/FACTORY_LIBRARY.md)
-- [Changelog](CHANGELOG.md) and [1.0.4 release notes](docs/RELEASE_NOTES_1.0.4.md)
+- [Changelog](CHANGELOG.md) and [1.2.0 release notes](docs/RELEASE_NOTES_1.2.0.md)
 - [1.0.4 publication record and historical checklist](docs/RELEASE_1.0.4_CHECKLIST.md)
+- [1.2.0 publication record and historical checklist](docs/RELEASE_1.2.0_CHECKLIST.md)
 - [Development documentation index and current status](docs/DEVELOPMENT_DOCUMENTATION_INDEX.md)
 - [Consolidated bugfix and validation plan, 2026-10-20](docs/BUGFIX_DEVELOPMENT_PLAN_2026_10_20.md)
 - [Next release plan and real REAPER CPU acceptance](docs/NEXT_RELEASE_DEVELOPMENT_PLAN.md)
@@ -78,7 +80,7 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Repository review, 2026-10-09](docs/REPOSITORY_REVIEW_2026_10_09.md)
 - [Repository review and release readiness, 2026-10-02](docs/REPOSITORY_REVIEW_2026_10_02.md)
 
-The English and Hungarian guides describe SAWSTAR 1.0.4 and include the supplied 1.0.3 screenshots.
+The English and Hungarian guides describe SAWSTAR 1.2.0 and include the supplied, version-labelled 1.0.3 screenshots.
 
 ## Building from source
 
@@ -99,16 +101,16 @@ Original SAWSTAR code: [MIT](LICENSE). External components retain their own
 terms; see [Third-party notices](THIRD_PARTY_NOTICES.md). Creator branding has
 separate treatment and is not granted for unrestricted reuse by the code license.
 
-### Published 1.0.4 maintenance release
+### Release history and next maintenance target
 
 Version 1.0.4 was published on October 2, 2026. It includes MIDI/editor lifecycle, envelope precision,
 VST3 tail and preset-validation fixes. Parameter IDs, state compatibility and
 GUI layout remain unchanged. See [1.0.4 changes](docs/RELEASE_NOTES_1.0.4.md)
 and [release validation](docs/RELEASE_1.0.4_CHECKLIST.md).
 
-For future RC builds, set `candidate` to `rcN` and leave the release date empty.
-Final packages require an empty candidate, an actual date and successful
-checks of the exact release commit. At publication, confirm that the release,
-Latest designation, package/About versions and public download text agree.
-A build-metadata date is not evidence that a release has been published.
+The current public release is [1.2.0](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.2.0),
+published on November 7, 2026. The [1.2.1 maintenance plan](docs/RELEASE_1.2.1_PLAN.md)
+tracks repository fixes and required validation; it is not a release, download,
+or publication announcement. A build-metadata date is not evidence that a
+release has been published.
 

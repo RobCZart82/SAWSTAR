@@ -1,5 +1,10 @@
 # Fejlesztési napló — 1.2.0 előkészítés, 2026-11-05
 
+Történeti napló: az 1.2.0 azóta megjelent 2026-11-07-én. A korábbi „nyitott”
+és „publikálás nem történt” mondatai az adott dátum pillanatképét őrzik; az
+aktuális publikált állapotot a [kiadási checklist](RELEASE_1.2.0_CHECKLIST.md),
+a következő munkát pedig az [1.2.1 terv](RELEASE_1.2.1_PLAN.md) rögzíti.
+
 Robert új kiadási célja 1.2.0. Friss GitHub-lekérés: main ec110a3 (#137),
 4 workflow / 11 job sikeres, nincs nyitott PR. A #136 működési visszajelzését
 és #137 ARP bypass javítását az új kiadás tartalmazza.

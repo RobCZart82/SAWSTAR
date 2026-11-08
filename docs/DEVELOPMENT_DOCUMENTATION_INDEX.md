@@ -1,5 +1,15 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
+## Aktuális cél: 1.2.1 hibajavító kiadás — 2026-11-08
+
+Az 1.2.0 2026-11-07-én megjelent, a kalibrált Premium hangúttal és 30 factory
+presettel. A #144 diagnosztika beolvadt `c82e26d` mainre; mind a négy főági
+workflow sikeres. K1 továbbra ismeretlen eredetű, nem javított.
+A mostani végrehajtási alap az [1.2.1 javítási és elfogadási terv](RELEASE_1.2.1_PLAN.md).
+Az alábbi korábbi RC-célok és kapuk dátumozott történeti állapotok; nem az
+aktuális publikációs állapotot vagy újonnan megadott elfogadást jelentik.
+
+
 ## K1 név szerinti filter/FIR-diagnosztika — 2026-11-08
 
 Az [AI-átadási jelentés](K1_AI_DEBUG_HANDOFF_2026_11_08.md) megőrzi a külön
@@ -26,12 +36,12 @@ telepítőket kap. [Kiadási döntés és ellenőrzések](RELEASE_1.2.0_CHECKLIS
 Az alábbi korábbi RC-bejegyzések dátumozott történeti állapotok.
 
 
-## Aktuális kiadási cél: 1.2.0 rc1 — 2026-11-05
+## Történeti kiadási cél: 1.2.0 rc1 — 2026-11-05
 
 Robert az 1.2.0 publikálását jelölte ki célként és engedélyezte az előkészítő
 fejlesztés folytatását. [Kiadási sorrend, bizonyítékok és nyitott kapuk](RELEASE_1.2.0_CHECKLIST.md).
 [Az előkészítés naplója](DEVELOPMENT_LOG_2026_11_05_RELEASE.md).
-Ez a szakasz az aktuális végrehajtási alap; az alábbi dátumozott feljegyzések
+Az akkori végrehajtási alap; az alábbi dátumozott feljegyzések
 történetiek. A hat új exportált preset zenei jóváhagyása megtörtént; a teljes
 pontos RC elfogadása ettől külön marad. Az 1.1.0 rc1 korábbi fejlesztési jelölt,
 nem publikált kiadás. Az új metaadat 1.2.0 rc1, üres kiadási dátummal.
@@ -95,7 +105,7 @@ M2/M3/M5 és pontos RC host/zenei elfogadási feltételek teljesítése.
 A lentebb dátumozott korábbi állapotok történetiek.
 
 
-Utolsó állapotfrissítés: **2026-11-05**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
+Utolsó állapotfrissítés: **2026-11-08**; a történeti dokumentációaudit 2026-10-17-én készült. Ez az index választja el az aktuális
 végrehajtási dokumentumokat a korábbi kutatási/kiadási feljegyzésektől.
 Nem helyettesíti a pontos PR-head/main GitHub-ellenőrzését.
 
@@ -126,6 +136,8 @@ ettől nem teljesült; az új main és e dokumentáció friss CI-je külön kapu
 
 | Dokumentum | Szerepe |
 | --- | --- |
+| [1.2.1 release-előkészítési napló — 2026-11-08](DEVELOPMENT_LOG_2026_11_08_RELEASE.md) | A jelen hibajavítási lépcső helyi implementációja, ellenőrzése és még nyitott távoli/felhasználói kapui. |
+| [1.2.1 javítási és elfogadási terv](RELEASE_1.2.1_PLAN.md) | Kiadás előkészítési sorrendje; candidate-, natív host- és külön publikálási kapuk. |
 | [macOS felhasználói alappróba — 2026-10-27](NATIVE_HOST_SMOKE_2026_10_27.md) | Robert sikeres Reference/Candidate működési/hang-visszajelzése; ellenőrzött telepített hashok, hiányzó mérési adatok és következő sajátgépes lépés. |
 | [K1 natív és sanitizer-eredmények](K1_NATIVE_SANITIZER_RESULTS_2026_10_20.md) | A #126 mért eredményei, helyi raw-data audit, nyitott K1 és a natív host-elfogadásra visszatérő prioritás. |
 | [K1 natív/sanitizer módszertan](K1_NATIVE_AND_SANITIZER_CONTROLS.md) | Az eredeti Intel-bináris és az új instrumentált kalibrált pár külön tesztterve és értelmezési korlátai. |

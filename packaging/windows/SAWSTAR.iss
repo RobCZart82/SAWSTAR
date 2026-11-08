@@ -38,13 +38,15 @@ WizardStyle=modern
 UninstallDisplayName=SAWSTAR ({#Arch})
 [Files]
 Source: "{#Stage}\SAWSTAR.vst3\*"; DestDir: "{commoncf64}\VST3\SAWSTAR.vst3"; Flags: ignoreversion recursesubdirs createallsubdirs sharedfile
-Source: "{#Stage}\docs\manuals\*"; DestDir: "{app}\manuals"; Flags: ignoreversion recursesubdirs
+Source: "{#Stage}\docs\manuals\*"; DestDir: "{app}\docs\manuals"; Flags: ignoreversion recursesubdirs
 Source: "{#Stage}\licenses\*"; DestDir: "{app}\licenses"; Flags: ignoreversion recursesubdirs
 Source: "{#Stage}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Stage}\THIRD_PARTY_NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#Stage}\docs\INSTALLATION.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#Stage}\docs\SYSTEM_REQUIREMENTS.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#Stage}\docs\INSTALLATION.md"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "{#Stage}\docs\SYSTEM_REQUIREMENTS.md"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "{#Stage}\docs\THIRD_PARTY.md"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "{#Stage}\docs\RELEASE_NOTES_{#Version}.md"; DestDir: "{app}\docs"; Flags: ignoreversion
 [Icons]
-Name: "{group}\User Manual - English"; Filename: "{app}\manuals\SAWSTAR-User-Manual-EN.pdf"
-Name: "{group}\Használati útmutató - Magyar"; Filename: "{app}\manuals\SAWSTAR-User-Manual-HU.pdf"
+Name: "{group}\User Manual - English"; Filename: "{app}\docs\manuals\SAWSTAR-User-Manual-EN.pdf"
+Name: "{group}\Használati útmutató - Magyar"; Filename: "{app}\docs\manuals\SAWSTAR-User-Manual-HU.pdf"
 Name: "{group}\SAWSTAR website"; Filename: "https://github.com/RobCZart82/SAWSTAR"

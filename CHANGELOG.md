@@ -2,6 +2,17 @@
 
 ## Unreleased — 1.2.1 preparation
 
+Preparation order and publication gates: [1.2.1 plan](docs/RELEASE_1.2.1_PLAN.md);
+local scope and validation: [release-preparation log](docs/DEVELOPMENT_LOG_2026_11_08_RELEASE.md).
+
+- Correct Windows installer documentation paths and verify installed copies
+  against the extracted package; normalize the macOS notice link for its flat
+  documentation layout.
+- Synchronize all product VST3 version plists from central release metadata,
+  and make pre-release validation require every exact-head build, quality and
+  workflow-lint run to finish successfully.
+- Update the current-version manuals and K1 handoff references while preserving
+  historical screenshots, evidence and already-published 1.2.0 assets.
 - Add an opt-in offline K1 filter/FIR state probe with named bit-pattern snapshots,
   inline SIMD/SVF observation and five preceding samples. Preserve the ordinary
   comparison binary and bounded Rosetta evidence; this is not a K1 fix.
@@ -24,7 +35,8 @@
   existing preset identities and values. Add playing hints, controller-aware
   pre-guard headroom checks and updated bilingual RC manuals.
 
-- Refresh both 1.1.0 rc1 PDF manuals with Premium migration, latency and open gates.
+- Refresh both PDF manuals with Premium migration, latency and accurately scoped
+  K1 evidence; retain the labelled historical screenshots.
 - Record verified RC artifacts and factory evidence; verify complete pinned
   dependency patches and checkout provenance before RC packaging, preserving
   the raw dirty flag and rejecting unexplained changes.

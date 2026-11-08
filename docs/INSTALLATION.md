@@ -25,6 +25,8 @@ administrator rights are required for the common VST3 directory:
 The installer adds documentation and an uninstaller under Program Files and
 manual links in the Start Menu. It does not modify `%APPDATA%\SAWSTAR\Presets`.
 The two architectures use separate installed-document/uninstaller locations.
+In maintenance builds following 1.2.0, guides and release notes retain their
+`docs` subdirectory under that location; Start Menu links follow the same layout.
 
 You can alternatively copy the entire SAWSTAR.vst3 bundle from the ZIP to the
 same VST3 directory. A VST3 is not a standalone EXE: Setup.exe is its installer.
@@ -58,7 +60,7 @@ User library: macOS `~/Library/Application Support/SAWSTAR/Presets`; Windows
 `%APPDATA%\SAWSTAR\Presets`. Factory presets are built in.
 
 See [System requirements](SYSTEM_REQUIREMENTS.md) for target versus tested OS support.
-The English and Hungarian PDFs describe 1.0.4; image captions identify their capture version.
+The English and Hungarian PDFs describe 1.2.0; image captions identify their capture version.
 
 ## macOS: downloaded package blocked
 

@@ -12,7 +12,7 @@ is granted.
   [full notices](third_party/licenses/DaisySP-LICENSE.txt).
 
 The optional DaisySP-LGPL extension is excluded. Orbitron Bold is bundled unchanged under SIL OFL 1.1; see licenses/Orbitron-OFL.txt in plugin packages (third_party/licenses/Orbitron-OFL.txt in source). VST3 SDK sources are fetched at a pinned MIT revision for plugin builds. The user-supplied concept artwork has a
-SAWSTAR-branded AI edit; provenance is recorded in docs/reference/README.md. Before distributing a plugin, append notices for all
+SAWSTAR-branded AI edit; provenance is recorded in the [source artwork notes](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/reference/README.md). Before distributing a plugin, append notices for all
 actually linked SDK/graphics/resource dependencies. See docs/THIRD_PARTY.md.
 
 Plugin artifacts also contain the notices for Steinberg VST3 SDK and its base,
