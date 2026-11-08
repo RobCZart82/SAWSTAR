@@ -21,7 +21,7 @@ with tempfile.TemporaryDirectory() as temp:
  for name in ['LICENSE','THIRD_PARTY_NOTICES.md','docs/THIRD_PARTY.md','docs/INSTALLATION.md',
               f'docs/RELEASE_NOTES_{version}.md','docs/SYSTEM_REQUIREMENTS.md']:
   if name=='THIRD_PARTY_NOTICES.md':
-   notice=(root/name).read_text(encoding='utf-8').replace('third_party/licenses/','licenses/')
+   notice=(root/name).read_text(encoding='utf-8').replace('third_party/licenses/','licenses/').replace('docs/THIRD_PARTY.md','THIRD_PARTY.md')
    (docs/pathlib.Path(name).name).write_text(notice,encoding='utf-8')
   else:shutil.copy2(root/name,docs/pathlib.Path(name).name)
  shutil.copytree(root/'docs/manuals',docs/'manuals');shutil.copytree(root/'third_party/licenses',docs/'licenses')

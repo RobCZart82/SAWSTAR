@@ -17,7 +17,15 @@ if($p.ExitCode -ne 0){throw "Install exit $($p.ExitCode)"}
 if(!(Test-Path $binary)){throw 'Installed VST3 missing'}
 if((Get-FileHash $binary).Hash -ne (Get-FileHash "build-plugin/out/SAWSTAR.vst3/Contents/$folder/SAWSTAR.vst3").Hash){throw 'Installed binary mismatch'}
 $dir="$env:ProgramFiles\SAWSTAR-$Arch"
-foreach($lang in @('EN','HU')){if(!(Test-Path "$dir\manuals\SAWSTAR-User-Manual-$lang.pdf")){throw 'Manual missing'}}
+foreach($lang in @('EN','HU')){if(!(Test-Path "$dir\docs\manuals\SAWSTAR-User-Manual-$lang.pdf")){throw 'Manual missing'}}
+$metadata=Get-Content (Join-Path $PSScriptRoot '../release.json') -Raw | ConvertFrom-Json
+foreach($relative in @('docs/INSTALLATION.md','docs/SYSTEM_REQUIREMENTS.md','docs/THIRD_PARTY.md',"docs/RELEASE_NOTES_$($metadata.version).md",'THIRD_PARTY_NOTICES.md')){
+ $installed=Join-Path $dir $relative
+ if(!(Test-Path $installed)){throw "Installed document missing: $relative"}
+ # Compare to the extracted, hashed package, including normalized notices.
+ $source=Join-Path (Join-Path $env:RUNNER_TEMP "sawstar-installer-$Arch") $relative
+ if((Get-FileHash $installed).Hash -ne (Get-FileHash $source).Hash){throw "Installed document mismatch: $relative"}
+}
 $p=Start-Process "$dir\unins000.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait -PassThru
 if($p.ExitCode -ne 0){throw "Uninstall exit $($p.ExitCode)"}
 if(Test-Path $binary){throw 'Plugin binary remains after uninstall'}

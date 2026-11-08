@@ -1,7 +1,11 @@
 # Dependency and license review
 
-Reviewed 2026-09-06. Scope: pinned upstream core sources and the two selected
-DSP translation units, including the development shell dependency selection documented below.
+License-scope review: 2026-09-06. On 2026-11-08 the iPlug2, DaisySP and VST3
+SDK pins listed below and the corresponding shipped root license copies were
+rechecked. Their local license-file SHA256 values match the copies under
+`third_party/licenses`; this check does not expand the earlier license review.
+Scope: pinned upstream core sources and the two selected DSP translation units,
+including the development shell dependency selection documented below.
 
 | Component | Exact commit | License | Foundation use |
 | --------- | ------------ | ------- | -------------- |

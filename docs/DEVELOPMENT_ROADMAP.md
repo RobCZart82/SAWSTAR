@@ -1,4 +1,14 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-11-05
+# Elfogadott fejlesztési sorrend — állapot: 2026-11-08
+
+## Aktuális cél: 1.2.1 hibajavító kiadás — 2026-11-08
+
+Az 1.2.0 2026-11-07-én megjelent, a kalibrált Premium hangúttal és 30 factory
+presettel. A #144 diagnosztika beolvadt `c82e26d` mainre; mind a négy főági
+workflow sikeres. K1 továbbra ismeretlen eredetű, nem javított.
+A mostani végrehajtási alap az [1.2.1 javítási és elfogadási terv](RELEASE_1.2.1_PLAN.md).
+Az alábbi korábbi RC-célok és kapuk dátumozott történeti állapotok; nem az
+aktuális publikációs állapotot vagy újonnan megadott elfogadást jelentik.
+
 
 ## 1.2.0 kiadási döntés — 2026-11-07
 
@@ -9,11 +19,11 @@ telepítőket kap. [Kiadási döntés és ellenőrzések](RELEASE_1.2.0_CHECKLIS
 Az alábbi korábbi RC-bejegyzések dátumozott történeti állapotok.
 
 
-## Aktuális kiadási cél: 1.2.0 rc1 — 2026-11-05
+## Történeti kiadási cél: 1.2.0 rc1 — 2026-11-05
 
 Robert az 1.2.0 publikálását jelölte ki célként és engedélyezte az előkészítő
 fejlesztés folytatását. [Kiadási sorrend, bizonyítékok és nyitott kapuk](RELEASE_1.2.0_CHECKLIST.md).
-Ez a szakasz az aktuális végrehajtási alap; az alábbi dátumozott feljegyzések
+Az akkori végrehajtási alap; az alábbi dátumozott feljegyzések
 történetiek. A hat új exportált preset zenei jóváhagyása megtörtént; a teljes
 pontos RC elfogadása ettől külön marad. Az 1.1.0 rc1 korábbi fejlesztési jelölt,
 nem publikált kiadás. Az új metaadat 1.2.0 rc1, üres kiadási dátummal.

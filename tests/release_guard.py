@@ -123,6 +123,57 @@ class InstallerPackageLayout(unittest.TestCase):
         self.assertIn("'docs/INSTALLATION.md'", package_script)
         self.assertIn("'docs/SYSTEM_REQUIREMENTS.md'", package_script)
 
+    def test_windows_installer_retains_document_tree_and_versioned_notes(self):
+        installer = (ROOT / 'packaging/windows/SAWSTAR.iss').read_text(encoding='utf-8')
+        for name in ('INSTALLATION.md', 'SYSTEM_REQUIREMENTS.md', 'THIRD_PARTY.md', 'RELEASE_NOTES_{#Version}.md'):
+            self.assertIn('Source: "{#Stage}\\docs\\'+name+'"; DestDir: "{app}\\docs"', installer)
+        self.assertIn('DestDir: "{app}\\docs\\manuals"', installer)
+        self.assertIn('Filename: "{app}\\docs\\manuals\\SAWSTAR-User-Manual-EN.pdf"', installer)
+        smoke = (ROOT / 'scripts/test-windows-installer.ps1').read_text()
+        self.assertIn('Installed document mismatch:', smoke)
+
+    def test_macos_flat_document_tree_adjusts_notice_reference(self):
+        script = (ROOT / 'scripts/package-macos.py').read_text()
+        self.assertIn(".replace('docs/THIRD_PARTY.md','THIRD_PARTY.md')", script)
+        notice = (ROOT / 'THIRD_PARTY_NOTICES.md').read_text(encoding='utf-8')
+        packaged = notice.replace('third_party/licenses/', 'licenses/').replace('docs/THIRD_PARTY.md', 'THIRD_PARTY.md')
+        self.assertIn('[full notice](licenses/iPlug2-LICENSE.txt)', packaged)
+        self.assertIn('See THIRD_PARTY.md.', packaged)
+        self.assertIn('https://github.com/RobCZart82/SAWSTAR/blob/main/docs/reference/README.md', packaged)
+
+class MetadataSynchronization(unittest.TestCase):
+    def test_each_product_is_checked_and_repaired_without_changing_identity(self):
+        import shutil
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            for name in ('scripts/sync-release-metadata.py','release.json','src/plugin/config.h'):
+                target=root/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/name,target)
+            config=root/'src/plugin/config.h'
+            config.write_text(config.read_text().replace('0x00010200','0x00010004').replace('"1.2.0"','"1.0.4"'),encoding='utf-8')
+            resources=root/'src/plugin/resources';resources.mkdir(parents=True)
+            products=('SAWSTAR','SAWSTARPremiumPreview','SAWSTARPremiumCandidate')
+            import plistlib
+            identities={}
+            for product in products:
+                source=ROOT/f'src/plugin/resources/{product}-VST3-Info.plist'
+                data=plistlib.loads(source.read_bytes());identities[product]=data['CFBundleIdentifier']
+                data['CFBundleVersion']='0.0.1'
+                (resources/source.name).write_bytes(plistlib.dumps(data))
+            command=[sys.executable,str(root/'scripts/sync-release-metadata.py')]
+            self.assertNotEqual(subprocess.run(command+['--check'],capture_output=True).returncode,0)
+            subprocess.run(command,check=True,capture_output=True)
+            subprocess.run(command+['--check'],check=True,capture_output=True)
+            version=json.loads((root/'release.json').read_text())['version']
+            config_text=config.read_text()
+            self.assertRegex(config_text,r'(?m)^#define PLUG_VERSION_HEX\s+0x00010200$')
+            self.assertRegex(config_text,r'(?m)^#define PLUG_VERSION_STR\s+"1.2.0"$')
+            for product in products:
+                data=plistlib.loads((resources/f'{product}-VST3-Info.plist').read_bytes())
+                self.assertEqual(data['CFBundleVersion'],version)
+                self.assertEqual(data['CFBundleShortVersionString'],version)
+                self.assertEqual(data['CFBundleIdentifier'],identities[product])
+                self.assertIn(product+' v'+version,data['CFBundleGetInfoString'])
+
 class ReleaseGuard(unittest.TestCase):
     def run_guard(self, candidate):
         with tempfile.TemporaryDirectory() as folder:
@@ -187,7 +238,7 @@ class FinalReleaseValidation(unittest.TestCase):
     def runs(self):
         return [dict(id=i, path='.github/workflows/' + name, head_sha='expected',
                      event='push', status='completed', conclusion='success')
-                for i, name in enumerate(('build-macos.yml', 'build-windows.yml', 'quality.yml'), 1)]
+                for i, name in enumerate(('build-macos.yml', 'build-windows.yml', 'quality.yml', 'workflow-lint.yml'), 1)]
 
     def test_all_matching_checks_required(self):
         runs = self.runs()
@@ -200,7 +251,7 @@ class FinalReleaseValidation(unittest.TestCase):
 
     def test_failed_checks_cannot_publish(self):
         for conclusion in ('failure', 'cancelled', 'skipped', 'timed_out', 'action_required'):
-            for index in range(3):
+            for index in range(4):
                 runs = self.runs()
                 runs[index]['conclusion'] = conclusion
                 with self.assertRaises(ValueError):
@@ -211,6 +262,28 @@ class FinalReleaseValidation(unittest.TestCase):
         runs.append(dict(runs[-1], id=99, conclusion='failure'))
         with self.assertRaises(ValueError):
             workflows_ready(matching_runs(runs, 'expected'))
+
+    def test_jobless_failed_lint_blocks_draft(self):
+        runs = self.runs()
+        runs[-1].update(conclusion='failure', jobs=[])
+        with self.assertRaises(ValueError):
+            workflows_ready(matching_runs(runs, 'expected'))
+
+    def test_extra_exact_commit_push_checks_are_not_ignored(self):
+        runs = self.runs()
+        extra = dict(runs[0], id=100, path='.github/workflows/extra-check.yml', status='in_progress', conclusion=None)
+        runs.append(extra)
+        self.assertFalse(workflows_ready(matching_runs(runs, 'expected')))
+        extra.update(status='completed', conclusion='failure')
+        with self.assertRaises(ValueError):
+            workflows_ready(matching_runs(runs, 'expected'))
+        extra['head_sha'] = 'unrelated'
+        self.assertTrue(workflows_ready(matching_runs(runs, 'expected')))
+
+    def test_draft_preparer_does_not_wait_on_itself(self):
+        runs = self.runs()
+        runs.append(dict(runs[0], id=100, path='.github/workflows/release.yml', status='in_progress', conclusion=None))
+        self.assertTrue(workflows_ready(matching_runs(runs, 'expected')))
 
     def test_publisher_blocks_before_artifacts_or_release(self):
         for kind in ('missing', 'other_sha', 'failed'):
@@ -339,7 +412,7 @@ names = ['SAWSTAR-macos-universal-candidate',
          'SAWSTAR-windows-x64-candidate', 'SAWSTAR-windows-ARM64-candidate']
 runs = [dict(id=i, path='.github/workflows/' + name, head_sha='expected',
              event='push', status='completed', conclusion='success')
-        for i, name in enumerate(('build-macos.yml', 'build-windows.yml', 'quality.yml'), 1)]
+        for i, name in enumerate(('build-macos.yml', 'build-windows.yml', 'quality.yml', 'workflow-lint.yml'), 1)]
 def gh(args, **kwargs):
     if args[1] == 'api':
         endpoint = args[2]

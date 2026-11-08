@@ -48,5 +48,25 @@ source 001847b reported a one-ULP pre-FX right-channel difference for Triangle a
 176.4 kHz, filter mode 0, polyphonic FX-on processing, frame 152. The final output
 at that frame was bit-identical. Controls and rounding mode remained unchanged.
 The cause is unknown. Subsequent successful diagnostics do not explain the earlier
-negative. [Recorded evidence](measurements/k1-passive-001847b-negative.json).
+negative. [Recorded evidence](https://github.com/RobCZart82/SAWSTAR/blob/c82e26d72e41053fa0c02096f0d4662fc22ea446/docs/measurements/k1-passive-001847b-negative.json).
 This issue is carried as a known limitation in the release authorized by Robert.
+
+
+### Updated K1 evidence summary — 8 November 2026
+
+A second preserved Triangle diagnostic (`fb3114e`, 48 kHz/HP12/poly/FX, frame
+197) differed at the left output. A later Sine diagnostic (`810a388`, 48 kHz,
+LP24/poly/FX, frame 423) recorded an eight-ULP left pre-FX difference and a
+six-ULP left output difference; the right channel remained bit-identical.
+[Original Sine evidence](https://github.com/RobCZart82/SAWSTAR/blob/c82e26d72e41053fa0c02096f0d4662fc22ea446/docs/measurements/k1-sine-810a388-negative.json). Its exact
+failing offline executable was not retained; the original job-log hash is retained.
+
+The bounded #143 Sine controls passed 1080 CI case observations across Apple
+Silicon/Rosetta and native Intel. The later #144 named filter/FIR state probe
+passed one Rosetta control with 360 case observations. Neither reproduced the
+negative or identified a cause. These are repeated observations, not that many
+different configurations. [Current investigation summary](https://github.com/RobCZart82/SAWSTAR/blob/c82e26d72e41053fa0c02096f0d4662fc22ea446/docs/K1_AI_DEBUG_HANDOFF_2026_11_08.md).
+The cases are grouped for investigation; a shared root cause is not established.
+No audible defect is established by these logs, and no K1 fix is claimed.
+
+This source-document update does not replace the already published 1.2.0 assets.

@@ -4,15 +4,15 @@ import json
 from pathlib import Path
 from pathlib import PurePosixPath
 
-REQUIRED_WORKFLOWS = frozenset(('build-macos.yml', 'build-windows.yml', 'quality.yml'))
+REQUIRED_WORKFLOWS = frozenset(('build-macos.yml', 'build-windows.yml', 'quality.yml', 'workflow-lint.yml'))
 
 
 def matching_runs(runs, sha):
-    """Choose the newest push run of each required workflow for this exact commit."""
+    """Choose newest exact-commit push runs; exclude the draft preparer itself."""
     selected = {}
     for run in sorted(runs, key=lambda item: item['id'], reverse=True):
         name = run['path'].split('/')[-1]
-        if (name in REQUIRED_WORKFLOWS and run['head_sha'] == sha
+        if (name != 'release.yml' and run['head_sha'] == sha
                 and run['event'] == 'push' and name not in selected):
             selected[name] = run
     return selected
@@ -23,7 +23,7 @@ def workflows_ready(selected):
     for run in selected.values():
         if run['status'] == 'completed' and run['conclusion'] != 'success':
             raise ValueError('Required workflow failed: ' + run['path'])
-    return (set(selected) == REQUIRED_WORKFLOWS
+    return (REQUIRED_WORKFLOWS <= set(selected)
             and all(run['status'] == 'completed' for run in selected.values()))
 
 

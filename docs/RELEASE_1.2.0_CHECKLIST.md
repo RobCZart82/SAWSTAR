@@ -1,7 +1,8 @@
 # SAWSTAR 1.2.0 — kiadási végrehajtási terv
 
-Állapot: **1.2.0 rc1 előkészítés**, 2026-11-05. Robert célja az 1.2.0 publikálása.
-Az RC még nem végleges kiadás; kiadási dátum és tag nincs kijelölve.
+Állapot: **megjelent 2026-11-07**, tag [`v1.2.0`](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.2.0).
+Az alábbi kiindulási CI-adat, nyitottkapu-tábla és előkészítési állapot a
+2026-11-05–07 közötti történeti munkanapló; nem a jelenlegi kiadási státusz.
 A korábbi 1.1.0 rc1 nem jelent meg nyilvános kiadásként.
 
 ## Kiinduló, ellenőrzött forrás
@@ -20,7 +21,7 @@ Az ellenőrzéskor nincs nyitott PR. Ez a kiinduló main eredménye, nem az új 
 - A Premium production build explicit kapcsoló, kalibrált lookup referencia,
   32 minta latency. A CMake alapértéke továbbra Classic.
 
-## Sorrend és lezárási feltételek
+## Történeti előkészítési sorrend és lezárási feltételek
 
 | Lépés | Feladat | Állapot / szükséges bizonyíték |
 | --- | --- | --- |
@@ -43,12 +44,13 @@ nyitott; a későbbi zöld futás és a külön post-FX chorus-fix nem gyökéro
 A korábbi CPU-negatívok megmaradnak. A hat új preset jóváhagyását és az alapvető
 Windows/macOS sikert nem kérjük újra, de nem terjesztjük ki hiányzó részletes mérésekre.
 
-## Ellenőrzési napló
+## Történeti előkészítési napló
 
 Implementált: 1.2.0 rc1 metaadat és kiadási dokumentáció.
 Helyi tesztek, PDF-ellenőrzés és távoli CI pontos eredménye az előkészítő PR
 leírásában szerepel majd; nem jelöljük előre sikeresnek.
-Natív 1.2.0 RC-elfogadás és publikálás: **nyitott**.
+Az itt rögzített előzetes pillanatban a natív RC-elfogadás és publikálás még
+**nyitott volt**. A későbbi, lentebb rögzített döntés felülírja ezt az állapotot.
 
 ## Kiadási döntés — 2026-11-07
 
@@ -59,6 +61,8 @@ forrását használja, új verzió- és dátumjelöléssel és végleges dokumen
 A főág ea5d6dee mind a négy workflow-ja sikeres. A K1 megőrzött negatívja és
 a részletes CPU/minimumrendszer/Windows ARM64 hostlefedettség hiánya a végleges
 release notes ismert korlátai között szerepel. Ezekhez további eredmény nincs.
-A fenti korábbi előkészítési táblázat történeti munkasorrend.
-A végleges PR és főág CI-je, csomaghashai, telepítői és publikált letöltései
-külön ellenőrzendők. A sikeres csomagokkal az engedély alapján publikálunk.
+A fenti korábbi előkészítési táblázat történeti munkasorrend. Az 1.2.0 kiadás
+megjelent; az ellenőrzött letöltések és kiadási eszközök a GitHub release-oldalán
+találhatók. A K1 negatív továbbra is ismert korlát, nem megoldott hiba. A
+következő karbantartási cél az [1.2.1 előkészítési terve](RELEASE_1.2.1_PLAN.md);
+ez önmagában nem jelenti a 1.2.1 kiadás vagy publikálás engedélyezését.

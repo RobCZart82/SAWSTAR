@@ -1,5 +1,17 @@
 # K1 Sine — célzott oknyomozás, 2026-11-07
 
+## Lezárt kontrollok és aktuális státusz — 2026-11-08
+
+A #143 célzott CI-köre 15 folyamatot és 1080 esetmegfigyelést teljesített
+eltérés nélkül (Apple Silicon/Rosetta 720, natív Intel 360). A #144 mély
+filter/FIR-állapotvizsgálata további egy véges Rosetta-kört teljesített:
+öt folyamat, 360 esetmegfigyelés, eltérés nélkül. Az eredeti Sine-negatív
+megmarad, ok/javítás nincs. Az 1.2.0 már publikált; az alábbi „publikálás vár”
+mondat a vizsgálat korábbi döntési állapotát őrzi.
+[Átadási jelentés](K1_AI_DEBUG_HANDOFF_2026_11_08.md),
+[mély trace módszere](K1_FILTER_STATE_FIRST_DIVERGENCE_2026_11_08.md).
+
+
 ## Vizsgált negatív
 
 A 810a388 head macOS Preview referencia jobja, 42365411396 / 128382317422,
