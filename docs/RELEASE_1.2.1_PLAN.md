@@ -1,8 +1,8 @@
 # SAWSTAR 1.2.1 maintenance release — preparation plan
 
-Status: preparation in progress, 8 November 2026. The latest public release is
-1.2.0 (`v1.2.0`). This document records repository work and gates; it does not
-set candidate metadata, create a release tag, or authorize publication.
+Status: `1.2.1-rc1` candidate preparation in progress, 8 November 2026. The
+latest public release is 1.2.0 (`v1.2.0`). This document records repository
+work and gates; it does not create a release tag or authorize publication.
 
 ## Verified scope
 

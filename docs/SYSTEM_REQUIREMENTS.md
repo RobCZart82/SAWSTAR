@@ -1,8 +1,11 @@
 # System requirements — SAWSTAR 1.2.0
 
-Premium filters report 32 samples of latency. Robert reported successful use of
-the 003b007 Premium RC on macOS and Windows and approved publication. Native
-Windows ARM64 host testing and measured minimum-system coverage remain open.
+The current public 1.2.0 release uses the Premium filters and reports 32 samples
+of latency. Robert reported successful use of the 003b007 Premium RC on macOS
+and Windows and approved the 1.2.0 publication on 7 November 2026. This is
+general host-use feedback, not exhaustive CPU/dropout measurement or minimum-OS
+qualification. Native Windows ARM64 host testing and measured minimum-system
+coverage remain open. The separate 1.2.1 candidate has not been accepted.
 
 Development tools and end-user requirements are separate. The following OS
 versions are **build/installer targets, not yet verified minimum support claims**.
@@ -33,9 +36,9 @@ host window borders and OS display scaling; 1280 x 800 alone is not a guarantee
 of fitting the 100% view. RAM recommendations such as 4/8 GB have not been
 measured and are not advertised as tested minima.
 
-## Acceptance record
+## Historical 1.0.4 test-cycle acceptance
 
-For 1.0.4-rc1, Windows x64/ARM64 and macOS Universal CI, VST3 validation and
+For the 1.0.4-rc1 test cycle, Windows x64/ARM64 and macOS Universal CI, VST3 validation and
 installer checks passed. On 1 October 2026 the owner reported successful use
 on macOS and Windows with no audible or observed problems. Native macOS REAPER
 7.81 renders were made with the verified main binary; their PCM matched the

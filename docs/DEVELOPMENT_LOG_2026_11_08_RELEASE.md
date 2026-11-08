@@ -1,9 +1,9 @@
 # SAWSTAR 1.2.1 release-preparation audit — 2026-11-08
 
-Status: local implementation and verification on branch
-`fix/1.2.1-release-consistency`; based on main `c82e26d72e41053fa0c02096f0d4662fc22ea446`.
-No PR/remote CI result is claimed in this entry. The latest published release
-remains 1.2.0; this work does not set 1.2.1 candidate metadata or publish.
+Status: implemented and merged in [PR #145](https://github.com/RobCZart82/SAWSTAR/pull/145),
+squash commit `378bc7ebbab49c04a693a450d19f1226a0ba8a22` on 8 November 2026.
+The latest published release remains 1.2.0; this work did not publish a new
+candidate or release.
 
 ## Corrections prepared
 
@@ -54,6 +54,16 @@ remains 1.2.0; this work does not set 1.2.1 candidate metadata or publish.
   updates, not replacement release assets.
 - iPlug2, DaisySP and nested VST3 SDK pins match the documented revisions;
   the matching root license files and shipped copies have identical SHA256s.
+
+## Remote verification
+
+- PR head `90d8d4de71ad259a5a37256e94fc50a332df28a9`: nine workflows completed;
+  25 executed jobs passed and the candidate-only Premium integration job was
+  skipped because metadata remained stable 1.2.0. No review was outstanding.
+- Merge commit `378bc7ebbab49c04a693a450d19f1226a0ba8a22`: all five main
+  workflows and 12 jobs passed. The release-preparation job left the existing
+  published `v1.2.0` unchanged. No new tag or public release was created.
+- Exact-candidate host testing and publication approval remain separate gates.
 
 ## Still requires remote or user evidence
 

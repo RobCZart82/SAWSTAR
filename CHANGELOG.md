@@ -1,6 +1,19 @@
 # Changelog
 
-## Unreleased — 1.2.1 preparation
+## 1.2.1-rc1 — test candidate, not published
+
+The public stable release remains 1.2.0. Exact-candidate host testing and a
+separate publication decision are still required; see the [candidate notes](docs/RELEASE_NOTES_1.2.1.md)
+and [1.2.1 plan](docs/RELEASE_1.2.1_PLAN.md).
+
+- Prepare the corrected Windows/macOS documentation layout and synchronized
+  VST3 metadata for exact-candidate CI validation.
+- Correct candidate manuals so they identify the public 1.2.0 release, point to
+  the proper candidate chapter, and distinguish the six approved preset
+  snapshots from exact-candidate acceptance.
+- Preserve the unresolved K1 evidence and do not claim a numerical fix.
+
+## Unreleased — 1.2.1 follow-up
 
 Preparation order and publication gates: [1.2.1 plan](docs/RELEASE_1.2.1_PLAN.md);
 local scope and validation: [release-preparation log](docs/DEVELOPMENT_LOG_2026_11_08_RELEASE.md).
