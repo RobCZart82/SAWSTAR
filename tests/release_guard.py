@@ -5,6 +5,7 @@ import hashlib
 import zipfile
 import warnings
 import os
+import re
 import runpy
 from unittest.mock import patch
 import json
@@ -148,8 +149,12 @@ class MetadataSynchronization(unittest.TestCase):
             root=Path(folder)
             for name in ('scripts/sync-release-metadata.py','release.json','src/plugin/config.h'):
                 target=root/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/name,target)
+            metadata=json.loads((root/'release.json').read_text())
+            version=metadata['version']
+            major,minor,patch_version=map(int,version.split('.'))
+            version_hex=f'0x{major:04x}{minor:02x}{patch_version:02x}'
             config=root/'src/plugin/config.h'
-            config.write_text(config.read_text().replace('0x00010200','0x00010004').replace('"1.2.0"','"1.0.4"'),encoding='utf-8')
+            config.write_text(config.read_text().replace(version_hex,'0x00010004').replace('"'+version+'"','"1.0.4"'),encoding='utf-8')
             resources=root/'src/plugin/resources';resources.mkdir(parents=True)
             products=('SAWSTAR','SAWSTARPremiumPreview','SAWSTARPremiumCandidate')
             import plistlib
@@ -163,16 +168,26 @@ class MetadataSynchronization(unittest.TestCase):
             self.assertNotEqual(subprocess.run(command+['--check'],capture_output=True).returncode,0)
             subprocess.run(command,check=True,capture_output=True)
             subprocess.run(command+['--check'],check=True,capture_output=True)
-            version=json.loads((root/'release.json').read_text())['version']
             config_text=config.read_text()
-            self.assertRegex(config_text,r'(?m)^#define PLUG_VERSION_HEX\s+0x00010200$')
-            self.assertRegex(config_text,r'(?m)^#define PLUG_VERSION_STR\s+"1.2.0"$')
+            self.assertRegex(config_text,r'(?m)^#define PLUG_VERSION_HEX\s+'+re.escape(version_hex)+r'$')
+            self.assertRegex(config_text,r'(?m)^#define PLUG_VERSION_STR\s+'+re.escape(json.dumps(version))+r'$')
             for product in products:
                 data=plistlib.loads((resources/f'{product}-VST3-Info.plist').read_bytes())
                 self.assertEqual(data['CFBundleVersion'],version)
                 self.assertEqual(data['CFBundleShortVersionString'],version)
                 self.assertEqual(data['CFBundleIdentifier'],identities[product])
                 self.assertIn(product+' v'+version,data['CFBundleGetInfoString'])
+
+class CandidateManualDisclosure(unittest.TestCase):
+    def test_candidate_text_uses_candidate_number_and_preserves_prior_listening_acceptance(self):
+        script=(ROOT/'scripts/build-manuals.py').read_text(encoding='utf-8')
+        candidate=script.split('if CANDIDATE:',1)[1].split('\nelse:',1)[0]
+        self.assertIn('Read chapter 15',candidate)
+        self.assertIn('• 15 Premium integration RC',candidate)
+        self.assertIn('six exported snapshots',candidate)
+        self.assertIn('does not accept this exact 1.2.1 RC',candidate)
+        self.assertNotIn('public stable release remains 1.0.4',candidate)
+        self.assertNotIn('as do preset listening',candidate)
 
 class ReleaseGuard(unittest.TestCase):
     def run_guard(self, candidate):

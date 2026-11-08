@@ -1,11 +1,18 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
-## Aktuális cél: 1.2.1 hibajavító kiadás — 2026-11-08
+## Aktuális cél: 1.2.1-rc1 jelöltbuild — 2026-11-08
 
 Az 1.2.0 2026-11-07-én megjelent, a kalibrált Premium hangúttal és 30 factory
 presettel. A #144 diagnosztika beolvadt `c82e26d` mainre; mind a négy főági
 workflow sikeres. K1 továbbra ismeretlen eredetű, nem javított.
-A mostani végrehajtási alap az [1.2.1 javítási és elfogadási terv](RELEASE_1.2.1_PLAN.md).
+A #145-ös csomagolási/kiadáskapu-javítás `378bc7e` mainre olvadt; az új main
+öt workflow-ja és 12 jobja sikeres. A mostani lépés az [1.2.1 javítási és
+elfogadási terv](RELEASE_1.2.1_PLAN.md) szerinti `1.2.1-rc1` jelölt előkészítése.
+Ez nem publikált kiadás; a pontos RC-géppróba és külön publikálási döntés nyitott.
+Az előző csomagjavítás és az új főági CI naplója:
+[1.2.1 release consistency](DEVELOPMENT_LOG_2026_11_08_RELEASE.md).
+A jelölt helyi munkája:
+[1.2.1-rc1 előkészítés](DEVELOPMENT_LOG_2026_11_08_RC1.md).
 Az alábbi korábbi RC-célok és kapuk dátumozott történeti állapotok; nem az
 aktuális publikációs állapotot vagy újonnan megadott elfogadást jelentik.
 

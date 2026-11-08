@@ -80,7 +80,9 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Repository review, 2026-10-09](docs/REPOSITORY_REVIEW_2026_10_09.md)
 - [Repository review and release readiness, 2026-10-02](docs/REPOSITORY_REVIEW_2026_10_02.md)
 
-The English and Hungarian guides describe SAWSTAR 1.2.0 and include the supplied, version-labelled 1.0.3 screenshots.
+The source English and Hungarian guides on this branch describe the unpublished
+1.2.1-rc1 candidate and include version-labelled 1.0.3 screenshots. The assets
+already published for 1.2.0 are unchanged.
 
 ## Building from source
 

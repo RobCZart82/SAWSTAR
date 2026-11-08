@@ -1,11 +1,15 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
-## Aktuális cél: 1.2.1 hibajavító kiadás — 2026-11-08
+## Aktuális cél: 1.2.1-rc1 jelöltbuild — 2026-11-08
 
 Az 1.2.0 2026-11-07-én megjelent, a kalibrált Premium hangúttal és 30 factory
 presettel. A #144 diagnosztika beolvadt `c82e26d` mainre; mind a négy főági
 workflow sikeres. K1 továbbra ismeretlen eredetű, nem javított.
-A mostani végrehajtási alap az [1.2.1 javítási és elfogadási terv](RELEASE_1.2.1_PLAN.md).
+A #145 csomagolási/kiadáskapu-javítás `378bc7e` mainre olvadt; öt workflow-ja
+és 12 jobja sikeres. Az aktuális lépés az [1.2.1 terv](RELEASE_1.2.1_PLAN.md)
+szerinti `1.2.1-rc1` jelölt előkészítése. Ez nem nyilvános kiadás; a pontos RC
+hosttesztje és külön publikálási döntése nyitott.
+[Helyi RC1 előkészítési napló](DEVELOPMENT_LOG_2026_11_08_RC1.md).
 Az alábbi korábbi RC-célok és kapuk dátumozott történeti állapotok; nem az
 aktuális publikációs állapotot vagy újonnan megadott elfogadást jelentik.
 

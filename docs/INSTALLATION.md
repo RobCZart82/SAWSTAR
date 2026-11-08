@@ -4,6 +4,10 @@ SAWSTAR 1.2.0 uses the Premium filter and reports 32 samples of latency.
 Classic projects and presets load with the new filter sound. Preserve the old
 plugin and project copies when exact earlier sound recall is needed.
 
+The separately downloadable 1.2.1-rc1 build is an unpublished test candidate,
+not the current public release. Its CI artifact and candidate-specific notes
+must match the exact tested commit; do not substitute the public 1.2.0 package.
+
 Download the matching package from [SAWSTAR Releases](https://github.com/RobCZart82/SAWSTAR/releases).
 Recommended: the matching installer. Optional: a manual-install ZIP.
 Back up projects and user presets and close the DAW before updating.
@@ -16,6 +20,9 @@ elsősorban a megfelelő telepítőt válaszd; kézi telepítéshez ZIP is elér
 Frissítés előtt zárd be a DAW-ot, és mentsd a projektjeidet, saját presetjeidet.
 Ez az útmutató az 1.2.0 változathoz tartozik. A korábban kiadott csomagok
 változatlanok; a választott verzió útmutatóját és ellenőrzőösszegeit használd.
+Az 1.2.1-rc1 külön letölthető, nem publikált tesztjelölt. Csak az adott
+tesztelt commit RC-artifactját és hozzá tartozó jegyzeteit használd; ne
+helyettesítsd a nyilvános 1.2.0 csomaggal.
 
 ## Windows
 
@@ -60,7 +67,9 @@ User library: macOS `~/Library/Application Support/SAWSTAR/Presets`; Windows
 `%APPDATA%\SAWSTAR\Presets`. Factory presets are built in.
 
 See [System requirements](SYSTEM_REQUIREMENTS.md) for target versus tested OS support.
-The English and Hungarian PDFs describe 1.2.0; image captions identify their capture version.
+In this branch the English and Hungarian PDFs describe 1.2.1-rc1. The public
+1.2.0 release assets remain unchanged; screenshot captions identify their
+capture version.
 
 ## macOS: downloaded package blocked
 
