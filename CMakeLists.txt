@@ -61,6 +61,13 @@ if(SAWSTAR_NUMERICAL_TRACE)
   endif()
   add_compile_definitions(SAWSTAR_NUMERICAL_TRACE=1)
 endif()
+option(SAWSTAR_FILTER_STATE_TRACE "Capture named Premium filter/FIR states offline only" OFF)
+if(SAWSTAR_FILTER_STATE_TRACE)
+  if(NOT SAWSTAR_NUMERICAL_TRACE OR NOT SAWSTAR_PREMIUM_PREVIEW OR SAWSTAR_BUILD_PLUGIN OR SAWSTAR_PREMIUM_PRODUCTION)
+    message(FATAL_ERROR "Filter state tracing requires offline Premium Preview and numerical tracing")
+  endif()
+  add_compile_definitions(SAWSTAR_FILTER_STATE_TRACE=1)
+endif()
 option(SAWSTAR_PREMIUM_NATIVE_CANDIDATE "Build the separate Saw-dispatch Premium Candidate identity" OFF)
 if(SAWSTAR_PREMIUM_PRODUCTION AND (SAWSTAR_PREMIUM_PREVIEW OR SAWSTAR_PREMIUM_NATIVE_CANDIDATE))
   message(FATAL_ERROR "Production integration cannot use Preview/Candidate identities")
@@ -86,6 +93,9 @@ endif()
 # ---------------------------------------------------------------------------
 
 include(CTest)
+if(SAWSTAR_FILTER_STATE_TRACE AND BUILD_TESTING)
+  message(FATAL_ERROR "Filter state tracing targets only the calibrated offline pair; set BUILD_TESTING=OFF")
+endif()
 
 find_package(Threads REQUIRED)
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — 1.2.1 preparation
+
+- Add an opt-in offline K1 filter/FIR state probe with named bit-pattern snapshots,
+  inline SIMD/SVF observation and five preceding samples. Preserve the ordinary
+  comparison binary and bounded Rosetta evidence; this is not a K1 fix.
+
 ## 1.2.0 — 2026-11-07
 
 - Draw the light About signature with native vector paths alongside the existing GYR mark.

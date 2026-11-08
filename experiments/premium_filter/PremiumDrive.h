@@ -4,6 +4,9 @@
 #include "ResearchTanh.h"
 #include "LookupTanh.h"
 #include "FirLanes4.h"
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+#include "engine/FilterStateTrace.h"
+#endif
 #include <array>
 #include <cmath>
 #include <type_traits>
@@ -52,7 +55,25 @@ public:
   void Set(double db) { target_ = std::pow(10., FiniteClamp(db, 0., 24., 0.) / 20); }
   void SnapToTargets() { gain_ = target_; }
   void Clear() { up_ = {}; down_ = {}; }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+  void CaptureState(::sawstar::FilterStateTrace& out) const {
+    out.Add("drive.factor",0,Factor);
+    out.Add("drive.gain",0,gain_);out.Add("drive.target",0,target_);out.Add("drive.slew",0,slew_);
+    for(unsigned i=0;i<TapCount;++i)out.Add("drive.taps",i,taps_[i]);
+    for(unsigned phase=0;phase<Factor;++phase)for(unsigned i=0;i<PhaseTapCount;++i)
+      out.Add("drive.phase_taps",phase*PhaseTapCount+i,phaseTaps_[phase][i]);
+    for(unsigned ch=0;ch<2;++ch){
+      out.Add("drive.up.cursor",ch,up_[ch].cursor);out.Add("drive.down.cursor",ch,down_[ch].cursor);
+      for(unsigned i=0;i<up_[ch].history.size();++i)out.Add("drive.up.history",ch*up_[ch].history.size()+i,up_[ch].history[i]);
+      for(unsigned i=0;i<down_[ch].history.size();++i)out.Add("drive.down.history",ch*down_[ch].history.size()+i,down_[ch].history[i]);
+    }
+    out.Append(operations_);
+  }
+#endif
   std::array<float, 2> Process(std::array<float, 2> input) {
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+    operations_.Clear();
+#endif
     gain_ += slew_ * (target_ - gain_);
     double reciprocal = 1;
     if constexpr (Nonlinear && ReciprocalGain) {
@@ -60,6 +81,10 @@ public:
     }
     for (size_t ch = 0; ch < 2; ++ch) {
       if (!std::isfinite(input[ch])) { up_[ch] = {}; down_[ch] = {}; input[ch] = 0; }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+      traceChannel_=static_cast<unsigned>(ch);
+      operations_.Add("drive.input",traceChannel_,input[ch]);
+#endif
       auto& up = up_[ch];
       up.history[up.cursor] = up.history[up.cursor + HostRingSize] = Factor * double(input[ch]);
       // Phase and decimator-output choices are compile-time constants. Keep
@@ -107,6 +132,9 @@ private:
   static_assert(DownRingSize >= 32 * Factor + 1);
   struct Fir { std::array<double, 2 * DownRingSize> history{}; unsigned cursor = 0; };
   template<unsigned Phase> double ProcessPhase(const HostFir& up, Fir& down, double reciprocal) {
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+    tracePhase_=Phase;
+#endif
     const double x = Interpolate<Phase>(up);
     double shaped = x;
     if constexpr (Nonlinear) {
@@ -122,7 +150,16 @@ private:
         }
       }
     }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+    const unsigned at=traceChannel_*4+Phase;
+    operations_.Add("drive.phase.interpolated",at,x);
+    operations_.Add("drive.phase.shaped",at,shaped);
+    const double result=Tick<Phase == 0>(down, shaped);
+    operations_.Add("drive.phase.output",at,result);
+    return result;
+#else
     return Tick<Phase == 0>(down, shaped);
+#endif
   }
   template<unsigned Phase> double Interpolate(const HostFir& fir) const {
     static_assert(Phase < Factor, "Invalid interpolation phase");
@@ -135,8 +172,12 @@ private:
         if constexpr (UnrolledFir && Factor == 2) {
           UnrollGroups<HalfPhase>([&](auto i) { sums.Symmetric(taps + i, history - i, history - last + i); });
         } else {
-          for (unsigned i = 0; i < HalfPhase; i += 4)
+          for (unsigned i = 0; i < HalfPhase; i += 4) {
             sums.Symmetric(taps + i, history - i, history - last + i);
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+            RecordLanes("drive.interpolate.lanes",i,sums);
+#endif
+          }
         }
         double y = sums.Sum();
         if constexpr (Phase == 0) y += taps[HalfPhase] * *(history - HalfPhase);
@@ -145,8 +186,12 @@ private:
         if constexpr (UnrolledFir && Factor == 2) {
           UnrollGroups<PhaseTapCount - 1>([&](auto i) { sums.Straight(taps + i, history - i); });
         } else {
-          for (unsigned i = 0; i < PhaseTapCount - 1; i += 4)
+          for (unsigned i = 0; i < PhaseTapCount - 1; i += 4) {
             sums.Straight(taps + i, history - i);
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+            RecordLanes("drive.interpolate.lanes",i,sums);
+#endif
+          }
         }
         return sums.Sum();
       }
@@ -187,8 +232,12 @@ private:
       if constexpr (VectorFir) {
         detail::FirLanes4 sums;
         // Retain the larger decimator loop: full expansion regressed MSVC timing.
-        for (unsigned i = 0; i < Center; i += 4)
+        for (unsigned i = 0; i < Center; i += 4) {
           sums.Symmetric(taps_.data() + i, history - i, history - (TapCount - 1) + i);
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+          RecordLanes("drive.decimate.lanes",i,sums);
+#endif
+        }
         y = sums.Sum();
         y += taps_[Center] * *(history - Center);
       } else {
@@ -209,6 +258,16 @@ private:
     fir.cursor = (fir.cursor + 1) & (DownRingSize - 1);
     return y;
   }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+  void RecordLanes(const char* name,unsigned tap,const detail::FirLanes4& sums) const {
+    const auto lanes=sums.TraceLanes();
+    for(unsigned lane=0;lane<4;++lane)
+      operations_.Add(name,traceChannel_*1024+tracePhase_*128+tap+lane,lanes[lane]);
+  }
+  mutable ::sawstar::NamedStateTrace<512> operations_{};
+  unsigned traceChannel_=0;
+  unsigned tracePhase_=0;
+#endif
   static constexpr unsigned TapCount = 32 * Factor + 1, Center = (TapCount - 1) / 2;
   static constexpr unsigned PhaseTapCount = 33, HalfPhase = 16;
   std::array<double, TapCount> taps_{};

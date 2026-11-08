@@ -1,0 +1,66 @@
+name: K1 named filter state first divergence
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/k1-filter-state.yml'
+      - 'scripts/investigate-k1-filter-state.py'
+      - 'tests/k1_filter_state.py'
+      - 'tests/FilterStateComparison.h'
+      - 'src/engine/FilterStateTrace.h'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: k1-filter-state-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  investigate:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Initialize pinned DSP core
+        run: git submodule update --init third_party/DaisySP
+      - name: Verify evidence runner rejection controls
+        run: |
+          python3 tests/k1_sine_investigation.py
+          python3 tests/k1_filter_state.py
+      - name: Confirm Rosetta execution environment
+        run: |
+          test "$(uname -m)" = arm64
+          arch -x86_64 /usr/sbin/sysctl -n sysctl.proc_translated > translation-probe.txt
+          test "$(cat translation-probe.txt)" = 1
+      - name: Configure ordinary and deep-state offline comparisons
+        run: |
+          for mode in baseline trace; do
+            trace=OFF
+            if [ "$mode" = trace ]; then trace=ON; fi
+            cmake -S . -B "build-$mode" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAWSTAR_BUILD_PLUGIN=OFF -DSAWSTAR_PREMIUM_PREVIEW=ON -DSAWSTAR_NUMERICAL_TRACE="$trace" -DSAWSTAR_FILTER_STATE_TRACE="$trace" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
+          done
+      - name: Build and preserve exact comparison executables
+        run: |
+          cmake --build build-baseline --target sawstar_premium_native_pair --parallel 3
+          cmake --build build-trace --target sawstar_premium_native_pair --parallel 3
+      - name: One fixed normal passive and deep Sine control under Rosetta
+        run: python3 scripts/investigate-k1-filter-state.py --baseline-build build-baseline --trace-build build-trace --output k1-filter-state
+      - name: Retain every outcome without replacement
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: k1-filter-state-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            k1-filter-state/
+            translation-probe.txt
+            build-baseline/sawstar_premium_native_pair
+            build-baseline/CMakeCache.txt
+            build-baseline/compile_commands.json
+            build-baseline/premium_preview_engine/
+            build-trace/sawstar_premium_native_pair
+            build-trace/CMakeCache.txt
+            build-trace/compile_commands.json
+            build-trace/premium_preview_engine/
+          retention-days: 90
+          if-no-files-found: warn

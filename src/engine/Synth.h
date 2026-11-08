@@ -15,6 +15,9 @@
 #include "dsp/Adsr.h"
 #ifdef SAWSTAR_NUMERICAL_TRACE
 #include "engine/NumericalTrace.h"
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+#include "engine/FilterStateTrace.h"
+#endif
 #endif
 #include <array>
 #include <algorithm>
@@ -53,6 +56,9 @@ public:
   StereoSample PreFX() const { return preFX_; } // Audio-thread observation only.
 #ifdef SAWSTAR_NUMERICAL_TRACE
   const ::sawstar::NumericalTrace& Trace() const { return trace_; }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+  const ::sawstar::FilterStateFrame& FilterStates() const { return filterStates_; }
+#endif
 #endif
   float Process() { const auto s=ProcessStereo(); return (s.left+s.right)*0.5f; }
   bool Held(int note) const;
@@ -60,6 +66,9 @@ public:
 private:
 #ifdef SAWSTAR_NUMERICAL_TRACE
   ::sawstar::NumericalTrace trace_{};
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+  ::sawstar::FilterStateFrame filterStates_{};
+#endif
 #endif
   StereoSample preFX_{};
   uint16_t panicChannels_=0;

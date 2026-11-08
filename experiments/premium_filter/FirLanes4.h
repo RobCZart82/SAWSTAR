@@ -47,6 +47,19 @@ public:
     for(unsigned lane=0;lane<4;++lane)scalar_[lane]+=taps[lane]*newest[-int(lane)];
 #endif
   }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+  std::array<double,4> TraceLanes() const {
+    std::array<double,4> x{};
+#if defined(SAWSTAR_FIR_SSE2)
+    _mm_storeu_pd(x.data(),lo_);_mm_storeu_pd(x.data()+2,hi_);
+#elif defined(SAWSTAR_FIR_NEON)
+    vst1q_f64(x.data(),lo_);vst1q_f64(x.data()+2,hi_);
+#else
+    x=scalar_;
+#endif
+    return x;
+  }
+#endif
   double Sum() const {
     std::array<double,4> x{};
 #if defined(SAWSTAR_FIR_SSE2)

@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "status": "local control did not reproduce K1; no root-cause/fix claim",
+  "source_commit": "5af34f1b2dbb7506034e282d0bf8393f821a63a7",
+  "source_dirty": true,
+  "scope": "One fixed Rosetta Sine normal/passive/deep control, before final coverage/self-test and manifest-validation additions",
+  "rosetta_translation_probe": "1",
+  "history": {
+    "frames": 6,
+    "preceding_samples": 5,
+    "raw_object_memory": false
+  },
+  "results": [
+    {
+      "architecture": "x86_64",
+      "name": "baseline-self-test",
+      "command": [
+        "arch",
+        "-x86_64",
+        "/Users/robert/Documents/Codex/2026-11-02/https-github-com-robczart82-sawstar-https/work/outputs/k1-filter-state-local-2026-11-08/baseline/sawstar_premium_native_pair",
+        "--diagnostic-self-test"
+      ],
+      "returncode": 0,
+      "stdout": "x86_64-baseline-self-test.csv",
+      "stderr": "x86_64-baseline-self-test.txt"
+    },
+    {
+      "architecture": "x86_64",
+      "name": "trace-self-test",
+      "command": [
+        "arch",
+        "-x86_64",
+        "/Users/robert/Documents/Codex/2026-11-02/https-github-com-robczart82-sawstar-https/work/outputs/k1-filter-state-local-2026-11-08/trace/sawstar_premium_native_pair",
+        "--diagnostic-self-test"
+      ],
+      "returncode": 0,
+      "stdout": "x86_64-trace-self-test.csv",
+      "stderr": "x86_64-trace-self-test.txt"
+    },
+    {
+      "architecture": "x86_64",
+      "name": "original-sine-grid",
+      "command": [
+        "arch",
+        "-x86_64",
+        "/Users/robert/Documents/Codex/2026-11-02/https-github-com-robczart82-sawstar-https/work/outputs/k1-filter-state-local-2026-11-08/baseline/sawstar_premium_native_pair",
+        "--waveform",
+        "3"
+      ],
+      "returncode": 0,
+      "stdout": "x86_64-original-sine-grid.csv",
+      "stderr": "x86_64-original-sine-grid.txt"
+    },
+    {
+      "architecture": "x86_64",
+      "name": "passive-sine-grid",
+      "command": [
+        "arch",
+        "-x86_64",
+        "/Users/robert/Documents/Codex/2026-11-02/https-github-com-robczart82-sawstar-https/work/outputs/k1-filter-state-local-2026-11-08/baseline/sawstar_premium_native_pair",
+        "--waveform",
+        "3",
+        "--fp-observe"
+      ],
+      "returncode": 0,
+      "stdout": "x86_64-passive-sine-grid.csv",
+      "stderr": "x86_64-passive-sine-grid.txt"
+    },
+    {
+      "architecture": "x86_64",
+      "name": "internal-sine-grid",
+      "command": [
+        "arch",
+        "-x86_64",
+        "/Users/robert/Documents/Codex/2026-11-02/https-github-com-robczart82-sawstar-https/work/outputs/k1-filter-state-local-2026-11-08/trace/sawstar_premium_native_pair",
+        "--waveform",
+        "3",
+        "--fp-observe"
+      ],
+      "returncode": 0,
+      "stdout": "x86_64-internal-sine-grid.csv",
+      "stderr": "x86_64-internal-sine-grid.txt"
+    }
+  ],
+  "source_files_sha256": {
+    "tests/oscillator_dispatch_engine.cpp": "b17ecc682ff9d0d6e31bc1c7427ae30e3dde59e1ed25a12bae0cf0f1c02f405f",
+    "tests/DispatchEngineSetup.h": "3c3561f33d591dab0617c5d4aa260de69d41b5cc1ccd7bce7903afbbf2f94efb",
+    "tests/NumericalComparison.h": "74651ac2bb699a75299ef06e7f22bed87ee4c57856462fd87b733bc4bfd9e329",
+    "tests/FpObservation.h": "e8dc01cf326261c8479e913f566bf8867e789af0b5e600a090eae158dbbc8b5b",
+    "src/engine/Synth.cpp": "85298aee72744e3fa3fd9dd30b23623588ef6ca347b3b718882cc3f6e8004084",
+    "src/engine/Synth.h": "e6faeff7ce855c03daa494bf7655a5c3f38605231fe0bafdee9dc6c402e26246",
+    "cmake/PremiumPreview.cmake": "159935f126d0f94ac1363454daf8d411f123e72acc09bb7b8b728a58cc92c110",
+    "scripts/investigate-k1-sine.py": "ecc905f886de8b08b95be07379623d0c8230e2d5ddae20b01df38e66f7012976",
+    "src/engine/FilterStateTrace.h": "9649c8b0b80ff3b6a21540b7c740281315cbeeab62ba962b4abe5f41eb70611f",
+    "src/engine/NumericalTrace.h": "701ff7161808724f2b2e9223b8217c35d87d67c28d9437f2ecc96e6eda8b3902",
+    "tests/FilterStateComparison.h": "388ec5239d679e09c9f05c8ba132f1030d9c0256c8c686a07bd1a3852dffb07c",
+    "experiments/premium_filter/EnginePremiumFilter.h": "4342c9e9683d336d135860d493c5962c1ac82076d35c76a923e08be3552b4134",
+    "experiments/premium_filter/PremiumDrive.h": "d0116bc57ea4e5e1035a4b96de2204bb6842212ce3cffe23871aafb218682c39",
+    "experiments/premium_filter/FirLanes4.h": "3a704cb29db496942a6839182a37128a96c62df54915fcf665bc8b8961e1c3de",
+    "experiments/premium_filter/RateScaledPremiumDrive.h": "1a9c190ebbd0630fe097303c354c75d589d8b50712f9a539143ebb41a304339d",
+    "experiments/premium_filter/PremiumLowPass.h": "62e4314c48eda376ca9f264da11f8d806455d6f725c5bbd4dd3a80c0a80530c1",
+    "scripts/investigate-k1-filter-state.py": "2d6fefb5b62bbf7766235ec28ae3b561793245158fc30f0e1bce6363c212cb6b",
+    "CMakeLists.txt": "0b15ffd2137731ac1828e85f0db49dac218907c6971e568e66efffaa04d30efd"
+  },
+  "files_sha256": {
+    "baseline/compile_commands.json": "282f8f7f16bd8fa9f7a7d15efac3ae168c638d7ed647597839d940cbf5c51eaa",
+    "baseline/sawstar_premium_native_pair": "7ffe4506d96b51c81b9764c1033f71b9887cac6ecd082d6eb6c145e6061ad09e",
+    "baseline/CMakeCache.txt": "bbc970c53f1f70ffbcacb9ab411bbab6120dc0e86bd381161a01db8ac5d3dbee",
+    "baseline/generated-engine/PremiumPreviewSynth.cpp": "7a450e1060e152a1dc8c8112da77599bea8ea349f5ce00bf9e0910a35f5cad50",
+    "baseline/generated-engine/PremiumNativeCandidateSynth.cpp": "cdbbbe9739ba9ffceb25b2bbcd7034c1244d20639c7213bee6c6efe61a6df123",
+    "baseline/generated-engine/UncalibratedPreviewSynth.cpp": "d6e244a2486c399c16b22e0c71a620f4db855435c714707887cad90dace1c269",
+    "baseline/generated-engine/MeteredPreviewSynth.h": "a214c5c89dd1127e70174df8ee3ec2da57fa9df334c8f40a496c57ca9c9e3eba",
+    "baseline/generated-engine/MeteredPreviewSynth.cpp": "81007f8374b8997f4d75b89f2200158c5834e6846bcb647ba7a65a5186dd5293",
+    "baseline/generated-engine/PremiumPreviewSynth.h": "0b8513504d32002522ff56f8799ff927d1dc33bae8a21726a6be04be96deb150",
+    "baseline/generated-engine/PremiumNativeCandidateSynth.h": "308bfaa2d80c3802a765ed9c3eccb4182c0e3c3d3d5c53ac2bb0841188b67a3c",
+    "baseline/generated-engine/UncalibratedPreviewSynth.h": "3604c575b6d10f09edfcc77b99f4731911b122a9e1e38fad5d57db76a31d2c58",
+    "trace/compile_commands.json": "a7bdc94030a0300d394848133669e59ea17ddb86a415f086dd1e33e0f0478cfc",
+    "trace/sawstar_premium_native_pair": "51a029f16eefcade0378def244ef711bc47009a210582b1d7e40e6f8b3f5a026",
+    "trace/CMakeCache.txt": "05675b2864a78862e5dfaf04a7a17acf3556af9e0608caa02cc565eed7151196",
+    "trace/generated-engine/PremiumPreviewSynth.cpp": "f647797a0ad2fb6faf0b18473df124a6dd6c7b1bdcf1e223089df0a5c38352fc",
+    "trace/generated-engine/PremiumNativeCandidateSynth.cpp": "374f215369c9010c3afb3ea04a25fe0a49cd8525e16441b9da526765eaaebb28",
+    "trace/generated-engine/UncalibratedPreviewSynth.cpp": "c8f32cfe0e77faa35b09d044a71bb27512bcbb9c065184006a37b41ad2a600e3",
+    "trace/generated-engine/MeteredPreviewSynth.h": "a214c5c89dd1127e70174df8ee3ec2da57fa9df334c8f40a496c57ca9c9e3eba",
+    "trace/generated-engine/MeteredPreviewSynth.cpp": "23166f6783d1b5d142e20d37fd5d60237bef9891d3f6e62a9c8658d6b1623e85",
+    "trace/generated-engine/PremiumPreviewSynth.h": "0b8513504d32002522ff56f8799ff927d1dc33bae8a21726a6be04be96deb150",
+    "trace/generated-engine/PremiumNativeCandidateSynth.h": "308bfaa2d80c3802a765ed9c3eccb4182c0e3c3d3d5c53ac2bb0841188b67a3c",
+    "trace/generated-engine/UncalibratedPreviewSynth.h": "3604c575b6d10f09edfcc77b99f4731911b122a9e1e38fad5d57db76a31d2c58",
+    "x86_64-baseline-self-test.csv": "e947271961abcc700dd9279511354ab7b2f33cb5fa77da6bf2442fc39853cda0",
+    "x86_64-baseline-self-test.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "x86_64-trace-self-test.csv": "c007edbb8f59c25ed09e5e63a8c72eda91bc59c81055d8db1ec177d30b1c732d",
+    "x86_64-trace-self-test.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "x86_64-original-sine-grid.csv": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+    "x86_64-original-sine-grid.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "x86_64-passive-sine-grid.csv": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+    "x86_64-passive-sine-grid.txt": "5cf049ffb085351ef34d280a1afbd4c4b6157b249eb05af2aac7421036d009d3",
+    "x86_64-internal-sine-grid.csv": "34ff5ca7a3e1f8b82488890cf3fcdb13ec111e0058f6e8cbd57a8abca95adc8b",
+    "x86_64-internal-sine-grid.txt": "5cf049ffb085351ef34d280a1afbd4c4b6157b249eb05af2aac7421036d009d3"
+  },
+  "all_payload_hashes_verified": true,
+  "local_output": "work/outputs/k1-filter-state-local-2026-11-08",
+  "remote_ci": "not yet run"
+}

@@ -19,6 +19,16 @@ foreach(_part IN ITEMS h cpp)
   else()
     string(REPLACE "#include \"engine/Synth.h\"" "#include \"PremiumPreviewSynth.h\"" _preview "${_preview}")
   endif()
+  if(_part STREQUAL "cpp" AND SAWSTAR_FILTER_STATE_TRACE)
+    set(_state_anchor "// Premium filter state probe is injected here by the offline build.")
+    string(FIND "${_preview}" "${_state_anchor}" _state_index)
+    if(_state_index EQUAL -1)
+      message(FATAL_ERROR "Cannot locate offline filter state probe anchor")
+    endif()
+    string(REPLACE "${_state_anchor}"
+      "v.filter.CaptureState(filterStates_.voices[static_cast<size_t>(&v-voices_.data())]);"
+      _preview "${_preview}")
+  endif()
   # Preserve the uncalibrated listening engine as an independent test reference.
   string(REPLACE "premium_preview_engine" "premium_preview_reference" _reference "${_preview}")
   string(REPLACE "PremiumPreviewSynth.h" "UncalibratedPreviewSynth.h" _reference "${_reference}")

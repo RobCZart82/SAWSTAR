@@ -15,6 +15,9 @@
 #include <stdexcept>
 #include <sstream>
 #include "NumericalComparison.h"
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+#include "FilterStateComparison.h"
+#endif
 #include "DispatchEngineSetup.h"
 #ifdef SAWSTAR_CALIBRATED_PREVIEW_PAIR
 using Reference = sawstar::premium_preview_engine::Synth;
@@ -75,6 +78,23 @@ int main(int argc, char** argv) {
       fp_observation::SelfTest();std::cout<<"Passive FP observation self-test passed\n";return 0;
     }
     if(argc==2&&std::strcmp(argv[1],"--diagnostic-self-test")==0){
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+      filter_state_comparison::SelfTest();
+      // Real engine coverage at both active FIR factors, without another grid.
+      const int savedWaveform=Waveform;Waveform=3;
+      for(double rate:{48000.,176400.}){
+        auto reference=std::make_unique<Reference>();auto candidate=std::make_unique<Study>();
+        Setup(*reference,rate,1,0,true);Setup(*candidate,rate,1,0,true);
+        const auto x=reference->ProcessStereo(),y=candidate->ProcessStereo();
+        Require(numerical_comparison::Same(x,y)&&filter_state_comparison::Same(candidate->FilterStates(),reference->FilterStates()),"Real filter state self-test differs");
+        const auto& state=reference->FilterStates().voices[0];
+        const auto has=[&](const char* name){for(size_t i=0;i<state.size;++i)if(std::strcmp(state.fields[i].name,name)==0)return true;return false;};
+        Require(state.size>1000&&has("drive.up.history")&&has("drive.down.history")&&
+          has("drive.interpolate.lanes")&&has("drive.decimate.lanes")&&has("filter.step.band")&&
+          has("adapter.dry"),"Deep filter observation has missing state or inline points");
+      }
+      Waveform=savedWaveform;
+#endif
       std::ostringstream log;bool rejected=false;
       const fp_observation::Snapshot clean{true,0x1f80,FE_TONEAREST},sticky{true,0x1fb3,FE_TONEAREST};
       const fp_observation::Frame testFp{clean,sticky,sticky,sticky,"injected",197};
@@ -115,7 +135,11 @@ int main(int argc, char** argv) {
       Require(log.str().empty(),"Equal frames emitted failure diagnostics");
       std::cout<<"Numerical failure diagnostics self-test passed trace="
 #ifdef SAWSTAR_NUMERICAL_TRACE
-        <<"on\n";
+        <<"on"
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+        <<" filter_state=on history=6"
+#endif
+        <<"\n";
 #else
         <<"off\n";
 #endif
@@ -131,6 +155,9 @@ int main(int argc, char** argv) {
       Require(std::strlen(value)==1&&value[0]>='0'&&value[0]<='3',"Waveform must be exactly 0, 1, 2 or 3");
       firstWave=value[0]-'0';endWave=firstWave+1;waveSpecified=true;
     }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+    Require(observeFp,"Filter state tracing requires --fp-observe");
+#endif
     Require(!candidateFirst||observeFp,"--candidate-first requires --fp-observe");
     fp_observation::Campaign fpCampaign(observeFp);
     // The bit identity guard must reject a deliberately altered signal.
@@ -154,6 +181,9 @@ int main(int argc, char** argv) {
           if(observeFp)observation.boundaries[2]=fp_observation::Capture();
           Setup(*b, rate, filter, voice, fx);
           if(observeFp)observation.boundaries[3]=fp_observation::Capture();
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+          filter_state_comparison::History filterHistory;
+#endif
           const auto renderPair=[&](const char* phase,int frame,unsigned phaseIndex){
             fp_observation::Frame fp;fp.phase=phase;fp.index=frame;fp.candidateFirst=candidateFirst;
             sawstar::StereoSample x,y;
@@ -161,6 +191,27 @@ int main(int argc, char** argv) {
             const auto candidate=[&]{if(observeFp)fp.candidateBefore=fp_observation::Capture();y=b->ProcessStereo();if(observeFp)fp.candidateAfter=fp_observation::Capture();};
             if(candidateFirst){candidate();reference();}else{reference();candidate();}
             if(observeFp)observation.Observe(fp,phaseIndex);
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+            for(size_t v=0;v<16;++v){
+              if(a->Trace().noiseState[v])Require(a->FilterStates().voices[v].size>0,"Reference filter state capture missing");
+              if(b->Trace().noiseState[v])Require(b->FilterStates().voices[v].size>0,"Candidate filter state capture missing");
+            }
+            const numerical_comparison::Context context{Waveform,filter,voice,rate,fx,phase,frame};
+            const bool outerMismatch=!numerical_comparison::Same(y,x)||!numerical_comparison::Same(b->PreFX(),a->PreFX())||
+              numerical_comparison::Differences(b->Trace(),a->Trace(),[](const std::string&,uint32_t,uint32_t){})!=0;
+            try{filterHistory.Observe(b->FilterStates(),a->FilterStates(),context,fp,outerMismatch,std::cerr);}
+            catch(const std::runtime_error&){
+              const auto points=[&](const char* name,sawstar::StereoSample c,sawstar::StereoSample r){
+                std::cerr<<"filter_trigger_"<<name<<" candidate_left=0x"<<std::hex<<numerical_comparison::Bits(c.left)
+                  <<" reference_left=0x"<<numerical_comparison::Bits(r.left)
+                  <<" candidate_right=0x"<<numerical_comparison::Bits(c.right)
+                  <<" reference_right=0x"<<numerical_comparison::Bits(r.right)<<std::dec<<'\n';
+              };
+              points("output",y,x);points("pre_fx",b->PreFX(),a->PreFX());
+              numerical_comparison::Check(y,x,b->PreFX(),a->PreFX(),context,std::cerr,b->Trace(),a->Trace(),&fp);
+              throw;
+            }
+#endif
             return std::pair<sawstar::StereoSample,sawstar::StereoSample>{x,y};
           };
           Require(a->ActiveVoices() == (voice == 0 ? 16 : 1) && a->ActiveVoices() == b->ActiveVoices(),

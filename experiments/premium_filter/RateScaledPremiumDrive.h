@@ -13,6 +13,11 @@ public:
     high_ = SafeSampleRate(rate) >= 176400;
     if (high_) two_.Init(rate); else four_.Init(rate);
   }
+#ifdef SAWSTAR_FILTER_STATE_TRACE
+  void CaptureState(::sawstar::FilterStateTrace& out) const {
+    if(high_)two_.CaptureState(out);else four_.CaptureState(out);
+  }
+#endif
   unsigned Factor() const { return high_ ? 2 : 4; }
   void Set(double db) { if (high_) two_.Set(db); else four_.Set(db); }
   void SnapToTargets() { if (high_) two_.SnapToTargets(); else four_.SnapToTargets(); }
