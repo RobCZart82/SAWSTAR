@@ -45,9 +45,24 @@ unaccepted and unpublished.
   temporary sibling directory; only a fully validated checksum and ZIP are
   moved to final names, with the ZIP exposed last. A regression test asserts
   that rejected candidates leave neither final file nor staging directory.
-- Local verification so far: seven package/provenance tests pass; Python syntax
-  compilation, the complete corrected-package link scan and `git diff --check`
-  pass. Exact-head PR CI and rebuilt artifacts remain required.
+- A second audit of the successful PR RC artifacts found stale claims later in
+  the supplement: the About label still named 1.2.0 rc1 and the factory section
+  still described the historical 24-preset/144-case grid. The 313e0e7
+  Windows/macOS packages had internally matching manifests, ZIP/payload
+  hashes, PDFs and 252-row factory CSVs, but are not suitable for user testing
+  because their own supplement contradicted the 1.2.1 candidate and the CSVs.
+  Their ZIP hashes are Windows
+  `169863b95b724b57a5cc7e7a5f2f8a7a41bcdd1bf142a23ef1601f4d3acb2105` and
+  macOS
+  `4e8b2c1d78b627a99e84d3b6c3061788e3e5656dfd3efb1ca8efb6ff67db09a3`.
+- Correct the supplement to the current 1.2.1 rc1 label and 30-preset grid:
+  180 base cases plus 72 controller-use cases, 252 total per architecture.
+  Add a regression test binding the supplement to current release metadata and
+  those current counts.
+- Local verification so far: eight package/provenance/documentation tests pass;
+  Python syntax compilation, the complete corrected-package link scan, release
+  metadata consistency and `git diff --check` pass. Exact-head PR CI and rebuilt
+  artifacts remain required.
 
 K1 remains unresolved. This link packaging issue does not change DSP, presets,
 parameter IDs, state, release metadata or any K1 evidence. No release, tag or

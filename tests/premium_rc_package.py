@@ -9,6 +9,13 @@ ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('rc',ROOT/'scripts/package-premium-rc.py')
 rc=importlib.util.module_from_spec(spec);spec.loader.exec_module(rc)
 class CacheTests(unittest.TestCase):
+    def test_rc_supplement_matches_current_candidate_and_factory_count(self):
+        meta=json.loads((ROOT/'release.json').read_text())
+        supplement=(ROOT/'docs/PREMIUM_PRODUCTION_RC.md').read_text()
+        self.assertIn(f"{meta['version']} {meta['candidate']}-premium-integration",supplement)
+        self.assertIn('30 preset × 2 ráta × 3 hangszám = 180 alaphelyzetben',supplement)
+        self.assertIn('összesen 252 esetet architektúránként',supplement)
+        self.assertNotIn('1.2.0 rc1-premium-integration',supplement)
     def test_wrong_engine_or_identity_is_rejected(self):
         base={'SAWSTAR_PREMIUM_PRODUCTION':'ON','SAWSTAR_BUILD_PLUGIN':'ON',
               'SAWSTAR_PREMIUM_PREVIEW':'OFF','SAWSTAR_PREMIUM_NATIVE_CANDIDATE':'OFF',
