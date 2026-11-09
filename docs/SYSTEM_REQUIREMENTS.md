@@ -44,7 +44,7 @@ on macOS and Windows with no audible or observed problems. Native macOS REAPER
 7.81 renders were made with the verified main binary; their PCM matched the
 previously tested RC. This general acceptance does not establish minimum OS,
 all DAWs, every lifecycle combination or native Windows ARM64 host coverage.
-See the [1.0.4 release checklist](RELEASE_1.0.4_CHECKLIST.md) for test limits and
+See the [1.0.4 release checklist](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RELEASE_1.0.4_CHECKLIST.md) for test limits and
 final-commit packaging gates.
 
 

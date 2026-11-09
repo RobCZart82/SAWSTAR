@@ -7,6 +7,8 @@ artifact hashes. Do not use them for important projects before host testing.
 
 ## Maintenance changes under evaluation
 
+- Use an online repository reference for a historical checklist that is not
+  shipped in the installer documentation.
 - Keep Windows installer documents in the same `docs/` layout as the packaged
   payload, including the bilingual manuals and version-specific release notes.
 - Check the installed document copies against the package payload in the
