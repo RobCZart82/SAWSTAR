@@ -2,11 +2,14 @@
 
 ## 1.2.1-rc1 csomagellenőrzés — 2026-11-09
 
-A #146 utáni `afa2a65` jelölt mind az öt főági workflow-ja és 12 jobja sikeres.
-A három letöltött csomag 86 manifest-fájlja, ZIP-/telepítőhash-e és architektúrája
-ellenőrzött. Egy minden csomagot érintő hibás történeti dokumentációs link
-javítása elkészült; a javítás utáni csomagokat újra kell ellenőrizni.
-[Bizonyítékok, pontos csomagok és hátralévő lépések](RC1_PACKAGE_VERIFICATION_2026_11_09.md).
+A #146 utáni `afa2a65` jelölt mind az öt főági workflow-ja és 12 jobja sikeres
+volt; a #147 javítás után a `75fe83f` main öt workflow-ja szintén sikeres.
+A javított mainből indított RC mindkét platformon lefordult és csomagolódott,
+de az utólagos Markdown-linkvizsgálat két, nem csomagolt fájlra mutató
+hivatkozást talált a Premium RC kiegészítőben. A forrás- és csomagolóteszt
+javítása folyamatban; egyik ZIP sem alkalmas tesztelésre.
+[Eredeti csomagevidencia](RC1_PACKAGE_VERIFICATION_2026_11_09.md),
+[linkhiba és javítási napló](DEVELOPMENT_LOG_2026_11_09_RC_LINKS.md).
 A következő felhasználói kapu a javított pontos RC Windows/macOS tesztje
 **(sajátgépes reaper)**, majd külön publikálási döntés.
 

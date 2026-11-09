@@ -4,14 +4,41 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import posixpath
 from pathlib import Path
+import re
 import subprocess
 import sys
+from urllib.parse import unquote, urlsplit
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from rc_provenance import checkout_provenance
+
+MARKDOWN_LINK = re.compile(r'!?\[[^\]]*\]\(\s*(?:<([^>]+)>|([^\s)]+))(?:\s+[^)]*)?\)')
+
+def validate_markdown_payload_links(payloads):
+    """Reject relative Markdown links whose targets are absent from the RC ZIP."""
+    names = set(payloads)
+    missing = []
+    for name, data in payloads.items():
+        if not name.lower().endswith('.md'):
+            continue
+        text = data.decode('utf-8')
+        for match in MARKDOWN_LINK.finditer(text):
+            target = match.group(1) or match.group(2)
+            parsed = urlsplit(target)
+            if parsed.scheme or parsed.netloc or not parsed.path:
+                continue
+            path = unquote(parsed.path)
+            resolved = posixpath.normpath(posixpath.join(posixpath.dirname(name), path))
+            if resolved == '..' or resolved.startswith('../') or (
+                    resolved not in names and
+                    not any(member.startswith(resolved.rstrip('/') + '/') for member in names)):
+                missing.append(f'{name} -> {target}')
+    if missing:
+        raise ValueError('Broken relative Markdown link(s) in RC package: ' + '; '.join(missing))
 
 def integration_cache(path):
     values = {}
@@ -38,6 +65,7 @@ def finalize_rc_archive(output, manifest):
     package_manifest = json.loads(payloads.pop('PACKAGE-MANIFEST.json'))
     payloads['PREMIUM-RC-MANIFEST.json'] = (json.dumps(manifest, indent=2) + '\n').encode()
     payloads['docs/PREMIUM_PRODUCTION_RC.md'] = (ROOT / 'docs/PREMIUM_PRODUCTION_RC.md').read_bytes()
+    validate_markdown_payload_links(payloads)
     package_manifest['files_sha256'] = {name: hashlib.sha256(data).hexdigest()
                                         for name, data in payloads.items()}
     temporary = output.with_suffix(output.suffix + '.tmp')

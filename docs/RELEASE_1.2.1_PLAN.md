@@ -1,13 +1,17 @@
 # SAWSTAR 1.2.1 maintenance release — preparation plan
 
-Status: `1.2.1-rc1` package review updated, 9 November 2026. The
+Status: `1.2.1-rc1` package-link verification follow-up in progress, 9 November 2026. The
 latest public release is 1.2.0 (`v1.2.0`). This document records repository
 work and gates; it does not create a release tag or authorize publication.
 
 Exact `afa2a65` main CI and downloaded-package evidence are recorded in
 [the November 9 verification](RC1_PACKAGE_VERIFICATION_2026_11_09.md).
-A broken historical link was found in all three packages and corrected in source;
-the corrected build still needs CI, package re-verification and exact-host testing.
+A broken historical link was corrected in all three packages. Rebuilding from
+that source exposed two additional relative links in the packaged Premium RC
+supplement that pointed to files omitted from release packages. The current
+fix points those references to the online repository and makes RC packaging
+reject any packaged Markdown link that does not resolve in the ZIP. The
+corrected source still needs CI, package re-verification and exact-host testing.
 
 ## Verified scope
 
@@ -47,7 +51,8 @@ distinction in any 1.2.1 release notes.
    or silently replace the published 1.2.0 release files or assets.
 6. For a 1.2.1 candidate, validate package file inventories and hashes, manuals,
    installers, About metadata, plugin identities, presets, state migration and
-   known-issue disclosures on the exact candidate commit.
+   known-issue disclosures on the exact candidate commit. Check every relative
+   Markdown link against the delivered package layout, not only installer docs.
 
 ## Required evidence before publication
 

@@ -24,6 +24,9 @@ local scope and validation: [release-preparation log](docs/DEVELOPMENT_LOG_2026_
 - Synchronize all product VST3 version plists from central release metadata,
   and make pre-release validation require every exact-head build, quality and
   workflow-lint run to finish successfully.
+- Validate every relative Markdown link in the delivered Premium RC package;
+  update the packaged Premium RC supplement's candidate links and historical
+  acceptance wording.
 - Update the current-version manuals and K1 handoff references while preserving
   historical screenshots, evidence and already-published 1.2.0 assets.
 - Add an opt-in offline K1 filter/FIR state probe with named bit-pattern snapshots,

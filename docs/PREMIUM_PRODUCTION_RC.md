@@ -1,20 +1,23 @@
-# SAWSTAR 1.2.0 rc1 — Premium production-integráció
+# SAWSTAR Premium production — 1.2.1 maintenance candidate
 
 ## 1.2.0 kiadási döntés — 2026-11-07
 
-Robert a 003b007 Premium RC-t macOS és Windows alatt hibamentesnek jelezte és
-engedélyezte a kiadást. A végleges 1.2.0 telepítős workflow-k explicit Premium
-production buildet készítenek. [Végleges működés, migráció és ismert korlátok](RELEASE_NOTES_1.2.0.md).
-Az alábbi rész a korábbi RC-előkészítés történeti leírása.
+Az 1.2.0 a legutóbbi nyilvános kiadás. Robert a 003b007 Premium RC-t macOS és
+Windows alatt hibamentesnek jelezte, és 2026-11-07-én jóváhagyta annak
+publikálását. Az 1.2.1-rc1 kizárólag tesztjelölt; a pontos jelölt natív
+elfogadása és a külön publikálási döntés nyitott. Lásd a [1.2.1 jelölt
+kiadási megjegyzéseit](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RELEASE_NOTES_1.2.1.md)
+és a [korábbi 1.2.0 kiadás megjegyzéseit](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RELEASE_NOTES_1.2.0.md).
 
 
 ## Új factory bővítés — 2026-11-03
 
-A fejlesztési bank 30 hangra bővült; az eredeti 24 változatlan.
-[Hat új performance hang és 252-es controller-aware ellenőrzés](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
-A lentebbi 24/144-es mérés a #133/#134 RC történeti bizonyítéka; az új hangok
-hat exportált snapshotjának hangzását Robert jóváhagyta. A #135 pontos RC-je
-22 workflow / 67 job mellett sikeres volt; ez nem az új 1.2.0 RC natív elfogadása.
+A fejlesztési bank 30 hangra bővült; az eredeti 24 változatlan. A hat új hang
+exportált snapshotját Robert meghallgatta és jóváhagyta. A [factory bővítés és
+252 controller-aware ellenőrzés leírása](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md)
+a repositoryban érhető el. Az alábbi 24/144-es mérés és a #135 PR-ről szóló
+korábbi megjegyzések történeti RC-bizonyítékok, nem a mostani 1.2.1 jelölt
+elfogadása.
 
 
 Állapot: fejlesztési kiadásjelölt, nem publikált végleges kiadás.

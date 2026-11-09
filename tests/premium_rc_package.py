@@ -38,6 +38,17 @@ class CacheTests(unittest.TestCase):
                     self.assertEqual(hashlib.sha256(z.read(name)).hexdigest(),digest)
                 self.assertFalse(json.loads(z.read('PREMIUM-RC-MANIFEST.json'))['publication_allowed'])
             self.assertEqual(p.with_suffix('.zip.sha256').read_text().split()[0],hashlib.sha256(p.read_bytes()).hexdigest())
+    def test_packaged_markdown_links_must_resolve_in_package_or_be_remote(self):
+        valid={
+            'docs/README.md': b'[Requirements](SYSTEM_REQUIREMENTS.md) [history](https://example.test/history)',
+            'docs/SYSTEM_REQUIREMENTS.md': b'Available in this package.',
+        }
+        rc.validate_markdown_payload_links(valid)
+        invalid=dict(valid, **{'docs/PREMIUM_PRODUCTION_RC.md':
+                               b'[old release](RELEASE_NOTES_1.2.0.md) '
+                               b'[factory evidence](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md)'})
+        with self.assertRaisesRegex(ValueError, 'Broken relative Markdown link'):
+            rc.validate_markdown_payload_links(invalid)
     def test_provenance_rejects_unknown_changes_and_partial_patches(self):
         from rc_provenance import require_paths, require_bytes
         require_paths(['third_party/iPlug2'],{'third_party/iPlug2'},'checkout')
