@@ -39,7 +39,13 @@ unaccepted and unpublished.
   ZIP before hashing and accepting the package.
 - Add a passing and a broken-link regression fixture to
   `tests/premium_rc_package.py`.
-- Local verification so far: six package/provenance tests pass; Python syntax
+- Automated review found that the original validation failure path could leave
+  the already-created ZIP at its final filename for the workflow's
+  always-run artifact upload. The package is now built and finalized in a
+  temporary sibling directory; only a fully validated checksum and ZIP are
+  moved to final names, with the ZIP exposed last. A regression test asserts
+  that rejected candidates leave neither final file nor staging directory.
+- Local verification so far: seven package/provenance tests pass; Python syntax
   compilation, the complete corrected-package link scan and `git diff --check`
   pass. Exact-head PR CI and rebuilt artifacts remain required.
 

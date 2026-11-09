@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 from urllib.parse import unquote, urlsplit
 import zipfile
 
@@ -77,6 +78,27 @@ def finalize_rc_archive(output, manifest):
     digest = hashlib.sha256(output.read_bytes()).hexdigest()
     output.with_suffix(output.suffix + '.sha256').write_text(f'{digest}  {output.name}\n')
 
+def package_rc_atomically(package, bundle_parent, output, manifest):
+    """Expose final archive names only after the complete RC validates."""
+    output.parent.mkdir(parents=True, exist_ok=True)
+    checksum = output.with_suffix(output.suffix + '.sha256')
+    if output.exists() or checksum.exists():
+        raise ValueError('Refusing to overwrite previous RC evidence')
+    with tempfile.TemporaryDirectory(prefix='.sawstar-rc-stage-', dir=output.parent) as folder:
+        staged = Path(folder) / output.name
+        package(bundle_parent, staged)
+        finalize_rc_archive(staged, manifest)
+        staged_checksum = staged.with_suffix(staged.suffix + '.sha256')
+        # Publish the ZIP last; upload steps must never find a rejected or
+        # partially finalized archive under its deliverable filename.
+        try:
+            staged_checksum.replace(checksum)
+            staged.replace(output)
+        except OSError:
+            checksum.unlink(missing_ok=True)
+            output.unlink(missing_ok=True)
+            raise
+
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
@@ -96,9 +118,6 @@ def main():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     output = args.output.resolve()
-    if output.exists() or output.with_suffix(output.suffix + '.sha256').exists():
-        raise ValueError('Refusing to overwrite previous RC evidence')
-    module.package(bundle.parent, output)
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     dirty = bool(subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=no'], cwd=ROOT, text=True).strip())
     manifest = dict(schema=1, version=meta['version'], candidate=meta['candidate'],
@@ -108,7 +127,7 @@ def main():
                     validator_passed=True, native_host_acceptance=False,
                     factory_listening_acceptance=False, publication_allowed=False,
                     build_cache_sha256=hashlib.sha256((build / 'CMakeCache.txt').read_bytes()).hexdigest())
-    finalize_rc_archive(output, manifest)
+    package_rc_atomically(module.package, bundle.parent, output, manifest)
     print(output)
 
 if __name__ == '__main__':

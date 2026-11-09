@@ -49,6 +49,20 @@ class CacheTests(unittest.TestCase):
                                b'[factory evidence](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md)'})
         with self.assertRaisesRegex(ValueError, 'Broken relative Markdown link'):
             rc.validate_markdown_payload_links(invalid)
+    def test_rejected_rc_archive_never_appears_under_final_names(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder)/'candidate.zip'
+            broken=b'[missing](NOT-SHIPPED.md)'
+            def package(_bundle_parent, staged):
+                with zipfile.ZipFile(staged,'w') as archive:
+                    archive.writestr('docs/BROKEN.md',broken)
+                    archive.writestr('PACKAGE-MANIFEST.json',json.dumps({'files_sha256':{}}))
+                staged.with_suffix(staged.suffix+'.sha256').write_text('temporary')
+            with self.assertRaisesRegex(ValueError, 'Broken relative Markdown link'):
+                rc.package_rc_atomically(package,None,output,{'publication_allowed':False})
+            self.assertFalse(output.exists())
+            self.assertFalse(output.with_suffix(output.suffix+'.sha256').exists())
+            self.assertEqual(list(Path(folder).iterdir()),[])
     def test_provenance_rejects_unknown_changes_and_partial_patches(self):
         from rc_provenance import require_paths, require_bytes
         require_paths(['third_party/iPlug2'],{'third_party/iPlug2'},'checkout')

@@ -26,7 +26,8 @@ local scope and validation: [release-preparation log](docs/DEVELOPMENT_LOG_2026_
   workflow-lint run to finish successfully.
 - Validate every relative Markdown link in the delivered Premium RC package;
   update the packaged Premium RC supplement's candidate links and historical
-  acceptance wording.
+  acceptance wording; stage and validate the archive before exposing its
+  final artifact filenames.
 - Update the current-version manuals and K1 handoff references while preserving
   historical screenshots, evidence and already-published 1.2.0 assets.
 - Add an opt-in offline K1 filter/FIR state probe with named bit-pattern snapshots,
