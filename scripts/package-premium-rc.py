@@ -4,14 +4,42 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import posixpath
 from pathlib import Path
+import re
 import subprocess
 import sys
+import tempfile
+from urllib.parse import unquote, urlsplit
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from rc_provenance import checkout_provenance
+
+MARKDOWN_LINK = re.compile(r'!?\[[^\]]*\]\(\s*(?:<([^>]+)>|([^\s)]+))(?:\s+[^)]*)?\)')
+
+def validate_markdown_payload_links(payloads):
+    """Reject relative Markdown links whose targets are absent from the RC ZIP."""
+    names = set(payloads)
+    missing = []
+    for name, data in payloads.items():
+        if not name.lower().endswith('.md'):
+            continue
+        text = data.decode('utf-8')
+        for match in MARKDOWN_LINK.finditer(text):
+            target = match.group(1) or match.group(2)
+            parsed = urlsplit(target)
+            if parsed.scheme or parsed.netloc or not parsed.path:
+                continue
+            path = unquote(parsed.path)
+            resolved = posixpath.normpath(posixpath.join(posixpath.dirname(name), path))
+            if resolved == '..' or resolved.startswith('../') or (
+                    resolved not in names and
+                    not any(member.startswith(resolved.rstrip('/') + '/') for member in names)):
+                missing.append(f'{name} -> {target}')
+    if missing:
+        raise ValueError('Broken relative Markdown link(s) in RC package: ' + '; '.join(missing))
 
 def integration_cache(path):
     values = {}
@@ -38,6 +66,7 @@ def finalize_rc_archive(output, manifest):
     package_manifest = json.loads(payloads.pop('PACKAGE-MANIFEST.json'))
     payloads['PREMIUM-RC-MANIFEST.json'] = (json.dumps(manifest, indent=2) + '\n').encode()
     payloads['docs/PREMIUM_PRODUCTION_RC.md'] = (ROOT / 'docs/PREMIUM_PRODUCTION_RC.md').read_bytes()
+    validate_markdown_payload_links(payloads)
     package_manifest['files_sha256'] = {name: hashlib.sha256(data).hexdigest()
                                         for name, data in payloads.items()}
     temporary = output.with_suffix(output.suffix + '.tmp')
@@ -48,6 +77,27 @@ def finalize_rc_archive(output, manifest):
     temporary.replace(output)
     digest = hashlib.sha256(output.read_bytes()).hexdigest()
     output.with_suffix(output.suffix + '.sha256').write_text(f'{digest}  {output.name}\n')
+
+def package_rc_atomically(package, bundle_parent, output, manifest):
+    """Expose final archive names only after the complete RC validates."""
+    output.parent.mkdir(parents=True, exist_ok=True)
+    checksum = output.with_suffix(output.suffix + '.sha256')
+    if output.exists() or checksum.exists():
+        raise ValueError('Refusing to overwrite previous RC evidence')
+    with tempfile.TemporaryDirectory(prefix='.sawstar-rc-stage-', dir=output.parent) as folder:
+        staged = Path(folder) / output.name
+        package(bundle_parent, staged)
+        finalize_rc_archive(staged, manifest)
+        staged_checksum = staged.with_suffix(staged.suffix + '.sha256')
+        # Publish the ZIP last; upload steps must never find a rejected or
+        # partially finalized archive under its deliverable filename.
+        try:
+            staged_checksum.replace(checksum)
+            staged.replace(output)
+        except OSError:
+            checksum.unlink(missing_ok=True)
+            output.unlink(missing_ok=True)
+            raise
 
 
 def main():
@@ -68,9 +118,6 @@ def main():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     output = args.output.resolve()
-    if output.exists() or output.with_suffix(output.suffix + '.sha256').exists():
-        raise ValueError('Refusing to overwrite previous RC evidence')
-    module.package(bundle.parent, output)
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     dirty = bool(subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=no'], cwd=ROOT, text=True).strip())
     manifest = dict(schema=1, version=meta['version'], candidate=meta['candidate'],
@@ -80,7 +127,7 @@ def main():
                     validator_passed=True, native_host_acceptance=False,
                     factory_listening_acceptance=False, publication_allowed=False,
                     build_cache_sha256=hashlib.sha256((build / 'CMakeCache.txt').read_bytes()).hexdigest())
-    finalize_rc_archive(output, manifest)
+    package_rc_atomically(module.package, bundle.parent, output, manifest)
     print(output)
 
 if __name__ == '__main__':

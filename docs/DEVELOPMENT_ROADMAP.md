@@ -10,6 +10,10 @@ workflow és 12 job sikeres. Az aktuális lépés az [1.2.1 terv](RELEASE_1.2.1_
 szerinti `1.2.1-rc1` jelölt. Ez nem nyilvános kiadás; pontos RC-géppróba és
 külön publikálási döntés szükséges.
 [Az RC1 előkészítés naplója](DEVELOPMENT_LOG_2026_11_08_RC1.md).
+A javított `75fe83f` mainről indított RC ellenőrzése a csomagolt Premium
+kiegészítő két további relatív dokumentációs hivatkozását tárta fel. A
+csomagolási linkkapu és a dokumentum javítása külön követő lépésben készül;
+[részletek](DEVELOPMENT_LOG_2026_11_09_RC_LINKS.md).
 Az alábbi korábbi RC-célok és kapuk dátumozott történeti állapotok; nem az
 aktuális publikációs állapotot vagy újonnan megadott elfogadást jelentik.
 

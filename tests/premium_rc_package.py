@@ -9,6 +9,13 @@ ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('rc',ROOT/'scripts/package-premium-rc.py')
 rc=importlib.util.module_from_spec(spec);spec.loader.exec_module(rc)
 class CacheTests(unittest.TestCase):
+    def test_rc_supplement_matches_current_candidate_and_factory_count(self):
+        meta=json.loads((ROOT/'release.json').read_text())
+        supplement=(ROOT/'docs/PREMIUM_PRODUCTION_RC.md').read_text(encoding='utf-8')
+        self.assertIn(f"{meta['version']} {meta['candidate']}-premium-integration",supplement)
+        self.assertIn('30 preset × 2 ráta × 3 hangszám = 180 alaphelyzetben',supplement)
+        self.assertIn('összesen 252 esetet architektúránként',supplement)
+        self.assertNotIn('1.2.0 rc1-premium-integration',supplement)
     def test_wrong_engine_or_identity_is_rejected(self):
         base={'SAWSTAR_PREMIUM_PRODUCTION':'ON','SAWSTAR_BUILD_PLUGIN':'ON',
               'SAWSTAR_PREMIUM_PREVIEW':'OFF','SAWSTAR_PREMIUM_NATIVE_CANDIDATE':'OFF',
@@ -38,6 +45,31 @@ class CacheTests(unittest.TestCase):
                     self.assertEqual(hashlib.sha256(z.read(name)).hexdigest(),digest)
                 self.assertFalse(json.loads(z.read('PREMIUM-RC-MANIFEST.json'))['publication_allowed'])
             self.assertEqual(p.with_suffix('.zip.sha256').read_text().split()[0],hashlib.sha256(p.read_bytes()).hexdigest())
+    def test_packaged_markdown_links_must_resolve_in_package_or_be_remote(self):
+        valid={
+            'docs/README.md': b'[Requirements](SYSTEM_REQUIREMENTS.md) [history](https://example.test/history)',
+            'docs/SYSTEM_REQUIREMENTS.md': b'Available in this package.',
+        }
+        rc.validate_markdown_payload_links(valid)
+        invalid=dict(valid, **{'docs/PREMIUM_PRODUCTION_RC.md':
+                               b'[old release](RELEASE_NOTES_1.2.0.md) '
+                               b'[factory evidence](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md)'})
+        with self.assertRaisesRegex(ValueError, 'Broken relative Markdown link'):
+            rc.validate_markdown_payload_links(invalid)
+    def test_rejected_rc_archive_never_appears_under_final_names(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder)/'candidate.zip'
+            broken=b'[missing](NOT-SHIPPED.md)'
+            def package(_bundle_parent, staged):
+                with zipfile.ZipFile(staged,'w') as archive:
+                    archive.writestr('docs/BROKEN.md',broken)
+                    archive.writestr('PACKAGE-MANIFEST.json',json.dumps({'files_sha256':{}}))
+                staged.with_suffix(staged.suffix+'.sha256').write_text('temporary')
+            with self.assertRaisesRegex(ValueError, 'Broken relative Markdown link'):
+                rc.package_rc_atomically(package,None,output,{'publication_allowed':False})
+            self.assertFalse(output.exists())
+            self.assertFalse(output.with_suffix(output.suffix+'.sha256').exists())
+            self.assertEqual(list(Path(folder).iterdir()),[])
     def test_provenance_rejects_unknown_changes_and_partial_patches(self):
         from rc_provenance import require_paths, require_bytes
         require_paths(['third_party/iPlug2'],{'third_party/iPlug2'},'checkout')

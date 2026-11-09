@@ -1,20 +1,23 @@
-# SAWSTAR 1.2.0 rc1 — Premium production-integráció
+# SAWSTAR Premium production — 1.2.1 maintenance candidate
 
 ## 1.2.0 kiadási döntés — 2026-11-07
 
-Robert a 003b007 Premium RC-t macOS és Windows alatt hibamentesnek jelezte és
-engedélyezte a kiadást. A végleges 1.2.0 telepítős workflow-k explicit Premium
-production buildet készítenek. [Végleges működés, migráció és ismert korlátok](RELEASE_NOTES_1.2.0.md).
-Az alábbi rész a korábbi RC-előkészítés történeti leírása.
+Az 1.2.0 a legutóbbi nyilvános kiadás. Robert a 003b007 Premium RC-t macOS és
+Windows alatt hibamentesnek jelezte, és 2026-11-07-én jóváhagyta annak
+publikálását. Az 1.2.1-rc1 kizárólag tesztjelölt; a pontos jelölt natív
+elfogadása és a külön publikálási döntés nyitott. Lásd a [1.2.1 jelölt
+kiadási megjegyzéseit](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RELEASE_NOTES_1.2.1.md)
+és a [korábbi 1.2.0 kiadás megjegyzéseit](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RELEASE_NOTES_1.2.0.md).
 
 
 ## Új factory bővítés — 2026-11-03
 
-A fejlesztési bank 30 hangra bővült; az eredeti 24 változatlan.
-[Hat új performance hang és 252-es controller-aware ellenőrzés](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
-A lentebbi 24/144-es mérés a #133/#134 RC történeti bizonyítéka; az új hangok
-hat exportált snapshotjának hangzását Robert jóváhagyta. A #135 pontos RC-je
-22 workflow / 67 job mellett sikeres volt; ez nem az új 1.2.0 RC natív elfogadása.
+A fejlesztési bank 30 hangra bővült; az eredeti 24 változatlan. A hat új hang
+exportált snapshotját Robert meghallgatta és jóváhagyta. A [factory bővítés és
+252 controller-aware ellenőrzés leírása](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md)
+a repositoryban érhető el. Az alábbi 24/144-es mérés és a #135 PR-ről szóló
+korábbi megjegyzések történeti RC-bizonyítékok, nem a mostani 1.2.1 jelölt
+elfogadása.
 
 
 Állapot: fejlesztési kiadásjelölt, nem publikált végleges kiadás.
@@ -44,7 +47,7 @@ A Preview/Candidate külön pluginazonosságai továbbra használhatók külön.
 
 Az alapértelmezett CMake-build Classic marad a nyitott elfogadási kapukig.
 A production-integráció és Preview/Candidate kapcsoló együtt tiltott.
-Az About felirat `1.2.0 rc1-premium-integration`, a kiadási dátum üres.
+Az About felirat `1.2.1 rc1-premium-integration`, a kiadási dátum üres.
 A verzió RC-javaslat; a végleges publikáláskor még jóváhagyandó.
 
 ## Fordítás, ellenőrzés és csomag
@@ -59,12 +62,18 @@ A smoke a wrapperrel közös PluginSynth kiválasztását, SAWSTAR-identitást,
 32 mintás dry késleltetést és a négymódú motort ellenőrzi. A state-próba
 minden factory preset sound/host state visszatöltését, GUI-scale-t és
 visszahívott renderének egyezését ellenőrzi. A levels-próba a limiter előtti
-kimenetet méri 24 preset × 2 ráta × 3 hangszám = 144 esetben; minden eset
-legalább 6 dB headroomot követel. Nem lazítottuk a küszöböt.
+kimenetet méri 30 preset × 2 ráta × 3 hangszám = 180 alaphelyzetben, valamint
+a modwheel/channel-pressure használati változatait igénylő presetek 72
+vezérlőhelyzetében; összesen 252 esetet architektúránként. Minden eset legalább
+6 dB headroomot követel. A 252-es CSV-k a teljes bankot és ezeket a
+vezérlőhelyzeteket is tartalmazzák; nem azonosak a korábbi 24 preset × 6
+helyzet = 144 soros mérés történeti CSV-ivel. Nem lazítottuk a küszöböt.
 
 A `scripts/package-premium-rc.py BUILD_DIR OUTPUT.zip` ellenőrzi a build
 engine/identity kapcsolóit, lefuttatja a tényleges Steinberg VST3-validátort,
-és hashjegyzékkel csomagol. Meglévő RC-bizonyítékot nem ír felül.
+és hashjegyzékkel csomagol. Az archívumot és a hash-fájlt csak sikeres
+csomagellenőrzés után teszi a végleges kimeneti névre. Meglévő RC-bizonyítékot
+nem ír felül.
 A PREMIUM-RC-MANIFEST a forrást, dirty állapotot, engine-t és késleltetést
 rögzíti; a natív és hallgatási elfogadás, publikálhatóság false.
 A `premium-production-rc.yml` macOS Universal és Windows x64 csomagot készít,
@@ -73,8 +82,8 @@ elfogadás; Windows ARM64 Premium RC e lépésben még nem kvalifikált.
 
 ## Kézikönyv-kiegészítés és kiadási kapuk
 
-A csomagban levő magyar és angol PDF-kézikönyvek most 1.2.0 rc1 kiadásúak,
-15-15 oldallal. Az első két oldal RC-hatókört/telepítést ír le, a 15. fejezet
+A csomagban levő magyar és angol PDF-kézikönyvek az 1.2.1-rc1 tesztjelöltet
+írják le, 15-15 oldallal. Az első két oldal RC-hatókört/telepítést ír le, a 15. fejezet
 a Premium motort, migrációt, 32 mintás latencyt és nyitott kapukat rögzíti.
 A képek változatlanul jelölt 1.0.3 képernyőképek. Végleges publikálás előtt
 a tényleges elfogadott buildhez még egyszer jóvá kell hagyni a kézikönyveket.
