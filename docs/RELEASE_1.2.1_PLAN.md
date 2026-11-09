@@ -1,8 +1,13 @@
 # SAWSTAR 1.2.1 maintenance release — preparation plan
 
-Status: `1.2.1-rc1` candidate preparation in progress, 8 November 2026. The
+Status: `1.2.1-rc1` package review updated, 9 November 2026. The
 latest public release is 1.2.0 (`v1.2.0`). This document records repository
 work and gates; it does not create a release tag or authorize publication.
+
+Exact `afa2a65` main CI and downloaded-package evidence are recorded in
+[the November 9 verification](RC1_PACKAGE_VERIFICATION_2026_11_09.md).
+A broken historical link was found in all three packages and corrected in source;
+the corrected build still needs CI, package re-verification and exact-host testing.
 
 ## Verified scope
 

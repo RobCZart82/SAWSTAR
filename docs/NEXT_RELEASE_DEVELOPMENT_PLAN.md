@@ -1,5 +1,16 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
+## 1.2.1-rc1 csomagellenőrzés — 2026-11-09
+
+A #146 utáni `afa2a65` jelölt mind az öt főági workflow-ja és 12 jobja sikeres.
+A három letöltött csomag 86 manifest-fájlja, ZIP-/telepítőhash-e és architektúrája
+ellenőrzött. Egy minden csomagot érintő hibás történeti dokumentációs link
+javítása elkészült; a javítás utáni csomagokat újra kell ellenőrizni.
+[Bizonyítékok, pontos csomagok és hátralévő lépések](RC1_PACKAGE_VERIFICATION_2026_11_09.md).
+A következő felhasználói kapu a javított pontos RC Windows/macOS tesztje
+**(sajátgépes reaper)**, majd külön publikálási döntés.
+
+
 ## Aktuális cél: 1.2.1-rc1 jelöltbuild — 2026-11-08
 
 Az 1.2.0 2026-11-07-én megjelent, a kalibrált Premium hangúttal és 30 factory
@@ -90,7 +101,7 @@ A lentebb dátumozott korábbi állapotok történetiek.
 
 Történeti terv dátuma: **2026-10-17**, állapotfrissítés: **2026-11-08**. Tulajdonos és zenei elfogadó: Robert.
 Az aktuális nyilvános verzió 1.2.0; a következő karbantartási cél 1.2.1, de
-candidate/build-dátum még nincs beállítva. A végrehajtási terv nem jelent
+az `rc1` jelöltmetaadat már beállított, a publikálás dátuma továbbra is üres. A végrehajtási terv nem jelent
 release-, tag- vagy publikálási engedélyt.
 
 [Dokumentációs index és karbantartási rend](DEVELOPMENT_DOCUMENTATION_INDEX.md).

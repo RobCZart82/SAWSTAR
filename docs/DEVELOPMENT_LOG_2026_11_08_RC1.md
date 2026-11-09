@@ -1,5 +1,9 @@
 # SAWSTAR 1.2.1-rc1 candidate preparation — 2026-11-08
 
+Follow-up, 9 November: #146 is merged; exact `afa2a65` main CI is successful.
+[Downloaded-package verification, the link defect and remaining host gates](RC1_PACKAGE_VERIFICATION_2026_11_09.md).
+The local preparation details below are the dated November 8 record.
+
 Status: local candidate preparation is implemented and locally verified on branch `prepare/1.2.1-rc1`, based
 on main `378bc7ebbab49c04a693a450d19f1226a0ba8a22`. The public release remains
 1.2.0. Candidate metadata is explicitly `1.2.1-rc1` with no release date; no
