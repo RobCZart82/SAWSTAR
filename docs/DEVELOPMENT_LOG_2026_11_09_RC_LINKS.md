@@ -64,6 +64,47 @@ unaccepted and unpublished.
   metadata consistency and `git diff --check` pass. Exact-head PR CI and rebuilt
   artifacts remain required.
 
+## Windows test encoding correction
+
+The first run of head `972a1c8` found a platform-specific issue in the new
+documentation regression itself: Windows Python used cp1252 as the default
+`Path.read_text()` encoding and could not decode the UTF-8 Hungarian supplement.
+The Windows RC job stopped in the package test before configuring or building
+the plugin; no Windows RC package was created. The macOS RC integration job on
+the same head succeeded. The test now explicitly decodes UTF-8, matching the
+repository's Markdown encoding. The local package suite passes 8/8 with the
+explicit UTF-8 read. Commit `e16274f` contains this portability fix and the
+preserved CPU evidence. It was held locally until every `972a1c8` job finished,
+so none was canceled.
+
+Head `972a1c8` closed with 8 of 14 jobs passing. Five Windows jobs failed on
+the same decoding exception: the Windows foundation Debug, Release, x64 VST3
+and ARM64 VST3 jobs, plus the Windows Premium RC integration job. The remaining
+failure was the macOS Release CPU comparison described below. macOS Debug,
+Universal VST3, macOS RC, all three Linux quality jobs, and workflow validation
+passed. These were one test portability defect and one preserved CPU-measurement
+negative, not a general build failure.
+
+## Preserved macOS CPU measurement on head 972a1c8
+
+The macOS Release check failed only the `full_fx`, one-voice CPU comparison.
+The preserved manifest reports baseline median 1.8377%, current median
+2.9358%, and an allowed maximum of 2.8377% (the larger of the absolute and
+relative limits). All 18 raw CSV records and their manifest hashes are saved
+under [`ci-148-972a1c8-macos-cpu`](measurements/ci-148-972a1c8-macos-cpu).
+
+For context, the successful main run 42619218535 used the same runner image,
+Python version, workload SHA, baseline binary SHA and current binary SHA. Its
+`full_fx`, one-voice medians were baseline 1.2871% and current 1.4886%, within
+the existing gate; its 18 raw records and manifest are preserved under
+[`ci-148-75fe83f-main-macos-cpu`](measurements/ci-148-75fe83f-main-macos-cpu).
+The PR run's failure is therefore preserved as a real measured negative, but
+the PR contains no DSP source changes and the two runs used identical binaries.
+The difference is consistent with run-to-run measurement/runner variation;
+that is an inference, not a proven root cause. We are not repeating the CPU
+measurement to seek a more favorable value, and this packaging/documentation
+fix does not claim to resolve it.
+
 K1 remains unresolved. This link packaging issue does not change DSP, presets,
 parameter IDs, state, release metadata or any K1 evidence. No release, tag or
 publication was made.

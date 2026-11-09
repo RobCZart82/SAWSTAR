@@ -11,7 +11,7 @@ rc=importlib.util.module_from_spec(spec);spec.loader.exec_module(rc)
 class CacheTests(unittest.TestCase):
     def test_rc_supplement_matches_current_candidate_and_factory_count(self):
         meta=json.loads((ROOT/'release.json').read_text())
-        supplement=(ROOT/'docs/PREMIUM_PRODUCTION_RC.md').read_text()
+        supplement=(ROOT/'docs/PREMIUM_PRODUCTION_RC.md').read_text(encoding='utf-8')
         self.assertIn(f"{meta['version']} {meta['candidate']}-premium-integration",supplement)
         self.assertIn('30 preset × 2 ráta × 3 hangszám = 180 alaphelyzetben',supplement)
         self.assertIn('összesen 252 esetet architektúránként',supplement)

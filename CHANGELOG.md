@@ -29,7 +29,8 @@ local scope and validation: [release-preparation log](docs/DEVELOPMENT_LOG_2026_
   acceptance wording; stage and validate the archive before exposing its
   final artifact filenames. Correct the same supplement's stale 1.2.0 About
   label and 24-preset/144-case description to match the 1.2.1 candidate's
-  30-preset/252-case bank.
+  30-preset/252-case bank; make the UTF-8 documentation regression portable
+  on Windows.
 - Update the current-version manuals and K1 handoff references while preserving
   historical screenshots, evidence and already-published 1.2.0 assets.
 - Add an opt-in offline K1 filter/FIR state probe with named bit-pattern snapshots,
