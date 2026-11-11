@@ -1,6 +1,28 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-11-08
+# Elfogadott fejlesztési sorrend — állapot: 2026-11-11
 
-## Aktuális cél: 1.2.1-rc1 jelöltbuild — 2026-11-08
+## 1.2.1-rc1 jelölt — CI és felhasználói géppróba teljesítve
+
+A pontos `406e76dbe0f763e9fe3d5cfaa1150748f5939d52` main mind a négy szükséges
+workflow-ja és 11 jobja zöld. Robert visszajelzése szerint az SAWSTAR 1.2.1
+Windows és macOS alatt működött; meghallgatást, betöltést és mentést is
+ellenőrzött. A géppróba eredményét és a három csomag hashét a
+[részletes elfogadási napló](DEVELOPMENT_LOG_2026_11_11_1.2.1_HOST_ACCEPTANCE.md)
+rögzíti. Nincs megadva Windows-architektúra, operációs rendszer/host-verzió
+vagy teljes CPU/dropout mátrix, ezért ezeket nem jelöljük elfogadottnak.
+
+Az aktuális csomag továbbra is kiadatlan `1.2.1-rc1`. Következő döntési kapu:
+Robert külön hagyja jóvá a stabil 1.2.1 kiadást a dokumentált, nyitott K1
+numerikus eltéréssel együtt, vagy kéri annak további vizsgálatát/javítását.
+K1-t nem tekintjük megoldottnak. Kifejezett kiadási jóváhagyás előtt stabil
+verziójelölés, tag és publikálás nem történik.
+
+# Korábbi fejlesztési állapotok
+
+Az alábbi dátumozott bejegyzések az akkori munkafázisok történeti naplói.
+
+## 2026-11-08 állapot
+
+## Korábbi RC1-előkészítési állapot — 2026-11-08
 
 Az 1.2.0 2026-11-07-én megjelent, a kalibrált Premium hangúttal és 30 factory
 presettel. A #144 diagnosztika beolvadt `c82e26d` mainre; mind a négy főági

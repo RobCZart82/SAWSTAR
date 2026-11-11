@@ -3,7 +3,7 @@
 This is a test-candidate document, not a final release notice. The public
 release remains SAWSTAR 1.2.0 until a separately approved 1.2.1 publication.
 The 1.2.1-rc1 packages must be identified by their exact source commit and
-artifact hashes. Do not use them for important projects before host testing.
+artifact hashes. This candidate is not a stable release.
 
 ## Maintenance changes under evaluation
 
@@ -32,10 +32,16 @@ later passing controls and the separate Chorus ring-boundary fix do not identify
 or correct K1. The logs do not establish an audible defect. Keep all preserved
 negatives and non-reproductions distinct; do not describe K1 as fixed.
 
-## Candidate acceptance remains open
+## Candidate host testing and publication status
 
-The creator has approved listening to the six exported snapshots for the new
-factory presets. That does not accept this exact 1.2.1 candidate. The candidate
-still requires its exact Windows and macOS packages to be tested in the intended
-hosts, and a separate explicit publication decision. CI, offline tests and
-snapshot listening are not substitutes for those steps.
+Robert reports that he tested SAWSTAR 1.2.1 on both macOS and Windows,
+including listening, loading and saving, and found it working correctly. The
+reported host test is user feedback; no OS/app versions, Windows architecture,
+detailed CPU/dropout measurements or test matrix were supplied. Do not infer
+those results from this statement.
+
+This file and the packages still identify an unpublished `1.2.1-rc1` candidate.
+A separate explicit decision is required before changing to stable metadata or
+publishing. K1 remains unresolved; successful host testing does not establish
+that the offline K1 numerical mismatch is fixed. Keep the known issue disclosed
+in any final release notes.
