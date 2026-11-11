@@ -1,17 +1,24 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
-## 1.2.1-rc1 csomagellenőrzés — 2026-11-09
+## 1.2.1-rc1 jelölt — CI és felhasználói géppróba sikeres — 2026-11-11
 
-A #146 utáni `afa2a65` jelölt mind az öt főági workflow-ja és 12 jobja sikeres.
-A három letöltött csomag 86 manifest-fájlja, ZIP-/telepítőhash-e és architektúrája
-ellenőrzött. Egy minden csomagot érintő hibás történeti dokumentációs link
-javítása elkészült; a javítás utáni csomagokat újra kell ellenőrizni.
-[Bizonyítékok, pontos csomagok és hátralévő lépések](RC1_PACKAGE_VERIFICATION_2026_11_09.md).
-A következő felhasználói kapu a javított pontos RC Windows/macOS tesztje
-**(sajátgépes reaper)**, majd külön publikálási döntés.
+A `406e76dbe0f763e9fe3d5cfaa1150748f5939d52` pontos main mind a négy szükséges
+workflow-ja és 11 jobja sikeres. Az első próbálkozás GitHub belső szerverhibái
+miatt jobok nélkül piros lett; a második próbálkozás minden jobja zöld. Robert
+visszajelzése szerint az 1.2.1 Windows és macOS alatt jól működött, és
+meghallgatást, betöltést, mentést is végzett. Részletek, artifactlinkek és
+hashok: [gépi elfogadási napló](DEVELOPMENT_LOG_2026_11_11_1.2.1_HOST_ACCEPTANCE.md).
+
+Az `1.2.1-rc1` továbbra is kiadatlan jelölt. Stabil kiadás előtt még szükséges
+Robert külön, kifejezett 1.2.1 publikálási döntése, valamint annak tisztázása,
+hogy a dokumentált K1 numerikus eltérés nyitott ismert hibaként maradhat-e a
+kiadásban. K1 nincs javítottnak minősítve. Windows ARM64 natív minősítés,
+részletes CPU/dropout lefedettség és minimum OS-verziók ellenőrzése nincs ezzel
+a visszajelzéssel igazolva. Stabil metadata, végleges release assets/tag vagy
+publikálás ebben a lépésben nem történt.
 
 
-## Aktuális cél: 1.2.1-rc1 jelöltbuild — 2026-11-08
+## Történeti állapot: 1.2.1-rc1 jelöltbuild — 2026-11-08
 
 Az 1.2.0 2026-11-07-én megjelent, a kalibrált Premium hangúttal és 30 factory
 presettel. A #144 diagnosztika beolvadt `c82e26d` mainre; mind a négy főági

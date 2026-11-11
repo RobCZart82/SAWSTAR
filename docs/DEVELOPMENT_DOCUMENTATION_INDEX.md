@@ -1,20 +1,33 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
-## 1.2.1-rc1 csomagellenőrzés — 2026-11-09
+## 1.2.1-rc1 — CI és Windows/macOS géppróba sikeres — 2026-11-11
+
+A `406e76dbe0f763e9fe3d5cfaa1150748f5939d52` pontos main mind a négy szükséges
+workflow-ja és 11 jobja zöld lett. Robert visszajelzése szerint az 1.2.1
+Windows és macOS alatt működik; hangzáspróbát, betöltést és mentést végzett.
+Az adatokat, korlátokat és három csomag hashét a
+[részletes elfogadási napló](DEVELOPMENT_LOG_2026_11_11_1.2.1_HOST_ACCEPTANCE.md)
+rögzíti. A jelölt továbbra `1.2.1-rc1`, még nincs publikálva. K1 nyitva marad;
+stabil kiadáshoz Robert külön döntést adhat arról, hogy a K1 megfelelően
+dokumentált, ismert hibaként kiadható-e.
+
+## Történeti állapot: 1.2.1-rc1 csomagellenőrzés — 2026-11-09
 
 A #146 utáni `afa2a65` jelölt mind az öt főági workflow-ja és 12 jobja sikeres
-volt; a #147 javítás után a `75fe83f` main öt workflow-ja szintén sikeres.
+volt; a #147 javítás után a `75fe83f` main öt workflow-ja szintén sikeres. Az
+akkori nyitott hosttesztet az újabb 2026-11-11-i visszajelzés azóta lezárta.
 A javított mainből indított RC mindkét platformon lefordult és csomagolódott,
 de az utólagos Markdown-linkvizsgálat két, nem csomagolt fájlra mutató
 hivatkozást talált a Premium RC kiegészítőben. A forrás- és csomagolóteszt
-javítása folyamatban; egyik ZIP sem alkalmas tesztelésre.
+javítása ekkor folyamatban volt; ezek a korábbi ZIP-ek nem voltak alkalmasak
+tesztelésre.
 [Eredeti csomagevidencia](RC1_PACKAGE_VERIFICATION_2026_11_09.md),
 [linkhiba és javítási napló](DEVELOPMENT_LOG_2026_11_09_RC_LINKS.md).
-A következő felhasználói kapu a javított pontos RC Windows/macOS tesztje
-**(sajátgépes reaper)**, majd külön publikálási döntés.
+Az akkori következő felhasználói kapu a javított pontos RC Windows/macOS
+tesztje **(sajátgépes reaper)** volt; ezt a 2026-11-11-i visszajelzés lezárta.
 
 
-## Aktuális cél: 1.2.1-rc1 jelöltbuild — 2026-11-08
+## Történeti állapot: 1.2.1-rc1 jelöltbuild — 2026-11-08
 
 Az 1.2.0 2026-11-07-én megjelent, a kalibrált Premium hangúttal és 30 factory
 presettel. A #144 diagnosztika beolvadt `c82e26d` mainre; mind a négy főági

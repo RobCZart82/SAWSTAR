@@ -1,17 +1,26 @@
 # SAWSTAR 1.2.1 maintenance release — preparation plan
 
-Status: `1.2.1-rc1` package-link verification follow-up in progress, 9 November 2026. The
-latest public release is 1.2.0 (`v1.2.0`). This document records repository
-work and gates; it does not create a release tag or authorize publication.
+Status: `1.2.1-rc1` CI and reported macOS/Windows host testing complete; final
+publication decision pending, 11 November 2026. The latest public release is
+1.2.0 (`v1.2.0`). This
+document records repository work and gates; it does not create a release tag or
+authorize publication.
 
-Exact `afa2a65` main CI and downloaded-package evidence are recorded in
-[the November 9 verification](RC1_PACKAGE_VERIFICATION_2026_11_09.md).
-A broken historical link was corrected in all three packages. Rebuilding from
-that source exposed two additional relative links in the packaged Premium RC
-supplement that pointed to files omitted from release packages. The current
-fix points those references to the online repository and makes RC packaging
-reject any packaged Markdown link that does not resolve in the ZIP. The
-corrected source still needs CI, package re-verification and exact-host testing.
+The exact `406e76dbe0f763e9fe3d5cfaa1150748f5939d52` main commit passed all four
+required workflows and all 11 jobs on the successful attempt. The first
+attempt had four workflow-level GitHub internal-server errors and produced no
+jobs; the successful second attempt is the accepted CI evidence. The three
+RC packages and their hashes are recorded in the
+[11 November host-acceptance record](DEVELOPMENT_LOG_2026_11_11_1.2.1_HOST_ACCEPTANCE.md).
+Robert reports that he tested SAWSTAR 1.2.1 on macOS and Windows, including
+listening, loading and saving, and found it working correctly. No OS version,
+host application version, Windows architecture or detailed CPU/dropout matrix
+was supplied, so this report is not evidence for those unspecified cases.
+
+The candidate remains unpublished `1.2.1-rc1`. Stable metadata, final release
+notes/assets and publication require a separate explicit 1.2.1 release
+decision. The K1 numerical test issue remains unresolved and must remain
+accurately disclosed; successful host testing does not establish a K1 fix.
 
 ## Verified scope
 
@@ -63,9 +72,11 @@ distinction in any 1.2.1 release notes.
   extracted release payload and links resolve in the delivered folder layout.
 - The bilingual manuals and release notes match the candidate version and
   disclose K1 accurately. Package hashes and release assets match CI output.
-- Robert tests the exact 1.2.1 candidate in the intended Windows and macOS
-  hosts and separately approves publication. Historical 1.2.0 approval does
-  not carry forward automatically.
+- Robert's macOS and Windows test of SAWSTAR 1.2.1, including listening,
+  loading and saving, is recorded above as user feedback. The exact OS/host
+  versions and Windows architecture were not supplied. A separate explicit
+  publication decision is still required; 1.2.0 approval does not carry
+  forward automatically.
 
 Do not claim K1 fixed unless a specific root-cause correction is independently
 reproduced and validated. Do not present a passing retest as proof that the
