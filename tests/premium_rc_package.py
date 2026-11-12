@@ -10,12 +10,33 @@ spec=importlib.util.spec_from_file_location('rc',ROOT/'scripts/package-premium-r
 rc=importlib.util.module_from_spec(spec);spec.loader.exec_module(rc)
 class CacheTests(unittest.TestCase):
     def test_rc_supplement_matches_current_candidate_and_factory_count(self):
-        meta=json.loads((ROOT/'release.json').read_text())
+        meta=json.loads((ROOT/'release.json').read_text(encoding='utf-8'))
         supplement=(ROOT/'docs/PREMIUM_PRODUCTION_RC.md').read_text(encoding='utf-8')
-        self.assertIn(f"{meta['version']} {meta['candidate']}-premium-integration",supplement)
+        if meta['candidate'].startswith('rc'):
+            self.assertIn(f"{meta['version']} {meta['candidate']}-premium-integration",supplement)
+        else:
+            # Stable/dev metadata does not rename the preserved historical RC.
+            self.assertIn('## Historical RC record',supplement)
+            self.assertIn('1.2.1 rc1-premium-integration',supplement)
         self.assertIn('30 preset × 2 ráta × 3 hangszám = 180 alaphelyzetben',supplement)
         self.assertIn('összesen 252 esetet architektúránként',supplement)
         self.assertNotIn('1.2.0 rc1-premium-integration',supplement)
+    def test_rc_packager_rejects_stable_and_dev_before_running_validator(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            for candidate,date in [('', '2026.11.12.'), ('dev','')]:
+                with self.subTest(candidate=candidate):
+                    (root/'release.json').write_text(json.dumps(dict(
+                        version='1.2.1',candidate=candidate,release_date=date)),encoding='utf-8')
+                    with patch.object(rc,'ROOT',root), \
+                         patch.object(rc,'integration_cache'), \
+                         patch.object(rc,'checkout_provenance') as provenance, \
+                         patch.object(rc.subprocess,'run') as validate, \
+                         patch('sys.argv',['package-premium-rc.py',str(root),'unused.zip']):
+                        with self.assertRaisesRegex(ValueError,'RC packaging requires candidate metadata'):
+                            rc.main()
+                        provenance.assert_not_called()
+                        validate.assert_not_called()
     def test_wrong_engine_or_identity_is_rejected(self):
         base={'SAWSTAR_PREMIUM_PRODUCTION':'ON','SAWSTAR_BUILD_PLUGIN':'ON',
               'SAWSTAR_PREMIUM_PREVIEW':'OFF','SAWSTAR_PREMIUM_NATIVE_CANDIDATE':'OFF',

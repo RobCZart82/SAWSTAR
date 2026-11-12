@@ -43,7 +43,7 @@ retains its original tested-commit and platform limits.
 - [x] K1 and normal-parameter automation limitations disclosed in both languages.
 - [x] Regenerated both 15-page PDF manuals; rendered all 30 pages and checked character bounds.
 - [x] Metadata synchronization, all 28 release-guard tests and all seven build-display cases passed; the five focused CTest checks passed.
-- [ ] Open a reviewable preparation PR and verify its exact head checks.
+- [ ] Verify the corrected head of [preparation PR #150](https://github.com/RobCZart82/SAWSTAR/pull/150).
 - [ ] Inspect the new Windows x64/ARM64 and macOS Universal package inventories,
       hashes, version labels, document links and known-issue text.
 - [ ] After integration, verify all required push workflows on the exact main
@@ -69,3 +69,18 @@ The five focused CTest checks cover Premium production state, identity/latency,
 preview package contracts, release guards and build display metadata. They reuse
 the existing offline build; full platform/plugin validation of the new head
 remains a separate CI gate. No new DAW host acceptance is claimed.
+
+## First preparation-head CI diagnostic
+
+The first PR head `35ad30f2d49f09ad74067b9463e96f4441191420` exposed an RC-only
+documentation assertion in `premium_rc_packaging_contract`: with an empty
+candidate it expected the invalid label `1.2.1 -premium-integration` in the
+preserved RC supplement. The [Windows Release job](https://github.com/RobCZart82/SAWSTAR/actions/runs/43190849704)
+finished 172/173 tests successfully and failed this assertion. This is a real
+failed preparation run, not accepted CI evidence.
+
+The correction retains current-RC checks when RC metadata is selected, marks
+the preserved RC supplement as historical for stable/dev metadata and adds
+negative coverage proving that the RC packager still refuses stable/dev builds
+before provenance inspection or validator execution. No packaging or release
+safety gate is disabled. Fresh checks on the corrected head are required.
