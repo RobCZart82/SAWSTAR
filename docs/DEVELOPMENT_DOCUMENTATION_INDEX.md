@@ -1,5 +1,16 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
+## Stabil 1.2.1 előkészítése — 2026-11-12
+
+Robert engedélyezte a kiadási előkészületet. Stabil buildmetaadatok és
+kétnyelvű kézikönyvek készülnek, a K1 és a blokk-alapú automatizálás
+korlátjának megtartott ismertetésével. Az ellenőrzött `a263254` alap négy
+kötelező workflow-ja és 11 jobja sikeres; a helyi Premium Release kör 181/181.
+A végleges módosított commit ellenőrzése és a publikálás külön lépés.
+Aktuális állapot: [kiadási ellenőrzőlista](RELEASE_1.2.1_CHECKLIST.md).
+A nyilvános kiadás továbbra 1.2.0; a korábbi naplók alább változatlanok.
+
+
 ## 1.2.1-rc1 — CI és Windows/macOS géppróba sikeres — 2026-11-11
 
 A `406e76dbe0f763e9fe3d5cfaa1150748f5939d52` pontos main mind a négy szükséges

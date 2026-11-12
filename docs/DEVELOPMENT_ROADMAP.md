@@ -1,4 +1,15 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-11-11
+# Elfogadott fejlesztési sorrend — állapot: 2026-11-12
+
+## Stabil 1.2.1 előkészítése — 2026-11-12
+
+Robert engedélyezte a kiadási előkészületet. Stabil buildmetaadatok és
+kétnyelvű kézikönyvek készülnek, a K1 és a blokk-alapú automatizálás
+korlátjának megtartott ismertetésével. Az ellenőrzött `a263254` alap négy
+kötelező workflow-ja és 11 jobja sikeres; a helyi Premium Release kör 181/181.
+A végleges módosított commit ellenőrzése és a publikálás külön lépés.
+Aktuális állapot: [kiadási ellenőrzőlista](RELEASE_1.2.1_CHECKLIST.md).
+A nyilvános kiadás továbbra 1.2.0; a korábbi naplók alább változatlanok.
+
 
 ## 1.2.1-rc1 jelölt — CI és felhasználói géppróba teljesítve
 

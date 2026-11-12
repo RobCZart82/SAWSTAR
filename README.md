@@ -36,7 +36,7 @@ and license notices. The installers are unsigned; read the installation guide
 before proceeding through platform security prompts.
 
 See the [1.2.0 release notes](docs/RELEASE_NOTES_1.2.0.md) for the current public packages.
-The next maintenance target is [1.2.1](docs/RELEASE_1.2.1_PLAN.md); it is not yet published.
+The [1.2.1 stable build is being prepared](docs/RELEASE_1.2.1_CHECKLIST.md); it is not yet published.
 
 ## Features
 
@@ -80,8 +80,9 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Repository review, 2026-10-09](docs/REPOSITORY_REVIEW_2026_10_09.md)
 - [Repository review and release readiness, 2026-10-02](docs/REPOSITORY_REVIEW_2026_10_02.md)
 
-The source English and Hungarian guides on this branch describe the unpublished
-1.2.1-rc1 candidate and include version-labelled 1.0.3 screenshots. The assets
+The English and Hungarian guides on this branch describe the prepared 1.2.1
+stable build and include version-labelled 1.0.3 screenshots. A metadata date
+does not establish publication. The assets
 already published for 1.2.0 are unchanged.
 
 ## Building from source

@@ -1,10 +1,16 @@
 # Changelog
 
-## 1.2.1-rc1 — test candidate, not published
+## 1.2.1 — stable build preparation, not published
 
-The public stable release remains 1.2.0. Exact-candidate host testing and a
-separate publication decision are still required; see the [candidate notes](docs/RELEASE_NOTES_1.2.1.md)
-and [1.2.1 plan](docs/RELEASE_1.2.1_PLAN.md).
+The public stable release remains 1.2.0. The stable metadata edition is
+2026-11-12; this is not a publication announcement. See the
+[release notes](docs/RELEASE_NOTES_1.2.1.md) and
+[final validation checklist](docs/RELEASE_1.2.1_CHECKLIST.md).
+
+- Prepare stable metadata and bilingual manuals, retain documented 1.2.1 RC
+  host feedback and disclose block-based parameter automation alongside K1.
+- Correct the manual index and duplicate chapter-15 contents entry.
+- No DSP, preset, parameter-ID, state-format or GUI layout change.
 
 - Prepare the corrected Windows/macOS documentation layout and synchronized
   VST3 metadata for exact-candidate CI validation.
@@ -13,7 +19,7 @@ and [1.2.1 plan](docs/RELEASE_1.2.1_PLAN.md).
   snapshots from exact-candidate acceptance.
 - Preserve the unresolved K1 evidence and do not claim a numerical fix.
 
-## Unreleased — 1.2.1 follow-up
+## 1.2.1 preparation history
 
 Preparation order and publication gates: [1.2.1 plan](docs/RELEASE_1.2.1_PLAN.md);
 local scope and validation: [release-preparation log](docs/DEVELOPMENT_LOG_2026_11_08_RELEASE.md).
