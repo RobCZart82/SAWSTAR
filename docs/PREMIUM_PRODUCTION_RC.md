@@ -1,4 +1,12 @@
-# SAWSTAR Premium production — 1.2.1 maintenance candidate
+# SAWSTAR Premium production — historical 1.2.1 RC
+
+## Historical RC record
+
+Ez a dokumentum az `1.2.1-rc1` integrációs jelölt történeti kiegészítése.
+Az alábbi RC-verziófeliratok és elfogadási kapuk az akkori állapotot őrzik;
+nem a most előkészített stabil build állapotát írják le. A stabil metaadat
+nem nevezi át a korábbi RC-t, és a külön RC-csomagoló stabil verzión nem fut.
+Aktuális állapot: [1.2.1 kiadási ellenőrzőlista](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RELEASE_1.2.1_CHECKLIST.md).
 
 ## 1.2.0 kiadási döntés — 2026-11-07
 

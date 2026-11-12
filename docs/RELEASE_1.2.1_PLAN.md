@@ -1,7 +1,9 @@
 # SAWSTAR 1.2.1 maintenance release — preparation plan
 
-Status: `1.2.1-rc1` CI and reported macOS/Windows host testing complete; final
-publication decision pending, 11 November 2026. The latest public release is
+Status: stable 1.2.1 build preparation authorized on 12 November 2026;
+publication is a separate pending decision. The final metadata, manuals and
+exact-commit validation are tracked in the [release checklist](RELEASE_1.2.1_CHECKLIST.md).
+The historical RC records below are retained. The latest public release is
 1.2.0 (`v1.2.0`). This
 document records repository work and gates; it does not create a release tag or
 authorize publication.
@@ -17,9 +19,10 @@ listening, loading and saving, and found it working correctly. No OS version,
 host application version, Windows architecture or detailed CPU/dropout matrix
 was supplied, so this report is not evidence for those unspecified cases.
 
-The candidate remains unpublished `1.2.1-rc1`. Stable metadata, final release
-notes/assets and publication require a separate explicit 1.2.1 release
-decision. The K1 numerical test issue remains unresolved and must remain
+The tested RC remains historical `1.2.1-rc1` evidence. The authorized stable
+build preparation may update metadata and documents, but does not publish
+a tag or release. Final assets require fresh exact-commit validation and
+publication requires a separate explicit decision. The K1 numerical test issue remains unresolved and must remain
 accurately disclosed; successful host testing does not establish a K1 fix.
 
 ## Verified scope
