@@ -9,7 +9,7 @@ kiadási végrehajtás elsődleges dokumentuma; ez annak hibajavítási munkacso
 
 ## 1. Hatókör és bizonyítékszintek
 
-A 2026-10-20-i kódvizsgálatot és Robert két megosztott statikus jelentésének
+A 2026-10-20-i kódvizsgálatot és RobCZart82 két megosztott statikus jelentésének
 hasznos megállapításait egyesítjük. A két külső jelentés lényegében ugyanazokat
 a dokumentációs/kiadási állításokat tartalmazta; nem két független reprodukció.
 Az alábbi táblázat külön kezeli a reprodukált jelenséget, az ismert CI-hibát,

@@ -25,7 +25,7 @@ alábbi eredménye felhasználói visszajelzés.
 
 ## Felhasználói hostpróba
 
-Robert 2026-11-11-én jelezte, hogy az SAWSTAR 1.2.1 Windows és macOS alatt is
+RobCZart82 2026-11-11-én jelezte, hogy az SAWSTAR 1.2.1 Windows és macOS alatt is
 jól működik; elvégezte a hangzáspróbát, a betöltést és a mentést is, és nem
 talált hibát. Ez a jelölt általános működésére vonatkozó pozitív felhasználói
 visszajelzés. Nem adott meg operációs rendszer- vagy REAPER-verziót, Windows
@@ -36,7 +36,7 @@ belőle Windows ARM64 natív hostelfogadás.
 ## Nyitva maradó kiadási kapuk
 
 - `1.2.1-rc1` marad a verzió; a stabil metadata, tag és publikálás nem történt
-  meg. Ehhez Robert külön, kifejezett 1.2.1 kiadási/publikálási döntése kell.
+  meg. Ehhez RobCZart82 külön, kifejezett 1.2.1 kiadási/publikálási döntése kell.
 - K1 numerikus eltérése továbbra is ismert, megőrzött és megoldatlan. A
   sikeres hostpróba és a korábbi kontrollok nem bizonyítják a K1 gyökérokát
   vagy javítását; a végleges kiadási megjegyzésekben pontosan fel kell tüntetni.

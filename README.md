@@ -17,7 +17,7 @@ the vector creator signature. [Release notes](docs/RELEASE_NOTES_1.2.0.md).
 
 ![SAWSTAR PRESETS](docs/reference/screenshot-presets.png)
 
-*Real SAWSTAR 1.0.3 screenshots captured in REAPER, supplied by Gyuricza Róbert
+*Real SAWSTAR 1.0.3 screenshots captured in REAPER, supplied by RobCZart82
 (build `8040390`). The displayed preset count includes user-library entries alongside factory presets. The current development bank contains 30 factory presets (24 original and six new performance sounds).*
 
 ## Download
@@ -94,7 +94,7 @@ Historical implementation notes are indexed by the [development history](docs/DE
 
 ## About
 
-![SAWSTAR About](docs/reference/screenshot-about.png)
+The About window identifies the creator with the vector signature and GYR mark.
 
 *Actual SAWSTAR 1.0.3 About window, capture build `8040390`.*
 

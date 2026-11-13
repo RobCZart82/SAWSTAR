@@ -1,7 +1,7 @@
 # Third-party notices
 
 SAWSTAR original source code is MIT licensed. External work retains its own terms.
-The archived GYR creator logo is supplied by Gyuricza Róbert for SAWSTAR branding;
+The archived GYR creator logo is supplied by RobCZart82 for SAWSTAR branding;
 it is excluded from the MIT source-code license. No separate logo reuse license
 is granted.
 

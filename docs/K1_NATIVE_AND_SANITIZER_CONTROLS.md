@@ -24,7 +24,7 @@ kapcsolat továbbra nyitott. A meglévő numerikus küszöbök változatlanok.
 A [GitHub hivatalos runner-listája](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
 Intel architektúrájú `macos-15-intel` standard futtatót is biztosít.
 A [külön Intel-workflow](../.github/workflows/k1-native-intel.yml) ezt használja.
-Nem szükséges hozzá Robert saját Intel Macje.
+Nem szükséges hozzá RobCZart82 saját Intel Macje.
 
 A meglévő [archívumellenőrző runner](../scripts/replay-k1-original.py)
 új `--execution-mode native-intel` módot kap. Az alapértelmezett

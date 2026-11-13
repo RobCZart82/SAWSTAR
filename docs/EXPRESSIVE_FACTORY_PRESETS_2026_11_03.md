@@ -1,6 +1,6 @@
 # Hat új performance factory preset — 2026-11-03
 
-Robert kérésére a 24 meglévő hang mellé hat új preset kerül. Az eredeti
+RobCZart82 kérésére a 24 meglévő hang mellé hat új preset kerül. Az eredeti
 kulcsok, indexek és paraméterértékek megmaradnak; a bank vége bővül 30-ra.
 A hangok Classicban is elérhetők, hangszíntervezési céljuk a Premium RC.
 A presetbővítés nem változtat paraméter-ID-t, presetformátumot vagy kiadási kaput.
@@ -36,7 +36,7 @@ meglévő forrásai dolgoznak. A címek és a browser lesson szövegek is segít
   A maximális controller-értéket külön az 1-es eset vizsgálja.
 - Távoli CI: külön, pontos PR-headhez kötött kapu; a korábbi #134 csomagok
   a régi, 24-es bank bizonyítékai, nem tartalmazzák ezeket az új hangokat.
-- Natív/zenei elfogadás: Robert a külön exportált hat új hangot meghallgatta
+- Natív/zenei elfogadás: RobCZart82 a külön exportált hat új hangot meghallgatta
   és jóváhagyta („meghallgattam jól szólnak”). Ez a hat snapshot zenei elfogadása,
   nem a későbbi VST3 csomag teljes natív elfogadása. A korábbi Windows/macOS alapműködési visszajelzés a korábbi RC-re
   vonatkozik. Ez a bővítés nem zárja le a CPU/dropout-, lifecycle- vagy K1-kaput.

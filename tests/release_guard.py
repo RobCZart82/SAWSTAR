@@ -584,5 +584,23 @@ with patch('subprocess.check_output', side_effect=gh), \
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertTrue(wrote)
 
+class PublicAuthorIdentity(unittest.TestCase):
+    def test_documentation_and_packaging_use_public_creator_identity(self):
+        private_surname = 'Gyuri' + 'cza'
+        given_names = ('Ro' + 'bert', 'Ró' + 'bert')
+        paths = [ROOT / 'LICENSE', ROOT / 'README.md', ROOT / 'THIRD_PARTY_NOTICES.md',
+                 ROOT / 'scripts/build-manuals.py', ROOT / 'packaging/windows/SAWSTAR.iss']
+        paths += list((ROOT / 'docs').rglob('*.md'))
+        paths += list((ROOT / 'assets/branding').glob('*.txt'))
+        for path in paths:
+            text = path.read_text(encoding='utf-8')
+            with self.subTest(path=str(path.relative_to(ROOT))):
+                self.assertNotIn(private_surname.casefold(), text.casefold())
+                for name in given_names:
+                    self.assertIsNone(re.search(r'\b' + name + r'\b', text))
+        metadata = json.loads((ROOT / 'release.json').read_text(encoding='utf-8'))
+        self.assertEqual(metadata['copyright'], 'Copyright (c) 2026 RobCZart82')
+        self.assertIn('AppPublisher=RobCZart82', (ROOT / 'packaging/windows/SAWSTAR.iss').read_text(encoding='utf-8'))
+
 if __name__ == '__main__':
     unittest.main()

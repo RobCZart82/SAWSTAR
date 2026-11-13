@@ -2,7 +2,7 @@
 
 ## Windows/macOS működési visszajelzés — 2026-11-05
 
-Robert a legutóbb linkelt main buildet Windows és macOS alatt is
+RobCZart82 a legutóbb linkelt main buildet Windows és macOS alatt is
 hibamentesnek jelezte. [Visszajelzés, csomagkapcsolat és hatókör](NATIVE_HOST_FEEDBACK_2026_11_05.md).
 Mindkét platform alapműködésére van pozitív felhasználói tapasztalat.
 A részletes CPU-/dropout-/GUI/state/preset adatok és a külön Premium RC
@@ -22,7 +22,7 @@ mérési eredmény vagy az offline CPU-küszöb átírása.
 
 ## macOS alappróba — visszajelzés 2026-10-27
 
-Robert mindkét telepített Reference/Candidate plugin működését és hangját
+RobCZart82 mindkét telepített Reference/Candidate plugin működését és hangját
 hibamentesnek jelezte. [Pontos hatókör, forrás és telepített hashok](NATIVE_HOST_SMOKE_2026_10_27.md).
 Ez sikeres felhasználói alappróba; a 28 eset / 112 ablak CPU-/dropout-mérése,
 a külön GUI/state/preset-próbák és a Windows-elfogadás még nyitottak.

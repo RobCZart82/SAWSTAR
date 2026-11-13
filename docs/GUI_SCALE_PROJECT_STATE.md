@@ -17,7 +17,7 @@ a projekt újranyitásakor. Ez használhatósági/state-kezelési feladat;
 4. Felhasználói megfigyelés: mindkét GUI 100%-os mérettel nyílik meg,
    a mentés előtti 75% helyett.
 
-Bejelentés: Robert, 2026-10-15, macOS / REAPER.
+Bejelentés: RobCZart82, 2026-10-15, macOS / REAPER.
 A mellékelt képernyőkép időpontja: 11:45:55.
 A külön Premium Preview vizsgált forrása:
 `f63e5ab89a237eb4a0fcad439483ebdaf1ab39c9`.

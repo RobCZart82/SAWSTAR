@@ -2,7 +2,7 @@
 #pragma once
 #include "gui/Controls/Theme.h"
 namespace sawstar::gui {
-// Compact vector rendition of Gyuricza Róbert's supplied GYR monogram.
+// Compact vector rendition of RobCZart82's supplied GYR monogram.
 // Native paths avoid bitmap scaling artifacts and external image dependencies.
 inline void DrawDeveloperMark(IGraphics& g,const IRECT& r){
  const float scale=std::min(r.W()/280.f,r.H()/430.f);

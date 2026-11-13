@@ -60,7 +60,7 @@ four required CI workflows and their 11 jobs. Its local Premium Release suite
 passed 181/181 tests. These results do not validate a later modified commit;
 the final preparation head needs its own CI, packages and integrity checks.
 
-On 11 November Robert reported successful macOS/Windows listening, loading
+On 11 November RobCZart82 reported successful macOS/Windows listening, loading
 and saving with the 1.2.1 RC. No OS/app versions, Windows architecture or
 detailed CPU/dropout matrix were supplied. This is prior RC feedback, not
 exact-final-build acceptance or native Windows ARM64 host qualification.

@@ -8,7 +8,7 @@ tervezetfájl főági CI-vel való egyezése és hashjegyzéke ellenőrzött. A 
 november 12-i dátumjelölése megmaradt; publikálás nincs, a nyilvános Latest
 kiadás az ellenőrzéskor 1.2.0. [Végleges kiadási ellenőrzőlista](RELEASE_1.2.1_CHECKLIST.md).
 
-Robert engedélyével a következő munka külön ágon a metaadatszinkronizáló
+RobCZart82 engedélyével a következő munka külön ágon a metaadatszinkronizáló
 UTF-8 hordozhatósági javítása. Két nem UTF-8 alapbeállítást modellező próba
 igazolta az olvasási/írási hibát; a javítás után a 30 helyi release-guard
 teszt sikeres. Az új head távoli CI-je külön kapu; a hangmotor és a már
@@ -20,13 +20,13 @@ Az alábbi dátumozott állapotok történeti feljegyzések.
 
 A `406e76dbe0f763e9fe3d5cfaa1150748f5939d52` pontos main mind a négy szükséges
 workflow-ja és 11 jobja sikeres. Az első próbálkozás GitHub belső szerverhibái
-miatt jobok nélkül piros lett; a második próbálkozás minden jobja zöld. Robert
+miatt jobok nélkül piros lett; a második próbálkozás minden jobja zöld. RobCZart82
 visszajelzése szerint az 1.2.1 Windows és macOS alatt jól működött, és
 meghallgatást, betöltést, mentést is végzett. Részletek, artifactlinkek és
 hashok: [gépi elfogadási napló](DEVELOPMENT_LOG_2026_11_11_1.2.1_HOST_ACCEPTANCE.md).
 
 Az `1.2.1-rc1` továbbra is kiadatlan jelölt. Stabil kiadás előtt még szükséges
-Robert külön, kifejezett 1.2.1 publikálási döntése, valamint annak tisztázása,
+RobCZart82 külön, kifejezett 1.2.1 publikálási döntése, valamint annak tisztázása,
 hogy a dokumentált K1 numerikus eltérés nyitott ismert hibaként maradhat-e a
 kiadásban. K1 nincs javítottnak minősítve. Windows ARM64 natív minősítés,
 részletes CPU/dropout lefedettség és minimum OS-verziók ellenőrzése nincs ezzel
@@ -50,7 +50,7 @@ aktuális publikációs állapotot vagy újonnan megadott elfogadást jelentik.
 
 ## 1.2.0 kiadási döntés — 2026-11-07
 
-Robert a 003b007 Premium RC Windows/macOS működését hibamentesnek jelezte és
+RobCZart82 a 003b007 Premium RC Windows/macOS működését hibamentesnek jelezte és
 engedélyezte a publikálást. A végleges kiadás explicit Premium buildet és
 telepítőket kap. [Kiadási döntés és ellenőrzések](RELEASE_1.2.0_CHECKLIST.md),
 [ismert K1 eltérés és használati korlátok](RELEASE_NOTES_1.2.0.md).
@@ -59,7 +59,7 @@ Az alábbi korábbi RC-bejegyzések dátumozott történeti állapotok.
 
 ## Történeti kiadási cél: 1.2.0 rc1 — 2026-11-05
 
-Robert az 1.2.0 publikálását jelölte ki célként és engedélyezte az előkészítő
+RobCZart82 az 1.2.0 publikálását jelölte ki célként és engedélyezte az előkészítő
 fejlesztés folytatását. [Kiadási sorrend, bizonyítékok és nyitott kapuk](RELEASE_1.2.0_CHECKLIST.md).
 Az akkori végrehajtási alap; az alábbi dátumozott feljegyzések
 történetiek. A hat új exportált preset zenei jóváhagyása megtörtént; a teljes
@@ -76,7 +76,7 @@ frissül. A teljes natív CI és a kiadási kapuk külön ellenőrzendők.
 
 ## Windows/macOS működési visszajelzés — 2026-11-05
 
-Robert a legutóbb linkelt main buildet Windows és macOS alatt is
+RobCZart82 a legutóbb linkelt main buildet Windows és macOS alatt is
 hibamentesnek jelezte. [Visszajelzés, csomagkapcsolat és hatókör](NATIVE_HOST_FEEDBACK_2026_11_05.md).
 Mindkét platform alapműködésére van pozitív felhasználói tapasztalat.
 A részletes CPU-/dropout-/GUI/state/preset adatok és a külön Premium RC
@@ -86,7 +86,7 @@ célzott ellenőrzései **(sajátgépes reaper)**; külön publikálási jóváh
 
 ## Új kérés: performance factory bank — 2026-11-03
 
-Robert kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
+RobCZart82 kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
 30-ra, a korábbi hangok megőrzésével. [Hanglista, játék és ellenőrzési kapuk](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
 A hat exportált új hang zenei elfogadása megtörtént; a teljes RC natív elfogadása külön kapu.
 
@@ -110,7 +110,7 @@ workflow-ja sikeres (macOS 41570979286, Windows 41570979317,
 Code quality 41570979245, workflow-validálás 41570979369).
 A két korábbi negatív CPU-futás megmarad, a későbbi zöld nem gyökérok-bizonyítás.
 
-Robert kérésére az M4/M6/M8 előkészítése előrekerült az M2/M3 lezárása elé.
+RobCZart82 kérésére az M4/M6/M8 előkészítése előrekerült az M2/M3 lezárása elé.
 [Premium production RC: működés, migráció és kapuk](PREMIUM_PRODUCTION_RC.md).
 Az 1.1.0 rc1 explicit SAWSTAR-identitású integráció implementált; a kalibrált
 lookup referencia motor, eredeti paraméter-ID-k és state-formátum, 32 mintás
@@ -122,7 +122,7 @@ M2/M3/M5 és pontos RC host/zenei elfogadási feltételek teljesítése.
 A lentebb dátumozott korábbi állapotok történetiek.
 
 
-Történeti terv dátuma: **2026-10-17**, állapotfrissítés: **2026-11-08**. Tulajdonos és zenei elfogadó: Robert.
+Történeti terv dátuma: **2026-10-17**, állapotfrissítés: **2026-11-08**. Tulajdonos és zenei elfogadó: RobCZart82.
 Az aktuális nyilvános verzió 1.2.0; a következő karbantartási cél 1.2.1, de
 az `rc1` jelöltmetaadat már beállított, a publikálás dátuma továbbra is üres. A végrehajtási terv nem jelent
 release-, tag- vagy publikálási engedélyt.
@@ -154,7 +154,7 @@ Az új head teljes CI-je külön kapu; ez nem K1-javítás vagy natív host-elfo
 
 ## macOS alappróba — visszajelzés 2026-10-27
 
-Robert mindkét telepített Reference/Candidate plugin működését és hangját
+RobCZart82 mindkét telepített Reference/Candidate plugin működését és hangját
 hibamentesnek jelezte. [Pontos hatókör, forrás és telepített hashok](NATIVE_HOST_SMOKE_2026_10_27.md).
 Ez sikeres felhasználói alappróba; a 28 eset / 112 ablak CPU-/dropout-mérése,
 a külön GUI/state/preset-próbák és a Windows-elfogadás még nyitottak.
@@ -168,7 +168,7 @@ A [macOS natív méréselőkészítő](NATIVE_HOST_KIT.md) külön fejlesztési 
 azonos forrású Reference/Candidate csomagellenőrzés és a meglévő 28 eset /
 112 ablak üres adatlapjának előállítása. Nem DSP-módosítás vagy új K1-próba.
 A pontos új PR/head CI-je, a friss páros artifactok, célgépes telepítési smoke,
-majd Robert tényleges REAPER-mérése és elfogadása továbbra külön kapu.
+majd RobCZart82 tényleges REAPER-mérése és elfogadása továbbra külön kapu.
 A Windows x64 preflight #129-ként beolvadt (`fa03b3cf`), a csomagolóval közös
 SDK factory-/eredetellenőrzővel. Ennek a mainnek mind az öt workflow-ja sikeres.
 A [négy valódi #128-csomag auditja](NATIVE_PACKAGE_PREFLIGHT_2026_10_21.md)
@@ -201,7 +201,7 @@ Az alábbi korábbi implementációs eredmények ettől nem válnak natív elfog
 
 - A #102–#111 fejlesztési sorozat beolvadt, a javító #106-tal együtt.
   A #111 merge-je `f1b559fa6a74f0931bfe748e432c93644cfcce06`.
-  Előtte mind a 15 releváns workflow és 50 job sikeres volt. Robert kizárólag
+  Előtte mind a 15 releváns workflow és 50 job sikeres volt. RobCZart82 kizárólag
   ehhez a PR-hez engedélyezte a korábbi piros main feltételének egyszeri feloldását.
   A merge utáni main CI-t külön kell ellenőrizni; ez nem általános kivétel.
 - A #112 a lezárt célgépes bizonyíték ráta-/pufferösszesítőjével és e tervvel
@@ -213,7 +213,7 @@ Az alábbi korábbi implementációs eredmények ettől nem válnak natív elfog
 - Production: **Classic filter**. Premium: külön, alapból kikapcsolt Preview.
   A Saw-dispatch csak az explicit, külön Candidate identitásban választható;
   a meglévő Premium Preview a natív pár változatlan referenciája.
-- A hangerőkorrekció Robert által elfogadva: a Premium átlagos RMS-szintje
+- A hangerőkorrekció RobCZart82 által elfogadva: a Premium átlagos RMS-szintje
   0,44 dB-lel alacsonyabb maradhat. Ez lezárt döntés; nem indítunk újabb globális
   hangerőemelést vagy automatikus hangerő-kiegyenlítést.
 - M1 és Windows: azonos forrású, platformonként 32 grides offline gyűjtés,
@@ -231,14 +231,14 @@ Az alábbi korábbi implementációs eredmények ettől nem válnak natív elfog
 | M0 | Stabil fejlesztési alap | #114 utáni main és minden új PR pontos headjének ellenőrzése; szükséges CI-hibajavítás. | Minden releváns PR-workflow és job sikeres, a main négy fő workflow-ja is sikeres; szabályos soros merge. |
 | M0 audit-munkacsomag | B1 és súlyos reprodukált hibák | B1 eredeti-forrást elutasító regresszió és célzott javítás; R1 vizsgálatából származó súlyos hiba előresorolása. | Bizonyíték, pontos forrás/CI és az érintett numerikus/natív kontrollok; részletes feltételek a hibajavítási tervben. |
 | M1 | Natív tesztelhető jelölt | Pontosan azonosított, külön Reference/Candidate tesztbuild a Premium lookup és Saw-dispatch úthoz; azonos filter, gain, paraméterek és buildpolicy. Numerikus regressziók, validator, telepítési próba. | Két egyértelmű buildazonosság és binárishash, azonos tesztprojekt; a jelölt nincs ettől productionné minősítve. |
-| M2 | Natív CPU-/dropout-elfogadás | Az alábbi REAPER-terv végrehajtása M1 és Windows célgépen, minden eredménnyel és külön tartalékvizsgálattal. | Konfigurációnként kitöltött jegyzőkönyv; hibák rendezve; Robert név szerint elfogadja a megjelölt buildet és tartományt. |
+| M2 | Natív CPU-/dropout-elfogadás | Az alábbi REAPER-terv végrehajtása M1 és Windows célgépen, minden eredménnyel és külön tartalékvizsgálattal. | Konfigurációnként kitöltött jegyzőkönyv; hibák rendezve; RobCZart82 név szerint elfogadja a megjelölt buildet és tartományt. |
 | M3 | Filterminőség és végleges ráta-/pufferpolicy | LP12/LP24/HP12/BP12, rezonancia, Drive, cutoff, módváltás, magas hangok, nagy ráta; zenei és műszaki ellenőrzés. | Dokumentált minőség/költség döntés és támogatási tartomány; hibás és nem vizsgált tartományok is feltüntetve. |
 | M4 | Premium production-integráció | Elfogadott motor beépítése a Classic helyére, a meglévő GUI/paraméter-ID-k megőrzésével; bypass, latency, state, automatizálás és régi projektek kezelése. | Tesztek/validator és natív integrációs próba sikeres; a hallható filtercsere és kompatibilitási viselkedés leírva. |
 | M5 | GUI, preset és életciklus lezárása | 75/100/125% mentés/újranyitás; több példány; editor reopen; preset/import/mentés lejátszás közben; unload, eszköz- és rátaváltás, tail/idle. | M1/Windows natív jegyzőkönyv, ismételhető megmagyarázatlan hiba nélkül. |
 | M6 | Factory hangszínek véglegesítése | Minden factory preset ellenőrzése a végleges motoron; megfelelő headroom, hangszínkoherencia, mentés/visszatöltés. | Presetenkénti lista, rögzített tesztterhelés és peak/RMS; clipping nélkül, a 0,44 dB-es elfogadott korrekció megtartásával. |
 | M7 | Végleges RC | Verzió/RC kijelölése, tiszta forrásból Windows/macOS csomag, hashok, validator; telepítés és natív végellenőrzés az RC pontos binárisaival. | RC-forrás és csomagazonosság, végső host/CPU/state teszt és összes kiadási CI sikeres. |
 | M8 | Kiadás előkészítése | Kézikönyv, README, install, release notes, ismert korlátok, támogatott rendszerek/architektúrák és mérési állítások frissítése. | Nincs elavult készültségi állítás; letöltési/telepítési útvonal és végső csomagok ellenőrzöttek. |
-| M9 | Publikálás | Robert a konkrét RC-t és kiadási tartalmat jóváhagyja; ezután tag/release és a jóváhagyott csomagok publikálása. | Publikus letöltés, csomaghashok és telepítési smoke-teszt visszaellenőrizve. |
+| M9 | Publikálás | RobCZart82 a konkrét RC-t és kiadási tartalmat jóváhagyja; ezután tag/release és a jóváhagyott csomagok publikálása. | Publikus letöltés, csomaghashok és telepítési smoke-teszt visszaellenőrizve. |
 
 A kritikus bug és a piros funkcionális CI megelőzi a következő lépést.
 A natív próbára adott engedély nem jelenti automatikusan a motor production-promócióját.
@@ -287,7 +287,7 @@ Némítás önmagában nem elég. Párhuzamos példányok csak külön tartalék
 
 - **P0 — filter/motor kontroll:** azonos saw-alap, azonos két oszcillátor,
   unison, detune, sub/noise, borítékok és kimenet; chorus/delay/reverb kikapcsolva.
-- **P1 — zenei/FX terhelés:** Robert korábbi összevetésének mentett hangszíne
+- **P1 — zenei/FX terhelés:** RobCZart82 korábbi összevetésének mentett hangszíne
   vagy egy előre kijelölt factory pad/saw preset, rögzített FX-beállításokkal.
 
 A MIDI 1/8/16 ténylegesen megszólaló hangot adjon. A 16 hangos műszaki tesztnek
@@ -368,7 +368,7 @@ CPU-kijelző és a hallható dropout három eltérő bizonyíték.
 
 | Eredmény | Döntés |
 | --- | --- |
-| A kijelölt mátrix teljes, azonos build/környezet; nincs megmagyarázatlan pluginhoz köthető xrun, hallható hiba, instabilitás vagy clipping; dokumentált tartalék és Robert zenei elfogadása megvan. | Az adott gép/build/tartomány elfogadható. A másik platform külön döntés. |
+| A kijelölt mátrix teljes, azonos build/környezet; nincs megmagyarázatlan pluginhoz köthető xrun, hallható hiba, instabilitás vagy clipping; dokumentált tartalék és RobCZart82 zenei elfogadása megvan. | Az adott gép/build/tartomány elfogadható. A másik platform külön döntés. |
 | Minden hangpróba jó, de hiányzik eset, számláló/tartalék-bizonyíték vagy pontos buildazonosság. | Nyitott / részleges; nem „PASS”. Az N/A nem bizonyít nulla hibát. |
 | Ismételhető dropout, hanghiba, crash vagy működést megzavaró CPU-csúcs. | Az érintett tartomány blokkolt. Hibajegy, reprodukció, célzott javítás és annak újraellenőrzése szükséges. |
 | Csak a kisebb puffer vagy magas ráta hibás. | A sikeres tartomány külön elfogadható; a hibás tartományhoz javítás vagy őszinte támogatási döntés kell. |
@@ -383,7 +383,7 @@ Ha csak FX CPU% áll rendelkezésre, ebből nem állítunk RT-tartalékot: a tar
 vizsgálatának módját a futás előtt kell rögzíteni, vagy ez a kapu nyitott marad.
 A kétpéldányos stresszpróba kiegészítő, nem a hiányzó RT-adat számszerű pótlása.
 
-Az elfogadási sorban szerepeljen: **Robert; dátum; build és binárishash;
+Az elfogadási sorban szerepeljen: **RobCZart82; dátum; build és binárishash;
 gép/audioeszköz/driver; ráta/puffer; terhelés/preset; PASS / nyitott / blokkolt;
 indok; ismert korlátok; bizonyíték**. A határt nem igazítjuk utólag a kedvező
 méréshez. Hiba esetén a hiba okát vagy az elfogadott scope-ot tisztázzuk.
@@ -400,14 +400,14 @@ a nem vizsgált architektúrát ne nevezzük natívan elfogadottnak.
 A végső forrás/head összes releváns workflow-ja és jobja sikeres legyen,
 a csomagok tiszta forrást, rögzített függőségeket és ellenőrzött hashokat használjanak.
 A kézikönyv/release notes nevezze meg a Classic→Premium hangzásváltozást,
-a kompatibilitást és a támogatási korlátokat. Robert a konkrét RC és release
+a kompatibilitást és a támogatási korlátokat. RobCZart82 a konkrét RC és release
 áttekintése után ad külön publikálási engedélyt.
 
 ## 8. Felelősség és munkaritmus
 
 - Fejlesztői munka: implementáció, tesztbuild, projekt/tesztadat előkészítése,
   automatizált numerikus/CI/validator ellenőrzés, nyers bizonyíték kiértékelése.
-- Robert: a valódi célgépes lejátszás/hallgatás, környezetadatok, mérők és hibák
+- RobCZart82: a valódi célgépes lejátszás/hallgatás, környezetadatok, mérők és hibák
   rögzítése, zenei és megjelölt natív tartomány elfogadása.
 - Natív adatot kizárólag tényleges géphozzáféréssel és megfigyeléssel rögzítünk.
   Felhős/Linux futásból nem állítunk M1- vagy Windows REAPER-sikert.

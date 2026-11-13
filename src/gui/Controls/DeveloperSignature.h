@@ -3,7 +3,7 @@
 #include "gui/Controls/Theme.h"
 
 namespace sawstar::gui {
-// Bézier contours from Robert's light signature SVG (viewBox 132 190 1328 611).
+// Bézier contours from RobCZart82's light signature SVG (viewBox 132 190 1328 611).
 // Explicit contour winding preserves the SVG's even-odd holes in NanoVG.
 inline void DrawDeveloperSignature(IGraphics& g, const IRECT& r) {
   const float scale = std::min(r.W() / 1328.f, r.H() / 611.f);

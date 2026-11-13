@@ -69,7 +69,7 @@ candidate or release.
 
 - The exact PR head must pass all applicable CI jobs, especially Windows
   installer install/uninstall/document-path smoke and macOS package layout.
-- No 1.2.1 candidate was built, installed or tested in REAPER. Robert must
+- No 1.2.1 candidate was built, installed or tested in REAPER. RobCZart82 must
   review and accept an exact candidate and separately authorize any later
   publication.
 - K1 remains unresolved; the corrections in this PR do not claim to identify
