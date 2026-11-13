@@ -28,3 +28,12 @@ The creator selected a new 1.2.2 correction release instead of replacement of
 published 1.2.1 assets. Stable 1.2.2 metadata, version-specific release notes and
 publication checklist are prepared. This authorization includes publication of
 the verified 1.2.2 draft after exact-head/main CI and package integrity gates.
+
+Initial remote head b30ef76: nine workflows succeeded. macOS foundation run
+43499312696 failed only because Universal job 132140610387 was not acquired
+by a hosted runner despite repeated scheduling attempts. The job has no runner,
+no steps and no log; its annotation explicitly reports hosted capacity failure
+and macOS arm64 queue constraints. Debug and Release jobs succeeded. This is
+infrastructure evidence, not a measured DSP/CPU failure. All runs completed
+before uploading the authorized 1.2.2 metadata/manual follow-up. New-head CI
+and final package validation are still required.
