@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — tooling follow-up
+
+- Read/write release metadata, generated config and product plists explicitly
+  as UTF-8, including non-UTF-8 process defaults. Add separate Unicode input
+  and output regressions while preserving read-only check mode and identities.
+- Keep the verified 1.2.1 draft frozen at b2e7998; this follow-up changes no
+  DSP, preset values, state format, GUI layout or existing release assets.
+
+
 ## 1.2.1 — stable build preparation, not published
 
 The public stable release remains 1.2.0. The stable metadata edition is

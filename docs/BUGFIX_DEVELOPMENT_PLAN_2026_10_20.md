@@ -39,6 +39,7 @@ a lezárt célgépes kampányokat és a negatív eredményeket nem írjuk át.
 | Q1 | Dokumentált lefedettségi hiány; következő RC-re kötelező | Pontos végleges RC-hez esetenkénti natív jegyzőkönyv és architektúránkénti státusz | M5, M7–M9 |
 | T1 | Opcionális buildellenőrzés, nyitott döntés | CMake minimumverzió külön CI-lefedettségének mérlegelése | M0/build karbantartás |
 | D3 | Folyamatos dokumentációs feladat | Aktuális index/roadmap/release terv egyeztetése; konkrét elavult mondatok javítása | M0–M9 |
+| U1 | P2, olvasási/írási hiba reprodukált; UTF-8 javítás helyileg 30/30 teszttel ellenőrzött, új CI/merge külön | Metaadatkezelés függetlenítése a folyamat alapértelmezett karakterkódolásától; [bizonyíték és hatókör](DEVELOPMENT_LOG_2026_11_13_UTF8_METADATA.md) | M0/build tooling |
 
 P2: javítandó mérnöki probléma vagy vizsgálandó használhatósági kockázat.
 P3: kis hatású/szélső eset. A K1 blokkoló minősítése a Candidate numerikus

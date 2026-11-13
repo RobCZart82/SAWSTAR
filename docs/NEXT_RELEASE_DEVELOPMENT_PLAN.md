@@ -1,5 +1,21 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
+## Következő fejlesztési lépés — UTF-8 metaadatkezelés — 2026-11-13
+
+A `b2e7998` főágra beolvadt #150 négy kötelező workflow-ja és 11 jobja zöld;
+a privát 1.2.1 tervezetet készítő ötödik workflow és job is sikeres. A nyolc
+tervezetfájl főági CI-vel való egyezése és hashjegyzéke ellenőrzött. A build
+november 12-i dátumjelölése megmaradt; publikálás nincs, a nyilvános Latest
+kiadás az ellenőrzéskor 1.2.0. [Végleges kiadási ellenőrzőlista](RELEASE_1.2.1_CHECKLIST.md).
+
+Robert engedélyével a következő munka külön ágon a metaadatszinkronizáló
+UTF-8 hordozhatósági javítása. Két nem UTF-8 alapbeállítást modellező próba
+igazolta az olvasási/írási hibát; a javítás után a 30 helyi release-guard
+teszt sikeres. Az új head távoli CI-je külön kapu; a hangmotor és a már
+ellenőrzött 1.2.1 fájljai változatlanok. [Reprodukció, javítás és következő lépések](DEVELOPMENT_LOG_2026_11_13_UTF8_METADATA.md).
+Az alábbi dátumozott állapotok történeti feljegyzések.
+
+
 ## 1.2.1-rc1 jelölt — CI és felhasználói géppróba sikeres — 2026-11-11
 
 A `406e76dbe0f763e9fe3d5cfaa1150748f5939d52` pontos main mind a négy szükséges
