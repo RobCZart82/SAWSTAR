@@ -43,11 +43,11 @@ retains its original tested-commit and platform limits.
 - [x] K1 and normal-parameter automation limitations disclosed in both languages.
 - [x] Regenerated both 15-page PDF manuals; rendered all 30 pages and checked character bounds.
 - [x] Metadata synchronization, all 28 release-guard tests and all seven build-display cases passed; the five focused CTest checks passed.
-- [ ] Verify the corrected head of [preparation PR #150](https://github.com/RobCZart82/SAWSTAR/pull/150).
-- [ ] Inspect the new Windows x64/ARM64 and macOS Universal package inventories,
+- [x] Verified the corrected head of [preparation PR #150](https://github.com/RobCZart82/SAWSTAR/pull/150).
+- [x] Inspected the new Windows x64/ARM64 and macOS Universal package inventories,
       hashes, version labels, document links and known-issue text.
-- [ ] After integration, verify all required push workflows on the exact main
-      commit and prepare the verified private release draft from those packages.
+- [x] After integration, verified all required push workflows on the exact main
+      commit and the private release draft produced from those packages.
 - [ ] Record final host spot checks where available; do not infer unspecified
       OS/DAW/CPU/dropout/native ARM64 acceptance from earlier feedback.
 - [ ] Obtain explicit final publication approval; publish only the verified draft.
@@ -84,3 +84,30 @@ the preserved RC supplement as historical for stable/dev metadata and adds
 negative coverage proving that the RC packager still refuses stable/dev builds
 before provenance inspection or validator execution. No packaging or release
 safety gate is disabled. Fresh checks on the corrected head are required.
+
+
+## Final main and private draft verification — 13 November 2026
+
+PR #150 merged on 12 November at
+`b2e799802192f9bbdab90f55f2c2c52857d8fbd1`. All exact-main push runs passed:
+[Windows](https://github.com/RobCZart82/SAWSTAR/actions/runs/43241970798),
+[macOS](https://github.com/RobCZart82/SAWSTAR/actions/runs/43241970125),
+[Code quality](https://github.com/RobCZart82/SAWSTAR/actions/runs/43241970438),
+[Workflow lint](https://github.com/RobCZart82/SAWSTAR/actions/runs/43241970616)
+(11 jobs), and the
+[verified draft preparer](https://github.com/RobCZart82/SAWSTAR/actions/runs/43241970817)
+(one job). PR evidence is retained above; these fresh push results qualify the
+actual final main commit.
+
+The private `v1.2.1` draft (release ID 443139129) targets that exact SHA. All
+seven package files match their main CI artifact bytes; SHA256SUMS.txt covers
+all seven, making eight assets total. Internal manifests, CRC/file hashes,
+relative Markdown links, both PDF bytes and release-note content were checked.
+Windows PE x64/ARM64 and macOS Universal x86_64/arm64 architecture checks passed.
+The prepared metadata date remains `2026.11.12.`. There is no public 1.2.1
+release or tag at this verification; Latest remains v1.2.0. No new host
+acceptance is inferred. Publication remains a separate explicit decision.
+
+Further development, starting with the UTF-8 tooling follow-up, must preserve
+this verified build and draft. New-branch CI and later fixes are distinct from
+acceptance or publication of these frozen 1.2.1 assets.

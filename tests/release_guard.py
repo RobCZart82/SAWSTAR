@@ -143,18 +143,93 @@ class InstallerPackageLayout(unittest.TestCase):
         self.assertIn('https://github.com/RobCZart82/SAWSTAR/blob/main/docs/reference/README.md', packaged)
 
 class MetadataSynchronization(unittest.TestCase):
+    # Model a non-UTF-8 process default without changing the host locale or
+    # relying on an installed platform-specific locale in CI.
+    ASCII_DEFAULT_RUNNER = r'''
+import pathlib,runpy,sys
+from unittest.mock import patch
+read_text=pathlib.Path.read_text
+write_text=pathlib.Path.write_text
+def read(path,encoding=None,errors=None):
+    return read_text(path,encoding=encoding or 'ascii',errors=errors)
+def write(path,data,encoding=None,errors=None):
+    return write_text(path,data,encoding=encoding or 'ascii',errors=errors)
+sys.argv=sys.argv[1:]
+with patch.object(pathlib.Path,'read_text',read), patch.object(pathlib.Path,'write_text',write):
+    runpy.run_path(sys.argv[0],run_name='__main__')
+'''
+
+    def copy_metadata_fixture(self, root):
+        import shutil
+        files=['scripts/sync-release-metadata.py','release.json','src/plugin/config.h']
+        files += [f'src/plugin/resources/{product}-VST3-Info.plist'
+                  for product in ('SAWSTAR','SAWSTARPremiumPreview','SAWSTARPremiumCandidate')]
+        for name in files:
+            target=root/name;target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(ROOT/name,target)
+        return [root/name for name in files]
+
+    def run_with_ascii_default(self, root, *args):
+        return subprocess.run([sys.executable,'-c',self.ASCII_DEFAULT_RUNNER,
+                               str(root/'scripts/sync-release-metadata.py'),*args],
+                              capture_output=True,text=True)
+
+    def test_utf8_check_is_locale_independent_and_read_only(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);files=self.copy_metadata_fixture(root)
+            before={p:p.read_bytes() for p in files}
+            result=self.run_with_ascii_default(root,'--check')
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertEqual({p:p.read_bytes() for p in files},before)
+
+    def test_utf8_repair_from_ascii_inputs_preserves_unicode_and_identities(self):
+        import plistlib
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);files=self.copy_metadata_fixture(root)
+            metadata=json.loads((root/'release.json').read_text(encoding='utf-8'))
+            metadata['copyright'] += ' / \u0150rs\u00e9g / \u6771\u4eac & <QA>'
+            # ASCII-only inputs isolate output encoding from input decoding.
+            (root/'release.json').write_text(json.dumps(metadata,ensure_ascii=True),encoding='ascii')
+            config=root/'src/plugin/config.h'
+            text=re.sub(r'(?m)^#define PLUG_COPYRIGHT_STR .*$',
+                        '#define PLUG_COPYRIGHT_STR "stale"',config.read_text(encoding='utf-8'))
+            config.write_text(text,encoding='ascii')
+            identities={}
+            for p in files:
+                if p.suffix!='.plist':continue
+                data=plistlib.loads(p.read_bytes());identities[p]=data['CFBundleIdentifier']
+                data['NSHumanReadableCopyright']=data['CFBundleGetInfoString']='stale'
+                p.write_bytes(plistlib.dumps(data))
+            self.assertTrue(all(p.read_bytes().isascii() for p in files))
+            before={p:p.read_bytes() for p in files}
+            stale=self.run_with_ascii_default(root,'--check')
+            self.assertEqual(stale.returncode,1,stale.stderr)
+            self.assertEqual({p:p.read_bytes() for p in files},before)
+            result=self.run_with_ascii_default(root)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertIn(json.dumps(metadata['copyright'],ensure_ascii=False),config.read_text(encoding='utf-8'))
+            for p,identity in identities.items():
+                data=plistlib.loads(p.read_bytes())
+                self.assertEqual(data['CFBundleIdentifier'],identity)
+                self.assertEqual(data['NSHumanReadableCopyright'],metadata['copyright'])
+                self.assertIn(metadata['copyright'],data['CFBundleGetInfoString'])
+            repaired={p:p.read_bytes() for p in files}
+            checked=self.run_with_ascii_default(root,'--check')
+            self.assertEqual(checked.returncode,0,checked.stderr)
+            self.assertEqual({p:p.read_bytes() for p in files},repaired)
+
     def test_each_product_is_checked_and_repaired_without_changing_identity(self):
         import shutil
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder)
             for name in ('scripts/sync-release-metadata.py','release.json','src/plugin/config.h'):
                 target=root/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/name,target)
-            metadata=json.loads((root/'release.json').read_text())
+            metadata=json.loads((root/'release.json').read_text(encoding='utf-8'))
             version=metadata['version']
             major,minor,patch_version=map(int,version.split('.'))
             version_hex=f'0x{major:04x}{minor:02x}{patch_version:02x}'
             config=root/'src/plugin/config.h'
-            config.write_text(config.read_text().replace(version_hex,'0x00010004').replace('"'+version+'"','"1.0.4"'),encoding='utf-8')
+            config.write_text(config.read_text(encoding='utf-8').replace(version_hex,'0x00010004').replace('"'+version+'"','"1.0.4"'),encoding='utf-8')
             resources=root/'src/plugin/resources';resources.mkdir(parents=True)
             products=('SAWSTAR','SAWSTARPremiumPreview','SAWSTARPremiumCandidate')
             import plistlib
@@ -168,7 +243,7 @@ class MetadataSynchronization(unittest.TestCase):
             self.assertNotEqual(subprocess.run(command+['--check'],capture_output=True).returncode,0)
             subprocess.run(command,check=True,capture_output=True)
             subprocess.run(command+['--check'],check=True,capture_output=True)
-            config_text=config.read_text()
+            config_text=config.read_text(encoding='utf-8')
             self.assertRegex(config_text,r'(?m)^#define PLUG_VERSION_HEX\s+'+re.escape(version_hex)+r'$')
             self.assertRegex(config_text,r'(?m)^#define PLUG_VERSION_STR\s+'+re.escape(json.dumps(version))+r'$')
             for product in products:
