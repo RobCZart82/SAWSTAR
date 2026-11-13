@@ -1,18 +1,15 @@
-# Installing SAWSTAR 1.2.0 / Telepítés
+# Installing SAWSTAR / Telepítés
 
-SAWSTAR 1.2.0 uses the Premium filter and reports 32 samples of latency.
-Classic projects and presets load with the new filter sound. Preserve the old
-plugin and project copies when exact earlier sound recall is needed.
-
-The separately downloadable 1.2.1-rc1 build is an unpublished test candidate,
-not the current public release. Its CI artifact and candidate-specific notes
-must match the exact tested commit; do not substitute the public 1.2.0 package.
+The current public release is 1.2.1; the 1.2.2 identity correction is in
+preparation. This guide applies to the Premium builds. The plugin reports
+32 samples of latency. Classic projects load with the Premium filter sound;
+preserve old plugins and project copies when exact earlier recall is needed.
 
 Download the matching package from [SAWSTAR Releases](https://github.com/RobCZart82/SAWSTAR/releases).
 Recommended: the matching installer. Optional: a manual-install ZIP.
 Back up projects and user presets and close the DAW before updating.
 
-This guide accompanies 1.2.0. Previously published packages remain unchanged;
+This guide accompanies the current Premium packages. Previously published packages remain unchanged;
 use the instructions and checksums supplied with your selected version.
 
 A [SAWSTAR kiadások](https://github.com/RobCZart82/SAWSTAR/releases) oldalán:

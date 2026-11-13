@@ -1,11 +1,11 @@
-# System requirements — SAWSTAR 1.2.0
+# System requirements — SAWSTAR Premium
 
-The current public 1.2.0 release uses the Premium filters and reports 32 samples
+The current public 1.2.1 release uses the Premium filters and reports 32 samples
 of latency. RobCZart82 reported successful use of the 003b007 Premium RC on macOS
 and Windows and approved the 1.2.0 publication on 7 November 2026. This is
 general host-use feedback, not exhaustive CPU/dropout measurement or minimum-OS
 qualification. Native Windows ARM64 host testing and measured minimum-system
-coverage remain open. The separate 1.2.1 candidate has not been accepted.
+coverage remain open. Prior 1.2.1 RC host feedback is not exact-1.2.2 or native ARM64 acceptance.
 
 Development tools and end-user requirements are separate. The following OS
 versions are **build/installer targets, not yet verified minimum support claims**.

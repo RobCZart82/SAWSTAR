@@ -7,9 +7,9 @@ The Sounds of Trance.
 An open-source VST3 synthesizer for approachable leads, pads and plucks, with
 clear signal flow and a preset browser that explains saved sounds.
 
-**SAWSTAR 1.2.0** uses the calibrated Premium LP12/LP24/HP12/BP12 filters,
+**SAWSTAR 1.2.1** uses the calibrated Premium LP12/LP24/HP12/BP12 filters,
 32-sample latency and 30 built-in factory presets. The About window includes
-the vector creator signature. [Release notes](docs/RELEASE_NOTES_1.2.0.md).
+the vector creator signature. [Release notes](docs/RELEASE_NOTES_1.2.1.md).
 
 ![SAWSTAR MAIN](docs/reference/screenshot-main.png)
 
@@ -26,7 +26,7 @@ Download the **latest published SAWSTAR release** from [GitHub Releases](https:/
 The version marked **Latest** there is the public download version.
 
 Download Windows and macOS installers or manual-install archives from
-[the 1.2.0 release](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.2.0).
+[the 1.2.1 release](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.2.1).
 Later development on `main` may differ from the released packages.
 
 **Recommended installers:** Windows x64 / ARM64 Setup EXE, or macOS Universal
@@ -35,8 +35,8 @@ are available for each target. All packages include English/Hungarian PDF guides
 and license notices. The installers are unsigned; read the installation guide
 before proceeding through platform security prompts.
 
-See the [1.2.0 release notes](docs/RELEASE_NOTES_1.2.0.md) for the current public packages.
-The [1.2.1 stable build is being prepared](docs/RELEASE_1.2.1_CHECKLIST.md); it is not yet published.
+See the [1.2.1 release notes](docs/RELEASE_NOTES_1.2.1.md) for the current public packages.
+The [1.2.2 identity correction](docs/RELEASE_1.2.2_CHECKLIST.md) is in preparation; 1.2.1 is the current public release.
 
 ## Features
 
@@ -69,7 +69,7 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [English PDF](docs/manuals/SAWSTAR-User-Manual-EN.pdf)
 - [Magyar PDF](docs/manuals/SAWSTAR-User-Manual-HU.pdf)
 - [Factory library](docs/FACTORY_LIBRARY.md)
-- [Changelog](CHANGELOG.md) and [1.2.0 release notes](docs/RELEASE_NOTES_1.2.0.md)
+- [Changelog](CHANGELOG.md) and [1.2.1 release notes](docs/RELEASE_NOTES_1.2.1.md)
 - [1.0.4 publication record and historical checklist](docs/RELEASE_1.0.4_CHECKLIST.md)
 - [1.2.0 publication record and historical checklist](docs/RELEASE_1.2.0_CHECKLIST.md)
 - [Development documentation index and current status](docs/DEVELOPMENT_DOCUMENTATION_INDEX.md)
@@ -80,10 +80,10 @@ unsigned-package status and avoiding duplicate macOS installations.
 - [Repository review, 2026-10-09](docs/REPOSITORY_REVIEW_2026_10_09.md)
 - [Repository review and release readiness, 2026-10-02](docs/REPOSITORY_REVIEW_2026_10_02.md)
 
-The English and Hungarian guides on this branch describe the prepared 1.2.1
+The English and Hungarian guides on this branch describe the prepared 1.2.2
 stable build and include version-labelled 1.0.3 screenshots. A metadata date
 does not establish publication. The assets
-already published for 1.2.0 are unchanged.
+already published for 1.2.1 are unchanged.
 
 ## Building from source
 
@@ -111,9 +111,6 @@ VST3 tail and preset-validation fixes. Parameter IDs, state compatibility and
 GUI layout remain unchanged. See [1.0.4 changes](docs/RELEASE_NOTES_1.0.4.md)
 and [release validation](docs/RELEASE_1.0.4_CHECKLIST.md).
 
-The current public release is [1.2.0](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.2.0),
-published on November 7, 2026. The [1.2.1 maintenance plan](docs/RELEASE_1.2.1_PLAN.md)
-tracks repository fixes and required validation; it is not a release, download,
-or publication announcement. A build-metadata date is not evidence that a
-release has been published.
-
+The current public release is [1.2.1](https://github.com/RobCZart82/SAWSTAR/releases/tag/v1.2.1),
+published on November 13, 2026. The [1.2.2 identity correction](docs/RELEASE_1.2.2_CHECKLIST.md)
+is in preparation. A build-metadata date is not publication evidence.

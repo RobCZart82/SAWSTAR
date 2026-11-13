@@ -1,8 +1,7 @@
 # SAWSTAR 1.2.1
 
-Stable build prepared with metadata edition 12 November 2026. Publication is
-pending; this document and its metadata date do not announce a release.
-The public download remains 1.2.0 until the separately approved 1.2.1 publication.
+Published on 13 November 2026 from frozen build `b2e799802192f9bbdab90f55f2c2c52857d8fbd1`.
+The archived 1.2.1 packages predate the public creator-identity correction.
 
 ## Maintenance changes
 
@@ -53,19 +52,10 @@ See [Installation](INSTALLATION.md) and [System requirements](SYSTEM_REQUIREMENT
 Legacy Classic state remains readable, but the Premium filter changes its sound;
 format compatibility does not provide identical Classic audio recall.
 
-## Validation and publication status
+## Publication record
 
-The preparation baseline `a26325475534289ae5a5ff77f794a5660ee8c29c` passed all
-four required CI workflows and their 11 jobs. Its local Premium Release suite
-passed 181/181 tests. These results do not validate a later modified commit;
-the final preparation head needs its own CI, packages and integrity checks.
-
-On 11 November RobCZart82 reported successful macOS/Windows listening, loading
-and saving with the 1.2.1 RC. No OS/app versions, Windows architecture or
-detailed CPU/dropout matrix were supplied. This is prior RC feedback, not
-exact-final-build acceptance or native Windows ARM64 host qualification.
-
-This preparation does not publish a tag or release. The public assets for
-1.2.0 remain unchanged. Final exact-commit evidence and the separate publication
-decision are tracked in the
-[release checklist](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RELEASE_1.2.1_CHECKLIST.md).
+The frozen build passed all five exact-main workflows and 12 jobs. All seven
+package files and SHA256SUMS.txt were verified before publication on
+13 November 2026. The later UTF-8 tooling correction was a separate follow-up.
+Prior macOS/Windows RC listening, loading and saving feedback does not establish
+exact-final-build or native Windows ARM64 host acceptance. K1 remains unresolved.

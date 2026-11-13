@@ -36,8 +36,8 @@
 #define PLUG_CLASS_NAME SAWSTAR
 #endif
 #define PLUG_MFR "RobCZart82"
-#define PLUG_VERSION_HEX 0x00010201
-#define PLUG_VERSION_STR "1.2.1"
+#define PLUG_VERSION_HEX 0x00010202
+#define PLUG_VERSION_STR "1.2.2"
 #define PLUG_MFR_ID 'RC82'
 #define PLUG_URL_STR "https://github.com/RobCZart82/SAWSTAR"
 #define PLUG_EMAIL_STR ""

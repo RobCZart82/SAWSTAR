@@ -23,3 +23,8 @@ and PDF author metadata contain only the public creator identity; all 30 pages
 were rendered and inspected and text bounds passed. Release guards: 31/31; RC
 packaging regressions: 9/9; synchronized metadata and diff checks passed.
 Exact-head remote CI remains a separate gate.
+
+The creator selected a new 1.2.2 correction release instead of replacement of
+published 1.2.1 assets. Stable 1.2.2 metadata, version-specific release notes and
+publication checklist are prepared. This authorization includes publication of
+the verified 1.2.2 draft after exact-head/main CI and package integrity gates.

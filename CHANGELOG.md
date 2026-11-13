@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — public creator identity
+## 1.2.2 — creator identity correction (preparation)
 
 - Use RobCZart82 in documentation, PDF author credits, installer publisher and plugin copyright metadata; remove the historical About screenshot with a typeset private identity. Published 1.2.1 packages predate this correction.
 

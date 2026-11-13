@@ -1,5 +1,10 @@
 # Elfogadott fejlesztési sorrend — állapot: 2026-11-13
 
+Current priority: authorized 1.2.2 creator-identity correction; see
+[release checklist](RELEASE_1.2.2_CHECKLIST.md). Public 1.2.1 was published on
+13 November 2026. Earlier preparation entries below are historical.
+
+
 ## Következő fejlesztési lépés — UTF-8 metaadatkezelés — 2026-11-13
 
 A `b2e7998` főágra beolvadt #150 négy kötelező workflow-ja és 11 jobja zöld;
