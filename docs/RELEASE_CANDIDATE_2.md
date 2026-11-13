@@ -14,8 +14,7 @@ Built 2026-09-11. No public release or v1.0.0 tag is created by this record.
 
 ## Delivered changes
 
-The motto moves 5 px toward the wordmark. About centers Developed by / Gyuricza
-Róbert and retains the GYR mark. DSP CPU samples its display every 250 ms with
+The motto moves 5 px toward the wordmark. About centers Developed by / RobCZart82 and retains the GYR mark. DSP CPU samples its display every 250 ms with
 additional smoothing. Scope display frames are held about 90 ms, with gentle
 peak-scale decay; the audio capture remains unchanged and hidden views continue
 to drain incoming frames. No synthesis parameter or preset schema changed.

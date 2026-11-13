@@ -80,6 +80,6 @@ A csomagok nem Developer ID/notarizált production kiadások.
 
 Következő lépés: [telepítési smoke és natív mérés](NATIVE_HOST_KIT.md),
 azonos mentett P0/P1 preset/MIDI/automatizálás és tényleges hostarchitektúra
-rögzítésével. A hibás vagy nem futott esetek megmaradnak, elfogadást Robert
+rögzítésével. A hibás vagy nem futott esetek megmaradnak, elfogadást RobCZart82
 ad a konkrét build/gép/tartomány alapján. K1 oka továbbra ismeretlen;
 a production-integráció, végső RC és publikálás kapui külön maradnak.

@@ -14,7 +14,7 @@
 AppId=SAWSTAR-VST3-{#Arch}
 AppName=SAWSTAR ({#Arch})
 AppVersion={#Version}
-AppPublisher=Gyuricza Róbert
+AppPublisher=RobCZart82
 AppPublisherURL=https://github.com/RobCZart82/SAWSTAR
 DefaultDirName={autopf}\SAWSTAR-{#Arch}
 DefaultGroupName=SAWSTAR ({#Arch})

@@ -7,9 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>SAWSTARPremiumPreview</string>
 	<key>CFBundleGetInfoString</key>
-	<string>SAWSTARPremiumPreview v1.2.1 Copyright (c) 2026 Gyuricza Róbert / RobCZart82</string>
+	<string>SAWSTARPremiumPreview v1.2.2 Copyright (c) 2026 RobCZart82</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright (c) 2026 Gyuricza Róbert / RobCZart82</string>
+	<string>Copyright (c) 2026 RobCZart82</string>
 	<key>CFBundleIdentifier</key>
 	<string>io.github.robczart82.sawstarpremiumpreview</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -19,11 +19,11 @@
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2.1</string>
+	<string>1.2.2</string>
 	<key>CFBundleSignature</key>
 	<string>SwPP</string>
 	<key>CFBundleVersion</key>
-	<string>1.2.1</string>
+	<string>1.2.2</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>LSMinimumSystemVersion</key>

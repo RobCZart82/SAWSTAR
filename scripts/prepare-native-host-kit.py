@@ -269,7 +269,7 @@ def prepare(reference, candidate, output, expected_source, fx_mode, platform='ma
         'Unavailable xrun counters are N/A, never zero. Keep audio/clipping/crash evidence.\n'
         'Keep the accepted 0.44 dB RMS difference; no new gain/limiter to hide issues.\n'
         'Tail/idle, stress, state/GUI, high rates and 32 samples are separate tests.\n'
-        'Robert must explicitly accept the measured build/machine/scope; no automatic PASS.\n'
+        'RobCZart82 must explicitly accept the measured build/machine/scope; no automatic PASS.\n'
         'See docs/NEXT_RELEASE_DEVELOPMENT_PLAN.md sections 4–7 and\n'
         'docs/NATIVE_REAPER_CPU_ACCEPTANCE.md. Final production RC needs separate validation.\n',
         encoding='utf-8')

@@ -16,7 +16,7 @@ tag, public release or exact-candidate user acceptance is implied.
   the current public release remains unchanged.
 - The candidate PDF was regenerated and text-extracted to verify its chapter
   references; the Premium integration RC is chapter 15 in the generated guide.
-- Candidate manuals marked preset listening as still open, despite Robert's
+- Candidate manuals marked preset listening as still open, despite RobCZart82's
   approval of the six exported new-preset snapshots. They now preserve that
   approval while making clear it is not acceptance of this exact 1.2.1 RC.
 - The system-requirements page led with 1.0.4-rc1 host evidence even though the

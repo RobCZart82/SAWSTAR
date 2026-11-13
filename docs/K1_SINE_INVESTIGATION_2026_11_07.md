@@ -63,4 +63,4 @@ A rögzített CI-kör eredménye alapján a trace első eltérő mezőjét vizsg
 Ha a normál kör negatív, az instrumentált pozitív, a megőrzött normál executable
 azonos forrású, célzott további kontrollt tesz lehetővé. Ha minden kör sikeres,
 a jelentés csak nem reprodukált állapotot rögzít, javításra vonatkozó állítás
-nélkül. A publikálás Robert kérésére az oknyomozás eredményére vár.
+nélkül. A publikálás RobCZart82 kérésére az oknyomozás eredményére vár.

@@ -35,7 +35,7 @@ sound recall. The plugin reports 32 samples of latency to the host.
 
 ## Verification and known limitations
 
-Robert reported successful use of the 003b007 Premium RC on macOS and Windows
+RobCZart82 reported successful use of the 003b007 Premium RC on macOS and Windows
 and approved this release on 7 November 2026. The six new exported preset snapshots
 also have his listening approval. The final build promotes that engine and GUI
 source with release metadata and distribution documentation updates.
@@ -49,7 +49,7 @@ source 001847b reported a one-ULP pre-FX right-channel difference for Triangle a
 at that frame was bit-identical. Controls and rounding mode remained unchanged.
 The cause is unknown. Subsequent successful diagnostics do not explain the earlier
 negative. [Recorded evidence](https://github.com/RobCZart82/SAWSTAR/blob/c82e26d72e41053fa0c02096f0d4662fc22ea446/docs/measurements/k1-passive-001847b-negative.json).
-This issue is carried as a known limitation in the release authorized by Robert.
+This issue is carried as a known limitation in the release authorized by RobCZart82.
 
 
 ### Updated K1 evidence summary — 8 November 2026

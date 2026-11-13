@@ -10,7 +10,7 @@ Aktuális állapot: [1.2.1 kiadási ellenőrzőlista](https://github.com/RobCZar
 
 ## 1.2.0 kiadási döntés — 2026-11-07
 
-Az 1.2.0 a legutóbbi nyilvános kiadás. Robert a 003b007 Premium RC-t macOS és
+Az 1.2.0 a legutóbbi nyilvános kiadás. RobCZart82 a 003b007 Premium RC-t macOS és
 Windows alatt hibamentesnek jelezte, és 2026-11-07-én jóváhagyta annak
 publikálását. Az 1.2.1-rc1 kizárólag tesztjelölt; a pontos jelölt natív
 elfogadása és a külön publikálási döntés nyitott. Lásd a [1.2.1 jelölt
@@ -21,7 +21,7 @@ kiadási megjegyzéseit](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RE
 ## Új factory bővítés — 2026-11-03
 
 A fejlesztési bank 30 hangra bővült; az eredeti 24 változatlan. A hat új hang
-exportált snapshotját Robert meghallgatta és jóváhagyta. A [factory bővítés és
+exportált snapshotját RobCZart82 meghallgatta és jóváhagyta. A [factory bővítés és
 252 controller-aware ellenőrzés leírása](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md)
 a repositoryban érhető el. Az alábbi 24/144-es mérés és a #135 PR-ről szóló
 korábbi megjegyzések történeti RC-bizonyítékok, nem a mostani 1.2.1 jelölt
@@ -29,7 +29,7 @@ elfogadása.
 
 
 Állapot: fejlesztési kiadásjelölt, nem publikált végleges kiadás.
-Robert 2026-11-03-án kérte a production-integráció, factory/RC és dokumentáció
+RobCZart82 2026-11-03-án kérte a production-integráció, factory/RC és dokumentáció
 előrehozását. Ez nem pótolja a natív CPU-, filterminőségi és zenei elfogadást.
 
 ## Mit tartalmaz?
@@ -99,7 +99,7 @@ a tényleges elfogadott buildhez még egyszer jóvá kell hagyni a kézikönyvek
 Nyitott: a teljes natív Mac/Windows CPU-/dropout-mátrix, filterminőség és
 ráta/puffer döntés; K1 numerikus anomália rendezése; GUI/preset/lifecycle
 elfogadás; presetenkénti zenei meghallgatás; pontos RC telepítési és hostpróba;
-végleges kézikönyvek, csomagok és Robert publikálási jóváhagyása.
+végleges kézikönyvek, csomagok és RobCZart82 publikálási jóváhagyása.
 A korábbi 32 REAPER-ablak a korábbi külön tesztbinárisokra vonatkozik,
 nem ennek az RC-nek az elfogadása. A teljes CI sikere is külön feltétel.
 

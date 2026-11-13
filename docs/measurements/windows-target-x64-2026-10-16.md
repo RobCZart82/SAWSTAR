@@ -40,4 +40,4 @@ A Saw p50 javulása mindkét platformon megismétlődik. A p99-romlások és tú
 
 [Windows eredetjegyzék és mind a 288 cella](windows-target-x64-2026-10-16.json).
 [Mac eredetjegyzék és mind a 288 cella](mac-target-arm64-2026-10-16.json).
-A nyers Windows ZIP Robert helyi példányában és a feltöltött privát másolatban megőrizve; nem nyilvános release-artifact. A nagy raw CSV-k nem kerülnek Gitbe.
+A nyers Windows ZIP RobCZart82 helyi példányában és a feltöltött privát másolatban megőrizve; nem nyilvános release-artifact. A nagy raw CSV-k nem kerülnek Gitbe.

@@ -8,7 +8,7 @@ tervezetfájl főági CI-vel való egyezése és hashjegyzéke ellenőrzött. A 
 november 12-i dátumjelölése megmaradt; publikálás nincs, a nyilvános Latest
 kiadás az ellenőrzéskor 1.2.0. [Végleges kiadási ellenőrzőlista](RELEASE_1.2.1_CHECKLIST.md).
 
-Robert engedélyével a következő munka külön ágon a metaadatszinkronizáló
+RobCZart82 engedélyével a következő munka külön ágon a metaadatszinkronizáló
 UTF-8 hordozhatósági javítása. Két nem UTF-8 alapbeállítást modellező próba
 igazolta az olvasási/írási hibát; a javítás után a 30 helyi release-guard
 teszt sikeres. Az új head távoli CI-je külön kapu; a hangmotor és a már
@@ -18,7 +18,7 @@ Az alábbi dátumozott állapotok történeti feljegyzések.
 
 ## Stabil 1.2.1 előkészítése — 2026-11-12
 
-Robert engedélyezte a kiadási előkészületet. Stabil buildmetaadatok és
+RobCZart82 engedélyezte a kiadási előkészületet. Stabil buildmetaadatok és
 kétnyelvű kézikönyvek készülnek, a K1 és a blokk-alapú automatizálás
 korlátjának megtartott ismertetésével. Az ellenőrzött `a263254` alap négy
 kötelező workflow-ja és 11 jobja sikeres; a helyi Premium Release kör 181/181.
@@ -30,12 +30,12 @@ A nyilvános kiadás továbbra 1.2.0; a korábbi naplók alább változatlanok.
 ## 1.2.1-rc1 — CI és Windows/macOS géppróba sikeres — 2026-11-11
 
 A `406e76dbe0f763e9fe3d5cfaa1150748f5939d52` pontos main mind a négy szükséges
-workflow-ja és 11 jobja zöld lett. Robert visszajelzése szerint az 1.2.1
+workflow-ja és 11 jobja zöld lett. RobCZart82 visszajelzése szerint az 1.2.1
 Windows és macOS alatt működik; hangzáspróbát, betöltést és mentést végzett.
 Az adatokat, korlátokat és három csomag hashét a
 [részletes elfogadási napló](DEVELOPMENT_LOG_2026_11_11_1.2.1_HOST_ACCEPTANCE.md)
 rögzíti. A jelölt továbbra `1.2.1-rc1`, még nincs publikálva. K1 nyitva marad;
-stabil kiadáshoz Robert külön döntést adhat arról, hogy a K1 megfelelően
+stabil kiadáshoz RobCZart82 külön döntést adhat arról, hogy a K1 megfelelően
 dokumentált, ismert hibaként kiadható-e.
 
 ## Történeti állapot: 1.2.1-rc1 csomagellenőrzés — 2026-11-09
@@ -84,13 +84,13 @@ Az alábbi dátumozott állapotok történeti feljegyzések.
 
 ## Célzott K1 Sine-vizsgálat — 2026-11-07
 
-Robert a publikálás elé helyezte a konkrét 810a388 negatív oknyomozását.
+RobCZart82 a publikálás elé helyezte a konkrét 810a388 negatív oknyomozását.
 [Előre kijelölt kontrollok, bizonyítékok és eredmények](K1_SINE_INVESTIGATION_2026_11_07.md).
 
 
 ## 1.2.0 kiadási döntés — 2026-11-07
 
-Robert a 003b007 Premium RC Windows/macOS működését hibamentesnek jelezte és
+RobCZart82 a 003b007 Premium RC Windows/macOS működését hibamentesnek jelezte és
 engedélyezte a publikálást. A végleges kiadás explicit Premium buildet és
 telepítőket kap. [Kiadási döntés és ellenőrzések](RELEASE_1.2.0_CHECKLIST.md),
 [ismert K1 eltérés és használati korlátok](RELEASE_NOTES_1.2.0.md).
@@ -99,7 +99,7 @@ Az alábbi korábbi RC-bejegyzések dátumozott történeti állapotok.
 
 ## Történeti kiadási cél: 1.2.0 rc1 — 2026-11-05
 
-Robert az 1.2.0 publikálását jelölte ki célként és engedélyezte az előkészítő
+RobCZart82 az 1.2.0 publikálását jelölte ki célként és engedélyezte az előkészítő
 fejlesztés folytatását. [Kiadási sorrend, bizonyítékok és nyitott kapuk](RELEASE_1.2.0_CHECKLIST.md).
 [Az előkészítés naplója](DEVELOPMENT_LOG_2026_11_05_RELEASE.md).
 Az akkori végrehajtási alap; az alábbi dátumozott feljegyzések
@@ -117,7 +117,7 @@ frissül. A teljes natív CI és a kiadási kapuk külön ellenőrzendők.
 
 ## Windows/macOS működési visszajelzés — 2026-11-05
 
-Robert a legutóbb linkelt main buildet Windows és macOS alatt is
+RobCZart82 a legutóbb linkelt main buildet Windows és macOS alatt is
 hibamentesnek jelezte. [Visszajelzés, csomagkapcsolat és hatókör](NATIVE_HOST_FEEDBACK_2026_11_05.md).
 Mindkét platform alapműködésére van pozitív felhasználói tapasztalat.
 A részletes CPU-/dropout-/GUI/state/preset adatok és a külön Premium RC
@@ -127,7 +127,7 @@ célzott ellenőrzései **(sajátgépes reaper)**; külön publikálási jóváh
 
 ## Új kérés: performance factory bank — 2026-11-03
 
-Robert kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
+RobCZart82 kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
 30-ra, a korábbi hangok megőrzésével. [Hanglista, játék és ellenőrzési kapuk](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
 [Velvet Orbit: bizonyított chorus-puffercímzési hiba és regresszió](CHORUS_RING_BOUNDARY_2026_11_04.md).
 A hat exportált új hang zenei elfogadása megtörtént; a teljes RC natív elfogadása külön kapu.
@@ -154,7 +154,7 @@ workflow-ja sikeres (macOS 41570979286, Windows 41570979317,
 Code quality 41570979245, workflow-validálás 41570979369).
 A két korábbi negatív CPU-futás megmarad, a későbbi zöld nem gyökérok-bizonyítás.
 
-Robert kérésére az M4/M6/M8 előkészítése előrekerült az M2/M3 lezárása elé.
+RobCZart82 kérésére az M4/M6/M8 előkészítése előrekerült az M2/M3 lezárása elé.
 [Premium production RC: működés, migráció és kapuk](PREMIUM_PRODUCTION_RC.md).
 Az 1.1.0 rc1 explicit SAWSTAR-identitású integráció implementált; a kalibrált
 lookup referencia motor, eredeti paraméter-ID-k és state-formátum, 32 mintás
@@ -199,7 +199,7 @@ ettől nem teljesült; az új main és e dokumentáció friss CI-je külön kapu
 | --- | --- |
 | [1.2.1 release-előkészítési napló — 2026-11-08](DEVELOPMENT_LOG_2026_11_08_RELEASE.md) | A jelen hibajavítási lépcső helyi implementációja, ellenőrzése és még nyitott távoli/felhasználói kapui. |
 | [1.2.1 javítási és elfogadási terv](RELEASE_1.2.1_PLAN.md) | Kiadás előkészítési sorrendje; candidate-, natív host- és külön publikálási kapuk. |
-| [macOS felhasználói alappróba — 2026-10-27](NATIVE_HOST_SMOKE_2026_10_27.md) | Robert sikeres Reference/Candidate működési/hang-visszajelzése; ellenőrzött telepített hashok, hiányzó mérési adatok és következő sajátgépes lépés. |
+| [macOS felhasználói alappróba — 2026-10-27](NATIVE_HOST_SMOKE_2026_10_27.md) | RobCZart82 sikeres Reference/Candidate működési/hang-visszajelzése; ellenőrzött telepített hashok, hiányzó mérési adatok és következő sajátgépes lépés. |
 | [K1 natív és sanitizer-eredmények](K1_NATIVE_SANITIZER_RESULTS_2026_10_20.md) | A #126 mért eredményei, helyi raw-data audit, nyitott K1 és a natív host-elfogadásra visszatérő prioritás. |
 | [K1 natív/sanitizer módszertan](K1_NATIVE_AND_SANITIZER_CONTROLS.md) | Az eredeti Intel-bináris és az új instrumentált kalibrált pár külön tesztterve és értelmezési korlátai. |
 | [Következő release fejlesztési terve](NEXT_RELEASE_DEVELOPMENT_PLAN.md) | Az M0–M9 sorrend, a valós REAPER CPU-terv, a döntési feltételek és a külön végső RC/publikálási kapu. Ez a részletes végrehajtási terv. |
@@ -209,7 +209,7 @@ ettől nem teljesült; az új main és e dokumentáció friss CI-je külön kapu
 | [Ráta-/pufferpolicy előkészítése](RATE_BUFFER_ACCEPTANCE_POLICY.md) | A negatív offline adatokból következő korlátok és a natív döntéshez szükséges következő lépés; nem automatikus működési korlátozás. |
 | [Teljes ráta-/pufferösszesítő](measurements/target-rate-readiness-2026-10-17.md) | 576 lezárt cellából 36 körönként külön sor; a referenciaismétlés és a rosszabb eredmények megmaradnak. |
 | [Premium Preview](PREMIUM_PREVIEW.md) | A külön tesztplugin hatóköre, identitása, telepítése és korlátai. |
-| [Elfogadott hangerőkorrekció](PREMIUM_PREVIEW_LEVELS.md) | A +3 dB wet / dry unity korrekció, factory headroom és Robert 0,44 dB RMS-eltérésre adott elfogadása. |
+| [Elfogadott hangerőkorrekció](PREMIUM_PREVIEW_LEVELS.md) | A +3 dB wet / dry unity korrekció, factory headroom és RobCZart82 0,44 dB RMS-eltérésre adott elfogadása. |
 | [GUI-méret host-state](GUI_SCALE_PROJECT_STATE.md) | A #109-ben implementált javítás és a még nyitott natív projekt-visszatöltési próbák. |
 | [Windows natív Preview-tesztcsomag](PREMIUM_PREVIEW_WINDOWS.md) | Külön Reference/Candidate x64 build, factory-azonossági és csomagolási kapuk, telepítési smoke. |
 | [Windows célgépes útmutató és állapot](WINDOWS_TARGET_CONTROL.md) | A lezárt Windows-gyűjtés bizonyítéka, azonos forrású kontroll és további natív feladat. |
@@ -252,7 +252,7 @@ FP-naplója egyezik a CI-ével. Az IE már setup alatt megjelenik, audiohiba né
 | Nyilvános kiadás | **1.0.4**, 2026-10-02-i publikálás. A következő verzió/dátum nincs kijelölve. |
 | Production hangút | Classic. A későbbi teljes Premium-csere cél, nem elkészült integráció. |
 | Premium Preview | Külön identitás, alapból OFF; a mostani Preview nem tartalmazza a Saw-dispatch optimalizációt. |
-| Zenei hangkarakter és hangerő | Robert elfogadta; a 0,44 dB RMS-különbség marad. További általános gain-emelés nem nyitott feladat. |
+| Zenei hangkarakter és hangerő | RobCZart82 elfogadta; a 0,44 dB RMS-különbség marad. További általános gain-emelés nem nyitott feladat. |
 | M1 és Windows offline gyűjtés | Mindkét 32 grides kampány, nyers ellenőrzés és forrásazonos összevetés kész. Nem indul újra kedvezőbb számokért. |
 | CPU-/natív elfogadás | Nyitott. A jobb p50 nem tünteti el a p99-romlásokat/túllépéseket. A valós REAPER-jegyzőkönyv és a támogatási döntés hiányzik. |
 | GUI-scale | Implementált #109; a 75/100/125% natív mentés/újranyitás és példányfüggetlenség elfogadása nyitott. |
@@ -335,3 +335,7 @@ fenti release terv és roadmap adja meg; nincs szükség a régi nyers eredmény
 6. Merge után az új main CI-jét is ellenőrizd; a függő futást ne nevezd sikeresnek.
 7. A README fejlesztési linkjei az aktuális indexhez/tervhez vezessenek;
    a kiadott termék kézikönyve ne állítson befejezetlen fejlesztést kiadott funkciónak.
+
+- [Public creator identity correction](DEVELOPMENT_LOG_2026_11_13_PUBLIC_AUTHOR_IDENTITY.md)
+
+- [1.2.2 release checklist](RELEASE_1.2.2_CHECKLIST.md)

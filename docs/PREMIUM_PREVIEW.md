@@ -1,7 +1,7 @@
 # SAWSTAR Premium Preview — ideiglenes macOS tesztplugin
 
 **Fejlesztési állapot — 2026-10-17:** a Preview külön, alapból kikapcsolt;
-a production Classic marad. A hangkarakter és a hangerőkorrekció Robert által
+a production Classic marad. A hangkarakter és a hangerőkorrekció RobCZart82 által
 elfogadott, a megmaradó 0,44 dB RMS-különbség lezárt döntés. A GUI-méret
 host-state javítása implementált, natív visszatöltési elfogadása nyitott.
 A M1/Windows offline gyűjtés és nyers összevetés kész; a formális natív

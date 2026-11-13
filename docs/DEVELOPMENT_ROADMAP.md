@@ -1,5 +1,10 @@
 # Elfogadott fejlesztési sorrend — állapot: 2026-11-13
 
+Current priority: authorized 1.2.2 creator-identity correction; see
+[release checklist](RELEASE_1.2.2_CHECKLIST.md). Public 1.2.1 was published on
+13 November 2026. Earlier preparation entries below are historical.
+
+
 ## Következő fejlesztési lépés — UTF-8 metaadatkezelés — 2026-11-13
 
 A `b2e7998` főágra beolvadt #150 négy kötelező workflow-ja és 11 jobja zöld;
@@ -8,7 +13,7 @@ tervezetfájl főági CI-vel való egyezése és hashjegyzéke ellenőrzött. A 
 november 12-i dátumjelölése megmaradt; publikálás nincs, a nyilvános Latest
 kiadás az ellenőrzéskor 1.2.0. [Végleges kiadási ellenőrzőlista](RELEASE_1.2.1_CHECKLIST.md).
 
-Robert engedélyével a következő munka külön ágon a metaadatszinkronizáló
+RobCZart82 engedélyével a következő munka külön ágon a metaadatszinkronizáló
 UTF-8 hordozhatósági javítása. Két nem UTF-8 alapbeállítást modellező próba
 igazolta az olvasási/írási hibát; a javítás után a 30 helyi release-guard
 teszt sikeres. Az új head távoli CI-je külön kapu; a hangmotor és a már
@@ -18,7 +23,7 @@ Az alábbi dátumozott állapotok történeti feljegyzések.
 
 ## Stabil 1.2.1 előkészítése — 2026-11-12
 
-Robert engedélyezte a kiadási előkészületet. Stabil buildmetaadatok és
+RobCZart82 engedélyezte a kiadási előkészületet. Stabil buildmetaadatok és
 kétnyelvű kézikönyvek készülnek, a K1 és a blokk-alapú automatizálás
 korlátjának megtartott ismertetésével. Az ellenőrzött `a263254` alap négy
 kötelező workflow-ja és 11 jobja sikeres; a helyi Premium Release kör 181/181.
@@ -30,7 +35,7 @@ A nyilvános kiadás továbbra 1.2.0; a korábbi naplók alább változatlanok.
 ## 1.2.1-rc1 jelölt — CI és felhasználói géppróba teljesítve
 
 A pontos `406e76dbe0f763e9fe3d5cfaa1150748f5939d52` main mind a négy szükséges
-workflow-ja és 11 jobja zöld. Robert visszajelzése szerint az SAWSTAR 1.2.1
+workflow-ja és 11 jobja zöld. RobCZart82 visszajelzése szerint az SAWSTAR 1.2.1
 Windows és macOS alatt működött; meghallgatást, betöltést és mentést is
 ellenőrzött. A géppróba eredményét és a három csomag hashét a
 [részletes elfogadási napló](DEVELOPMENT_LOG_2026_11_11_1.2.1_HOST_ACCEPTANCE.md)
@@ -38,7 +43,7 @@ rögzíti. Nincs megadva Windows-architektúra, operációs rendszer/host-verzi�
 vagy teljes CPU/dropout mátrix, ezért ezeket nem jelöljük elfogadottnak.
 
 Az aktuális csomag továbbra is kiadatlan `1.2.1-rc1`. Következő döntési kapu:
-Robert külön hagyja jóvá a stabil 1.2.1 kiadást a dokumentált, nyitott K1
+RobCZart82 külön hagyja jóvá a stabil 1.2.1 kiadást a dokumentált, nyitott K1
 numerikus eltéréssel együtt, vagy kéri annak további vizsgálatát/javítását.
 K1-t nem tekintjük megoldottnak. Kifejezett kiadási jóváhagyás előtt stabil
 verziójelölés, tag és publikálás nem történik.
@@ -69,7 +74,7 @@ aktuális publikációs állapotot vagy újonnan megadott elfogadást jelentik.
 
 ## 1.2.0 kiadási döntés — 2026-11-07
 
-Robert a 003b007 Premium RC Windows/macOS működését hibamentesnek jelezte és
+RobCZart82 a 003b007 Premium RC Windows/macOS működését hibamentesnek jelezte és
 engedélyezte a publikálást. A végleges kiadás explicit Premium buildet és
 telepítőket kap. [Kiadási döntés és ellenőrzések](RELEASE_1.2.0_CHECKLIST.md),
 [ismert K1 eltérés és használati korlátok](RELEASE_NOTES_1.2.0.md).
@@ -78,7 +83,7 @@ Az alábbi korábbi RC-bejegyzések dátumozott történeti állapotok.
 
 ## Történeti kiadási cél: 1.2.0 rc1 — 2026-11-05
 
-Robert az 1.2.0 publikálását jelölte ki célként és engedélyezte az előkészítő
+RobCZart82 az 1.2.0 publikálását jelölte ki célként és engedélyezte az előkészítő
 fejlesztés folytatását. [Kiadási sorrend, bizonyítékok és nyitott kapuk](RELEASE_1.2.0_CHECKLIST.md).
 Az akkori végrehajtási alap; az alábbi dátumozott feljegyzések
 történetiek. A hat új exportált preset zenei jóváhagyása megtörtént; a teljes
@@ -88,7 +93,7 @@ nem publikált kiadás. Az új metaadat 1.2.0 rc1, üres kiadási dátummal.
 
 ## Windows/macOS működési visszajelzés — 2026-11-05
 
-Robert a legutóbb linkelt main buildet Windows és macOS alatt is
+RobCZart82 a legutóbb linkelt main buildet Windows és macOS alatt is
 hibamentesnek jelezte. [Visszajelzés, csomagkapcsolat és hatókör](NATIVE_HOST_FEEDBACK_2026_11_05.md).
 Mindkét platform alapműködésére van pozitív felhasználói tapasztalat.
 A részletes CPU-/dropout-/GUI/state/preset adatok és a külön Premium RC
@@ -98,7 +103,7 @@ célzott ellenőrzései **(sajátgépes reaper)**; külön publikálási jóváh
 
 ## Új kérés: performance factory bank — 2026-11-03
 
-Robert kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
+RobCZart82 kérésére hat új, modulált/effektezett/arp hang bővíti a bankot 24-ről
 30-ra, a korábbi hangok megőrzésével. [Hanglista, játék és ellenőrzési kapuk](EXPRESSIVE_FACTORY_PRESETS_2026_11_03.md).
 A hat exportált új hang zenei elfogadása megtörtént; a teljes RC natív elfogadása külön kapu.
 
@@ -122,7 +127,7 @@ workflow-ja sikeres (macOS 41570979286, Windows 41570979317,
 Code quality 41570979245, workflow-validálás 41570979369).
 A két korábbi negatív CPU-futás megmarad, a későbbi zöld nem gyökérok-bizonyítás.
 
-Robert kérésére az M4/M6/M8 előkészítése előrekerült az M2/M3 lezárása elé.
+RobCZart82 kérésére az M4/M6/M8 előkészítése előrekerült az M2/M3 lezárása elé.
 [Premium production RC: működés, migráció és kapuk](PREMIUM_PRODUCTION_RC.md).
 Az 1.1.0 rc1 explicit SAWSTAR-identitású integráció implementált; a kalibrált
 lookup referencia motor, eredeti paraméter-ID-k és state-formátum, 32 mintás
@@ -159,7 +164,7 @@ M0–M9 kiadási tervbe bekötve; az implementáció és az elfogadás külön k
 
 ## macOS alappróba — visszajelzés 2026-10-27
 
-Robert mindkét telepített Reference/Candidate plugin működését és hangját
+RobCZart82 mindkét telepített Reference/Candidate plugin működését és hangját
 hibamentesnek jelezte. [Pontos hatókör, forrás és telepített hashok](NATIVE_HOST_SMOKE_2026_10_27.md).
 Ez sikeres felhasználói alappróba; a 28 eset / 112 ablak CPU-/dropout-mérése,
 a külön GUI/state/preset-próbák és a Windows-elfogadás még nyitottak.
@@ -212,7 +217,7 @@ A lenti korábbi sikeres CI-pillanatkép a `547f84d4` commithoz tartozik.
 
 ## Aktuális állapot és publikálási cél
 
-Robert 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
+RobCZart82 2026-10-15-én elfogadta az alábbi fejlesztési tervet; a cél a
 Premium filteres SAWSTAR következő nyilvános kiadása. A verziószám még
 nincs kijelölve; a jelenlegi nyilvános kiadás 1.0.4. A publikálás külön döntés.
 
@@ -235,7 +240,7 @@ Mindkét célgép tényleges telepítési smoke-ja és a
 [natív REAPER-/CPU-elfogadás](NATIVE_PREVIEW_PAIR_QUALIFICATION.md) nyitott.
 Production továbbra Classic; a meglévő Preview marad a változatlan referencia.
 A #111 az összes 15 workflow és 50 job sikere után squash merge-gel beolvadt.
-Robert 2026-10-17-én kizárólag erre a diagnosztikai PR-re engedélyezte a korábbi,
+RobCZart82 2026-10-17-én kizárólag erre a diagnosztikai PR-re engedélyezte a korábbi,
 piros main előfeltételének egyszeri feloldását; a GitHub-védelmek megmaradtak.
 A merge utáni main négy fő workflow-ját külön kell ellenőrizni; az egyszeri
 kivétel nem vihető tovább a következő PR-re. A régi `8ad1b835` main
@@ -266,7 +271,7 @@ a main négy fő workflow-ja legyen sikeres a következő merge előtt.
   és negatív mérési eredmények megmaradnak.
 - A #103 külön, alapból kikapcsolt Premium Preview buildet ad; a normál
   production SAWSTAR továbbra is Classic filteres.
-- **Hangerőkorrekció: kész, Robert elfogadta és lezárta.** A #105 korrigált
+- **Hangerőkorrekció: kész, RobCZart82 elfogadta és lezárta.** A #105 korrigált
   Preview-jának 16 hangos, cutoff-automatizált REAPER-próbájában a Premium
   RMS-szintje 0,44 dB-lel alacsonyabb a Classicnál; ez tudatosan elfogadott,
   további általános hangerőemelés nem szükséges. A részletes bizonyíték a

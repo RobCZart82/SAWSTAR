@@ -13,7 +13,7 @@ Mind a négy workflow és mind a 11 job sikeres: workflow-validálás
 Az ellenőrzéskor nincs nyitott PR. Ez a kiinduló main eredménye, nem az új RC-é.
 
 - 30 beépített factory preset; a régi 24 értéke/indexe megőrzött.
-- Hat új exportált snapshot hangzását Robert meghallgatta és jóváhagyta.
+- Hat új exportált snapshot hangzását RobCZart82 meghallgatta és jóváhagyta.
 - A chorus ring-határhibája regresszióval javított (#135).
 - Az ARP bypass felesleges rendezése megszűnt (#137).
 - [Windows/macOS felhasználói működési visszajelzés](NATIVE_HOST_FEEDBACK_2026_11_05.md)
@@ -54,7 +54,7 @@ Az itt rögzített előzetes pillanatban a natív RC-elfogadás és publikálás
 
 ## Kiadási döntés — 2026-11-07
 
-Robert a közvetlenül linkelt, 003b007 Premium RC Windows/macOS használatát
+RobCZart82 a közvetlenül linkelt, 003b007 Premium RC Windows/macOS használatát
 hibamentesnek jelezte és közölte: „Rendben, mehet a kiadás”. Az About képernyőkép
 003b007-et mutat, látható szignóval. A kiadás a tesztelt Premium motor/GUI
 forrását használja, új verzió- és dátumjelöléssel és végleges dokumentációval.

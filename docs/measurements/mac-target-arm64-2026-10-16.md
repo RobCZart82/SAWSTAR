@@ -22,7 +22,7 @@ Nem Classic/Premium REAPER CPU%-mérés, és nem mért DAW-dropout.
   48/96/192 kHz × 32/64/128 minta. Cellánként 4096 blokk útvonalanként.
 - A pinned checkout `review-dispatch-engine-target.py --verify-raw` ellenőrzése sikeres (exit 0):
   minden fájlhash, kampánysorrend, nyers szekvencia, percentilis, szigorú időkeret-túllépés és páros eredmény újraszámolva.
-- Robert Caffeine.app használatáról és más programok mellőzéséről számolt be. A teljes háttérterhelés
+- RobCZart82 Caffeine.app használatáról és más programok mellőzéséről számolt be. A teljes háttérterhelés
   nem volt függetlenül ellenőrizhető; `background_load_controlled=false`, nincs CPU-affinitás.
 
 ## Eredmények körönként

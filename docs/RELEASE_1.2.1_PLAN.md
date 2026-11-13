@@ -14,7 +14,7 @@ attempt had four workflow-level GitHub internal-server errors and produced no
 jobs; the successful second attempt is the accepted CI evidence. The three
 RC packages and their hashes are recorded in the
 [11 November host-acceptance record](DEVELOPMENT_LOG_2026_11_11_1.2.1_HOST_ACCEPTANCE.md).
-Robert reports that he tested SAWSTAR 1.2.1 on macOS and Windows, including
+RobCZart82 reports that he tested SAWSTAR 1.2.1 on macOS and Windows, including
 listening, loading and saving, and found it working correctly. No OS version,
 host application version, Windows architecture or detailed CPU/dropout matrix
 was supplied, so this report is not evidence for those unspecified cases.
@@ -28,7 +28,7 @@ accurately disclosed; successful host testing does not establish a K1 fix.
 ## Verified scope
 
 The 1.2.0 release is the calibrated Premium production build with 30 factory
-presets. Robert reported that the published plugin worked on his macOS and
+presets. RobCZart82 reported that the published plugin worked on his macOS and
 Windows systems and approved publication on 7 November. This user confirmation
 is evidence for that tested build only; it is not CI evidence, exhaustive CPU
 or dropout measurement, Windows ARM64 host qualification, or acceptance of a
@@ -75,7 +75,7 @@ distinction in any 1.2.1 release notes.
   extracted release payload and links resolve in the delivered folder layout.
 - The bilingual manuals and release notes match the candidate version and
   disclose K1 accurately. Package hashes and release assets match CI output.
-- Robert's macOS and Windows test of SAWSTAR 1.2.1, including listening,
+- RobCZart82's macOS and Windows test of SAWSTAR 1.2.1, including listening,
   loading and saving, is recorded above as user feedback. The exact OS/host
   versions and Windows architecture were not supplied. A separate explicit
   publication decision is still required; 1.2.0 approval does not carry

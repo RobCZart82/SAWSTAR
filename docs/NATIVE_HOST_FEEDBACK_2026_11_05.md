@@ -1,12 +1,12 @@
 # Windows/macOS működési visszajelzés — 2026-11-05
 
-**Robert a legutóbb linkelt plugin működését Windows és macOS alatt egyaránt
+**RobCZart82 a legutóbb linkelt plugin működését Windows és macOS alatt egyaránt
 hibamentesnek jelezte.** Ezzel mindkét platformhoz van pozitív felhasználói
 működési visszajelzés; a részletes mérési és kiadási kapuk külön követendők.
 
 ## Visszajelzés és buildkapcsolat
 
-Robert közlése: „Tökéletesen működik a plugin windows-on és macos-en is”.
+RobCZart82 közlése: „Tökéletesen működik a plugin windows-on és macos-en is”.
 
 A beszélgetésben közvetlenül előtte linkelt, 2026-11-04-i sikeres main build
 forrása: `0521387689e0387d16a78d2667f88317c3539139`.
@@ -17,7 +17,7 @@ forrása: `0521387689e0387d16a78d2667f88317c3539139`.
 | Windows x64 | [SAWSTAR-windows-x64-candidate / 13308252584](https://github.com/RobCZart82/SAWSTAR/actions/runs/41801813847/artifacts/13308252584) | [41801813847](https://github.com/RobCZart82/SAWSTAR/actions/runs/41801813847) |
 
 Ez a visszajelzés beszélgetésbeli buildkapcsolata. A telepített executable
-hashait ezen alkalommal nem olvastuk vissza, és Robert nem adott külön
+hashait ezen alkalommal nem olvastuk vissza, és RobCZart82 nem adott külön
 About-/manifest-azonosítást. Nem állítunk ennél erősebb helyi binárisazonosságot.
 A táblázat artifactjai az általános SAWSTAR main build csomagjai; a
 külön Premium Preview/Candidate és Premium production RC buildjeinek
@@ -25,8 +25,8 @@ elfogadása nem másolható át automatikusan ezekből.
 
 ## Rögzíthető eredmény
 
-- Windows: Robert sikeres működést jelzett.
-- macOS: Robert sikeres működést jelzett.
+- Windows: RobCZart82 sikeres működést jelzett.
+- macOS: RobCZart82 sikeres működést jelzett.
 - A közölt használat során nem jelzett hibát.
 
 A pontos gép/OS/hostverzió és folyamatarchitektúra, audioeszköz/driver,

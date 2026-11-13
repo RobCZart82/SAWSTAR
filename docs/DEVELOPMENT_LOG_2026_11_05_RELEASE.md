@@ -5,7 +5,7 @@ Történeti napló: az 1.2.0 azóta megjelent 2026-11-07-én. A korábbi „nyit
 aktuális publikált állapotot a [kiadási checklist](RELEASE_1.2.0_CHECKLIST.md),
 a következő munkát pedig az [1.2.1 terv](RELEASE_1.2.1_PLAN.md) rögzíti.
 
-Robert új kiadási célja 1.2.0. Friss GitHub-lekérés: main ec110a3 (#137),
+RobCZart82 új kiadási célja 1.2.0. Friss GitHub-lekérés: main ec110a3 (#137),
 4 workflow / 11 job sikeres, nincs nyitott PR. A #136 működési visszajelzését
 és #137 ARP bypass javítását az új kiadás tartalmazza.
 
@@ -43,7 +43,7 @@ sikeres. Az új workflow eredménye és a natív elfogadás külön ellenőrzend
 
 ## Kiadási véglegesítés — 2026-11-07
 
-Robert sikeres macOS/Windows használatot jelzett a 003b007 Premium RC-re,
+RobCZart82 sikeres macOS/Windows használatot jelzett a 003b007 Premium RC-re,
 majd kifejezetten engedélyezte a kiadást. A végleges 1.2.0 metaadat dátuma
 2026.11.07. A normál telepítős Windows/macOS CI explicit Premium production
 buildet készít, factory headroom-kontrollal. Az RC workflow a candidate
@@ -105,7 +105,7 @@ mérési retryt kedvezőbb eredményért. A kiadási PR jelenlegi CI-je piros.
 
 ## Célzott K1 Sine-vizsgálat indítása — 2026-11-07
 
-Robert az oknyomozást kérte a publikálás elé. A #142 időközben beolvadt
+RobCZart82 az oknyomozást kérte a publikálás elé. A #142 időközben beolvadt
 4b614501 főágra; a vizsgálat erről indul. A publikus Latest az ellenőrzéskor
 1.0.4. A már megőrzött 810a388 negatív helyi rekordja és naplóhasha megmarad.
 
@@ -132,7 +132,7 @@ Részletek: K1_SINE_INVESTIGATION_2026_11_07.md. A CI-kontroll eredménye függ�
 
 ## 2026-11-08 — K1 filter/FIR first-divergence instrumentation
 
-Robert accepted the bounded, named-field protocol. The calibrated Reference
+RobCZart82 accepted the bounded, named-field protocol. The calibrated Reference
 and Candidate share the same Premium filter/Drive representation; only the
 oscillator dispatch differs. The existing trace already compares voice and
 output fields per sample. A separate offline-only deep flag now observes active

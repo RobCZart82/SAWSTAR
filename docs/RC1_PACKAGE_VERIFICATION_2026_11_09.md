@@ -20,7 +20,7 @@ The Windows VST3 jobs report successful factory/processing/state validation,
 headroom verification, architecture/runtime audit and disposable-runner
 installation/uninstallation checks. The Universal job reports successful
 validation, headroom checks on both slices and disposable-runner installation.
-These are CI step results, not tests performed on Robert's machines.
+These are CI step results, not tests performed on RobCZart82's machines.
 The draft workflow's successful job is named `publish`; that name alone is not
 evidence of a public release.
 

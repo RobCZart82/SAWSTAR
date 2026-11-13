@@ -97,7 +97,7 @@ FX CPU-ból nincs RT-tartalék. Hibás ablakot ne írj felül: külön ismétlé
 
 A [natív adatlap](NATIVE_REAPER_CPU_ACCEPTANCE.md) és a
 [release terv 4–7. pontja](NEXT_RELEASE_DEVELOPMENT_PLAN.md) marad a mérvadó.
-Robert konkrét build/gép/tartomány szerinti elfogadása, a Windows x64 célgépes
+RobCZart82 konkrét build/gép/tartomány szerinti elfogadása, a Windows x64 célgépes
 mérés és a végső production RC újraellenőrzése külön feladat.
 
 A #128 pontos headjének négy valódi csomagján elvégzett ellenőrzést a

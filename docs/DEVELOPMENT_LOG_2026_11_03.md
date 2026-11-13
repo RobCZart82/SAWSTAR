@@ -2,7 +2,7 @@
 
 Alap: `d0bad8edd44e418c1a7b3527a2e20f862b0ebc4a` (#132 squash merge).
 A base PR-jének 23 workflow / 71 job, majd a main négy workflow-ja sikeres.
-Robert kifejezetten kérte az integráció, factory/RC és kiadási dokumentáció
+RobCZart82 kifejezetten kérte az integráció, factory/RC és kiadási dokumentáció
 előrehozását; a natív, minőségi és K1-kapuk nem válnak ettől elfogadottá.
 
 ## Implementált
@@ -101,7 +101,7 @@ pin/tisztaság szerint ellenőrzött SDK fa kivétel; más ismeretlen fájl tilt
 
 Alap: #134 squash merge `1660ced6605343d61b485dfca2514547c3414b0f`;
 frissen ellenőrzött négy main workflow mind sikeres, nyitott PR nem volt.
-Robert korábbi rc1 csomagokra Windows/macOS alapműködési sikert jelzett;
+RobCZart82 korábbi rc1 csomagokra Windows/macOS alapműködési sikert jelzett;
 ez nem az új presetbank natív/zenei elfogadása.
 
 - Implementált: 24 → 30 bank, hozzáfűzött stabil kulcsokkal/indexekkel;
@@ -129,7 +129,7 @@ Nincs DSP/state/ID/threshold változtatás, default Classic marad; release nincs
 
 ### #135: Windows Debug időkorlát és hat új hang zenei jóváhagyása
 
-Robert a hat új exportált hangot meghallgatta és jelezte: „meghallgattam jól
+RobCZart82 a hat új exportált hangot meghallgatta és jelezte: „meghallgattam jól
 szólnak”. Ez az új hat snapshot zenei elfogadása; a teljes bank/pontos VST3
 natív host-/CPU-/lifecycle-/K1-/publikálási kapui ettől nem záródnak le.
 

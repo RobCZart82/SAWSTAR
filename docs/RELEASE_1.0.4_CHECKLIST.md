@@ -77,7 +77,7 @@ végrehajtási feltételeinek elsődleges helye továbbra is ez a checklist.
 | Sorrend | Feladat | Felelős | Elkészülési feltétel | Státusz |
 |---|---|---|---|---|
 | 1 | Friss draft letöltése, SHA-256 és About ellenőrzése | Fejlesztő + tesztelő | A tesztelt csomag forrása a fenti SHA; nincs régi párhuzamos VST3 | Nyitott kézi próba |
-| 2 | Natív REAPER tesztmátrix és telepítési próba | Tesztelő / Robert | Az alábbi esetekhez konkrét eredmény és környezet rögzítve | Nyitott |
+| 2 | Natív REAPER tesztmátrix és telepítési próba | Tesztelő / RobCZart82 | Az alábbi esetekhez konkrét eredmény és környezet rögzítve | Nyitott |
 | 3 | Talált hibák reprodukciója, javítása és újratesztelése | Fejlesztő | Minden kiadást blokkoló hiba lezárva, pontos PR-head zöld | Feltételes, csak talált hiba esetén |
 | 4 | Végleges dátum, release-scope és dokumentáció egyeztetése | Fejlesztő + kiadásgazda | Egyetlen 1.0.4 scope; nincs tévesen már publikáltnak jelölt draft | Nyitott |
 | 5 | Végleges commit CI-je és draft újraépítése | Fejlesztő / Actions | A végleges main commit saját három build/Quality workflow-ja és draft workflow-ja sikeres | Nyitott |

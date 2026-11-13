@@ -1,12 +1,12 @@
 # macOS Reference/Candidate — felhasználói alappróba, 2026-10-27
 
-**Eredmény: Robert mindkét telepített tesztplugin működését és megszólalását
+**Eredmény: RobCZart82 mindkét telepített tesztplugin működését és megszólalását
 hibamentesnek jelezte.** Ez felhasználói betöltési/hangpróba; a teljes natív
 CPU-/dropout-elfogadás még nyitott.
 
 ## Megfigyelés és eredet
 
-Robert 2026-10-27-i visszajelzése ebben a fejlesztési beszélgetésben:
+RobCZart82 2026-10-27-i visszajelzése ebben a fejlesztési beszélgetésben:
 „Mindkét plugin jól működik, szól ahogy kell, hibát nem találtam”.
 
 A visszajelzés az itt korábban linkelt és telepített macOS Universal
@@ -28,15 +28,15 @@ szerint a két telepített executable hash-a azóta is egyezik:
 | `SAWSTARPremiumPreview.vst3` | `7bbddd79f0134809f17fbe054d9a298342fdca22b2548d301614a968a24d73a4` |
 | `SAWSTARPremiumCandidate.vst3` | `004fca98166c47f4f511a15a86171f4ca8e0f503635d16cb4950f85c763d732c` |
 
-Az alappróbát **Robert végezte**, nem automatizált REAPER-futtatás.
+Az alappróbát **RobCZart82 végezte**, nem automatizált REAPER-futtatás.
 A korábbi automatizált indítás sikertelen volt (exit 134 / LaunchServices
--10827); az nem hang- vagy CPU-eredmény, és nem írja felül Robert visszajelzését.
+-10827); az nem hang- vagy CPU-eredmény, és nem írja felül RobCZart82 visszajelzését.
 
 ## Az eredmény hatóköre
 
 | Vizsgálat | Állapot |
 | --- | --- |
-| Mindkét hangszer működik és megszólal | Robert sikeresnek jelezte, észlelt hiba nélkül. |
+| Mindkét hangszer működik és megszólal | RobCZart82 sikeresnek jelezte, észlelt hiba nélkül. |
 | Telepített fájlok azonossága a korábbi helyi ellenőrzéshez | 2026-10-27-én a két executable SHA-256 egyezett. |
 | Tényleges REAPER-folyamatarchitektúra, aktuális verzió, audioeszköz, ráta/puffer | Ehhez a próbához nincs külön rögzített adat. A korábbi telepítésellenőrzés környezetét nem másoljuk át mérési környezetként. |
 | 28 eset / 112 mérési ablak, CPU/RT/xrun számszerű értékei | Nincs rögzített eredmény; nem nulla és nem teljesített kapu. |

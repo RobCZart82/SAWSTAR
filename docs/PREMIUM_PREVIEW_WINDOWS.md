@@ -68,7 +68,7 @@ a megőrzött eredeti fájl byte-jait és hashát nem módosítja.
 
 A csomagok `native_host_acceptance=false` és
 `production_promotion_allowed=false` értékkel készülnek.
-A felhős Windows CI nem Robert célgépének REAPER-/ASIO-/dropout-eredménye.
+A felhős Windows CI nem RobCZart82 célgépének REAPER-/ASIO-/dropout-eredménye.
 A jelen fejlesztési környezet Linux: helyi Windows VST3-futtatást nem állítunk.
 
 ## Első Windows csomagolási hiba — 2026-10-18

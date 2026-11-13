@@ -78,7 +78,7 @@ The original VST search paths were restored; the installed bundle was not replac
 
 The persistent top-right gear opens a menu with About SAWSTAR. Selecting it opens
 a centered About window inside the plugin editor, above the current page. It shows
-the original creator logo, Gyuricza Róbert, the plugin version and project address.
+the original creator logo, RobCZart82, the plugin version and project address.
 OK closes the window; Escape/Enter also close it when the editor receives the key.
 The full-editor overlay intercepts mouse clicks and wheel events while visible.
 DAW playback and incoming MIDI continue normally.
