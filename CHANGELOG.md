@@ -1,10 +1,16 @@
 # Changelog
 
-## 1.2.2 — creator identity correction (preparation)
+## Unreleased — package documentation validation
+
+- Validate relative Markdown links in stable archives before exposing a new
+  archive and again at the release gate; reuse the RC validator.
+- Correct publication-state wording and retain exact 1.2.2 release evidence.
+
+## 1.2.2 — published 13 November 2026
 
 - Use RobCZart82 in documentation, PDF author credits, installer publisher and plugin copyright metadata; remove the historical About screenshot with a typeset private identity. Published 1.2.1 packages predate this correction.
 
-## Unreleased — tooling follow-up
+## Tooling follow-up included in 1.2.2
 
 - Read/write release metadata, generated config and product plists explicitly
   as UTF-8, including non-UTF-8 process defaults. Add separate Unicode input
@@ -13,10 +19,10 @@
   DSP, preset values, state format, GUI layout or existing release assets.
 
 
-## 1.2.1 — stable build preparation, not published
+## 1.2.1 — published 13 November 2026
 
-The public stable release remains 1.2.0. The stable metadata edition is
-2026-11-12; this is not a publication announcement. See the
+Published from frozen build b2e7998 on 13 November 2026. The metadata edition
+is 2026-11-12; later tooling changes are included in 1.2.2. See the
 [release notes](docs/RELEASE_NOTES_1.2.1.md) and
 [final validation checklist](docs/RELEASE_1.2.1_CHECKLIST.md).
 

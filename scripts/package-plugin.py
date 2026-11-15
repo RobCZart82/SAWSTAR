@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 import zipfile
+from release_validation import validate_markdown_payload_links
 
 root = Path(__file__).resolve().parents[1]
 
@@ -50,6 +51,9 @@ def package(bundle_parent, output):
     manifest = {'version': version, 'source_commit': revision,
                 'note': 'Source version; verify binary About metadata before publication.',
                 'files_sha256': hashes}
+    validate_markdown_payload_links({name: (notice_bytes if name == 'THIRD_PARTY_NOTICES.md' else p.read_bytes())
+                                     if name.lower().endswith('.md') else b''
+                                     for name, p in files.items()})
     output = Path(output)
     with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:
         for name, p in files.items():

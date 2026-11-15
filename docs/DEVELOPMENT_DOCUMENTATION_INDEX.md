@@ -1,5 +1,16 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
+## Aktuális állapot — 2026-11-15
+
+A nyilvános stabil kiadás az 1.2.2, publikálva 2026. november 13-án.
+A [lezárt kiadási ellenőrzőlista](RELEASE_1.2.2_CHECKLIST.md) a fagyasztott
+`cd8785f` build bizonyítékait tartalmazza. A mostani auditjavítás a stabil
+csomagok relatív dokumentumhivatkozásainak ellenőrzését és az elavult
+publikálási státuszokat rendezi. [Auditjavítási napló](DEVELOPMENT_LOG_2026_11_15_PACKAGE_LINK_AUDIT.md).
+A K1 és a blokkalapú normálparaméter-automatizáció továbbra is ismert,
+nyitott probléma; ez a csomagolási javítás nem állít rájuk DSP-javítást.
+Az alábbi dátumozott előkészítési bejegyzések történeti állapotok.
+
 ## Következő fejlesztési lépés — UTF-8 metaadatkezelés — 2026-11-13
 
 A `b2e7998` főágra beolvadt #150 négy kötelező workflow-ja és 11 jobja zöld;

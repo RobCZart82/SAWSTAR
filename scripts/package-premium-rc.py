@@ -4,42 +4,16 @@ import argparse
 import hashlib
 import importlib.util
 import json
-import posixpath
 from pathlib import Path
-import re
 import subprocess
 import sys
 import tempfile
-from urllib.parse import unquote, urlsplit
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from rc_provenance import checkout_provenance
-
-MARKDOWN_LINK = re.compile(r'!?\[[^\]]*\]\(\s*(?:<([^>]+)>|([^\s)]+))(?:\s+[^)]*)?\)')
-
-def validate_markdown_payload_links(payloads):
-    """Reject relative Markdown links whose targets are absent from the RC ZIP."""
-    names = set(payloads)
-    missing = []
-    for name, data in payloads.items():
-        if not name.lower().endswith('.md'):
-            continue
-        text = data.decode('utf-8')
-        for match in MARKDOWN_LINK.finditer(text):
-            target = match.group(1) or match.group(2)
-            parsed = urlsplit(target)
-            if parsed.scheme or parsed.netloc or not parsed.path:
-                continue
-            path = unquote(parsed.path)
-            resolved = posixpath.normpath(posixpath.join(posixpath.dirname(name), path))
-            if resolved == '..' or resolved.startswith('../') or (
-                    resolved not in names and
-                    not any(member.startswith(resolved.rstrip('/') + '/') for member in names)):
-                missing.append(f'{name} -> {target}')
-    if missing:
-        raise ValueError('Broken relative Markdown link(s) in RC package: ' + '; '.join(missing))
+from release_validation import validate_markdown_payload_links
 
 def integration_cache(path):
     values = {}
