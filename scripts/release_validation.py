@@ -1,6 +1,9 @@
 """Pure validation shared by the release publisher and offline regression tests."""
 import hashlib
 import json
+import posixpath
+import re
+from urllib.parse import unquote, urlsplit
 from pathlib import Path
 from pathlib import PurePosixPath
 
@@ -25,6 +28,34 @@ def workflows_ready(selected):
             raise ValueError('Required workflow failed: ' + run['path'])
     return (REQUIRED_WORKFLOWS <= set(selected)
             and all(run['status'] == 'completed' for run in selected.values()))
+
+
+MARKDOWN_LINK = re.compile(r'!?\[[^\]]*\]\(\s*(?:<([^>]+)>|([^\s)]+))(?:\s+[^)]*)?\)')
+
+MARKDOWN_REFERENCE = re.compile(r'(?m)^ {0,3}\[[^\]]+\]:[ \t]*(?:<([^>]+)>|([^\s]+))')
+
+def validate_markdown_payload_links(payloads):
+    """Reject relative Markdown links whose targets are absent from the package."""
+    names = set(payloads)
+    missing = []
+    for name, data in payloads.items():
+        if not name.lower().endswith('.md'):
+            continue
+        text = data.decode('utf-8')
+        matches = list(MARKDOWN_LINK.finditer(text)) + list(MARKDOWN_REFERENCE.finditer(text))
+        for match in matches:
+            target = match.group(1) or match.group(2)
+            parsed = urlsplit(target)
+            if parsed.scheme or parsed.netloc or not parsed.path:
+                continue
+            path = unquote(parsed.path)
+            resolved = posixpath.normpath(posixpath.join(posixpath.dirname(name), path))
+            if resolved == '..' or resolved.startswith('../') or (
+                    resolved not in names and
+                    not any(member.startswith(resolved.rstrip('/') + '/') for member in names)):
+                missing.append(f'{name} -> {target}')
+    if missing:
+        raise ValueError('Broken relative Markdown link(s) in package: ' + '; '.join(missing))
 
 
 def validate_package(package, sha, version):
@@ -88,4 +119,6 @@ def validate_package(package, sha, version):
     missing_licenses = expected_licenses - set(files)
     if missing_licenses:
         raise ValueError('Missing required license notices: ' + ', '.join(sorted(missing_licenses)))
+    validate_markdown_payload_links({name: package.read(name) if name.lower().endswith('.md') else b''
+                                     for name in files})
     return manifest

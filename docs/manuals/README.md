@@ -4,9 +4,9 @@
 - [Magyar PDF](SAWSTAR-User-Manual-HU.pdf)
 
 These guides are generated from the repository release metadata. In this
-branch they describe the prepared SAWSTAR 1.2.2 stable build; the public
-release remains 1.2.1 until publication. The edition date is build metadata,
-not evidence of a published release.
+branch they describe SAWSTAR 1.2.2, published on 13 November 2026.
+The edition date is build metadata; publication is recorded in the
+[release checklist](https://github.com/RobCZart82/SAWSTAR/blob/main/docs/RELEASE_1.2.2_CHECKLIST.md).
 The bank has 30 built-in factory presets. Chapter 15 covers the Premium filter,
 32-sample latency, Classic project migration, user feedback and the known K1
 numerical issue, plus the block-based parameter-automation limitation.

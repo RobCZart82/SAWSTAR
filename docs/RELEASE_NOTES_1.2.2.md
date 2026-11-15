@@ -1,8 +1,9 @@
 # SAWSTAR 1.2.2
 
-Creator-identity maintenance release. Preparation and publication were authorized
-on 13 November 2026. Publication follows successful exact-commit checks and
-verification of the final Windows x64/ARM64 and macOS Universal packages.
+Published on 13 November 2026 from frozen build
+`cd8785fb428bb94ff3fc1a62381c5294bf01c848` after exact-commit CI and final
+Windows x64/ARM64 and macOS Universal package verification. Later repository
+changes are not included in these archived assets.
 
 ## Changes
 

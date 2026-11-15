@@ -438,6 +438,56 @@ class FinalReleaseValidation(unittest.TestCase):
         with self.archive() as z:
             validate_package(z, 'expected', '1.0.3')
 
+    def test_packager_rejects_broken_link_before_output_creation(self):
+        package = runpy.run_path(str(ROOT / 'scripts/package-plugin.py'))['package']
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            with self.archive() as fixture:
+                for name in fixture.namelist():
+                    if name == 'PACKAGE-MANIFEST.json':
+                        continue
+                    target = root / ('third_party/' + name if name.startswith('licenses/') else name)
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(fixture.read(name))
+            (root / 'assets/branding').mkdir(parents=True)
+            (root / 'assets/branding/LICENSE.txt').write_text('branding')
+            (root / 'release.json').write_text(json.dumps(dict(version='1.0.3')))
+            install = root / 'docs/INSTALLATION.md'
+            output = root / 'result.zip'
+            install.write_text('[missing](absent.md)')
+            with patch.dict(package.__globals__, {'root': root}), patch(
+                    'subprocess.check_output', return_value='expected'):
+                with self.assertRaisesRegex(ValueError, 'Broken relative Markdown link'):
+                    package(root, output)
+                self.assertFalse(output.exists())
+                self.assertFalse(output.with_suffix('.zip.sha256').exists())
+                install.write_text('[manual](manuals/SAWSTAR-User-Manual-EN.pdf)')
+                package(root, output)
+            with zipfile.ZipFile(output) as z:
+                validate_package(z, 'expected', '1.0.3')
+
+    def test_document_links_are_checked_even_with_matching_hashes(self):
+        valid = ('[pdf](manuals/SAWSTAR-User-Manual-EN.pdf)',
+                 '[manual](manuals/README.md#start)',
+                 '[manual](manuals/README.md?view=1#start)',
+                 '[remote](https://example.test/missing)', '[local](#start)',
+                 '[dir](manuals/)', '[manual][guide]\n[guide]: manuals/README.md')
+        invalid = ('[missing](MISSING_AUDIT_TARGET.md)',
+                   '![missing](manuals/missing.png)',
+                   '[missing][guide]\n[guide]: MISSING_AUDIT_TARGET.md',
+                   '[escape](../../outside.md)', '[encoded](missing%20file.md)')
+        for text in valid + invalid:
+            def change(entries, manifest):
+                name = 'docs/INSTALLATION.md'
+                entries[:] = [(n, text.encode('utf-8') if n == name else b) for n, b in entries]
+                manifest['files_sha256'][name] = hashlib.sha256(text.encode('utf-8')).hexdigest()
+            with self.subTest(text=text), self.archive(change) as z:
+                if text in invalid:
+                    with self.assertRaisesRegex(ValueError, 'Broken relative Markdown link'):
+                        validate_package(z, 'expected', '1.0.3')
+                else:
+                    validate_package(z, 'expected', '1.0.3')
+
     def test_rejects_extra_missing_duplicate_tampered_and_wrong_identity(self):
         cases = [lambda e, m: e.append(('stale.txt', b'extra')),
                  lambda e, m: e.pop(),
