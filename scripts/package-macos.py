@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build an unsigned candidate PKG/DMG, or sign/notarize with supplied identities."""
 import json, argparse, pathlib, shutil, subprocess, tempfile, hashlib
+from release_validation import validate_markdown_payload_links
 p=argparse.ArgumentParser()
 p.add_argument('bundle',type=pathlib.Path)
 p.add_argument('--application-identity');p.add_argument('--installer-identity');p.add_argument('--notary-profile')
@@ -26,6 +27,10 @@ with tempfile.TemporaryDirectory() as temp:
   else:shutil.copy2(root/name,docs/pathlib.Path(name).name)
  shutil.copytree(root/'docs/manuals',docs/'manuals');shutil.copytree(root/'third_party/licenses',docs/'licenses')
  shutil.copy2(root/'assets/branding/LICENSE.txt',docs/'licenses/SAWSTAR-BRANDING-LICENSE.txt')
+ # Validate the installed, flattened layout rather than the source/ZIP layout.
+ validate_markdown_payload_links({p.relative_to(docs).as_posix():
+   p.read_bytes() if p.suffix.lower()=='.md' else b''
+   for p in docs.rglob('*') if p.is_file()})
  if all(credentials):run('codesign','--force','--options','runtime','--timestamp','--sign',a.application_identity,dest)
  run('pkgbuild','--root',payload,'--identifier','io.github.robczart82.sawstar','--version',version,'--install-location','/',t/'component.pkg')
  distribution=t/'distribution.xml'

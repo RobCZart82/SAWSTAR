@@ -142,6 +142,44 @@ class InstallerPackageLayout(unittest.TestCase):
         self.assertIn('See THIRD_PARTY.md.', packaged)
         self.assertIn('https://github.com/RobCZart82/SAWSTAR/blob/main/docs/reference/README.md', packaged)
 
+class MacInstalledDocumentLinks(unittest.TestCase):
+    def test_actual_installed_layout_is_checked_before_pkgbuild(self):
+        # Run the real packager with platform tools replaced, keeping all copy,
+        # notice rewriting and destination validation behavior intact.
+        import shutil
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            shutil.copytree(ROOT / 'scripts', root / 'scripts')
+            shutil.copytree(ROOT / 'docs', root / 'docs')
+            shutil.copytree(ROOT / 'third_party/licenses', root / 'third_party/licenses')
+            shutil.copytree(ROOT / 'assets/branding', root / 'assets/branding')
+            for name in ('release.json', 'LICENSE', 'THIRD_PARTY_NOTICES.md'):
+                shutil.copy2(ROOT / name, root / name)
+            bundle = root / 'SAWSTAR.vst3'
+            (bundle / 'Contents/MacOS').mkdir(parents=True)
+            (bundle / 'Contents/MacOS/SAWSTAR').write_bytes(b'fixture')
+            commands = []
+            def stop_at_pkgbuild(args, **kwargs):
+                commands.append(args[0])
+                if args[0] == 'pkgbuild':
+                    raise RuntimeError('reached package construction')
+            script = root / 'scripts/package-macos.py'
+            with patch.object(sys, 'argv', [str(script), str(bundle)]), patch(
+                    'subprocess.run', side_effect=stop_at_pkgbuild):
+                with self.assertRaisesRegex(RuntimeError, 'reached package construction'):
+                    runpy.run_path(str(script), run_name='__main__')
+            self.assertEqual(commands, ['lipo', 'pkgbuild'])
+            install = root / 'docs/INSTALLATION.md'
+            install.write_text(install.read_text(encoding='utf-8') +
+                               '\n[missing](absent-installed-guide.md)\n', encoding='utf-8')
+            commands.clear()
+            with patch.object(sys, 'argv', [str(script), str(bundle)]), patch(
+                    'subprocess.run', side_effect=stop_at_pkgbuild):
+                with self.assertRaisesRegex(ValueError, 'Broken relative Markdown link'):
+                    runpy.run_path(str(script), run_name='__main__')
+            self.assertEqual(commands, ['lipo'])
+            self.assertEqual(list((root / 'dist').iterdir()), [])
+
 class MetadataSynchronization(unittest.TestCase):
     # Model a non-UTF-8 process default without changing the host locale or
     # relying on an installed platform-specific locale in CI.

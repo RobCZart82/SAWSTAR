@@ -2,6 +2,9 @@
 
 ## Unreleased — package documentation validation
 
+- Validate the flattened macOS installer documentation tree before signing
+  or package construction; reject missing installed document destinations.
+
 - Validate relative Markdown links in stable archives before exposing a new
   archive and again at the release gate; reuse the RC validator.
 - Correct publication-state wording and retain exact 1.2.2 release evidence.

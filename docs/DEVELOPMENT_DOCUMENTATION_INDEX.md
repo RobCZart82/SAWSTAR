@@ -350,3 +350,5 @@ fenti release terv és roadmap adja meg; nincs szükség a régi nyers eredmény
 - [Public creator identity correction](DEVELOPMENT_LOG_2026_11_13_PUBLIC_AUTHOR_IDENTITY.md)
 
 - [1.2.2 release checklist](RELEASE_1.2.2_CHECKLIST.md)
+
+- [macOS installed-document link gate](DEVELOPMENT_LOG_2026_11_17_MACOS_INSTALLED_LINKS.md)
