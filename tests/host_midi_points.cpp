@@ -46,7 +46,28 @@ public:
  void ProcessParameterChanges(ProcessData&,IPlugQueue<IMidiMsg>&);
 };
 #include "host_midi_hook.inc"
+// Remove this characterization when the adapter preserves bypass point timing.
+void CheckCurrentBypassTiming()
+{
+  IParameterChanges changes{{{kBypassParam, {{16, 1.0}, {48, 0.0}}}}};
+  ProcessData data{&changes};
+  IPlugQueue<IMidiMsg> feedback;
+  IPlugVST3ProcessorBase adapter;
+
+  // This method runs before ProcessAudio. The final off point erases the pulse.
+  adapter.ProcessParameterChanges(data, feedback);
+  check(!adapter.GetBypassed(), "Current adapter no longer coalesces the bypass pulse");
+
+  // A single future on point also takes effect before any audio is rendered.
+  changes.queues[0].points = {{48, 1.0}};
+  adapter.ProcessParameterChanges(data, feedback);
+  check(adapter.GetBypassed(), "Current adapter no longer applies future bypass early");
+  check(adapter.delivered.empty() && feedback.events.empty(),
+        "Bypass unexpectedly entered the MIDI controller path");
+}
+
 int main(){
+ CheckCurrentBypassTiming();
  for(int channel : {0,7,15})for(int control : {1,64,120,121,123,kAfterTouch,kPitchBend}){
   IParameterChanges changes{{{kMIDICCParamStartIdx+channel*kCountCtrlNumber+control,{{0,1},{32,0},{32,.5},{127,.25}}}}};
   ProcessData data{&changes};IPlugQueue<IMidiMsg> feedback;IPlugVST3ProcessorBase adapter;
