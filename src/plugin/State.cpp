@@ -97,6 +97,9 @@ HostStateBytes EncodeHostState(const Snapshot& values,float guiScale) {
 size_t DecodeHostState(const uint8_t* data,size_t size,Snapshot& output,float& guiScale) {
   Snapshot values{};const auto consumed=DecodeState(data,size,values);
   if(!consumed)return 0;
+  // A VST3 bypass trailer is an optional little-endian int32, either 0 or 1.
+  // Check it before exposing any decoded sound or editor state to the caller.
+  if(size!=consumed && Read(data+consumed,4)>1)return 0;
   float scale=0.f;bool seen=false;
   if(consumed>=16 && std::equal(magic.begin(),magic.end(),data)) {
     for(size_t pos=16;pos<consumed;pos+=12)if(Read(data+pos,4)==guiScaleRecord) {

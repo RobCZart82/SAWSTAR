@@ -1,13 +1,14 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
-## Aktuális állapot — 2026-11-21
+## Aktuális állapot — 2026-11-22
 
 A forrásaudit a `fbf967a` főágat vizsgálta. A nyilvános stabil kiadás az
 1.2.2. A [forrásaudit fejlesztési naplója](DEVELOPMENT_LOG_2026_11_21_SOURCE_AUDIT.md) rögzíti a reprodukált
 VST3 állapotkezelési, Sustain-, automatizációs, arpeggiátor- és csomagolási
 hibákat. Minden tételnél szerepel a bizonyíték, a következő próba és a lezárás
 feltétele. A presetváltási és K1-hipotézis, valamint a CPU-mérés szórása
-külön ellenőrzést kap. A tételek nyitottak.
+külön ellenőrzést kap. Az A1 VST3 állapotkezelés implementációja elkészült.
+A natív projektteszt még nyitott.
 
 A munka sorrendje a [fejlesztési útitervben](DEVELOPMENT_ROADMAP.md) követhető.
 A [következő kiadás terve](NEXT_RELEASE_DEVELOPMENT_PLAN.md) tartalmazza

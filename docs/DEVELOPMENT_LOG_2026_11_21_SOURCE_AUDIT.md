@@ -1,7 +1,7 @@
 # SAWSTAR forrásaudit és ellenőrzési terv — 2026-11-21
 
 Forrásalap: a [vizsgált main commit](https://github.com/RobCZart82/SAWSTAR/commit/fbf967a827c8d8ab9fa199dcae9508d35045e3f2).
-A javítások és a célzott vizsgálatok nyitottak.
+Az A1 implementációja elkészült. A javítás elfogadása és a többi tétel nyitott.
 A kiadott 1.2.2 a vizsgált main előtti build.
 
 ## Igazolt hibák és lezárási feltételek
@@ -28,6 +28,40 @@ ellenőrizni kell. Az elfogadáshoz Windows és macOS REAPER-ben mentett
 bypass on/off projekttel újranyitás és első audioblokk ellenőrzése szükséges.
 
 [IPlug2 állapothíd](https://github.com/iPlug2/iPlug2/blob/d54f69050f517e43b941d88c2a170f0a840b9ee4/IPlug/VST3/IPlugVST3_Common.h#L25) · [SAWSTAR dekódolás](../src/plugin/State.cpp) · [Plugin állapotkezelése](../src/plugin/SAWSTAR.cpp)
+
+#### A1 javítás — 2026-11-22
+
+A rögzített iPlug2 VST3 állapothíd ellenőrzi a payload és a bypass toldalék
+írásának státuszát és tényleges bájtszámát. A visszatöltés egy menetben olvas,
+a SAWSTAR v1 állapot maximális méretéig. Támogatja a sikeres nulla bájtos
+EOF-ot és az SDK FileStream részleges utolsó olvasását. A dekóder
+alkalmazás előtt ellenőrzi a teljes állapotot és az opcionális bypass
+értékét. Siker után beállítja a processzor bypasst, és frissíti a
+vezérlőn regisztrált paramétereket, a bypass paramétert is, ha létezik.
+Érvényes, toldalék nélküli projektállapot visszatöltésekor a bypass
+kikapcsol. A processzor jelzőjét a
+host és az audiószál atomi művelettel éri el. A mentés a meglévő bináris
+formátumot és paraméterazonosítókat használja.
+
+A [regressziós teszt](../tests/vst3_project_state.cpp) a tényleges patchből
+veszi az adaptert és a produkciós állapotkóddal fut. A régi adapterrel a
+processzor bypass-visszatöltése, a régi dekóderrel az érvénytelen bypass
+elutasítása elbukik. A javított próba ellenőrzi a bájtpontos mentést, a
+korábbi állapotformátumokat, a rövid vagy hibás írást, valamint a sikertelen
+visszatöltés utáni hang-, GUI- és bypass-állapotot.
+
+Az iPlug2 a SAWSTAR hangszerhez nem regisztrál VST3 bypass paramétert a
+vezérlőn. A vezérlő bypass-ágát ezért a szimulált adapterpróba fedi le.
+A natív próbában a VST3 állapotban ténylegesen tárolt toldalékot kell
+ellenőrizni. A host saját FX bypass gombja ettől külön vezérlés.
+
+A helyi célzott CTest, az ASan/UBSan próba és az LF/CRLF patchteszt sikeres.
+A Premium Production macOS Universal buildet közvetlen VST3 SDK hostpróba
+töltötte be arm64 és Rosetta x86_64 alatt. A két futásban a tényleges
+komponens bájtpontosan visszamentette a 0/1 bypass állapotot. Egy C4 hang
+első 512 mintás blokkja 48 kHz-en bypass mellett néma volt, kikapcsolva
+0,0485115 csúcsértékű. A távoli CI és a Windows/macOS REAPER
+projekt-visszatöltés visszaigazolása nyitott.
 
 ### A2 — Kitartott hang Sustain visszaemelésekor néma marad
 

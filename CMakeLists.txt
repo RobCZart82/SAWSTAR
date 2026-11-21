@@ -377,6 +377,15 @@ if(BUILD_TESTING)
   target_link_libraries(sawstar_gui_scale_handoff_tests PRIVATE SAWSTAR::Foundation Threads::Threads)
   add_test(NAME gui_scale_host_handoff COMMAND sawstar_gui_scale_handoff_tests)
 
+  execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/vst3_project_state.py"
+    "${CMAKE_CURRENT_BINARY_DIR}/vst3_project_state.inc" COMMAND_ERROR_IS_FATAL ANY)
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    tests/vst3_project_state.py scripts/patch-iplug2-midi-overflow.py)
+  add_executable(sawstar_vst3_project_state_tests tests/vst3_project_state.cpp)
+  target_include_directories(sawstar_vst3_project_state_tests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  target_link_libraries(sawstar_vst3_project_state_tests PRIVATE SAWSTAR::Foundation)
+  add_test(NAME vst3_project_state COMMAND sawstar_vst3_project_state_tests)
+
 
   add_executable(
     sawstar_state_roundtrip_tests
