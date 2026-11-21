@@ -1,10 +1,23 @@
 # Fejlesztési dokumentáció — aktuális index és karbantartási rend
 
-## Aktuális állapot — 2026-11-15
+## Aktuális állapot — 2026-11-21
+
+A forrásaudit a `fbf967a` főágat vizsgálta. A nyilvános stabil kiadás az
+1.2.2. A [forrásaudit fejlesztési naplója](DEVELOPMENT_LOG_2026_11_21_SOURCE_AUDIT.md) rögzíti a reprodukált
+VST3 állapotkezelési, Sustain-, automatizációs, arpeggiátor- és csomagolási
+hibákat. Minden tételnél szerepel a bizonyíték, a következő próba és a lezárás
+feltétele. A presetváltási és K1-hipotézis, valamint a CPU-mérés szórása
+külön ellenőrzést kap. A tételek nyitottak.
+
+A munka sorrendje a [fejlesztési útitervben](DEVELOPMENT_ROADMAP.md) követhető.
+A [következő kiadás terve](NEXT_RELEASE_DEVELOPMENT_PLAN.md) tartalmazza
+a helyi, CI- és natív host ellenőrzési pontokat.
+
+## Korábbi állapot — 2026-11-15
 
 A nyilvános stabil kiadás az 1.2.2, publikálva 2026. november 13-án.
 A [lezárt kiadási ellenőrzőlista](RELEASE_1.2.2_CHECKLIST.md) a fagyasztott
-`cd8785f` build bizonyítékait tartalmazza. A mostani auditjavítás a stabil
+`cd8785f` build bizonyítékait tartalmazza. A november 15-i auditjavítás a stabil
 csomagok relatív dokumentumhivatkozásainak ellenőrzését és az elavult
 publikálási státuszokat rendezi. [Auditjavítási napló](DEVELOPMENT_LOG_2026_11_15_PACKAGE_LINK_AUDIT.md).
 A K1 és a blokkalapú normálparaméter-automatizáció továbbra is ismert,

@@ -1,10 +1,35 @@
-# Elfogadott fejlesztési sorrend — állapot: 2026-11-13
+# SAWSTAR fejlesztési útiterv
 
-## Aktuális állapot — 2026-11-15
+## Forrásaudit utáni fejlesztési sorrend — 2026-11-21
+
+A [forrásaudit naplója](DEVELOPMENT_LOG_2026_11_21_SOURCE_AUDIT.md) a `fbf967a` főágon reprodukált eseteket és a
+még vizsgálandó összefüggéseket rögzíti. A következő tételek nyitottak.
+
+1. **A1 — VST3 projektállapot.** Bypass-visszatöltés, írási hibák és EOF
+   kezelése. Az adapterteszt után projekt-újranyitás REAPER-ben mindkét platformon.
+2. **A2 — Sustain.** Kitartott hang maradjon vezérelhető 1 → 0 → 1 Sustain
+   automatizáláskor. Rövid és hosszú Decay, hangerő- és filterburkoló, Note Off.
+3. **A3 — Mintapontos automatizáció.** Először a VST3 bypass időzítése és az
+   audiofolytonosság, utána külön a normál paraméterpontok és interpolációjuk.
+4. **A4 — Arpeggiátor.** Először a CC121 és a fizikailag tartott, pedállal
+   tartott, illetve HOLD-os hangok kezelése. Utána külön a sűrű MIDI
+   feldolgozási költsége és a kimeneti eseménysorrend ellenőrzése.
+5. **A5 — Csomagolás.** A stabil DMG gyökerének és a Preview ZIP-ek
+   dokumentumlinkjeinek ellenőrzése önálló csomagolási változtatásként.
+
+A **G1** preset/VoiceMode próbában a paraméterírás és az audióolvasás
+átfedését kell ellenőrizni. A **G2** Rosetta-kontroll a Reset-inicializálási
+hipotézist vizsgálja. A **G3** mérés a Classic CPU-kapu kiugrásának jelenetenkénti
+szál CPU-idejét veti össze a falióraidővel. E három tétel kódjavításának
+sorrendjéről a célzott bizonyíték alapján lehet dönteni.
+
+[Következő kiadás ellenőrzési terve](NEXT_RELEASE_DEVELOPMENT_PLAN.md)
+
+## Korábbi állapot — 2026-11-15
 
 A nyilvános stabil kiadás az 1.2.2, publikálva 2026. november 13-án.
 A [lezárt kiadási ellenőrzőlista](RELEASE_1.2.2_CHECKLIST.md) a fagyasztott
-`cd8785f` build bizonyítékait tartalmazza. A mostani auditjavítás a stabil
+`cd8785f` build bizonyítékait tartalmazza. A november 15-i auditjavítás a stabil
 csomagok relatív dokumentumhivatkozásainak ellenőrzését és az elavult
 publikálási státuszokat rendezi. [Auditjavítási napló](DEVELOPMENT_LOG_2026_11_15_PACKAGE_LINK_AUDIT.md).
 A K1 és a blokkalapú normálparaméter-automatizáció továbbra is ismert,
