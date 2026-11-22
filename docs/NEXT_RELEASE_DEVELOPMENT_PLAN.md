@@ -1,10 +1,52 @@
 # SAWSTAR — fejlesztési terv a következő nyilvános kiadásig
 
-## Aktuális állapot — 2026-11-15
+## Forrásauditból átvezetett kiadási feladatok — 2026-11-21
+
+Alap: `fbf967a` main. A nyilvános stabil kiadás az 1.2.2.
+A [forrásaudit fejlesztési naplója](DEVELOPMENT_LOG_2026_11_21_SOURCE_AUDIT.md) tartalmazza a reprodukciókat és
+a pontos lezárási feltételeket. A lista a következő kiadás előkészítésére
+szolgál. A verzió és a publikálás külön döntés.
+
+- [ ] **A1. VST3 projektállapot.** Implementálva. Írási hiba és rövid írás elutasítása.
+  Régi, jelenlegi és hibás állapot ellenőrzése. Sikeres visszatöltésnél
+  a mentett VST3 bypass a processzor állapotában és a kimenetben is érvényes.
+  Az adapterteszt ellenőrzi a vezérlőparaméter szinkronját, ha regisztrált.
+  Windows/macOS REAPER projekt újranyitása és első audioblokk vizsgálata.
+- [ ] **A2. Kitartott hang Sustain.** ADSR és Premium render rövid és
+  hosszú Decay mellett. A hangerő visszatér új Note On nélkül. Note Off
+  után a voice felszabadul. Külön filter cutoff és átmenetellenőrzés.
+- [ ] **A3. VST3 automatizáció.** Először a kért mintán váltó bypass és a
+  MIDI/ARP/FX folytonos futása. Utána a normál paraméterpontok önálló
+  javítása. Több blokkméretű REAPER render mindkettőhöz.
+- [ ] **A4. Arpeggiátor.** CC121 regresszió tartott gyökérrel, pedállal,
+  HOLD-dal és több csatornával. Külön változtatásban mért sűrű MIDI
+  terhelés azonos eseményárammal és egyező kimeneti sorrenddel.
+- [ ] **A5. Csomagolás.** Távoli csomagok fájljegyzéke és relatív linkjei
+  minden elrendezésben. A telepített PKG dokumentumai, a csatolt DMG
+  gyökere és platformonként a Preview ZIP legyen külön ellenőrizve.
+  Igazítsuk a terjesztett telepítési útmutatót az aktuális kiadáshoz.
+  A tervezetbe kerülő telepítők egyezzenek a csomagoló CI SHA-256 jegyzékével.
+
+Nyitott vizsgálatok az igazolt hibák mellett.
+
+- [ ] **G1.** Célzottan előidézett GUI/audio átfedésben ellenőrizni a
+  preset- és VoiceMode-adatok koherenciáját.
+- [ ] **G2.** Véges offline és Rosetta K1 A/A és Reference/Candidate
+  kontroll. A reset hipotézisének vizsgálata, az első eltérés előzményeinek
+  mentése, az eredeti negatív bizonyíték megőrzése.
+- [ ] **G3.** A macOS Classic CPU-kapu szórásához jelenetenként összevetni
+  a szál CPU-idejét és a falióraidőt, változatlan terheléssel és küszöbbel.
+
+A tételeknél külön rögzítendő a helyi reprodukció, a javítás és regressziós
+teszt, az aktuális forráshoz tartozó CI és ahol szükséges, a natív hostpróba.
+A K1 lezárásához a dokumentált eltérés magyarázata és ellenőrzése szükséges.
+A [fejlesztési útiterv](DEVELOPMENT_ROADMAP.md) adja a lépések sorrendjét.
+
+## Korábbi állapot — 2026-11-15
 
 A nyilvános stabil kiadás az 1.2.2, publikálva 2026. november 13-án.
 A [lezárt kiadási ellenőrzőlista](RELEASE_1.2.2_CHECKLIST.md) a fagyasztott
-`cd8785f` build bizonyítékait tartalmazza. A mostani auditjavítás a stabil
+`cd8785f` build bizonyítékait tartalmazza. A november 15-i auditjavítás a stabil
 csomagok relatív dokumentumhivatkozásainak ellenőrzését és az elavult
 publikálási státuszokat rendezi. [Auditjavítási napló](DEVELOPMENT_LOG_2026_11_15_PACKAGE_LINK_AUDIT.md).
 A K1 és a blokkalapú normálparaméter-automatizáció továbbra is ismert,

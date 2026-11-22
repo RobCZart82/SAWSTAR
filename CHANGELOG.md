@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased — package documentation validation
+## Unreleased
+
+- Restore saved VST3 bypass in the processor and synchronize registered
+  controller parameters. Validate the optional bypass trailer before applying
+  project state, and report rejected or short host writes as failures.
+  Preserve the existing wire format.
 
 - Validate the flattened macOS installer documentation tree before signing
   or package construction; reject missing installed document destinations.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Apply pinned iPlug2 MIDI recovery and host controller-point fixes."""
+"""Apply pinned iPlug2 MIDI recovery and host controller-point and VST3 state fixes."""
 from pathlib import Path
 import sys
 
@@ -236,6 +236,183 @@ PATCHES = (
         b"      mPlug.SignalMidiMsgFromEditorOverflow();\n"
         b"  }\n",
     ),
+    (
+        "IPlug/VST3/IPlugVST3_Common.h",
+        b"#include \"IPlugAPIBase.h\"\n",
+        b"#include \"IPlugAPIBase.h\"\n"
+        b"#include \"IPlugProcessor.h\"\n",
+    ),
+    (
+        "IPlug/VST3/IPlugVST3_Common.h",
+        b"struct IPlugVST3State\n"
+        b"{\n"
+        b"  template <class T>\n"
+        b"  static bool GetState(T* pPlug, Steinberg::IBStream* pState)\n"
+        b"  {\n"
+        b"    IByteChunk chunk;\n"
+        b"    \n"
+        b"    // TODO: IPlugVer should be in chunk!\n"
+        b"    //  IByteChunk::GetIPlugVerFromChunk(chunk)\n"
+        b"    \n"
+        b"    if (pPlug->SerializeState(chunk))\n"
+        b"    {\n"
+        b"      /*\n"
+        b"       int chunkSize = chunk.Size();\n"
+        b"       void* data = (void*) &chunkSize;\n"
+        b"       state->write(data, (Steinberg::int32) sizeof(int));*/\n"
+        b"      pState->write(chunk.GetData(), chunk.Size());\n"
+        b"    }\n"
+        b"    else\n"
+        b"      return false;\n"
+        b"    \n"
+        b"    Steinberg::int32 toSaveBypass = pPlug->GetBypassed() ? 1 : 0;\n"
+        b"    pState->write(&toSaveBypass, sizeof (Steinberg::int32));\n"
+        b"    \n"
+        b"    return true;\n"
+        b"  };\n"
+        b"  \n"
+        b"  template <class T>\n"
+        b"  static bool SetState(T* pPlug, Steinberg::IBStream* pState)\n"
+        b"  {\n"
+        b"    TRACE\n"
+        b"    \n"
+        b"    IByteChunk chunk;\n"
+        b"    \n"
+        b"    const int bytesPerBlock = 128;\n"
+        b"    char buffer[bytesPerBlock];\n"
+        b"    \n"
+        b"    while(true)\n"
+        b"    {\n"
+        b"      Steinberg::int32 bytesRead = 0;\n"
+        b"      auto status = pState->read(buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);\n"
+        b"      \n"
+        b"      if (bytesRead <= 0 || (status != Steinberg::kResultTrue && pPlug->GetHost() != kHostWaveLab))\n"
+        b"        break;\n"
+        b"      \n"
+        b"      chunk.PutBytes(buffer, bytesRead);\n"
+        b"    }\n"
+        b"    int pos = pPlug->UnserializeState(chunk,0);\n"
+        b"    \n"
+        b"    Steinberg::int32 savedBypass = 0;\n"
+        b"    \n"
+        b"    pState->seek(pos,Steinberg::IBStream::IStreamSeekMode::kIBSeekSet);\n"
+        b"    if (pState->read (&savedBypass, sizeof (Steinberg::int32)) != Steinberg::kResultOk) {\n"
+        b"      return false;\n"
+        b"    }\n"
+        b"    \n"
+        b"    IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);\n"
+        b"    \n"
+        b"    if (pController)\n"
+        b"      pController->UpdateParams(pPlug, savedBypass);\n"
+        b"    \n"
+        b"    pPlug->OnRestoreState();\n"
+        b"    \n"
+        b"    return true;\n"
+        b"  }\n"
+        b"};",
+        b"struct IPlugVST3State\n"
+        b"{\n"
+        b"  template <class T>\n"
+        b"  static bool GetState(T* pPlug, Steinberg::IBStream* pState)\n"
+        b"  {\n"
+        b"    if (!pState)\n"
+        b"      return false;\n"
+        b"\n"
+        b"    IByteChunk chunk;\n"
+        b"    if (!pPlug->SerializeState(chunk) || chunk.Size() <= 0 ||\n"
+        b"        !Write(pState, chunk.GetData(), chunk.Size()))\n"
+        b"      return false;\n"
+        b"\n"
+        b"    Steinberg::int32 bypass = pPlug->GetBypassed() ? 1 : 0;\n"
+        b"    return Write(pState, &bypass, sizeof(bypass));\n"
+        b"  }\n"
+        b"\n"
+        b"  template <class T>\n"
+        b"  static bool SetState(T* pPlug, Steinberg::IBStream* pState)\n"
+        b"  {\n"
+        b"    if (!pState)\n"
+        b"      return false;\n"
+        b"\n"
+        b"    IByteChunk chunk;\n"
+        b"    char buffer[128];\n"
+        b"    // SAWSTAR state v1 supports at most 256 records of 12 bytes, an envelope,\n"
+        b"    // and the optional VST3 bypass trailer. Keep reads bounded at that size.\n"
+        b"    constexpr int maxStateSize = 16 + 256 * 12 + sizeof(Steinberg::int32);\n"
+        b"    while (true)\n"
+        b"    {\n"
+        b"      Steinberg::int32 count = 0;\n"
+        b"      const auto status = pState->read(buffer, sizeof(buffer), &count);\n"
+        b"      // The SDK FileStream uses kResultFalse for a short final read.\n"
+        b"      if ((status != Steinberg::kResultTrue && status != Steinberg::kResultFalse) ||\n"
+        b"          count < 0 || count > static_cast<Steinberg::int32>(sizeof(buffer)) ||\n"
+        b"          count > maxStateSize - chunk.Size())\n"
+        b"        return false;\n"
+        b"      if (count == 0)\n"
+        b"        break;\n"
+        b"      if (chunk.PutBytes(buffer, count) <= 0)\n"
+        b"        return false;\n"
+        b"    }\n"
+        b"\n"
+        b"    // SAWSTAR validates the exact payload and optional bypass value before\n"
+        b"    // applying any parameters or editor state.\n"
+        b"    const int pos = pPlug->UnserializeState(chunk, 0);\n"
+        b"    if (pos < 0 || pos > chunk.Size())\n"
+        b"      return false;\n"
+        b"\n"
+        b"    Steinberg::int32 bypass = 0;\n"
+        b"    if (pos != chunk.Size())\n"
+        b"    {\n"
+        b"      if (chunk.Size() - pos != sizeof(bypass))\n"
+        b"        return false;\n"
+        b"      std::memcpy(&bypass, chunk.GetData() + pos, sizeof(bypass));\n"
+        b"    }\n"
+        b"\n"
+        b"    if (auto* processor = dynamic_cast<IPlugProcessor*>(pPlug))\n"
+        b"      processor->SetBypassed(bypass != 0);\n"
+        b"    if (auto* controller = dynamic_cast<IPlugVST3ControllerBase*>(pPlug))\n"
+        b"      controller->UpdateParams(pPlug, bypass);\n"
+        b"    pPlug->OnRestoreState();\n"
+        b"    return true;\n"
+        b"  }\n"
+        b"\n"
+        b"private:\n"
+        b"  static bool Write(Steinberg::IBStream* stream, void* bytes, Steinberg::int32 count)\n"
+        b"  {\n"
+        b"    Steinberg::int32 written = 0;\n"
+        b"    return stream->write(bytes, count, &written) == Steinberg::kResultTrue && written == count;\n"
+        b"  }\n"
+        b"};",
+    ),
+    (
+        "IPlug/IPlugProcessor.h",
+        b"#include <cstring>\n",
+        b"#include <atomic>\n"
+        b"#include <cstring>\n",
+    ),
+    (
+        "IPlug/IPlugProcessor.h",
+        b"class IPlugProcessor\n"
+        b"{\n",
+        b"class IPlugProcessor\n"
+        b"{\n"
+        b"  friend struct IPlugVST3State;\n"
+        b"\n",
+    ),
+    (
+        "IPlug/IPlugProcessor.h",
+        b"  bool GetBypassed() const { return mBypassed; }",
+        b"  bool GetBypassed() const { return mBypassed.load(std::memory_order_relaxed); }",
+    ),
+    (
+        "IPlug/IPlugProcessor.h",
+        b"  void SetBypassed(bool bypassed) { mBypassed = bypassed; }",
+        b"  void SetBypassed(bool bypassed) { mBypassed.store(bypassed, std::memory_order_relaxed); }",
+    ),
+    (
+        "IPlug/IPlugProcessor.h",
+        b"  bool mBypassed = false;",
+        b"  std::atomic<bool> mBypassed{false};",
+    ),
 )
 
 
@@ -292,6 +469,6 @@ def apply(root):
 if __name__ == "__main__":
     try:
         apply(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parents[1] / "third_party/iPlug2")
-        print("Pinned iPlug2 MIDI recovery and host controller points enabled.")
+        print("Pinned iPlug2 MIDI recovery, host controller points and VST3 state handling enabled.")
     except (OSError, RuntimeError) as error:
         raise SystemExit(str(error))
