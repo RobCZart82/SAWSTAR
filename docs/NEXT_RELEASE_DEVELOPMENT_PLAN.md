@@ -7,12 +7,12 @@ A [forrásaudit fejlesztési naplója](DEVELOPMENT_LOG_2026_11_21_SOURCE_AUDIT.m
 a pontos lezárási feltételeket. A lista a következő kiadás előkészítésére
 szolgál. A verzió és a publikálás külön döntés.
 
-- [ ] **A1. VST3 projektállapot.** Implementálva. Írási hiba és rövid írás elutasítása.
+- [ ] **A1. VST3 projektállapot.** Beolvadt, főági CI sikeres. Írási hiba és rövid írás elutasítása.
   Régi, jelenlegi és hibás állapot ellenőrzése. Sikeres visszatöltésnél
   a mentett VST3 bypass a processzor állapotában és a kimenetben is érvényes.
   Az adapterteszt ellenőrzi a vezérlőparaméter szinkronját, ha regisztrált.
   Windows/macOS REAPER projekt újranyitása és első audioblokk vizsgálata.
-- [ ] **A2. Kitartott hang Sustain.** ADSR és Premium render rövid és
+- [ ] **A2. Kitartott hang Sustain.** Implementálva. Premium render rövid és
   hosszú Decay mellett. A hangerő visszatér új Note On nélkül. Note Off
   után a voice felszabadul. Külön filter cutoff és átmenetellenőrzés.
 - [ ] **A3. VST3 automatizáció.** Először a kért mintán váltó bypass és a

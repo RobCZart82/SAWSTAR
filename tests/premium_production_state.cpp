@@ -4,12 +4,51 @@
 #include "plugin/State.h"
 #include "presets/FactoryPresets.h"
 #include "midi/Arpeggiator.h"
+#include <algorithm>
 #include <iostream>
 #include <cmath>
 #include <memory>
 #include <type_traits>
 #include <string_view>
 #include <iomanip>
+namespace {
+bool CheckHeldSustain(double decayMs) {
+  constexpr int rate = 48000;
+  auto synth = std::make_unique<sawstar::PluginSynth>();
+  synth->Reset(rate);
+  synth->SetFilter(2000, 0, 0);
+  const auto setSustain = [&](double sustain) {
+    synth->SetParameters(-12, 1, decayMs, sustain, 30);
+  };
+  const auto peak = [&](int frames) {
+    float maximum = 0.f;
+    for (int i = 0; i < frames; ++i) {
+      const auto sample = synth->ProcessStereo();
+      maximum = std::max({maximum, std::abs(sample.left), std::abs(sample.right)});
+    }
+    return maximum;
+  };
+
+  setSustain(1);
+  synth->Midi(0x90, 60, 100);
+  const float before = peak(rate / 10);
+  setSustain(0);
+  peak(rate * 8);
+  const float silent = peak(rate / 10);
+  setSustain(1);
+  const float resumed = peak(rate / 10);
+  if (!(before > 0.f && silent == 0.f && resumed > 0.f &&
+        synth->Held(60) && synth->ActiveVoices() == 1)) {
+    std::cerr << "Held sustain failed at decay " << decayMs << " ms"
+              << " (before=" << before << ", zero=" << silent << ", resumed=" << resumed << ")\n";
+    return false;
+  }
+  synth->Midi(0x80, 60, 0);
+  peak(rate);
+  return !synth->Held(60) && synth->ActiveVoices() == 0 && peak(64) == 0.f;
+}
+} // namespace
+
 int main(){
  static_assert(std::is_same_v<sawstar::PluginSynth,sawstar::premium_preview_engine::Synth>);
  for(const auto& preset:sawstar::FactoryPresets()){
@@ -63,6 +102,12 @@ int main(){
    if(energy<.01||difference<energy*.01){std::cerr<<preset.key<<": inaudible wheel response\n";return 1;}
   }
 
+ }
+ for (double decayMs : {1., 1500.}) {
+  if (!CheckHeldSustain(decayMs)) {
+   std::cerr << "Sustain or voice release regression at " << decayMs << " ms\n";
+   return 1;
+  }
  }
  std::cout<<"All factory presets: sound/host state, GUI scale and recalled render PASS\n";
 }

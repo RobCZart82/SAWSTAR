@@ -77,6 +77,9 @@ public:
   float Process(bool gate) {
     if (gate && !gate_) segment_ = Attack;
     else if (!gate && gate_) segment_ = Release;
+    // A held zero-sustain envelope parks at zero. Resume the decay
+    // recurrence when sustain rises, without starting a new attack.
+    else if (gate && segment_ == Idle && sustain_ > 0.f) segment_ = Decay;
     gate_ = gate;
 
     float coefficient = attackCoefficient_;
