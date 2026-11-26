@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Resume the amp and filter envelopes when Sustain is raised from zero
+  during a held note, using the existing decay curve.
+
 - Restore saved VST3 bypass in the processor and synchronize registered
   controller parameters. Validate the optional bypass trailer before applying
   project state, and report rejected or short host writes as failures.

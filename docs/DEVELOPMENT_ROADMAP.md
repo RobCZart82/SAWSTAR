@@ -6,9 +6,9 @@ A [forrásaudit naplója](DEVELOPMENT_LOG_2026_11_21_SOURCE_AUDIT.md) a `fbf967a
 még vizsgálandó összefüggéseket rögzíti. A következő tételek nyitottak.
 
 1. **A1 — VST3 projektállapot.** Bypass-visszatöltés, írási hibák és EOF
-   kezelése implementálva. Távoli CI és REAPER projekt-újranyitás következik
-   Windows és macOS alatt.
-2. **A2 — Sustain.** Kitartott hang maradjon vezérelhető 1 → 0 → 1 Sustain
+   kezelése beolvadt, főági CI sikeres. A REAPER projekt újranyitása
+   Windows és macOS alatt ellenőrizendő.
+2. **A2 — Sustain.** A javítás elkészült. A kitartott hang vezérelhető 1 → 0 → 1 Sustain
    automatizáláskor. Rövid és hosszú Decay, hangerő- és filterburkoló, Note Off.
 3. **A3 — Mintapontos automatizáció.** Először a VST3 bypass időzítése és az
    audiofolytonosság, utána külön a normál paraméterpontok és interpolációjuk.

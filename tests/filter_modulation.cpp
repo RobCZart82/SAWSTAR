@@ -26,6 +26,13 @@ int main(){
     m.Init(sr);m.Set(400,24,0,1,10,0,10);m.Trigger(true);
     float end=0;for(int i=0;i<sr/2;++i)end=m.Process(60,true);
     check(std::abs(end-400)<.01f,"decay reaches zero sustain");
+    m.Set(400,24,0,1,10,1,10);
+    for(int i=0;i<16;++i)end=m.Process(60,true);
+    check(end>=400&&end<800,"raising filter sustain starts from base cutoff");
+    for(int i=0;i<sr/4;++i)end=m.Process(60,true);
+    check(end>1599&&end<=1600,"held filter envelope responds to raised sustain");
+    for(int i=0;i<sr/4;++i)end=m.Process(60,false);
+    check(end==400,"restored filter envelope releases to base");
     m.Trigger(true);check(m.Process(60,true)<800,"hard retrigger starts low");
     m.Set(20000,96,100,1,1,1,1);m.Trigger(true);
     for(int i=0;i<sr/10;++i){float hz=m.Process(127,true);check(hz>=20&&hz<=std::min(20000.f,sr*.45f),"upper frequency bound");}

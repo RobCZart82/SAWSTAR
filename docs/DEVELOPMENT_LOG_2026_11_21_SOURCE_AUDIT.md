@@ -1,7 +1,7 @@
 # SAWSTAR forrásaudit és ellenőrzési terv — 2026-11-21
 
 Forrásalap: a [vizsgált main commit](https://github.com/RobCZart82/SAWSTAR/commit/fbf967a827c8d8ab9fa199dcae9508d35045e3f2).
-Az A1 implementációja elkészült. A javítás elfogadása és a többi tétel nyitott.
+Az A1 javítása beolvadt, az A2 implementációja elkészült. A natív hostpróbák és a további tételek nyitottak.
 A kiadott 1.2.2 a vizsgált main előtti build.
 
 ## Igazolt hibák és lezárási feltételek
@@ -60,8 +60,9 @@ A Premium Production macOS Universal buildet közvetlen VST3 SDK hostpróba
 töltötte be arm64 és Rosetta x86_64 alatt. A két futásban a tényleges
 komponens bájtpontosan visszamentette a 0/1 bypass állapotot. Egy C4 hang
 első 512 mintás blokkja 48 kHz-en bypass mellett néma volt, kikapcsolva
-0,0485115 csúcsértékű. A távoli CI és a Windows/macOS REAPER
-projekt-visszatöltés visszaigazolása nyitott.
+0,0485115 csúcsértékű. A [#156](https://github.com/RobCZart82/SAWSTAR/pull/156)
+22 sikeres workflow után beolvadt. Az `e261fc6` főági commit mind a négy
+workflow-ja sikeres. A Windows/macOS REAPER projekt-visszatöltés nyitott.
 
 ### A2 — Kitartott hang Sustain visszaemelésekor néma marad
 
@@ -79,6 +80,22 @@ utáni lecsengés szabadítsa fel a voice-t. Legyen külön filter cutoff próba
 valamint régi preset-, statikus sustain-, headroom- és átmeneti kattanáskontroll.
 
 [ADSR](../src/dsp/Adsr.h) · [Filterburkoló](../src/dsp/FilterModulation.h) · [Élő paraméterátmenetek](PARAMETER_TRANSITIONS.md)
+
+#### A2 javítás — 2026-11-23
+
+Ha a kitartott burkoló nulla Sustain mellett már elnémult, pozitív Sustain
+hatására nulláról folytatja a Decay szakaszt. A hangerő- és a szűrőburkoló
+a meglévő Decay együtthatóval közelíti meg az új értéket.
+
+A [Premium renderpróba](../tests/premium_production_state.cpp) 48 kHz-en
+ellenőrzi a 0 → 1 visszaemelést 1 és 1500 ms Decay mellett, a nulla szintű
+kimenetet és a hang felszabadulását Note Off után. A
+[szűrőpróba](../tests/filter_modulation.cpp) négy mintavételi frekvencián
+ellenőrzi a cutoff fokozatos visszatérését és a lecsengést. A régi kóddal
+mindkét regressziós próba hibát jelzett. A javítással mindkettő sikeres,
+és a helyi macOS arm64 Premium Production Release tesztcsomag 182/182
+tesztje átment. A natív hostban a Sustain automatizálása és a hallható
+átmenet még ellenőrizendő.
 
 ### A3 — Mintapontos VST3 bypass és normálparaméter-automatizáció
 
